@@ -1,0 +1,11 @@
+{%  extends 'cosmetics_shop/base.html' %}
+
+{%  block title  %}{{  title  }}{%  endblock  %}
+
+{%  block content  %}
+
+{%  for cat in category  %}
+    Group Product:  {{  cat.name_category  }}<br>
+{%  endfor  %}
+
+{%  endblock  %}

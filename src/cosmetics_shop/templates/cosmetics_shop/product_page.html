@@ -1,0 +1,11 @@
+{%  extends 'cosmetics_shop/base.html'  %}
+
+{%  block title  %}{{  title  }}{%  endblock  %}
+
+{%  block content  %}
+Product page {{product_id}}
+<br>
+<hr>
+Product:  {{  product.name_product  }} | {{  product.group_product.name  }} | {{  product.brand  }} |
+    {{  product.price  }} | {{  product.description  }}
+{%  endblock  %}
