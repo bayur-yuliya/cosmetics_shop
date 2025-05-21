@@ -1,3 +1,7 @@
 from django.contrib import admin
 
-# Register your models here.
+from cosmetics_shop.models import Category, GroupProduct, Product
+
+admin.site.register(Category)
+admin.site.register(GroupProduct)
+admin.site.register(Product)
