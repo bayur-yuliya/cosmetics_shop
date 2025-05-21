@@ -3,9 +3,13 @@
 {%  block title  %}{{  title  }}{%  endblock  %}
 
 {%  block content  %}
-Product page {{product_id}}
+
 <br>
 <hr>
-Product:  {{  product.name_product  }} | {{  product.group_product.name  }} | {{  product.brand  }} |
-    {{  product.price  }} | {{  product.description  }}
+{{  product.name_product  }}<br>
+{{  product.brand  }} | {{  product.group_product.name  }} | {{  product.price  }} грн
+<hr>
+{{  product.description  }}
+<br><br>
+<button>КУПИТЬ</button>
 {%  endblock  %}

@@ -5,7 +5,19 @@
 {%  block content  %}
 
 {%  for cat in category  %}
-    Group Product:  {{  cat.name_category  }}<br>
+    Category Product:  <a href="{%  url 'category_page' cat.id  %}">{{  cat.name_category  }}</a><br>
 {%  endfor  %}
+<hr>
+
+{%  for group in group_product  %}
+    <a href="{%  url 'group_page' group.id %}">{{  group.name  }}</a>
+    {%  if not forloop.last  %} | {%  endif  %}
+{%  endfor  %}<br>
+<hr>
+
+{%  for prod in product %}
+    Product:  <a href="{%  url 'product_page' prod.id  %}">{{  prod.name_product  }}</a> | {{  prod.group_product.name  }} | {{  prod.brand  }} |
+    {{  prod.price  }} | {{  prod.description  }} | <button>КУПИТЬ</button><br>
+{%  endfor  %}<br>
 
 {%  endblock  %}
