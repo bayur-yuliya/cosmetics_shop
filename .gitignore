@@ -175,5 +175,5 @@ cython_debug/
 
 .idea/
 
-src\db.sqlite3
-src\cosmetics_shop\management
+src/db.sqlite3
+src/cosmetics_shop/management/
