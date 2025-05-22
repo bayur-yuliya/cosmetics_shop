@@ -1,6 +1,6 @@
 from django.shortcuts import render
 
-from .models import Product, GroupProduct, Category
+from .models import Product, GroupProduct, Category, Brand
 
 
 def main_page(request):

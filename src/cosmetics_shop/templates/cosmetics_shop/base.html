@@ -8,7 +8,10 @@
     <title>{%  block title  %}{%  endblock  %}</title>
 </head>
 <body>
-{%  block main_page  %}<a href="{%  url 'main_page'  %}">Cosmetics_Shop</a><br>{%  endblock  %}
+<a href="{%  url 'main_page'  %}"><button>Cosmetics_Shop</button></a><br>
+<div align="right">
+    <button>Авторизация/Регистрация</button> | <button>Корзина</button>
+</div>
 {%  block content  %}{%  endblock  %}
 </body>
 </html>
