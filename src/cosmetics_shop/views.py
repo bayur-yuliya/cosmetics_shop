@@ -45,3 +45,23 @@ def product_page(request, product_id):
                       'product_id': product_id,
                       'product': product,
                   })
+
+
+def brand_page(request):
+    brands = Brand.objects.all()
+    return render(request, 'cosmetics_shop/brand.html',
+                  {
+                      'title': 'Brands',
+                      'brands': brands,
+                  })
+
+
+def brand_products(request, brand_id):
+    title = Brand.objects.get(id=brand_id)
+    brand_products = Product.objects.filter(brand=brand_id)
+    return render(request, 'cosmetics_shop/brand_products.html',
+                  {
+                      'title': title.name_brand,
+                      'brand_products': brand_products,
+                  })
+

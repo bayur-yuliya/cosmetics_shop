@@ -1,0 +1,9 @@
+{%  extends 'cosmetics_shop/base.html'  %}
+
+{%  block title  %}{{  title  }}{%  endblock  %}
+
+{%  block content  %}
+{%  for brand in brands %}
+    <a href="{%  url 'brand_detail' brand.id %}">{{  brand.name_brand  }}</a> <br>
+{%  endfor  %}
+{%  endblock  %}
