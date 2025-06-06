@@ -10,7 +10,9 @@
 <body>
 <a href="{%  url 'main_page'  %}"><button>Cosmetics_Shop</button></a><br>
 <div align="right">
-    <button>Авторизация/Регистрация</button> | <button>Корзина</button>
+    <a href="{%  url 'login'  %}"><button>Авторизация</button></a> |
+    <a href="{%  url 'register'  %}"><button>Регистрация</button></a> |
+    <button>Корзина</button>
 </div>
 {%  block content  %}{%  endblock  %}
 </body>
