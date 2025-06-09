@@ -6,7 +6,7 @@
 <h1>{{  title  }}</h1>
 <br>
 {%  for prod in brand_products %}
-    <a href="{%  url 'product_page' prod.id  %}">{{  prod.name_product  }}</a> | {{  prod.group_product.name  }} | {{  prod.brand  }} |
+    <a href="{%  url 'product_page' prod.id  %}">{{  prod.name  }}</a> | {{  prod.group.name  }} | {{  prod.brand  }} |
     {{  prod.price  }} | {{  prod.description  }} |
     <button>КУПИТЬ </button><br><hr>
 {%  endfor  %}

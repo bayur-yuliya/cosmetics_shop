@@ -5,7 +5,7 @@
 {%  block content  %}
 
 {%  for cat in category  %}
-    Category Product:  <a href="{%  url 'category_page' cat.id  %}">{{  cat.name_category  }}</a><br>
+    Category Product:  <a href="{%  url 'category_page' cat.id  %}">{{  cat.name  }}</a><br>
     {%  for group in group_product  %}
         {%  if group.category.id == cat.id %}
             <a href="{%  url 'group_page' group.id %}">{{  group.name  }}</a> |
@@ -16,7 +16,7 @@
 <hr>
 
 {%  for prod in product %}
-    <a href="{%  url 'product_page' prod.id  %}">{{  prod.name_product  }}</a> | {{  prod.group_product.name  }} | {{  prod.brand  }} |
+    <a href="{%  url 'product_page' prod.id  %}">{{  prod.name  }}</a> | {{  prod.group.name  }} | {{  prod.brand  }} |
     {{  prod.price  }} | {{  prod.description  }} |
     <button>КУПИТЬ </button><br><hr>
 {%  endfor  %}<br>

@@ -4,6 +4,6 @@
 
 {%  block content  %}
 {%  for brand in brands %}
-    <a href="{%  url 'brand_detail' brand.id %}">{{  brand.name_brand  }}</a> <br>
+    <a href="{%  url 'brand_detail' brand.id %}">{{  brand.name  }}</a> <br>
 {%  endfor  %}
 {%  endblock  %}
