@@ -1,7 +1,10 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 
-from .models import Product, GroupProduct, Category, Brand
+from .models import Product, GroupProduct, Category, Brand, Card, CardItem, Order, OrderItem
+from .services.cart_services import add_product_to_card
 
 
 def register(request):
@@ -76,3 +79,22 @@ def brand_products(request, brand_id):
                       'brand_products': brand_products,
                   })
 
+
+@login_required
+def add_to_card(request):
+    product_id = request.POST.get('product_id')
+    print(1)
+    if not product_id:
+        return redirect('main_page')
+
+    add_product_to_card(user=User.objects.get(username=request.user), product_id=product_id)
+    return redirect('main_page')
+
+
+def card(request):
+    card = Card.objects.get(user=User.objects.get(username=request.user))
+    card_items = CardItem.objects.filter(card=card)
+    return render(request, 'cosmetics_shop/card.html', {
+        'title': 'Корзина',
+        'card_items': card_items
+    })

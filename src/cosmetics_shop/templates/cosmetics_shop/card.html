@@ -1,0 +1,17 @@
+{%  extends 'cosmetics_shop/base.html'  %}
+{%  load custom_filters  %}
+
+{%  block title  %}{{  title  }}{%  endblock  %}
+
+{%  block content  %}
+
+{%  if card_items  %}
+    {%  for item in card_items  %}
+        {{  item.product  }}  --- {{  item.quantity  }}  ---  {{  item.product.price|multiply:item.quantity  }} грн<br>
+    {%  endfor  %}
+{%  else  %}
+    Корзина пустая
+{%  endif  %}
+<a href="{%  url 'main_page'  %}"><button>Назад</button></a>
+<button>Заказать</button>
+{%  endblock  %}
