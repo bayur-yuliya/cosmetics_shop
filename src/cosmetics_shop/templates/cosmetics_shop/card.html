@@ -12,6 +12,9 @@
 {%  else  %}
     Корзина пустая
 {%  endif  %}
-<a href="{%  url 'main_page'  %}"><button>Назад</button></a>
-<button>Заказать</button>
+<br>
+Всего: {{  total_price  }}<br>
+<hr>
+<a href="{%  url 'main_page'  %}"><button>Продолжить выбор</button></a>
+<a href="{%  url 'order'  %}"><button>Заказать</button></a>
 {%  endblock  %}

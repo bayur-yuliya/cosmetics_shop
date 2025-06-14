@@ -1,0 +1,12 @@
+{%  extends 'cosmetics_shop/base.html'  %}
+
+{%  block title  %}{%  endblock  %}
+
+{%  block content  %}
+{{  status  }} | {{  order  }}<br><hr><br>
+{%  for prod in products  %}
+    {{  prod }}<br>
+{%  endfor  %}
+<hr><br>
+{{  order.total_price  }} грн
+{%  endblock  %}

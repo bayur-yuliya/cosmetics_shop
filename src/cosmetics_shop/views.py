@@ -1,10 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.db.models import Sum, F
 from django.shortcuts import render, redirect
 
 from .models import Product, GroupProduct, Category, Brand, Card, CardItem, Order, OrderItem
 from .services.cart_services import add_product_to_card
+from .services.order_service import create_order_from_cart
 
 
 def register(request):
@@ -83,7 +85,6 @@ def brand_products(request, brand_id):
 @login_required
 def add_to_card(request):
     product_id = request.POST.get('product_id')
-    print(1)
     if not product_id:
         return redirect('main_page')
 
@@ -92,9 +93,35 @@ def add_to_card(request):
 
 
 def card(request):
-    card = Card.objects.get(user=User.objects.get(username=request.user))
-    card_items = CardItem.objects.filter(card=card)
+    current_card = Card.objects.get(user=User.objects.get(username=request.user))
+    card_items = CardItem.objects.filter(card=current_card)
+    total_price = (
+        card_items
+        .annotate(item_total=F('quantity') * F('product__price'))
+        .aggregate(total=Sum('item_total'))['total']
+        or 0
+    )
+
     return render(request, 'cosmetics_shop/card.html', {
         'title': 'Корзина',
-        'card_items': card_items
+        'card_items': card_items,
+        'total_price': total_price,
+    })
+
+
+def create_order(request):
+    order = create_order_from_cart(request.user)
+    if order:
+        return redirect('order_success', order_id=order.id)
+    return redirect('card')
+
+
+def order_success(request, order_id):
+    order = Order.objects.get(id=order_id)
+    products = OrderItem.objects.filter(order=order)
+    status = 'Заказ успешно обработан'
+    return render(request, 'cosmetics_shop/order_success.html', {
+        'order': order,
+        'products': products,
+        'status': status,
     })
