@@ -11,5 +11,9 @@
 <hr>
 {{  product.description  }}
 <br><br>
-<button>КУПИТЬ</button>
+<form method='POST' action="{%  url 'add_to_cart'  %}">
+{%  csrf_token  %}
+    <input type="hidden" name='product_id'  value="{{ product.id }}">
+    <button>КУПИТЬ </button><br><hr>
+</form>
 {%  endblock  %}
