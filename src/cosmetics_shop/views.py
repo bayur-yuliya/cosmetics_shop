@@ -6,7 +6,8 @@ from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 
 from .models import Product, GroupProduct, Category, Brand, Card, CardItem, Order, OrderItem
-from .services.cart_services import add_product_to_card
+from .services.cart_services import add_product_to_cart, remove_product_to_cart, delete_product_to_cart, \
+    calculate_cart_total
 from .services.order_service import create_order_from_cart
 
 
@@ -75,11 +76,11 @@ def brand_page(request):
 
 def brand_products(request, brand_id):
     title = Brand.objects.get(id=brand_id)
-    brand_products = Product.objects.filter(brand=brand_id)
+    products = Product.objects.filter(brand=brand_id)
     return render(request, 'cosmetics_shop/brand_products.html',
                   {
                       'title': title.name_brand,
-                      'brand_products': brand_products,
+                      'brand_products': products,
                   })
 
 
@@ -89,23 +90,18 @@ def add_to_card(request):
     if not product_id:
         return redirect('main_page')
 
-    add_product_to_card(user=User.objects.get(username=request.user), product_id=product_id)
+    add_product_to_cart(request.user, product_id=product_id)
     return redirect('main_page')
 
 
 def card(request):
-    current_card = Card.objects.get(user=User.objects.get(username=request.user))
-    card_items = CardItem.objects.filter(card=current_card)
-    total_price = (
-        card_items
-        .annotate(item_total=F('quantity') * F('product__price'))
-        .aggregate(total=Sum('item_total'))['total']
-        or 0
-    )
+    current_cart = Card.objects.get(user=User.objects.get(username=request.user))
+    cart_items = CardItem.objects.filter(card=current_cart)
+    total_price = calculate_cart_total(request.user)
 
     return render(request, 'cosmetics_shop/card.html', {
         'title': 'Корзина',
-        'card_items': card_items,
+        'cart_items': cart_items,
         'total_price': total_price,
     })
 
@@ -118,10 +114,12 @@ def create_order(request):
 
 
 def order_success(request, order_id):
+    title = 'Обработка заказа'
     order = Order.objects.get(id=order_id)
     products = OrderItem.objects.filter(order=order)
     status = 'Заказ успешно обработан'
     return render(request, 'cosmetics_shop/order_success.html', {
+        'title': title,
         'order': order,
         'products': products,
         'status': status,
@@ -131,32 +129,19 @@ def order_success(request, order_id):
 @require_POST
 def cart_add(request):
     product_id = request.POST.get("product_id")
-    card = Card.objects.get(user=request.user)
-    item, created = CardItem.objects.get_or_create(card=card, product_id=product_id)
-    item.quantity += 1
-    item.save()
-    return redirect("card")
+    add_product_to_cart(request.user, product_id)
+    return redirect("cart")
 
 
 @require_POST
 def cart_remove(request):
     product_id = request.POST.get("product_id")
-    card = Card.objects.get(user=request.user)
-    try:
-        item = CardItem.objects.get(card=card, product_id=product_id)
-        item.quantity -= 1
-        if item.quantity <= 0:
-            item.delete()
-        else:
-            item.save()
-    except CardItem.DoesNotExist:
-        pass
-    return redirect("card")
+    remove_product_to_cart(request.user, product_id)
+    return redirect("cart")
 
 
 @require_POST
 def cart_delete(request):
     product_id = request.POST.get("product_id")
-    card = Card.objects.get(user=request.user)
-    CardItem.objects.filter(card=card, product_id=product_id).delete()
-    return redirect("card")
+    delete_product_to_cart(request.user, product_id)
+    return redirect("cart")

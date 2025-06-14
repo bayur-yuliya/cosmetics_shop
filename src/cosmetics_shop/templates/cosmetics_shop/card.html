@@ -5,30 +5,30 @@
 
 {%  block content  %}
 
-{%  if card_items  %}
-{% for item in card_items %}
-    {{ item.product }} — {{ item.product.price|multiply:item.quantity }} грн —
+{%  if cart_items  %}
+    {% for item in cart_items %}
+        {{ item.product }} — {{ item.product.price|multiply:item.quantity }} грн —
 
-    <form method="POST" action="{% url 'cart_remove' %}" style="display:inline;">
-        {% csrf_token %}
-        <input type="hidden" name="product_id" value="{{ item.product.id }}">
-        <button>-</button>
-    </form>
+        <form method="POST" action="{% url 'cart_remove' %}" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="product_id" value="{{ item.product.id }}">
+            <button>-</button>
+        </form>
 
-    {{ item.quantity }}
+        {{ item.quantity }}
 
-    <form method="POST" action="{% url 'cart_add' %}" style="display:inline;">
-        {% csrf_token %}
-        <input type="hidden" name="product_id" value="{{ item.product.id }}">
-        <button>+</button>
-    </form>
+        <form method="POST" action="{% url 'cart_add' %}" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="product_id" value="{{ item.product.id }}">
+            <button>+</button>
+        </form>
 
-    <form method="POST" action="{% url 'cart_delete' %}" style="display:inline;">
-        {% csrf_token %}
-        <input type="hidden" name="product_id" value="{{ item.product.id }}">
-        <button>Удалить</button>
-    </form>
-    <br>
+        <form method="POST" action="{% url 'cart_delete' %}" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="product_id" value="{{ item.product.id }}">
+            <button>Удалить</button>
+        </form>
+        <br>
     {%  endfor  %}
 {%  else  %}
     Корзина пустая
