@@ -8,6 +8,12 @@
     <title>{%  block title  %}{%  endblock  %}</title>
 </head>
 <body>
+<a href="{%  url 'main_page'  %}"><button>Cosmetics_Shop</button></a><br>
+<div align="right">
+    <a href="{%  url 'login'  %}"><button>Авторизация</button></a> |
+    <a href="{%  url 'register'  %}"><button>Регистрация</button></a> |
+    <a href="{%  url 'cart'  %}"><button>Корзина</button></a>
+</div>
 {%  block content  %}{%  endblock  %}
 </body>
 </html>

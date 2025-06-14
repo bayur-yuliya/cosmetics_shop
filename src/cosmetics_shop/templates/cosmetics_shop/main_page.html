@@ -4,13 +4,25 @@
 
 {%  block content  %}
 
-{%  for group in group_product  %}
-    Group Product:  {{  group.name  }}, {{  group.category.name_category  }}<br>
-{%  endfor  %}<br>
+{%  for cat in category  %}
+    Category Product:  <a href="{%  url 'category_page' cat.id  %}">{{  cat.name  }}</a><br>
+    {%  for group in group_product  %}
+        {%  if group.category.id == cat.id %}
+            <a href="{%  url 'group_page' group.id %}">{{  group.name  }}</a> |
+        {%  endif  %}
+    {%  endfor  %}<br><br>
+{%  endfor  %}
+<a href="{%  url 'brand_page'  %}">Brands</a><br><br>
+<hr>
 
 {%  for prod in product %}
-    Product:  {{  prod.name_product  }} | {{  prod.group_product.name  }} | {{  prod.brand  }} |
-    {{  prod.price  }} | {{  prod.description  }}<br>
+    <a href="{%  url 'product_page' prod.id  %}">{{  prod.name  }}</a> | {{  prod.group.name  }} | {{  prod.brand  }} |
+    {{  prod.price  }} | {{  prod.description  }} |
+    <form method='POST' action="{%  url 'add_to_cart'  %}">
+    {%  csrf_token  %}
+        <input type="hidden" name='product_id'  value="{{ prod.id }}">
+        <button>КУПИТЬ </button><br><hr>
+    </form>
 {%  endfor  %}<br>
 
 {%  endblock  %}

@@ -5,7 +5,25 @@
 {%  block content  %}
 
 {%  for cat in category  %}
-    Group Product:  {{  cat.name_category  }}<br>
+    Category Product:  <a href="{%  url 'category_page' cat.id  %}">{{  cat.name  }}</a><br>
 {%  endfor  %}
+<hr>
+
+{%  for group in group_product  %}
+    <a href="{%  url 'group_page' group.id %}">{{  group.name  }}</a>
+    {%  if not forloop.last  %} | {%  endif  %}
+{%  endfor  %}<br>
+<hr>
+
+{%  for prod in product %}
+    Product:  <a href="{%  url 'product_page' prod.id  %}">{{  prod.name  }}</a> | {{  prod.group.name  }} | {{  prod.brand  }} |
+    {{  prod.price  }} | {{  prod.description  }} |
+
+    <form method='POST' action="{%  url 'add_to_cart'  %}">
+    {%  csrf_token  %}
+        <input type="hidden" name='product_id'  value="{{ prod.id }}">
+        <button>КУПИТЬ </button><br><hr>
+    </form><br>
+{%  endfor  %}<br>
 
 {%  endblock  %}
