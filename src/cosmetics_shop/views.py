@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.db.models import Sum, F
 from django.shortcuts import render, redirect
+from django.views.decorators.http import require_POST
 
 from .models import Product, GroupProduct, Category, Brand, Card, CardItem, Order, OrderItem
 from .services.cart_services import add_product_to_card
@@ -125,3 +126,37 @@ def order_success(request, order_id):
         'products': products,
         'status': status,
     })
+
+
+@require_POST
+def cart_add(request):
+    product_id = request.POST.get("product_id")
+    card = Card.objects.get(user=request.user)
+    item, created = CardItem.objects.get_or_create(card=card, product_id=product_id)
+    item.quantity += 1
+    item.save()
+    return redirect("card")
+
+
+@require_POST
+def cart_remove(request):
+    product_id = request.POST.get("product_id")
+    card = Card.objects.get(user=request.user)
+    try:
+        item = CardItem.objects.get(card=card, product_id=product_id)
+        item.quantity -= 1
+        if item.quantity <= 0:
+            item.delete()
+        else:
+            item.save()
+    except CardItem.DoesNotExist:
+        pass
+    return redirect("card")
+
+
+@require_POST
+def cart_delete(request):
+    product_id = request.POST.get("product_id")
+    card = Card.objects.get(user=request.user)
+    CardItem.objects.filter(card=card, product_id=product_id).delete()
+    return redirect("card")
