@@ -1,14 +1,14 @@
 from django.db import transaction
 
-from cosmetics_shop.models import Card, CardItem, Order, OrderItem
+from cosmetics_shop.models import Cart, CartItem, Order, OrderItem
 
 
 def create_order_from_cart(user):
     try:
-        card = Card.objects.get(user=user)
-        card_items = CardItem.objects.filter(card=card)
+        cart = Cart.objects.get(user=user)
+        cart_items = CartItem.objects.filter(cart=cart)
 
-        if not card_items.exists():
+        if not cart_items.exists():
             return None
 
         with transaction.atomic():
@@ -17,7 +17,7 @@ def create_order_from_cart(user):
 
             order_items = []
             total_price = 0
-            for item in card_items:
+            for item in cart_items:
                 item_price = item.product.price
                 total = item_price * item.quantity
                 total_price += total
@@ -34,9 +34,9 @@ def create_order_from_cart(user):
             order.total_price = total_price
             order.save()
 
-            card_items.delete()
+            cart_items.delete()
 
             return order
 
-    except Card.DoesNotExist:
+    except Cart.DoesNotExist:
         return None

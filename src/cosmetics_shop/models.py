@@ -52,7 +52,7 @@ class Product(models.Model):
         return f'{self.group.name} - {self.name}'
 
 
-class Card(models.Model):
+class Cart(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     created_at = models.DateField(auto_now=True)
 
@@ -60,8 +60,8 @@ class Card(models.Model):
         return f'{self.created_at} - {self.user}'
 
 
-class CardItem(models.Model):
-    card = models.ForeignKey(Card, on_delete=models.CASCADE)
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=0)
 

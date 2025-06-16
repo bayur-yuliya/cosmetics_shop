@@ -5,7 +5,7 @@ from django.db.models import Sum, F
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 
-from .models import Product, GroupProduct, Category, Brand, Card, CardItem, Order, OrderItem
+from .models import Product, GroupProduct, Category, Brand, Cart, CartItem, Order, OrderItem
 from .services.cart_services import add_product_to_cart, remove_product_to_cart, delete_product_to_cart, \
     calculate_cart_total
 from .services.order_service import create_order_from_cart
@@ -85,7 +85,7 @@ def brand_products(request, brand_id):
 
 
 @login_required
-def add_to_card(request):
+def add_to_cart(request):
     product_id = request.POST.get('product_id')
     if not product_id:
         return redirect('main_page')
@@ -94,12 +94,12 @@ def add_to_card(request):
     return redirect('main_page')
 
 
-def card(request):
-    current_cart = Card.objects.get(user=User.objects.get(username=request.user))
-    cart_items = CardItem.objects.filter(card=current_cart)
+def cart(request):
+    current_cart = Cart.objects.get(user=User.objects.get(username=request.user))
+    cart_items = CartItem.objects.filter(cart=current_cart)
     total_price = calculate_cart_total(request.user)
 
-    return render(request, 'cosmetics_shop/card.html', {
+    return render(request, 'cosmetics_shop/cart.html', {
         'title': 'Корзина',
         'cart_items': cart_items,
         'total_price': total_price,
@@ -110,7 +110,7 @@ def create_order(request):
     order = create_order_from_cart(request.user)
     if order:
         return redirect('order_success', order_id=order.id)
-    return redirect('card')
+    return redirect('cart')
 
 
 def order_success(request, order_id):
