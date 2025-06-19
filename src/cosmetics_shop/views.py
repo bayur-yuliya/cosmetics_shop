@@ -1,11 +1,11 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django.db.models import Sum, F
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 
-from .models import Product, GroupProduct, Category, Brand, Cart, CartItem, Order, OrderItem
+from .forms import ClientForm, DeliveryAddressForm
+from .models import Product, GroupProduct, Category, Brand, Cart, CartItem, Order, OrderItem, Client
 from .services.cart_services import add_product_to_cart, remove_product_to_cart, delete_product_to_cart, \
     calculate_cart_total
 from .services.order_service import create_order_from_cart
@@ -106,11 +106,11 @@ def cart(request):
     })
 
 
-def create_order(request):
-    order = create_order_from_cart(request.user)
+def create_order(request, address_id):
+    order = create_order_from_cart(request.user, address_id)
     if order:
         return redirect('order_success', order_id=order.id)
-    return redirect('cart')
+    return redirect('delivery')
 
 
 def order_success(request, order_id):
@@ -145,3 +145,40 @@ def cart_delete(request):
     product_id = request.POST.get("product_id")
     delete_product_to_cart(request.user, product_id)
     return redirect("cart")
+
+
+def delivery(request):
+    title = 'Оформление заказа'
+
+    if request.method == 'POST':
+        form = ClientForm(request.POST)
+        form_delivery = DeliveryAddressForm(request.POST)
+
+        if form.is_valid() and form_delivery.is_valid():
+            client, created = Client.objects.get_or_create(user=request.user)
+            client.full_name = form.cleaned_data['full_name']
+            client.email = form.cleaned_data['email']
+            client.phone = form.cleaned_data['phone']
+            client.is_active = True
+            client.save()
+
+            address = form_delivery.save(commit=False)
+            address.client = client
+            address.save()
+
+            return redirect('order', address_id=address.id)
+
+    else:
+        try:
+            client = Client.objects.get(user=request.user)
+            form = ClientForm(instance=client)
+        except Client.DoesNotExist:
+            form = ClientForm()
+
+        form_delivery = DeliveryAddressForm()
+
+    return render(request, 'cosmetics_shop/delivery.html', {
+        'title': title,
+        'form': form,
+        'form_delivery': form_delivery,
+    })

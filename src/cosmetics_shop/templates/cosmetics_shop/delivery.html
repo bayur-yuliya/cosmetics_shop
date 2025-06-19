@@ -1,0 +1,12 @@
+{%  extends 'cosmetics_shop/base.html'  %}
+
+{%  block title  %}{{  title  }}{%  endblock  %}
+
+{%  block content  %}
+<form method="POST">
+    {%  csrf_token  %}
+    {{  form  }}
+    {{  form_delivery  }}
+    <button>Заказать</button>
+</form>
+{%  endblock  %}

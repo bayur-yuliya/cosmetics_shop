@@ -13,6 +13,29 @@ class Status(models.IntegerChoices):
     CANCELED = 6, 'Canceled'
 
 
+class Client(models.Model):
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True)
+    full_name = models.CharField(max_length=100)
+    email = models.EmailField()
+    phone = models.CharField(max_length=10)
+    is_active = models.BooleanField(default=True)
+    was_registered = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.full_name
+
+
+class DeliveryAddress(models.Model):
+    client = models.ForeignKey(Client, on_delete=models.CASCADE)
+    city = models.CharField(max_length=100)
+    street = models.CharField(max_length=100)
+    post_office = models.CharField(max_length=100)
+    is_primary = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.city}, {self.street}'
+
+
 class Category(models.Model):
     name = models.CharField(max_length=50)
 
@@ -70,13 +93,19 @@ class CartItem(models.Model):
 
 
 class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True)
+    delivery_address = models.ForeignKey(DeliveryAddress, on_delete=models.SET_NULL, null=True)
     created_at = models.DateField(auto_now_add=True)
     total_price = models.PositiveIntegerField(default=0)
     status = models.IntegerField(choices=Status.choices, default=Status.NEW)
 
+    snapshot_name = models.CharField(max_length=100)
+    snapshot_email = models.EmailField()
+    snapshot_phone = models.CharField(max_length=20)
+    snapshot_address = models.TextField()
+
     def __str__(self):
-        return f'{self.created_at} - {self.get_status_display()} - {self.user}'
+        return f'{self.created_at} - {self.get_status_display()} - {self.snapshot_name}'
 
 
 class OrderItem(models.Model):
