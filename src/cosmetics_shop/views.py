@@ -1,6 +1,10 @@
+import uuid
+
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 
@@ -30,6 +34,48 @@ def main_page(request):
         'group_product': group_product,
         'product': product,
         'category': category,
+    })
+
+
+@login_required
+def logout_view(request):
+    logout(request)
+    return redirect('main_page')
+
+
+@login_required
+@transaction.atomic
+def delete_account(request):
+    user = request.user
+
+    user.username = f'deleted_user_{uuid.uuid4().hex[:8]}'
+    user.email = ''
+    user.first_name = ''
+    user.last_name = ''
+
+    user.is_active = False
+    user.save()
+
+    logout(request)
+
+    return redirect('main_page')
+
+
+@login_required
+def user_account(request):
+    title = 'Аккаунт'
+    return render(request, 'cosmetics_shop/user_account.html', {
+        'title': title,
+    })
+
+
+@login_required
+def order_history(request):
+    title = 'История заказов'
+    orders = Order.objects.filter(client=Client.objects.get(user=request.user))
+    return render(request, 'cosmetics_shop/order_history.html', {
+        'title': title,
+        'orders': orders,
     })
 
 
@@ -114,7 +160,7 @@ def create_order(request, address_id):
 
 
 def order_success(request, order_id):
-    title = 'Обработка заказа'
+    title = 'Заказ'
     order = Order.objects.get(id=order_id)
     products = OrderItem.objects.filter(order=order)
     status = 'Заказ успешно обработан'

@@ -26,7 +26,6 @@
         <form method="POST" action="{% url 'cart_delete' %}" style="display:inline;">
             {% csrf_token %}
             <input type="hidden" name="product_id" value="{{ item.product.id }}">
-            .as_p
         </form>
         <br>
     {%  endfor  %}
