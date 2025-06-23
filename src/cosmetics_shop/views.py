@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 
 from .forms import ClientForm, DeliveryAddressForm
-from .models import Product, GroupProduct, Category, Brand, CartItem, Order, OrderItem, Client
+from .models import Product, GroupProduct, Category, Brand, CartItem, Order, OrderItem, Client, DeliveryAddress
 from .services.cart_services import add_product_to_cart, \
     get_or_create_cart_for_session, get_or_create_cart, \
     remove_product_from_cart, delete_product_from_cart, get_or_create_session_client
@@ -230,11 +230,12 @@ def delivery(request):
     else:
         try:
             client = get_client(request)
+            last_address = DeliveryAddress.objects.filter(client=client).order_by('-id').first()
             form = ClientForm(instance=client)
+            form_delivery = DeliveryAddressForm(instance=last_address)
         except Client.DoesNotExist:
             form = ClientForm()
-
-        form_delivery = DeliveryAddressForm()
+            form_delivery = DeliveryAddressForm()
 
     return render(request, 'cosmetics_shop/delivery.html', {
         'title': title,
