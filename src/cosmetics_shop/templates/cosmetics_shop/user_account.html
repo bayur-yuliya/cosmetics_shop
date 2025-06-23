@@ -1,0 +1,9 @@
+{%  extends 'cosmetics_shop/base.html'  %}
+
+{%  block title  %}{{  title  }}{%  endblock  %}
+
+{%  block content  %}
+<a href="{%  url 'order_history'  %}">История заказов</a><br>
+<a href="{%  url 'logout'  %}">Выйти</a><br>
+<a href="{%  url 'delete_account'  %}">Удалить аккаунт</a>
+{%  endblock  %}
