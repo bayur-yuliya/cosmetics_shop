@@ -9,10 +9,11 @@ from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 
 from .forms import ClientForm, DeliveryAddressForm
-from .models import Product, GroupProduct, Category, Brand, Cart, CartItem, Order, OrderItem, Client
-from .services.cart_services import add_product_to_cart, remove_product_to_cart, delete_product_to_cart, \
-    calculate_cart_total
-from .services.order_service import create_order_from_cart
+from .models import Product, GroupProduct, Category, Brand, CartItem, Order, OrderItem, Client
+from .services.cart_services import add_product_to_cart, \
+    get_or_create_cart_for_session, get_or_create_cart, \
+    remove_product_from_cart, delete_product_from_cart, get_or_create_session_client
+from .services.order_service import create_order_from_cart, get_client
 
 
 def register(request):
@@ -130,20 +131,29 @@ def brand_products(request, brand_id):
                   })
 
 
-@login_required
 def add_to_cart(request):
     product_id = request.POST.get('product_id')
     if not product_id:
         return redirect('main_page')
 
-    add_product_to_cart(request.user, product_id=product_id)
+    if request.user.is_authenticated:
+        add_product_to_cart(request, product_id=product_id)
+
+    else:
+        cart = get_or_create_cart_for_session(request)
+        product = Product.objects.get(id=product_id)
+
+        item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+
+        item.quantity += 1
+        item.save()
     return redirect('main_page')
 
 
 def cart(request):
-    current_cart = Cart.objects.get(user=User.objects.get(username=request.user))
-    cart_items = CartItem.objects.filter(cart=current_cart)
-    total_price = calculate_cart_total(request.user)
+    current_cart = get_or_create_cart(request)
+    cart_items = CartItem.objects.select_related('product').filter(cart=current_cart)
+    total_price = sum(item.product.price * item.quantity for item in cart_items)
 
     return render(request, 'cosmetics_shop/cart.html', {
         'title': 'Корзина',
@@ -153,7 +163,7 @@ def cart(request):
 
 
 def create_order(request, address_id):
-    order = create_order_from_cart(request.user, address_id)
+    order = create_order_from_cart(request, address_id)
     if order:
         return redirect('order_success', order_id=order.id)
     return redirect('delivery')
@@ -175,21 +185,21 @@ def order_success(request, order_id):
 @require_POST
 def cart_add(request):
     product_id = request.POST.get("product_id")
-    add_product_to_cart(request.user, product_id)
+    add_product_to_cart(request, product_id)
     return redirect("cart")
 
 
 @require_POST
 def cart_remove(request):
     product_id = request.POST.get("product_id")
-    remove_product_to_cart(request.user, product_id)
+    remove_product_from_cart(request, product_id)
     return redirect("cart")
 
 
 @require_POST
 def cart_delete(request):
     product_id = request.POST.get("product_id")
-    delete_product_to_cart(request.user, product_id)
+    delete_product_from_cart(request, product_id)
     return redirect("cart")
 
 
@@ -201,12 +211,15 @@ def delivery(request):
         form_delivery = DeliveryAddressForm(request.POST)
 
         if form.is_valid() and form_delivery.is_valid():
-            client, created = Client.objects.get_or_create(user=request.user)
-            client.full_name = form.cleaned_data['full_name']
-            client.email = form.cleaned_data['email']
-            client.phone = form.cleaned_data['phone']
-            client.is_active = True
-            client.save()
+            if request.user.is_authenticated:
+                client, _ = Client.objects.get_or_create(user=request.user)
+                client.full_name = form.cleaned_data['full_name']
+                client.email = form.cleaned_data['email']
+                client.phone = form.cleaned_data['phone']
+                client.is_active = True
+                client.save()
+            else:
+                client = get_or_create_session_client(request, form)
 
             address = form_delivery.save(commit=False)
             address.client = client
@@ -216,7 +229,7 @@ def delivery(request):
 
     else:
         try:
-            client = Client.objects.get(user=request.user)
+            client = get_client(request)
             form = ClientForm(instance=client)
         except Client.DoesNotExist:
             form = ClientForm()
