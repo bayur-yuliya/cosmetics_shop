@@ -1,0 +1,10 @@
+{%  extends 'stuff/base.html'  %}
+
+{%  block title  %}{{  title  }}{%  endblock  %}
+
+{%  block content  %}
+{%  for prod in  products  %}
+    {{  prod.name  }} | {{  prod.group.name  }} | {{  prod.brand  }} |
+    {{  prod.price  }} | {{  prod.description  }} <br>
+{%  endfor  %}
+{%  endblock  %}
