@@ -3,9 +3,9 @@
 {%  block title  %}{{  title  }}{%  endblock  %}
 
 {%  block content  %}
-<form method="POST" action="{%  url 'products'  %}">
+<form method="POST">
     {%  csrf_token  %}
     {{  form.as_p   }}
-    <button>Сохранить</button>
+    <button>Изменить</button>
 </form>
 {%  endblock  %}
