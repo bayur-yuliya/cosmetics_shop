@@ -4,7 +4,7 @@
 
 {%  block content  %}
 {%  for prod in  products  %}
-    <a href="{%  url 'edit_products' prod.id  %}" >
+    <a href="{%  url 'product_card' prod.id  %}" >
         {{  prod.name  }}
     </a>
 | {{  prod.group.name  }} | {{  prod.brand  }} |

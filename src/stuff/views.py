@@ -1,7 +1,8 @@
 from django.contrib.admin.views.decorators import staff_member_required
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.http import require_POST
 
-from cosmetics_shop.models import Product
+from cosmetics_shop.models import Product, Order, OrderItem
 from stuff.forms import ProductForm
 
 
@@ -20,6 +21,15 @@ def products(request):
     return render(request, 'stuff/products.html', {
         'title': title,
         'products': products,
+
+    })
+
+
+@staff_member_required
+def product_card(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    return render(request, 'stuff/product_card.html', {
+        'product': product,
 
     })
 
@@ -46,7 +56,7 @@ def edit_products(request, product_id):
         form = ProductForm(request.POST, instance=product)
         if form.is_valid():
             form.save()
-            return redirect('products')
+            return redirect('product_card', product_id)
     form = ProductForm(instance=product)
     return render(request, 'stuff/edit_product.html', {
         'title': title,
@@ -54,11 +64,32 @@ def edit_products(request, product_id):
     })
 
 
+@require_POST
 @staff_member_required
-def delete_products(request):
-    pass
+def delete_product(request):
+    product_id = request.POST.get("product_id")
+    product = Product.objects.get(id=product_id)
+    product.delete()
+    return redirect('products')
 
 
 @staff_member_required
 def orders(request):
-    pass
+    title = 'Список заказов'
+    orders_list = Order.objects.all()
+    return render(request, 'stuff/orders.html', {
+        'title': title,
+        'orders': orders_list,
+    })
+
+
+@staff_member_required
+def order_info(request, order_id):
+    title = f'Заказ {order_id}'
+    order = Order.objects.get(id=order_id)
+    order_items = OrderItem.objects.filter(order=order)
+    return render(request, 'stuff/order_info.html', {
+        'title': title,
+        'order': order,
+        'order_items': order_items,
+    })
