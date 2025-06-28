@@ -4,10 +4,22 @@
 
 {%  block content  %}
 {{  order  }}
+
+<form method="POST">
+        {%  csrf_token  %}
+        {{  form  }}
+        <button>Изменить</button>
+</form>
+
 <hr>
 {%  for item in  order_items  %}
         {{  item  }}  - {{  item.quantity  }} шт<br>
 {%  endfor  %}
 <hr>
 {{  order.total_price  }} грн
+<hr>
+{{  order.snapshot_name  }}<br>
+{{  order.snapshot_email  }}<br>
+{{  order.snapshot_phone  }}<br>
+{{  order.snapshot_address  }}<br>
 {%  endblock  %}

@@ -1,6 +1,6 @@
 from django import forms
 
-from cosmetics_shop.models import Product, Category, GroupProduct, Brand
+from cosmetics_shop.models import Product, Category, GroupProduct, Brand, Order
 
 
 class CategoryForm(forms.ModelForm):
@@ -25,3 +25,9 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = ['name', 'group', 'brand', 'price', 'description']
+
+
+class OrderStatusForm(forms.ModelForm):
+    class Meta:
+        model = Order
+        fields = ['status']

@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
 from cosmetics_shop.models import Product, Order, OrderItem
-from stuff.forms import ProductForm
+from stuff.forms import ProductForm, OrderStatusForm
 
 
 @staff_member_required
@@ -88,8 +88,17 @@ def order_info(request, order_id):
     title = f'Заказ {order_id}'
     order = Order.objects.get(id=order_id)
     order_items = OrderItem.objects.filter(order=order)
+    if request.method == 'POST':
+        form = OrderStatusForm(request.POST, instance=order)
+        if form.is_valid():
+            form.save()
+            return redirect('order_info', order_id=order.id)
+    else:
+        form = OrderStatusForm(instance=order)
+
     return render(request, 'stuff/order_info.html', {
         'title': title,
         'order': order,
         'order_items': order_items,
+        'form': form,
     })
