@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{%  block title  %}{%  endblock  %}</title>
+</head>
+<body>
+<a href="{%  url 'products'  %}"><button>Список товаров</button></a>
+<a href="{%  url 'create_products'  %}"><button>Создать новый товар</button></a>
+<a href="{%  url 'orders'  %}"><button>Список заказов</button></a>
+<hr>
+{%  block content  %}{%  endblock  %}
+</body>
+</html>
