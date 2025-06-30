@@ -7,22 +7,22 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cosmetics_shop', '0003_rename_name_brand_brand_name_and_more'),
+        ("cosmetics_shop", "0003_rename_name_brand_brand_name_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='Card',
-            new_name='Cart',
+            old_name="Card",
+            new_name="Cart",
         ),
         migrations.RenameModel(
-            old_name='CardItem',
-            new_name='CartItem',
+            old_name="CardItem",
+            new_name="CartItem",
         ),
         migrations.RenameField(
-            model_name='cartitem',
-            old_name='card',
-            new_name='cart',
+            model_name="cartitem",
+            old_name="card",
+            new_name="cart",
         ),
     ]

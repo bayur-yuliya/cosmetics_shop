@@ -1,4 +1,11 @@
-from cosmetics_shop.models import Cart, CartItem, Order, OrderItem, DeliveryAddress, Client
+from cosmetics_shop.models import (
+    Cart,
+    CartItem,
+    Order,
+    OrderItem,
+    DeliveryAddress,
+    Client,
+)
 
 
 def get_cart(request):
@@ -26,7 +33,7 @@ def get_client(request):
 
 def create_order_from_cart(request, address_id):
     cart = get_cart(request)
-    cart_items = CartItem.objects.select_related('product').filter(cart=cart)
+    cart_items = CartItem.objects.select_related("product").filter(cart=cart)
 
     if not cart_items.exists():
         raise ValueError("Корзина пуста")
@@ -49,7 +56,7 @@ def create_order_from_cart(request, address_id):
         snapshot_email=client.email,
         snapshot_phone=client.phone,
         snapshot_address=str(address),
-        total_price=total_price
+        total_price=total_price,
     )
 
     order_items = [
@@ -57,7 +64,7 @@ def create_order_from_cart(request, address_id):
             order=order,
             product=item.product.name,
             price=item.product.price,
-            quantity=item.quantity
+            quantity=item.quantity,
         )
         for item in cart_items
     ]

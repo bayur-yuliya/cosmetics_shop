@@ -7,16 +7,16 @@ def get_or_create_cart(request):
     if request.user.is_authenticated:
         cart, _ = Cart.objects.get_or_create(user=request.user)
     else:
-        cart_id = request.session.get('cart_id')
+        cart_id = request.session.get("cart_id")
         if cart_id:
             try:
                 cart = Cart.objects.get(id=cart_id)
             except Cart.DoesNotExist:
                 cart = Cart.objects.create()
-                request.session['cart_id'] = cart.id
+                request.session["cart_id"] = cart.id
         else:
             cart = Cart.objects.create()
-            request.session['cart_id'] = cart.id
+            request.session["cart_id"] = cart.id
     return cart
 
 
@@ -64,36 +64,36 @@ def calculate_cart_total(user):
 
 
 def get_or_create_cart_for_session(request):
-    cart_id = request.session.get('cart_id')
+    cart_id = request.session.get("cart_id")
 
     if cart_id:
         try:
             return Cart.objects.get(id=cart_id)
         except Cart.DoesNotExist:
-            del request.session['cart_id']
+            del request.session["cart_id"]
 
     cart = Cart.objects.create()
-    request.session['cart_id'] = cart.id
+    request.session["cart_id"] = cart.id
     return cart
 
 
 def get_or_create_session_client(request, form=None):
-    client_id = request.session.get('client_id')
+    client_id = request.session.get("client_id")
 
     if client_id:
         try:
             return Client.objects.get(id=client_id)
         except Client.DoesNotExist:
-            del request.session['client_id']
+            del request.session["client_id"]
 
     if form:
         client = Client.objects.create(
-            full_name=form.cleaned_data['full_name'],
-            email=form.cleaned_data['email'],
-            phone=form.cleaned_data['phone'],
-            is_active=False
+            full_name=form.cleaned_data["full_name"],
+            email=form.cleaned_data["email"],
+            phone=form.cleaned_data["phone"],
+            is_active=False,
         )
-        request.session['client_id'] = client.id
+        request.session["client_id"] = client.id
         return client
 
     return None

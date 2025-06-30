@@ -8,34 +8,69 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Category',
+            name="Category",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name_category', models.CharField(max_length=50)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name_category", models.CharField(max_length=50)),
             ],
         ),
         migrations.CreateModel(
-            name='GroupProduct',
+            name="GroupProduct",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('category', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='cosmetics_shop.category')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                (
+                    "category",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="cosmetics_shop.category",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Product',
+            name="Product",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name_product', models.CharField(max_length=100)),
-                ('brand', models.CharField(max_length=100)),
-                ('price', models.PositiveIntegerField()),
-                ('description', models.TextField()),
-                ('group_product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='cosmetics_shop.groupproduct')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name_product", models.CharField(max_length=100)),
+                ("brand", models.CharField(max_length=100)),
+                ("price", models.PositiveIntegerField()),
+                ("description", models.TextField()),
+                (
+                    "group_product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="cosmetics_shop.groupproduct",
+                    ),
+                ),
             ],
         ),
     ]
