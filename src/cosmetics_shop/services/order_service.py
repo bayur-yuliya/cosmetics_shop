@@ -4,7 +4,7 @@ from cosmetics_shop.models import (
     Order,
     OrderItem,
     DeliveryAddress,
-    Client,
+    Client, Product,
 )
 
 
@@ -29,6 +29,15 @@ def get_client(request):
     else:
         client_id = request.session.get("client_id")
         return Client.objects.get(id=client_id)
+
+
+def change_stock_product(product_id, count):
+    product = Product.objects.get(id=product_id)
+    if product.stock >= count:
+        product.stock -= count
+        product.save()
+    else:
+        raise ValueError("Товаров больше нет")
 
 
 def create_order_from_cart(request, address_id):
@@ -68,6 +77,8 @@ def create_order_from_cart(request, address_id):
         )
         for item in cart_items
     ]
+    for item in cart_items:
+        change_stock_product(item.product.id, item.quantity)
     OrderItem.objects.bulk_create(order_items)
 
     cart_items.delete()

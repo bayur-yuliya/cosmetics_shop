@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.text import slugify
@@ -65,6 +66,7 @@ class Product(models.Model):
     price = models.PositiveIntegerField()
     description = models.TextField()
     slug = models.SlugField(max_length=120)
+    stock = models.PositiveIntegerField(default=0)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -118,3 +120,14 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.order} - {self.product}"
+
+
+class OrderStatusLog(models.Model):
+    order = models.ForeignKey('Order', on_delete=models.CASCADE, related_name='status_log')
+    status = models.IntegerField(choices=Status.choices, default=Status.NEW)
+    changed_at = models.DateTimeField(auto_now_add=True)
+    changed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    comment = models.TextField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-changed_at']

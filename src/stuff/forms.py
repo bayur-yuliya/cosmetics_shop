@@ -31,3 +31,9 @@ class OrderStatusForm(forms.ModelForm):
     class Meta:
         model = Order
         fields = ["status"]
+
+
+class ProductStockForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ["stock"]

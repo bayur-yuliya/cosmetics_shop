@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
 from cosmetics_shop.models import Product, Order, OrderItem
-from stuff.forms import ProductForm, OrderStatusForm
+from stuff.forms import ProductForm, OrderStatusForm, ProductStockForm
 
 
 @staff_member_required
@@ -35,11 +35,17 @@ def products(request):
 @staff_member_required
 def product_card(request, product_id):
     product = get_object_or_404(Product, id=product_id)
+    if request.method == "POST":
+        form = ProductStockForm(request.POST, instance=product)
+        if form.is_valid():
+            form.save()
+    form = ProductStockForm(instance=product)
     return render(
         request,
         "stuff/product_card.html",
         {
             "product": product,
+            "form": form,
         },
     )
 
