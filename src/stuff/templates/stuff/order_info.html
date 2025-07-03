@@ -15,6 +15,13 @@
 {%  for item in  order_items  %}
         {{  item.product  }}  - {{  item.quantity  }} шт<br>
 {%  endfor  %}
+
+{%  for status in  order_status_log  %}
+        {{  status.changed_at  }} - {{  status.status  }} - {{  status.changed_by  }}<br>
+        {%  if status.comment  %}
+                {{  status.comment  }}<br>
+        {%  endif  %}
+{%  endfor  %}
 <hr>
 {{  order.total_price  }} грн
 <hr>

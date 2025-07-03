@@ -2,7 +2,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
-from cosmetics_shop.models import Product, Order, OrderItem
+from cosmetics_shop.models import Product, Order, OrderItem, OrderStatusLog
 from stuff.forms import ProductForm, OrderStatusForm, ProductStockForm
 
 
@@ -35,17 +35,11 @@ def products(request):
 @staff_member_required
 def product_card(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    if request.method == "POST":
-        form = ProductStockForm(request.POST, instance=product)
-        if form.is_valid():
-            form.save()
-    form = ProductStockForm(instance=product)
     return render(
         request,
         "stuff/product_card.html",
         {
             "product": product,
-            "form": form,
         },
     )
 
@@ -74,16 +68,20 @@ def edit_products(request, product_id):
     product = Product.objects.get(id=product_id)
     if request.method == "POST":
         form = ProductForm(request.POST, instance=product)
-        if form.is_valid():
+        form_stock = ProductStockForm(request.POST, instance=product)
+        if form.is_valid() and form_stock.is_valid():
             form.save()
+            form_stock.save()
             return redirect("product_card", product_id)
     form = ProductForm(instance=product)
+    form_stock = ProductStockForm(instance=product)
     return render(
         request,
         "stuff/edit_product.html",
         {
             "title": title,
             "form": form,
+            "form_stock": form_stock,
         },
     )
 
@@ -135,10 +133,16 @@ def order_info(request, order_id):
     if request.method == "POST":
         form = OrderStatusForm(request.POST, instance=order)
         if form.is_valid():
+            order_status_log = OrderStatusLog.objects.create(order=order,
+                                                changed_by=request.user,
+                                                status=form.cleaned_data["status"],
+                                                comment=form.cleaned_data["comment"]
+                                                )
             form.save()
             return redirect("order_info", order_id=order.id)
     else:
         form = OrderStatusForm(instance=order)
+        order_status_log = OrderStatusLog.objects.filter(order=order)
 
     return render(
         request,
@@ -148,5 +152,6 @@ def order_info(request, order_id):
             "order": order,
             "order_items": order_items,
             "form": form,
+            'order_status_log': order_status_log,
         },
     )

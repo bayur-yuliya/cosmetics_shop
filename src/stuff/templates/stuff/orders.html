@@ -6,7 +6,7 @@
 
 <form method="POST">
         {%  csrf_token  %}
-        {{  form  }}
+        {{  form.status  }}
         <button>Изменить</button>
 </form>
 <a href="{%  url 'orders'  %}"><button>Сбросить</button></a><hr>
