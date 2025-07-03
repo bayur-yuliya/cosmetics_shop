@@ -1,6 +1,12 @@
 from django import forms
 
-from cosmetics_shop.models import Product, Category, GroupProduct, Brand, Order, OrderStatusLog
+from cosmetics_shop.models import (
+    Product,
+    Category,
+    GroupProduct,
+    Brand,
+    OrderStatusLog,
+)
 
 
 class CategoryForm(forms.ModelForm):

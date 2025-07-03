@@ -133,11 +133,12 @@ def order_info(request, order_id):
     if request.method == "POST":
         form = OrderStatusForm(request.POST, instance=order)
         if form.is_valid():
-            order_status_log = OrderStatusLog.objects.create(order=order,
-                                                changed_by=request.user,
-                                                status=form.cleaned_data["status"],
-                                                comment=form.cleaned_data["comment"]
-                                                )
+            order_status_log = OrderStatusLog.objects.create(
+                order=order,
+                changed_by=request.user,
+                status=form.cleaned_data["status"],
+                comment=form.cleaned_data["comment"],
+            )
             form.save()
             return redirect("order_info", order_id=order.id)
     else:
@@ -152,6 +153,6 @@ def order_info(request, order_id):
             "order": order,
             "order_items": order_items,
             "form": form,
-            'order_status_log': order_status_log,
+            "order_status_log": order_status_log,
         },
     )

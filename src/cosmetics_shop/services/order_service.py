@@ -4,7 +4,8 @@ from cosmetics_shop.models import (
     Order,
     OrderItem,
     DeliveryAddress,
-    Client, Product,
+    Client,
+    Product,
 )
 
 

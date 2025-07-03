@@ -123,11 +123,15 @@ class OrderItem(models.Model):
 
 
 class OrderStatusLog(models.Model):
-    order = models.ForeignKey('Order', on_delete=models.CASCADE, related_name='status_log')
+    order = models.ForeignKey(
+        "Order", on_delete=models.CASCADE, related_name="status_log"
+    )
     status = models.IntegerField(choices=Status.choices, default=Status.NEW)
     changed_at = models.DateTimeField(auto_now_add=True)
-    changed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    changed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True
+    )
     comment = models.TextField(null=True, blank=True)
 
     class Meta:
-        ordering = ['-changed_at']
+        ordering = ["-changed_at"]
