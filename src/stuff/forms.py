@@ -22,6 +22,8 @@ class BrandForm(forms.ModelForm):
 
 
 class ProductForm(forms.ModelForm):
+    brand = forms.ModelChoiceField(queryset=Brand.objects.all(), initial=0)
+
     class Meta:
         model = Product
         fields = ["name", "group", "brand", "price", "description", "stock"]
@@ -31,9 +33,3 @@ class OrderStatusForm(forms.ModelForm):
     class Meta:
         model = OrderStatusLog
         fields = ["status", "comment"]
-
-
-class ProductStockForm(forms.ModelForm):
-    class Meta:
-        model = Product
-        fields = ["stock"]

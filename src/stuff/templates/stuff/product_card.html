@@ -6,12 +6,7 @@
 
 {{  product.name  }} | {{  product.group.name  }} | {{  product.brand  }} |
 {{  product.price  }} | {{  product.description  }} <br>
-{{  product.stock  }}<br>
-<form method="POST">
-    {%  csrf_token  %}
-    {{  form  }}
-    <button>Изменить количество</button>
-</form>
+Количество товара в наличии: {{  product.stock  }}<br>
 
 <form action="{%  url 'edit_products' product.id  %}">
     {%  csrf_token  %}

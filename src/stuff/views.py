@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
 from cosmetics_shop.models import Product, Order, OrderItem, OrderStatusLog
-from stuff.forms import ProductForm, OrderStatusForm, ProductStockForm
+from stuff.forms import ProductForm, OrderStatusForm
 
 
 @staff_member_required
@@ -47,11 +47,15 @@ def product_card(request, product_id):
 @staff_member_required
 def create_products(request):
     title = "Создание карточки товара"
+
     if request.method == "POST":
         form = ProductForm(request.POST)
         if form.is_valid():
             form.save()
+            return redirect("products")
+
     form = ProductForm()
+
     return render(
         request,
         "stuff/create_product.html",
@@ -68,20 +72,16 @@ def edit_products(request, product_id):
     product = Product.objects.get(id=product_id)
     if request.method == "POST":
         form = ProductForm(request.POST, instance=product)
-        form_stock = ProductStockForm(request.POST, instance=product)
-        if form.is_valid() and form_stock.is_valid():
+        if form.is_valid():
             form.save()
-            form_stock.save()
             return redirect("product_card", product_id)
     form = ProductForm(instance=product)
-    form_stock = ProductStockForm(instance=product)
     return render(
         request,
         "stuff/edit_product.html",
         {
             "title": title,
             "form": form,
-            "form_stock": form_stock,
         },
     )
 
