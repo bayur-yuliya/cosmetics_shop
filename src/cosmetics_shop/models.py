@@ -133,5 +133,8 @@ class OrderStatusLog(models.Model):
     )
     comment = models.TextField(null=True, blank=True)
 
+    def __str__(self):
+        return f"{self.get_status_display()}"
+
     class Meta:
         ordering = ["-changed_at"]

@@ -15,9 +15,9 @@
 {%  for item in  order_items  %}
         {{  item.product  }}  - {{  item.quantity  }} шт<br>
 {%  endfor  %}
-
+<hr>
 {%  for status in  order_status_log  %}
-        {{  status.changed_at  }} - {{  status.status  }} - {{  status.changed_by  }}<br>
+        {{  status.changed_at  }} - {{  status  }} - {{  status.changed_by  }}<br>
         {%  if status.comment  %}
                 {{  status.comment  }}<br>
         {%  endif  %}
