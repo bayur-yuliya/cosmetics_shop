@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.models import User
 
 from cosmetics_shop.models import Cart, Product, CartItem, Client
@@ -7,16 +8,16 @@ def get_or_create_cart(request):
     if request.user.is_authenticated:
         cart, _ = Cart.objects.get_or_create(user=request.user)
     else:
-        cart_id = request.session.get('cart_id')
+        cart_id = request.session.get("cart_id")
         if cart_id:
             try:
                 cart = Cart.objects.get(id=cart_id)
             except Cart.DoesNotExist:
                 cart = Cart.objects.create()
-                request.session['cart_id'] = cart.id
+                request.session["cart_id"] = cart.id
         else:
             cart = Cart.objects.create()
-            request.session['cart_id'] = cart.id
+            request.session["cart_id"] = cart.id
     return cart
 
 
@@ -33,7 +34,10 @@ def add_product_to_cart(request, product_id):
     product = Product.objects.get(id=product_id)
 
     item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-    item.quantity += 1
+    if item.quantity < item.product.stock:
+        item.quantity += 1
+    else:
+        messages.warning(request, "Этого товара больше нет")
     item.save()
 
 
@@ -43,10 +47,8 @@ def remove_product_from_cart(request, product_id):
 
     try:
         item = CartItem.objects.get(cart=cart, product=product)
-        item.quantity -= 1
-        if item.quantity <= 0:
-            item.delete()
-        else:
+        if item.quantity > 1:
+            item.quantity -= 1
             item.save()
     except CartItem.DoesNotExist:
         pass
@@ -56,6 +58,7 @@ def delete_product_from_cart(request, product_id):
     cart = get_or_create_cart(request)
     product = Product.objects.get(id=product_id)
     CartItem.objects.filter(cart=cart, product=product).delete()
+    messages.success(request, "Товар успешно удален")
 
 
 def calculate_cart_total(user):
@@ -64,36 +67,36 @@ def calculate_cart_total(user):
 
 
 def get_or_create_cart_for_session(request):
-    cart_id = request.session.get('cart_id')
+    cart_id = request.session.get("cart_id")
 
     if cart_id:
         try:
             return Cart.objects.get(id=cart_id)
         except Cart.DoesNotExist:
-            del request.session['cart_id']
+            del request.session["cart_id"]
 
     cart = Cart.objects.create()
-    request.session['cart_id'] = cart.id
+    request.session["cart_id"] = cart.id
     return cart
 
 
 def get_or_create_session_client(request, form=None):
-    client_id = request.session.get('client_id')
+    client_id = request.session.get("client_id")
 
     if client_id:
         try:
             return Client.objects.get(id=client_id)
         except Client.DoesNotExist:
-            del request.session['client_id']
+            del request.session["client_id"]
 
     if form:
         client = Client.objects.create(
-            full_name=form.cleaned_data['full_name'],
-            email=form.cleaned_data['email'],
-            phone=form.cleaned_data['phone'],
-            is_active=False
+            full_name=form.cleaned_data["full_name"],
+            email=form.cleaned_data["email"],
+            phone=form.cleaned_data["phone"],
+            is_active=False,
         )
-        request.session['client_id'] = client.id
+        request.session["client_id"] = client.id
         return client
 
     return None

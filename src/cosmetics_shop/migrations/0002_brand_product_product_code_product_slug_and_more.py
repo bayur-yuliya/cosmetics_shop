@@ -7,31 +7,41 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cosmetics_shop', '0001_initial'),
+        ("cosmetics_shop", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Brand',
+            name="Brand",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name_brand', models.CharField(max_length=100)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name_brand", models.CharField(max_length=100)),
             ],
         ),
         migrations.AddField(
-            model_name='product',
-            name='product_code',
+            model_name="product",
+            name="product_code",
             field=models.PositiveIntegerField(default=0),
         ),
         migrations.AddField(
-            model_name='product',
-            name='slug',
-            field=models.CharField(default='', max_length=150),
+            model_name="product",
+            name="slug",
+            field=models.CharField(default="", max_length=150),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='product',
-            name='brand',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='cosmetics_shop.brand'),
+            model_name="product",
+            name="brand",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="cosmetics_shop.brand"
+            ),
         ),
     ]

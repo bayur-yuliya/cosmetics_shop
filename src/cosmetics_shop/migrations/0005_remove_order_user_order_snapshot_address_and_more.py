@@ -8,70 +8,108 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cosmetics_shop', '0004_rename_card_cart_rename_carditem_cartitem_and_more'),
+        ("cosmetics_shop", "0004_rename_card_cart_rename_carditem_cartitem_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='order',
-            name='user',
+            model_name="order",
+            name="user",
         ),
         migrations.AddField(
-            model_name='order',
-            name='snapshot_address',
-            field=models.TextField(default=''),
+            model_name="order",
+            name="snapshot_address",
+            field=models.TextField(default=""),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='order',
-            name='snapshot_email',
-            field=models.EmailField(default='', max_length=254),
+            model_name="order",
+            name="snapshot_email",
+            field=models.EmailField(default="", max_length=254),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='order',
-            name='snapshot_name',
-            field=models.CharField(default='', max_length=100),
+            model_name="order",
+            name="snapshot_name",
+            field=models.CharField(default="", max_length=100),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='order',
-            name='snapshot_phone',
-            field=models.CharField(default='', max_length=20),
+            model_name="order",
+            name="snapshot_phone",
+            field=models.CharField(default="", max_length=20),
             preserve_default=False,
         ),
         migrations.CreateModel(
-            name='Client',
+            name="Client",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('full_name', models.CharField(max_length=100)),
-                ('email', models.EmailField(max_length=254)),
-                ('phone', models.CharField(max_length=10)),
-                ('is_active', models.BooleanField(default=True)),
-                ('was_registered', models.BooleanField(default=False)),
-                ('user', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("full_name", models.CharField(max_length=100)),
+                ("email", models.EmailField(max_length=254)),
+                ("phone", models.CharField(max_length=10)),
+                ("is_active", models.BooleanField(default=True)),
+                ("was_registered", models.BooleanField(default=False)),
+                (
+                    "user",
+                    models.OneToOneField(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='order',
-            name='client',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='cosmetics_shop.client'),
+            model_name="order",
+            name="client",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="cosmetics_shop.client",
+            ),
         ),
         migrations.CreateModel(
-            name='DeliveryAddress',
+            name="DeliveryAddress",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('city', models.CharField(max_length=100)),
-                ('street', models.CharField(max_length=100)),
-                ('post_office', models.CharField(max_length=100)),
-                ('is_primary', models.BooleanField(default=False)),
-                ('client', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='cosmetics_shop.client')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("city", models.CharField(max_length=100)),
+                ("street", models.CharField(max_length=100)),
+                ("post_office", models.CharField(max_length=100)),
+                ("is_primary", models.BooleanField(default=False)),
+                (
+                    "client",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="cosmetics_shop.client",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='order',
-            name='delivery_address',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='cosmetics_shop.deliveryaddress'),
+            model_name="order",
+            name="delivery_address",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="cosmetics_shop.deliveryaddress",
+            ),
         ),
     ]

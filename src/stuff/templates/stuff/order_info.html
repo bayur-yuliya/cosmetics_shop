@@ -1,0 +1,41 @@
+{%  extends 'stuff/base.html'  %}
+
+{%  block title  %}{{  title  }}{%  endblock  %}
+
+{%  block content  %}
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+{{  order  }}
+
+<form method="POST">
+        {%  csrf_token  %}
+        {{  form  }}
+        <button>Изменить</button>
+</form>
+
+<hr>
+{%  for item in  order_items  %}
+        {{  item.product  }}  - {{  item.quantity  }} шт<br>
+{%  endfor  %}
+<hr>
+{%  for status in  order_status_log  %}
+        {{  status.changed_at  }} - {{  status  }} - {{  status.changed_by  }}<br>
+        {%  if status.comment  %}
+                {{  status.comment  }}<br>
+        {%  endif  %}
+{%  endfor  %}
+<hr>
+{{  order.total_price  }} грн
+<hr>
+{{  order.snapshot_name  }}<br>
+{{  order.snapshot_email  }}<br>
+{{  order.snapshot_phone  }}<br>
+{{  order.snapshot_address  }}<br>
+{%  endblock  %}

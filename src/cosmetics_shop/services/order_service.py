@@ -1,4 +1,12 @@
-from cosmetics_shop.models import Cart, CartItem, Order, OrderItem, DeliveryAddress, Client
+from cosmetics_shop.models import (
+    Cart,
+    CartItem,
+    Order,
+    OrderItem,
+    DeliveryAddress,
+    Client,
+    Product,
+)
 
 
 def get_cart(request):
@@ -24,9 +32,18 @@ def get_client(request):
         return Client.objects.get(id=client_id)
 
 
+def change_stock_product(product_id, count):
+    product = Product.objects.get(id=product_id)
+    if product.stock >= count:
+        product.stock -= count
+        product.save()
+    else:
+        raise ValueError("Товаров больше нет")
+
+
 def create_order_from_cart(request, address_id):
     cart = get_cart(request)
-    cart_items = CartItem.objects.select_related('product').filter(cart=cart)
+    cart_items = CartItem.objects.select_related("product").filter(cart=cart)
 
     if not cart_items.exists():
         raise ValueError("Корзина пуста")
@@ -49,7 +66,7 @@ def create_order_from_cart(request, address_id):
         snapshot_email=client.email,
         snapshot_phone=client.phone,
         snapshot_address=str(address),
-        total_price=total_price
+        total_price=total_price,
     )
 
     order_items = [
@@ -57,10 +74,12 @@ def create_order_from_cart(request, address_id):
             order=order,
             product=item.product.name,
             price=item.product.price,
-            quantity=item.quantity
+            quantity=item.quantity,
         )
         for item in cart_items
     ]
+    for item in cart_items:
+        change_stock_product(item.product.id, item.quantity)
     OrderItem.objects.bulk_create(order_items)
 
     cart_items.delete()

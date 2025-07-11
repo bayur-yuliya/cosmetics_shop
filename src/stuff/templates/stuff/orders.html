@@ -1,0 +1,16 @@
+{%  extends 'stuff/base.html'  %}
+
+{%  block title  %}{{  title  }}{%  endblock  %}
+
+{%  block content  %}
+
+<form method="POST">
+        {%  csrf_token  %}
+        {{  form.status  }}
+        <button>Изменить</button>
+</form>
+<a href="{%  url 'orders'  %}"><button>Сбросить</button></a><hr>
+{%  for order in  orders  %}
+<a href="{%  url 'order_info' order.id  %}">{{  order  }}</a><br>
+{%  endfor  %}
+{%  endblock  %}

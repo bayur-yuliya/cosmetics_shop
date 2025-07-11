@@ -1,6 +1,15 @@
 from django.contrib import admin
 
-from cosmetics_shop.models import Category, GroupProduct, Product, Brand, Cart, CartItem, Order, OrderItem
+from cosmetics_shop.models import (
+    Category,
+    GroupProduct,
+    Product,
+    Brand,
+    Cart,
+    CartItem,
+    Order,
+    OrderItem,
+)
 
 admin.site.register(Category)
 admin.site.register(GroupProduct)

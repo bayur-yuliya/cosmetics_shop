@@ -1,16 +1,17 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.text import slugify
 
 
 class Status(models.IntegerChoices):
-    NEW = 0, 'New'
-    PAYMENT_RECEIVED = 1, 'Payment received'
-    PAYMENT_FAILED = 2, 'Payment failed'
-    IN_PROGRESS = 3, 'In progress'
-    COMPLETED = 4, 'Completed'
-    CLOSED = 5, 'Closed'
-    CANCELED = 6, 'Canceled'
+    NEW = 0, "New"
+    PAYMENT_RECEIVED = 1, "Payment received"
+    PAYMENT_FAILED = 2, "Payment failed"
+    IN_PROGRESS = 3, "In progress"
+    COMPLETED = 4, "Completed"
+    CLOSED = 5, "Closed"
+    CANCELED = 6, "Canceled"
 
 
 class Client(models.Model):
@@ -33,7 +34,7 @@ class DeliveryAddress(models.Model):
     is_primary = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'{self.city}, {self.street}'
+        return f"{self.city}, {self.street}"
 
 
 class Category(models.Model):
@@ -48,7 +49,7 @@ class GroupProduct(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.category.name} - {self.name}'
+        return f"{self.category.name} - {self.name}"
 
 
 class Brand(models.Model):
@@ -65,6 +66,7 @@ class Product(models.Model):
     price = models.PositiveIntegerField()
     description = models.TextField()
     slug = models.SlugField(max_length=120)
+    stock = models.PositiveIntegerField(default=0)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -72,7 +74,7 @@ class Product(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.group.name} - {self.name}'
+        return f"{self.group.name} - {self.name}"
 
 
 class Cart(models.Model):
@@ -80,7 +82,7 @@ class Cart(models.Model):
     created_at = models.DateField(auto_now=True)
 
     def __str__(self):
-        return f'{self.created_at} - {self.user}'
+        return f"{self.created_at} - {self.user}"
 
 
 class CartItem(models.Model):
@@ -89,12 +91,14 @@ class CartItem(models.Model):
     quantity = models.PositiveIntegerField(default=0)
 
     def __str__(self):
-        return f'{self.product} - {self.quantity}'
+        return f"{self.product} - {self.quantity}"
 
 
 class Order(models.Model):
     client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True)
-    delivery_address = models.ForeignKey(DeliveryAddress, on_delete=models.SET_NULL, null=True)
+    delivery_address = models.ForeignKey(
+        DeliveryAddress, on_delete=models.SET_NULL, null=True
+    )
     created_at = models.DateField(auto_now_add=True)
     total_price = models.PositiveIntegerField(default=0)
     status = models.IntegerField(choices=Status.choices, default=Status.NEW)
@@ -105,14 +109,32 @@ class Order(models.Model):
     snapshot_address = models.TextField()
 
     def __str__(self):
-        return f'{self.created_at} - {self.get_status_display()} - {self.snapshot_name}'
+        return f"{self.created_at} - {self.get_status_display()} - {self.snapshot_name}"
 
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
     product = models.CharField(max_length=100)
     price = models.PositiveIntegerField()
     quantity = models.PositiveIntegerField()
 
     def __str__(self):
-        return f'{self.order} - {self.product}'
+        return f"{self.order} - {self.product}"
+
+
+class OrderStatusLog(models.Model):
+    order = models.ForeignKey(
+        "Order", on_delete=models.CASCADE, related_name="status_log"
+    )
+    status = models.IntegerField(choices=Status.choices, default=Status.NEW)
+    changed_at = models.DateTimeField(auto_now_add=True)
+    changed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    comment = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.get_status_display()}"
+
+    class Meta:
+        ordering = ["-changed_at"]

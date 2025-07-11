@@ -8,75 +8,153 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cosmetics_shop', '0002_brand_product_product_code_product_slug_and_more'),
+        ("cosmetics_shop", "0002_brand_product_product_code_product_slug_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='brand',
-            old_name='name_brand',
-            new_name='name',
+            model_name="brand",
+            old_name="name_brand",
+            new_name="name",
         ),
         migrations.RenameField(
-            model_name='category',
-            old_name='name_category',
-            new_name='name',
+            model_name="category",
+            old_name="name_category",
+            new_name="name",
         ),
         migrations.RenameField(
-            model_name='product',
-            old_name='group_product',
-            new_name='group',
+            model_name="product",
+            old_name="group_product",
+            new_name="group",
         ),
         migrations.RenameField(
-            model_name='product',
-            old_name='name_product',
-            new_name='name',
+            model_name="product",
+            old_name="name_product",
+            new_name="name",
         ),
         migrations.RemoveField(
-            model_name='product',
-            name='product_code',
+            model_name="product",
+            name="product_code",
         ),
         migrations.AlterField(
-            model_name='product',
-            name='slug',
+            model_name="product",
+            name="slug",
             field=models.SlugField(max_length=120),
         ),
         migrations.CreateModel(
-            name='Card',
+            name="Card",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateField(auto_now=True)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateField(auto_now=True)),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='CardItem',
+            name="CardItem",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('quantity', models.PositiveIntegerField(default=0)),
-                ('card', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='cosmetics_shop.card')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='cosmetics_shop.product')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("quantity", models.PositiveIntegerField(default=0)),
+                (
+                    "card",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="cosmetics_shop.card",
+                    ),
+                ),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="cosmetics_shop.product",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Order',
+            name="Order",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateField(auto_now_add=True)),
-                ('total_price', models.PositiveIntegerField(default=0)),
-                ('status', models.IntegerField(choices=[(0, 'New'), (1, 'Payment received'), (2, 'Payment failed'), (3, 'In progress'), (4, 'Completed'), (5, 'Closed'), (6, 'Canceled')], default=0)),
-                ('user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateField(auto_now_add=True)),
+                ("total_price", models.PositiveIntegerField(default=0)),
+                (
+                    "status",
+                    models.IntegerField(
+                        choices=[
+                            (0, "New"),
+                            (1, "Payment received"),
+                            (2, "Payment failed"),
+                            (3, "In progress"),
+                            (4, "Completed"),
+                            (5, "Closed"),
+                            (6, "Canceled"),
+                        ],
+                        default=0,
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='OrderItem',
+            name="OrderItem",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('product', models.CharField(max_length=100)),
-                ('price', models.PositiveIntegerField()),
-                ('quantity', models.PositiveIntegerField()),
-                ('order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='items', to='cosmetics_shop.order')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("product", models.CharField(max_length=100)),
+                ("price", models.PositiveIntegerField()),
+                ("quantity", models.PositiveIntegerField()),
+                (
+                    "order",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="items",
+                        to="cosmetics_shop.order",
+                    ),
+                ),
             ],
         ),
     ]
