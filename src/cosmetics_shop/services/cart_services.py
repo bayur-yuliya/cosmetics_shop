@@ -33,7 +33,8 @@ def add_product_to_cart(request, product_id):
     product = Product.objects.get(id=product_id)
 
     item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-    item.quantity += 1
+    if item.quantity < item.product.stock:
+        item.quantity += 1
     item.save()
 
 
@@ -43,10 +44,8 @@ def remove_product_from_cart(request, product_id):
 
     try:
         item = CartItem.objects.get(cart=cart, product=product)
-        item.quantity -= 1
-        if item.quantity <= 0:
-            item.delete()
-        else:
+        if item.quantity > 1:
+            item.quantity -= 1
             item.save()
     except CartItem.DoesNotExist:
         pass

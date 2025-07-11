@@ -1,44 +1,35 @@
-import datetime
-from dateutil.relativedelta import relativedelta
-
 from django.contrib.admin.views.decorators import staff_member_required
-from django.db.models import Avg
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
 from cosmetics_shop.models import Product, Order, OrderItem, OrderStatusLog
 from stuff.forms import ProductForm, OrderStatusForm
+from .services.dashboard_service import (
+    number_of_orders_today,
+    number_of_orders_per_month,
+    summ_bill,
+    average_bill,
+)
 
 
 @staff_member_required
 def index(request):
     title = "Главная страница"
-    today = datetime.date.today()
-    one_month_ago = today - relativedelta(months=1)
 
-    number_of_orders_today = Order.objects.filter(
-        created_at__gte=datetime.date.today()
-    ).count()
+    orders_today = number_of_orders_today()
+    orders_per_month = number_of_orders_per_month()
+    summ = summ_bill()
+    average = average_bill()
 
-    orders_per_month = Order.objects.filter(created_at__gte=one_month_ago)
-    number_of_orders_per_month = orders_per_month.count()
-
-    summ_bill = (
-        int(orders_per_month.aggregate(avg_bill=Avg("total_price"))["avg_bill"]) or 0
-    )
-    average_bill = int(summ_bill / number_of_orders_per_month)
-
-    print(orders_per_month)
-    print(average_bill)
     return render(
         request,
         "stuff/dashboard.html",
         {
             "title": title,
-            "number_of_orders_today": number_of_orders_today,
-            "number_of_orders_per_month": number_of_orders_per_month,
-            "summ_bill": summ_bill,
-            "average_bill": average_bill,
+            "number_of_orders_today": orders_today,
+            "number_of_orders_per_month": orders_per_month,
+            "summ_bill": summ,
+            "average_bill": average,
         },
     )
 

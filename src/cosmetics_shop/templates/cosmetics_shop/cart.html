@@ -26,15 +26,16 @@
         <form method="POST" action="{% url 'cart_delete' %}" style="display:inline;">
             {% csrf_token %}
             <input type="hidden" name="product_id" value="{{ item.product.id }}">
+            <button>Удалить</button>
         </form>
         <br>
+        <br>
+        Всего: {{  total_price  }}<br>
+        <hr>
+        <a href="{%  url 'main_page'  %}"><button>Продолжить выбор</button></a>
+        <a href="{%  url 'delivery'  %}"><button>Заказать</button></a>
     {%  endfor  %}
 {%  else  %}
     Корзина пустая
 {%  endif  %}
-<br>
-Всего: {{  total_price  }}<br>
-<hr>
-<a href="{%  url 'main_page'  %}"><button>Продолжить выбор</button></a>
-<a href="{%  url 'delivery'  %}"><button>Заказать</button></a>
 {%  endblock  %}
