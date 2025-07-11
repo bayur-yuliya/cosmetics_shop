@@ -1,0 +1,12 @@
+{%  extends 'cosmetics_shop/base.html'  %}
+
+{%  block title  %}{{  title  }}{%  endblock  %}
+
+{%  block content  %}
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Изменить</button>
+</form>
+<a href="{%  url 'user_account'  %}"><button>Назад</button></a>
+{%  endblock  %}

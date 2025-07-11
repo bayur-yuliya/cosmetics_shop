@@ -29,10 +29,10 @@
     {%  csrf_token  %}
         <input type="hidden" name='product_id'  value="{{ prod.id }}">
         {%  if prod.stock %}
-            <button>КУПИТЬ </button><br><hr>
+            <button>КУПИТЬ </button><br>
         {%  else  %}
             Товара нет в наличии
-        {%  endif  %}
+        {%  endif  %}<hr>
     </form>
 
 {%  endfor  %}<br>

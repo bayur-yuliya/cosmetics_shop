@@ -6,4 +6,5 @@
 {%  for order in orders  %}
     {{ order }} - {{order.total_price}}<br>
 {%  endfor  %}
+<a href="{%  url 'user_account'  %}"><button>Назад</button></a>
 {%  endblock%}

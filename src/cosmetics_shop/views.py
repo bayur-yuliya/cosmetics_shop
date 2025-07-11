@@ -1,10 +1,8 @@
 import uuid
 
-from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
 from django.db import transaction
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
@@ -45,7 +43,9 @@ def register(request):
 def main_page(request):
     category = Category.objects.all()
     group_product = GroupProduct.objects.all()
-    product = Product.objects.all()
+    product = Product.objects.all().order_by('-stock')
+    cart = get_or_create_cart(request)
+    count_cart_items = CartItem.objects.filter(cart=cart).count()
     return render(
         request,
         "cosmetics_shop/main_page.html",
@@ -54,6 +54,7 @@ def main_page(request):
             "group_product": group_product,
             "product": product,
             "category": category,
+            "count_cart_items": count_cart_items,
         },
     )
 
@@ -170,7 +171,7 @@ def brand_products(request, brand_id):
         request,
         "cosmetics_shop/brand_products.html",
         {
-            "title": title.name_brand,
+            "title": title.name,
             "brand_products": products,
         },
     )
@@ -301,3 +302,13 @@ def delivery(request):
             "form_delivery": form_delivery,
         },
     )
+
+
+def user_contact(request):
+    if request.method == "POST":
+        form = ClientForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect("user_contact")
+    form = ClientForm(instance=request.user)
+    return render(request, "cosmetics_shop/user_contact.html", {"form": form})

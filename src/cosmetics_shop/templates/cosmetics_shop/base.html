@@ -17,6 +17,7 @@
         <a href="{%  url 'register'  %}"><button>Регистрация</button></a> |
     {%  endif  %}
         <a href="{%  url 'cart'  %}"><button>Корзина</button></a>
+    {%  if count_cart_items %} {{count_cart_items}} {%  endif  %}
 </div>
 {%  block content  %}{%  endblock  %}
 </body>
