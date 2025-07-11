@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.models import User
 
 from cosmetics_shop.models import Cart, Product, CartItem, Client
@@ -35,6 +36,8 @@ def add_product_to_cart(request, product_id):
     item, created = CartItem.objects.get_or_create(cart=cart, product=product)
     if item.quantity < item.product.stock:
         item.quantity += 1
+    else:
+        messages.warning(request, "Этого товара больше нет")
     item.save()
 
 
@@ -55,6 +58,7 @@ def delete_product_from_cart(request, product_id):
     cart = get_or_create_cart(request)
     product = Product.objects.get(id=product_id)
     CartItem.objects.filter(cart=cart, product=product).delete()
+    messages.success(request, "Товар успешно удален")
 
 
 def calculate_cart_total(user):

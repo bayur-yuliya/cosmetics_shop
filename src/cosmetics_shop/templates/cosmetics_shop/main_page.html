@@ -3,7 +3,13 @@
 {%  block title  %}{{  title  }}{%  endblock  %}
 
 {%  block content  %}
-
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
 {%  for cat in category  %}
     Category Product:  <a href="{%  url 'category_page' cat.id  %}">{{  cat.name  }}</a><br>
     {%  for group in group_product  %}
