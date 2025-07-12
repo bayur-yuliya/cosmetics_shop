@@ -30,14 +30,14 @@
         </form>
         <br>
         <br>
-        Всего: {{  total_price  }}<br>
-        <hr>
-        <a href="{%  url 'main_page'  %}"><button>Продолжить выбор</button></a>
-        <a href="{%  url 'delivery'  %}"><button>Заказать</button></a>
     {%  endfor  %}
 {%  else  %}
     Корзина пустая
 {%  endif  %}
+    Всего: {{  total_price  }}<br>
+    <hr>
+    <a href="{%  url 'main_page'  %}"><button>Продолжить выбор</button></a>
+    <a href="{%  url 'delivery'  %}"><button>Заказать</button></a>
 {% if messages %}
 <ul class="messages">
     {% for message in messages %}

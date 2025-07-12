@@ -3,8 +3,16 @@
 {%  block title  %}{%  endblock  %}
 
 {%  block content  %}
-{%  for order in orders  %}
-    {{ order }} - {{order.total_price}}<br>
-{%  endfor  %}
+
+<br>
+{% for order in order_items  %}
+    {{ order.order.created_at }} - {{ order.order.total_price }} грн:
+    <ul>
+        {% for i in order.item %}
+            <li>{{ i.product }} - {{ i.price }} грн : {{ i.quantity }} шт</li>
+        {% endfor %}
+    </ul>
+{% endfor %}
+
 <a href="{%  url 'user_account'  %}"><button>Назад</button></a>
 {%  endblock%}

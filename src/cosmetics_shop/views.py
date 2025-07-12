@@ -43,14 +43,15 @@ def register(request):
 def main_page(request):
     category = Category.objects.all()
     group_product = GroupProduct.objects.all()
-    product = Product.objects.all().order_by('-stock')
+    product = Product.objects.all().order_by("-stock")
     cart = get_or_create_cart(request)
-    count_cart_items = CartItem.objects.filter(cart=cart).count()
+    cart_items = CartItem.objects.filter(cart=cart)
+    count_cart_items = sum(item.quantity for item in cart_items)
     return render(
         request,
         "cosmetics_shop/main_page.html",
         {
-            "title": "Main page",
+            "title": "Главная страница",
             "group_product": group_product,
             "product": product,
             "category": category,
@@ -99,12 +100,29 @@ def user_account(request):
 def order_history(request):
     title = "История заказов"
     orders = Order.objects.filter(client=Client.objects.get(user=request.user))
+
+    order_items = []
+
+    for order in orders:
+        dictt = {}
+        dictt['order'] = order
+        dictt['item'] = []
+        items = OrderItem.objects.filter(order=order.id)
+        if items.count() > 1:
+            for item in items:
+                dictt['order'] = order
+                dictt['item'] += [item]
+        else:
+            dictt['item'] = items
+        order_items.append(dictt)
+
     return render(
         request,
         "cosmetics_shop/order_history.html",
         {
             "title": title,
             "orders": orders,
+            "order_items": order_items,
         },
     )
 
@@ -197,9 +215,10 @@ def add_to_cart(request):
 
 
 def cart(request):
-    current_cart = get_or_create_cart(request)
-    cart_items = CartItem.objects.select_related("product").filter(cart=current_cart)
+    cart = get_or_create_cart(request)
+    cart_items = CartItem.objects.select_related("product").filter(cart=cart)
     total_price = sum(item.product.price * item.quantity for item in cart_items)
+    count_cart_items = sum(item.quantity for item in cart_items)
 
     return render(
         request,
@@ -208,6 +227,7 @@ def cart(request):
             "title": "Корзина",
             "cart_items": cart_items,
             "total_price": total_price,
+            "count_cart_items": count_cart_items,
         },
     )
 
