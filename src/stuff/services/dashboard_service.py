@@ -28,11 +28,17 @@ def number_of_orders_per_month():
 
 def summ_bill():
     orders = orders_per_month()
-    summ_bill = int(orders.aggregate(avg_bill=Sum("total_price"))["avg_bill"]) or 0
+    if orders.aggregate(avg_bill=Sum("total_price"))["avg_bill"]:
+        summ_bill = int(orders.aggregate(avg_bill=Sum("total_price"))["avg_bill"])
+    else:
+        summ_bill = 0
     return summ_bill
 
 
 def average_bill():
     orders = orders_per_month()
-    average_bill = int(orders.aggregate(avg_bill=Avg("total_price"))["avg_bill"]) or 0
+    if orders.aggregate(avg_bill=Avg("total_price"))["avg_bill"]:
+        average_bill = orders.aggregate(avg_bill=Avg("total_price"))["avg_bill"]
+    else:
+        average_bill = 0
     return average_bill

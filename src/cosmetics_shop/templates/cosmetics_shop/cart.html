@@ -7,6 +7,7 @@
 
 {%  if cart_items  %}
     {% for item in cart_items %}
+    <img src="/media/{{ item.product.image }}"   hspace='40' vspace='40' width='100px' height='100px'>
         {{ item.product }} — {{ item.product.price|multiply:item.quantity }} грн —
 
         <form method="POST" action="{% url 'cart_remove' %}" style="display:inline;">

@@ -6,7 +6,7 @@
 
 <br>
 {% for order in order_items  %}
-    {{ order.order.created_at }} - {{ order.order.total_price }} грн:
+    {{ order.order.created_at }} - {{ order.order.status }} - {{ order.order.total_price }} грн:
     <ul>
         {% for i in order.item %}
             <li>{{ i.product }} - {{ i.price }} грн : {{ i.quantity }} шт</li>

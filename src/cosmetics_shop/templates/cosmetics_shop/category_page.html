@@ -16,13 +16,20 @@
 <hr>
 
 {%  for prod in product %}
+
+    <img src="/media/{{ prod.image }}"   hspace='40' vspace='40' width='100px' height='100px'>
+
     Product:  <a href="{%  url 'product_page' prod.id  %}">{{  prod.name  }}</a> | {{  prod.group.name  }} | {{  prod.brand  }} |
     {{  prod.price  }} | {{  prod.description  }} |
 
     <form method='POST' action="{%  url 'add_to_cart'  %}">
     {%  csrf_token  %}
         <input type="hidden" name='product_id'  value="{{ prod.id }}">
-        <button>КУПИТЬ </button><br><hr>
+        {%  if prod.stock %}
+            <button>КУПИТЬ </button><br>
+        {%  else  %}
+            Товара нет в наличии
+        {%  endif  %}<hr>
     </form><br>
 {%  endfor  %}<br>
 

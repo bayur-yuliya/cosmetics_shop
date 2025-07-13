@@ -65,8 +65,10 @@ class Product(models.Model):
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
     price = models.PositiveIntegerField()
     description = models.TextField()
-    slug = models.SlugField(max_length=120)
+    slug = models.SlugField(max_length=200)
     stock = models.PositiveIntegerField(default=0)
+    code = models.PositiveIntegerField(default=0)
+    image = models.ImageField(upload_to='product_images/', default='default/image.jpg')
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -99,9 +101,9 @@ class Order(models.Model):
     delivery_address = models.ForeignKey(
         DeliveryAddress, on_delete=models.SET_NULL, null=True
     )
+    code = models.CharField(max_length=100)
     created_at = models.DateField(auto_now_add=True)
     total_price = models.PositiveIntegerField(default=0)
-    status = models.IntegerField(choices=Status.choices, default=Status.NEW)
 
     snapshot_name = models.CharField(max_length=100)
     snapshot_email = models.EmailField()
@@ -109,7 +111,7 @@ class Order(models.Model):
     snapshot_address = models.TextField()
 
     def __str__(self):
-        return f"{self.created_at} - {self.get_status_display()} - {self.snapshot_name}"
+        return f"{self.created_at} - {self.snapshot_name}"
 
 
 class OrderItem(models.Model):

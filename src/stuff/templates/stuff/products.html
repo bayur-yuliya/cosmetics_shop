@@ -4,6 +4,7 @@
 
 {%  block content  %}
 {%  for prod in  products  %}
+    <img src="/media/{{ prod.image }}"   hspace='40' vspace='40' width='100px' height='100px'>
     <a href="{%  url 'product_card' prod.id  %}" >
         {{  prod.name  }}
     </a>

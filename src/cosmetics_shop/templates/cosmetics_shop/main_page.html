@@ -23,6 +23,8 @@
 
 {%  for prod in product %}
 
+    <img src=media/{{ prod.image }}   hspace='40' vspace='40' width='100px' height='100px'>
+
     <a href="{%  url 'product_page' prod.id  %}">{{  prod.name  }}</a> | {{  prod.group.name  }} | {{  prod.brand  }} |
     {{  prod.price  }} | {{  prod.description  }} |
     <form method='POST' action="{%  url 'add_to_cart'  %}">
