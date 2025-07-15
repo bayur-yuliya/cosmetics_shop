@@ -41,12 +41,12 @@ def register(request):
 
 
 def main_page(request):
-    category = Category.objects.all()
     group_product = GroupProduct.objects.all()
     product = Product.objects.all().order_by("-stock")
     cart = get_or_create_cart(request)
     cart_items = CartItem.objects.filter(cart=cart)
     count_cart_items = sum(item.quantity for item in cart_items)
+
     return render(
         request,
         "cosmetics_shop/main_page.html",
@@ -54,7 +54,6 @@ def main_page(request):
             "title": "Главная страница",
             "group_product": group_product,
             "product": product,
-            "category": category,
             "count_cart_items": count_cart_items,
         },
     )
@@ -105,15 +104,15 @@ def order_history(request):
 
     for order in orders:
         dictt = {}
-        dictt['order'] = order
-        dictt['item'] = []
+        dictt["order"] = order
+        dictt["item"] = []
         items = OrderItem.objects.filter(order=order.id)
         if items.count() > 1:
             for item in items:
-                dictt['order'] = order
-                dictt['item'] += [item]
+                dictt["order"] = order
+                dictt["item"] += [item]
         else:
-            dictt['item'] = items
+            dictt["item"] = items
         order_items.append(dictt)
 
     return render(
@@ -128,7 +127,6 @@ def order_history(request):
 
 
 def category_page(request, category_id):
-    category = Category.objects.filter(id=category_id)
     group_product = GroupProduct.objects.filter(category=category_id)
     product = Product.objects.filter(group__in=group_product)
     return render(
@@ -136,7 +134,6 @@ def category_page(request, category_id):
         "cosmetics_shop/category_page.html",
         {
             "title": "Category",
-            "category": category,
             "group_product": group_product,
             "product": product,
         },

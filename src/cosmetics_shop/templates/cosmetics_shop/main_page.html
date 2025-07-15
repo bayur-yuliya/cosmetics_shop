@@ -10,16 +10,29 @@
     {% endfor %}
 </ul>
 {% endif %}
-{%  for cat in category  %}
-    Category Product:  <a href="{%  url 'category_page' cat.id  %}">{{  cat.name  }}</a><br>
-    {%  for group in group_product  %}
-        {%  if group.category.id == cat.id %}
-            <a href="{%  url 'group_page' group.id %}">{{  group.name  }}</a> |
-        {%  endif  %}
-    {%  endfor  %}<br><br>
-{%  endfor  %}
-<a href="{%  url 'brand_page'  %}">Brands</a><br><br>
+
+{% regroup group_product by category as cat_list %}
+
+<ul>
+{% for cat in cat_list %}
+    <li><a href="{% url 'category_page' cat.grouper.id %}">
+            {{ cat.grouper.name }}
+        </a>
+        <ul>
+        {% for group in cat.list %}
+            <li>
+              <a href="{% url 'group_page' group.id %}">
+                  {{ group.name }}
+              </a>
+            </li>
+        {% endfor %}
+        </ul>
+    </li>
+{% endfor %}
+</ul>
 <hr>
+<a href="{%  url 'brand_page'  %}">Brands</a><br><br>
+
 
 {%  for prod in product %}
 

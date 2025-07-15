@@ -68,7 +68,7 @@ class Product(models.Model):
     slug = models.SlugField(max_length=200)
     stock = models.PositiveIntegerField(default=0)
     code = models.PositiveIntegerField(default=0)
-    image = models.ImageField(upload_to='product_images/', default='default/image.jpg')
+    image = models.ImageField(upload_to="product_images/", default="default/image.jpg")
 
     def save(self, *args, **kwargs):
         if not self.slug:

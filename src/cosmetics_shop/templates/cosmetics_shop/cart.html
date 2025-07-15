@@ -32,13 +32,14 @@
         <br>
         <br>
     {%  endfor  %}
-{%  else  %}
-    Корзина пустая
-{%  endif  %}
     Всего: {{  total_price  }}<br>
     <hr>
     <a href="{%  url 'main_page'  %}"><button>Продолжить выбор</button></a>
     <a href="{%  url 'delivery'  %}"><button>Заказать</button></a>
+{%  else  %}
+    Корзина пустая
+{%  endif  %}
+<a href="{%  url 'main_page'  %}"><button>Назад</button></a>
 {% if messages %}
 <ul class="messages">
     {% for message in messages %}

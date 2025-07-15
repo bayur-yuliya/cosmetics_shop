@@ -66,7 +66,7 @@ def create_products(request):
     title = "Создание карточки товара"
 
     if request.method == "POST":
-        form = ProductForm(request.POST)
+        form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             return redirect("products")
@@ -88,7 +88,7 @@ def edit_products(request, product_id):
     title = "Изменение товара"
     product = Product.objects.get(id=product_id)
     if request.method == "POST":
-        form = ProductForm(request.POST, instance=product)
+        form = ProductForm(request.POST, request.FILES, instance=product)
         if form.is_valid():
             form.save()
             return redirect("product_card", product_id)
