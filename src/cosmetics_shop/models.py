@@ -136,7 +136,7 @@ class Order(models.Model):
         raise ValueError("Failed to generate unique order code")
 
     def __str__(self):
-        return f"{self.created_at} - {self.snapshot_name}"
+        return f"{self.created_at} - {self.code}"
 
 
 class OrderItem(models.Model):

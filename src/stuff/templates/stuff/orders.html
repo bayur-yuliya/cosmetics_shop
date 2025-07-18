@@ -10,7 +10,9 @@
         <button>Изменить</button>
 </form>
 <a href="{%  url 'orders'  %}"><button>Сбросить</button></a><hr>
-{%  for order in  orders  %}
-{{  order.code  }} - <a href="{%  url 'order_info' order.id  %}">{{  order  }}</a><br>
+
+{%  for order in  status  %}
+{{  order.order.code  }} - <a href="{%  url 'order_info' order.order.code  %}">{{  order.order  }}</a><br>
 {%  endfor  %}
+
 {%  endblock  %}

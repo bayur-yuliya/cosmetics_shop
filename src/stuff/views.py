@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
+from django.db.models import OuterRef, Subquery
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
@@ -115,18 +116,24 @@ def delete_product(request):
 @staff_member_required
 def orders(request):
     title = "Список заказов"
-    orders_list = Order.objects.all()
+    latest_status_subquery = OrderStatusLog.objects.filter(
+        order=OuterRef("order")
+    ).order_by("-changed_at")
+
+    latest_statuses = OrderStatusLog.objects.filter(
+        id__in=Subquery(latest_status_subquery.values("id")[:1])
+    )
     if request.method == "POST":
         form = OrderStatusForm(request.POST)
         if form.is_valid():
-            orders_list = Order.objects.filter(status=form.cleaned_data["status"])
+            latest_statuses = latest_statuses.filter(status=form.cleaned_data["status"])
             return render(
                 request,
                 "stuff/orders.html",
                 {
                     "title": title,
-                    "orders": orders_list,
                     "form": form,
+                    "status": latest_statuses,
                 },
             )
     else:
@@ -136,16 +143,16 @@ def orders(request):
         "stuff/orders.html",
         {
             "title": title,
-            "orders": orders_list,
             "form": form,
+            "status": latest_statuses,
         },
     )
 
 
 @staff_member_required
-def order_info(request, order_id):
-    title = f"Заказ {order_id}"
-    order = Order.objects.get(id=order_id)
+def order_info(request, order_code):
+    title = f"Заказ {order_code}"
+    order = Order.objects.get(code=order_code)
     order_items = OrderItem.objects.filter(order=order)
     if request.method == "POST":
         form = OrderStatusForm(request.POST, instance=order)
@@ -158,7 +165,7 @@ def order_info(request, order_id):
             )
             form.save()
             messages.success(request, "Статус успешно изменен")
-            return redirect("order_info", order_id=order.id)
+            return redirect("order_info", order_code=order.code)
     else:
         form = OrderStatusForm(instance=order)
         order_status_log = OrderStatusLog.objects.filter(order=order)

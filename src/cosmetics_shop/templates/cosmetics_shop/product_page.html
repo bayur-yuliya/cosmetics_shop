@@ -13,8 +13,12 @@
 {{  product.description  }}
 <br><br>
 <form method='POST' action="{%  url 'add_to_cart'  %}">
-{%  csrf_token  %}
-    <input type="hidden" name='product_code'  value="{{ product.code }}">
-    <button>КУПИТЬ </button><br><hr>
+    {%  csrf_token  %}
+        <input type="hidden" name='product_code'  value="{{ product.code }}">
+        {%  if prod.stock %}
+            <button>КУПИТЬ </button><br>
+        {%  else  %}
+            Товара нет в наличии
+        {%  endif  %}<hr>
 </form>
 {%  endblock  %}
