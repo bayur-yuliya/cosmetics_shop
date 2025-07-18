@@ -8,6 +8,8 @@
     <a href="{%  url 'product_card' prod.id  %}" >
         {{  prod.name  }}
     </a>
+|
+Код товара: {{  prod.code  }}
 | {{  prod.group.name  }} | {{  prod.brand  }} |
     {{  prod.price  }} | {{  prod.description  }} | Количество: {{  prod.stock  }}<br>
 {%  endfor  %}

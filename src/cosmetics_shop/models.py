@@ -1,7 +1,10 @@
+import random
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.text import slugify
+from django.utils.timezone import now
 
 
 class Status(models.IntegerChoices):
@@ -65,15 +68,20 @@ class Product(models.Model):
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
     price = models.PositiveIntegerField()
     description = models.TextField()
-    slug = models.SlugField(max_length=200)
     stock = models.PositiveIntegerField(default=0)
-    code = models.PositiveIntegerField(default=0)
+    code = models.PositiveIntegerField(unique=True, blank=True, null=True)
     image = models.ImageField(upload_to="product_images/", default="default/image.jpg")
 
     def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
+        if not self.code:
+            self.code = self._generate_unique_code()
         super().save(*args, **kwargs)
+
+    def _generate_unique_code(self):
+        while True:
+            code = random.randint(10000, 99999)
+            if not Product.objects.filter(code=code).exists():
+                return code
 
     def __str__(self):
         return f"{self.group.name} - {self.name}"
@@ -101,7 +109,7 @@ class Order(models.Model):
     delivery_address = models.ForeignKey(
         DeliveryAddress, on_delete=models.SET_NULL, null=True
     )
-    code = models.CharField(max_length=100)
+    code = models.CharField(max_length=100, unique=True, blank=True)
     created_at = models.DateField(auto_now_add=True)
     total_price = models.PositiveIntegerField(default=0)
 
@@ -109,6 +117,23 @@ class Order(models.Model):
     snapshot_email = models.EmailField()
     snapshot_phone = models.CharField(max_length=20)
     snapshot_address = models.TextField()
+
+    def save(self, *args, **kwargs):
+        if not self.code:
+            self.code = self.generate_unique_code()
+        super().save(*args, **kwargs)
+
+    def generate_unique_code(self):
+        """
+        Code generation: ORD-20250715-XXXX (date + serial number)
+        """
+        date_str = now().strftime("%Y%m%d")
+        prefix = f"ORD-{date_str}-"
+        for i in range(1, 10000):
+            code_candidate = f"{prefix}{str(i).zfill(4)}"
+            if not Order.objects.filter(code=code_candidate).exists():
+                return code_candidate
+        raise ValueError("Failed to generate unique order code")
 
     def __str__(self):
         return f"{self.created_at} - {self.snapshot_name}"

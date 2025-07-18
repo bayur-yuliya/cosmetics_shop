@@ -11,6 +11,6 @@
 </form>
 <a href="{%  url 'orders'  %}"><button>Сбросить</button></a><hr>
 {%  for order in  orders  %}
-<a href="{%  url 'order_info' order.id  %}">{{  order  }}</a><br>
+{{  order.code  }} - <a href="{%  url 'order_info' order.id  %}">{{  order  }}</a><br>
 {%  endfor  %}
 {%  endblock  %}

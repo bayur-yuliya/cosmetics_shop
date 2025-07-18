@@ -3,7 +3,7 @@
 {%  block title  %}{{  title  }}{%  endblock  %}
 
 {%  block content  %}
-{{  status  }} | {{  order  }}<br><hr><br>
+{{  status  }} | {{  order.code  }}<br><hr><br>
 {%  for prod in products  %}
     {{  prod }}<br>
 {%  endfor  %}
