@@ -6,6 +6,7 @@
 
 <br>
 <hr>
+   <img src='/media/{{ product.image }}'   hspace='40' vspace='40' width='100px' height='100px'>
 {{  product.name  }}<br>
 {{  product.brand  }} | {{  product.group.name  }} | {{  product.price  }} грн
 <hr>
@@ -13,7 +14,7 @@
 <br><br>
 <form method='POST' action="{%  url 'add_to_cart'  %}">
 {%  csrf_token  %}
-    <input type="hidden" name='product_id'  value="{{ product.id }}">
+    <input type="hidden" name='product_code'  value="{{ product.code }}">
     <button>КУПИТЬ </button><br><hr>
 </form>
 {%  endblock  %}

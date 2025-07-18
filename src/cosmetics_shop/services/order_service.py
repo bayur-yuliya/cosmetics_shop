@@ -32,8 +32,8 @@ def get_client(request):
         return Client.objects.get(id=client_id)
 
 
-def change_stock_product(product_id, count):
-    product = Product.objects.get(id=product_id)
+def change_stock_product(product_code, count):
+    product = Product.objects.get(code=product_code)
     if product.stock >= count:
         product.stock -= count
         product.save()
@@ -79,7 +79,7 @@ def create_order_from_cart(request, address_id):
         for item in cart_items
     ]
     for item in cart_items:
-        change_stock_product(item.product.id, item.quantity)
+        change_stock_product(item.product.code, item.quantity)
     OrderItem.objects.bulk_create(order_items)
 
     cart_items.delete()

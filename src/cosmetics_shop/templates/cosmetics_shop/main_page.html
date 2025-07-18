@@ -38,11 +38,12 @@
 
     <img src=media/{{ prod.image }}   hspace='40' vspace='40' width='100px' height='100px'>
 
-    <a href="{%  url 'product_page' prod.id  %}">{{  prod.name  }}</a> | {{  prod.group.name  }} | {{  prod.brand  }} |
+    <a href="{%  url 'product_page' prod.code  %}">{{  prod.name  }}</a> | {{  prod.group.name  }} | {{  prod.brand  }} |
     {{  prod.price  }} | {{  prod.description  }} |
+
     <form method='POST' action="{%  url 'add_to_cart'  %}">
     {%  csrf_token  %}
-        <input type="hidden" name='product_id'  value="{{ prod.id }}">
+        <input type="hidden" name='product_code'  value="{{ prod.code }}">
         {%  if prod.stock %}
             <button>КУПИТЬ </button><br>
         {%  else  %}

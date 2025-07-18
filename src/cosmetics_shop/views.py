@@ -11,7 +11,6 @@ from .forms import ClientForm, DeliveryAddressForm
 from .models import (
     Product,
     GroupProduct,
-    Category,
     Brand,
     CartItem,
     Order,
@@ -154,14 +153,14 @@ def group_page(request, group_id):
     )
 
 
-def product_page(request, product_id):
-    product = Product.objects.get(id=product_id)
+def product_page(request, product_code):
+    product = Product.objects.get(code=product_code)
     return render(
         request,
         "cosmetics_shop/product_page.html",
         {
             "title": "Product",
-            "product_id": product_id,
+            "product_code": product_code,
             "product": product,
         },
     )
@@ -193,16 +192,16 @@ def brand_products(request, brand_id):
 
 
 def add_to_cart(request):
-    product_id = request.POST.get("product_id")
-    if not product_id:
+    product_code = request.POST.get("product_code")
+    if not product_code:
         return redirect("main_page")
 
     if request.user.is_authenticated:
-        add_product_to_cart(request, product_id=product_id)
+        add_product_to_cart(request, product_code=product_code)
 
     else:
         cart = get_or_create_cart_for_session(request)
-        product = Product.objects.get(id=product_id)
+        product = Product.objects.get(code=product_code)
 
         item, created = CartItem.objects.get_or_create(cart=cart, product=product)
 
@@ -255,22 +254,22 @@ def order_success(request, order_id):
 
 @require_POST
 def cart_add(request):
-    product_id = request.POST.get("product_id")
-    add_product_to_cart(request, product_id)
+    product_code = request.POST.get("product_code")
+    add_product_to_cart(request, product_code)
     return redirect("cart")
 
 
 @require_POST
 def cart_remove(request):
-    product_id = request.POST.get("product_id")
-    remove_product_from_cart(request, product_id)
+    product_code = request.POST.get("product_code")
+    remove_product_from_cart(request, product_code)
     return redirect("cart")
 
 
 @require_POST
 def cart_delete(request):
-    product_id = request.POST.get("product_id")
-    delete_product_from_cart(request, product_id)
+    product_code = request.POST.get("product_code")
+    delete_product_from_cart(request, product_code)
     return redirect("cart")
 
 

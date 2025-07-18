@@ -12,7 +12,7 @@
 
         <form method="POST" action="{% url 'cart_remove' %}" style="display:inline;">
             {% csrf_token %}
-            <input type="hidden" name="product_id" value="{{ item.product.id }}">
+            <input type="hidden" name="product_code" value="{{ item.product.code }}">
             <button>-</button>
         </form>
 
@@ -20,13 +20,13 @@
 
         <form method="POST" action="{% url 'cart_add' %}" style="display:inline;">
             {% csrf_token %}
-            <input type="hidden" name="product_id" value="{{ item.product.id }}">
+            <input type="hidden" name="product_code" value="{{ item.product.code }}">
             <button>+</button>
         </form>
 
         <form method="POST" action="{% url 'cart_delete' %}" style="display:inline;">
             {% csrf_token %}
-            <input type="hidden" name="product_id" value="{{ item.product.id }}">
+            <input type="hidden" name="product_code" value="{{ item.product.code }}">
             <button>Удалить</button>
         </form>
         <br>
@@ -43,7 +43,7 @@
 {% if messages %}
 <ul class="messages">
     {% for message in messages %}
-    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
     {% endfor %}
 </ul>
 {% endif %}
