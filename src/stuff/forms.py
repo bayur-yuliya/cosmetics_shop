@@ -39,3 +39,9 @@ class OrderStatusForm(forms.ModelForm):
     class Meta:
         model = OrderStatusLog
         fields = ["status", "comment"]
+
+
+class ProductFilterForm(forms.Form):
+    min_stock = forms.IntegerField(required=False, label="Мин. остаток")
+    max_stock = forms.IntegerField(required=False, label="Макс. остаток")
+    name = forms.CharField(required=False, label="Название содержит")

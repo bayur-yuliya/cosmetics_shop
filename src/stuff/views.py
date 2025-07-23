@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
 from cosmetics_shop.models import Product, Order, OrderItem, OrderStatusLog
-from stuff.forms import ProductForm, OrderStatusForm
+from stuff.forms import ProductForm, OrderStatusForm, ProductFilterForm
 from .services.dashboard_service import (
     number_of_orders_today,
     number_of_orders_per_month,
@@ -40,12 +40,27 @@ def index(request):
 def products(request):
     title = "Товары"
     products = Product.objects.all().order_by("-id")
+
+    form = ProductFilterForm(request.GET or None)
+    if form.is_valid():
+        min_stock = form.cleaned_data.get("min_stock")
+        max_stock = form.cleaned_data.get("max_stock")
+        name = form.cleaned_data.get("name")
+
+        if min_stock is not None:
+            products = products.filter(stock__gte=min_stock)
+        if max_stock is not None:
+            products = products.filter(stock__lte=max_stock)
+        if name:
+            products = products.filter(name__icontains=name)
+
     return render(
         request,
         "stuff/products.html",
         {
             "title": title,
             "products": products,
+            "form": form,
         },
     )
 

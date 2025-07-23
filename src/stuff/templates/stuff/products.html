@@ -3,6 +3,15 @@
 {%  block title  %}{{  title  }}{%  endblock  %}
 
 {%  block content  %}
+
+<form method="get">
+    {{ form.as_p }}
+    <button type="submit">Применить фильтр</button>
+    <a href="{% url 'products' %}"><button type="button">Сбросить</button></a>
+</form>
+
+<hr>
+
 {%  for prod in  products  %}
     <img src="/media/{{ prod.image }}"   hspace='40' vspace='40' width='100px' height='100px'>
     <a href="{%  url 'product_card' prod.id  %}" >
@@ -12,5 +21,8 @@
 Код товара: {{  prod.code  }}
 | {{  prod.group.name  }} | {{  prod.brand  }} |
     {{  prod.price  }} | {{  prod.description  }} | Количество: {{  prod.stock  }}<br>
-{%  endfor  %}
+{% empty %}
+    <li>Нет товаров по заданным условиям.</li>
+{% endfor %}
+
 {%  endblock  %}
