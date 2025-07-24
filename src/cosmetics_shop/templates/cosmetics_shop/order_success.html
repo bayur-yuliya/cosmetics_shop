@@ -5,7 +5,8 @@
 {%  block content  %}
 {{  status  }} | {{  order.code  }}<br><hr><br>
 {%  for prod in products  %}
-    {{  prod }}<br>
+    <img src="{{ prod.product.image.url }}"  hspace='30' width='50px' height='50px'>
+    {{  prod  }}<br>
 {%  endfor  %}
 <hr><br>
 {{  order.total_price  }} грн

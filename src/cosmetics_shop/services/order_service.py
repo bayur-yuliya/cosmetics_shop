@@ -76,12 +76,13 @@ def create_order_from_cart(request, address_id):
         order_items = [
             OrderItem(
                 order=order,
-                product=item.product.name,
+                product=item.product,
                 price=item.product.price,
                 quantity=item.quantity,
             )
             for item in cart_items
         ]
+
         for item in cart_items:
             change_stock_product(item.product.code, item.quantity)
 

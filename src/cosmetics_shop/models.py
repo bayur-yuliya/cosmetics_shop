@@ -3,7 +3,6 @@ import random
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
-from django.utils.text import slugify
 from django.utils.timezone import now
 
 
@@ -141,7 +140,7 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
-    product = models.CharField(max_length=100)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     price = models.PositiveIntegerField()
     quantity = models.PositiveIntegerField()
 
