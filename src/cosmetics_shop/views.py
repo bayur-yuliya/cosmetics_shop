@@ -41,7 +41,7 @@ def register(request):
 
 def main_page(request):
     group_product = GroupProduct.objects.all()
-    product = Product.objects.all().order_by("-stock")
+    products = Product.objects.all().order_by("-stock")
     cart = get_or_create_cart(request)
     cart_items = CartItem.objects.filter(cart=cart)
     count_cart_items = sum(item.quantity for item in cart_items)
@@ -52,7 +52,7 @@ def main_page(request):
         {
             "title": "Главная страница",
             "group_product": group_product,
-            "product": product,
+            "products": products,
             "count_cart_items": count_cart_items,
         },
     )
@@ -127,28 +127,28 @@ def order_history(request):
 
 def category_page(request, category_id):
     group_product = GroupProduct.objects.filter(category=category_id)
-    product = Product.objects.filter(group__in=group_product)
+    products = Product.objects.filter(group__in=group_product).order_by("-stock")
     return render(
         request,
         "cosmetics_shop/category_page.html",
         {
             "title": "Category",
             "group_product": group_product,
-            "product": product,
+            "products": products,
         },
     )
 
 
 def group_page(request, group_id):
     group_product = GroupProduct.objects.filter(id=group_id)
-    product = Product.objects.filter(group__in=group_product)
+    products = Product.objects.filter(group__in=group_product).order_by("-stock")
     return render(
         request,
         "cosmetics_shop/category_page.html",
         {
             "title": "Category",
             "group_product": group_product,
-            "product": product,
+            "products": products,
         },
     )
 
@@ -186,7 +186,7 @@ def brand_products(request, brand_id):
         "cosmetics_shop/brand_products.html",
         {
             "title": title.name,
-            "brand_products": products,
+            "products": products,
         },
     )
 

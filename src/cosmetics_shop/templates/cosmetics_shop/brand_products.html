@@ -5,19 +5,7 @@
 {%  block content  %}
 <h1>{{  title  }}</h1>
 <br>
-{%  for prod in brand_products %}
-    <img src='/media/{{ prod.image }}'   hspace='40' vspace='40' width='100px' height='100px'>
-
-    <a href="{%  url 'product_page' prod.code  %}">{{  prod.name  }}</a> | {{  prod.group.name  }} | {{  prod.brand  }} |
-    {{  prod.price  }} | {{  prod.description  }} |
-    <form method='POST' action="{%  url 'add_to_cart'  %}">
-        {%  csrf_token  %}
-        <input type="hidden" name='product_code'  value="{{ prod.code }}">
-        {%  if prod.stock %}
-            <button>КУПИТЬ </button><br>
-        {%  else  %}
-            Товара нет в наличии
-        {%  endif  %}<hr>
-    </form><hr>
+{%  for product in products  %}
+    {%  include 'cosmetics_shop/includes/product.html' with product=product  %}
 {%  endfor  %}
 {%  endblock  %}

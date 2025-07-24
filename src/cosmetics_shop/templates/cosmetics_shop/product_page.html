@@ -3,22 +3,7 @@
 {%  block title  %}{{  title  }}{%  endblock  %}
 
 {%  block content  %}
-
 <br>
 <hr>
-   <img src='/media/{{ product.image }}'   hspace='40' vspace='40' width='100px' height='100px'>
-{{  product.name  }}<br>
-{{  product.brand  }} | {{  product.group.name  }} | {{  product.price  }} грн
-<hr>
-{{  product.description  }}
-<br><br>
-<form method='POST' action="{%  url 'add_to_cart'  %}">
-    {%  csrf_token  %}
-        <input type="hidden" name='product_code'  value="{{ product.code }}">
-        {%  if prod.stock %}
-            <button>КУПИТЬ </button><br>
-        {%  else  %}
-            Товара нет в наличии
-        {%  endif  %}<hr>
-</form>
+{%  include 'cosmetics_shop/includes/product.html'  %}
 {%  endblock  %}

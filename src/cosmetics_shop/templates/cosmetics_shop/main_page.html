@@ -33,24 +33,8 @@
 <hr>
 <a href="{%  url 'brand_page'  %}">Brands</a><br><br>
 
-
-{%  for prod in product %}
-
-    <img src=media/{{ prod.image }}   hspace='40' vspace='40' width='100px' height='100px'>
-
-    <a href="{%  url 'product_page' prod.code  %}">{{  prod.name  }}</a> | {{  prod.group.name  }} | {{  prod.brand  }} |
-    {{  prod.price  }} | {{  prod.description  }} |
-
-    <form method='POST' action="{%  url 'add_to_cart'  %}">
-    {%  csrf_token  %}
-        <input type="hidden" name='product_code'  value="{{ prod.code }}">
-        {%  if prod.stock %}
-            <button>КУПИТЬ </button><br>
-        {%  else  %}
-            Товара нет в наличии
-        {%  endif  %}<hr>
-    </form>
-
+{%  for product in products %}
+    {%  include 'cosmetics_shop/includes/product.html' with product=product  %}
 {%  endfor  %}<br>
 
 {%  endblock  %}
