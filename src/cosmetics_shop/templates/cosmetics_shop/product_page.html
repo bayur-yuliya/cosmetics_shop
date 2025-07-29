@@ -4,6 +4,10 @@
 
 {%  block content  %}
 <br>
+<a href="{%  url 'main_page'  %}">главная страница</a> |
+<a href="{%  url 'category_page' product.group.category.id  %}">{{  product.group.category  }}</a> |
+<a href="{%  url 'group_page' product.group.id  %}">{{  product.group  }}</a>
 <hr>
+
 {%  include 'cosmetics_shop/includes/product.html'  %}
 {%  endblock  %}

@@ -7,7 +7,7 @@ from django.db import transaction
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 
-from .forms import ClientForm, DeliveryAddressForm
+from .forms import ClientForm, DeliveryAddressForm, ProductFilterForm
 from .models import (
     Product,
     GroupProduct,
@@ -46,6 +46,23 @@ def main_page(request):
     cart_items = CartItem.objects.filter(cart=cart)
     count_cart_items = sum(item.quantity for item in cart_items)
 
+    form = ProductFilterForm(request.GET or None)
+
+    if form.is_valid():
+        name = form.cleaned_data['name']
+        group = form.cleaned_data['group']
+        min_price = form.cleaned_data['min_price']
+        max_price = form.cleaned_data['max_price']
+
+        if min_price is not None:
+            products = products.filter(price__gte=min_price, stock__gte=1)
+        if max_price is not None:
+            products = products.filter(price__lte=max_price)
+        if group:
+            products = products.filter(group__in=group)
+        if name:
+            products = products.filter(name__icontains=name)
+
     return render(
         request,
         "cosmetics_shop/main_page.html",
@@ -54,6 +71,7 @@ def main_page(request):
             "group_product": group_product,
             "products": products,
             "count_cart_items": count_cart_items,
+            'form': form,
         },
     )
 
@@ -160,7 +178,6 @@ def product_page(request, product_code):
         "cosmetics_shop/product_page.html",
         {
             "title": "Product",
-            "product_code": product_code,
             "product": product,
         },
     )

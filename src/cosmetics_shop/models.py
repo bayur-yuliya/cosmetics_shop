@@ -51,7 +51,7 @@ class GroupProduct(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.category.name} - {self.name}"
+        return f"{self.name}"
 
 
 class Brand(models.Model):

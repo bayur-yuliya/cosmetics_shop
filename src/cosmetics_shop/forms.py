@@ -1,6 +1,6 @@
 from django import forms
 
-from cosmetics_shop.models import Client, DeliveryAddress
+from cosmetics_shop.models import Client, DeliveryAddress, GroupProduct
 
 
 class ClientForm(forms.ModelForm):
@@ -15,3 +15,17 @@ class DeliveryAddressForm(forms.ModelForm):
     class Meta:
         model = DeliveryAddress
         fields = ["city", "street", "post_office"]
+
+
+class ProductFilterForm(forms.Form):
+    name = forms.CharField(required=False, label='Название содержит')
+
+    group = forms.ModelMultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple,
+        queryset=GroupProduct.objects.all(),
+        initial=0,
+        required=False,
+    )
+
+    min_price = forms.IntegerField(required=False, label='Min price')
+    max_price = forms.IntegerField(required=False, label='Max price')

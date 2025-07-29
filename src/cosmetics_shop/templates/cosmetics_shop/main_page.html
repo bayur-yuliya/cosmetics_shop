@@ -32,7 +32,13 @@
 </ul>
 <hr>
 <a href="{%  url 'brand_page'  %}">Brands</a><br><br>
-
+<hr>
+<form method="get">
+    {{ form.as_p }}
+    <button type="submit">Применить фильтр</button>
+    <a href="{% url 'main_page' %}"><button type="button">Сбросить</button></a>
+</form>
+<hr>
 {%  for product in products %}
     {%  include 'cosmetics_shop/includes/product.html' with product=product  %}
 {%  endfor  %}<br>
