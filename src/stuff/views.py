@@ -43,9 +43,9 @@ def products(request):
 
     form = ProductFilterForm(request.GET or None)
     if form.is_valid():
-        min_stock = form.cleaned_data.get("min_stock")
-        max_stock = form.cleaned_data.get("max_stock")
-        name = form.cleaned_data.get("name")
+        min_stock = form.cleaned_data["min_stock"]
+        max_stock = form.cleaned_data["max_stock"]
+        name = form.cleaned_data["name"]
 
         if min_stock is not None:
             products = products.filter(stock__gte=min_stock)

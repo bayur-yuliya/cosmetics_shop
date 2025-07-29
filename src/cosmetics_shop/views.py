@@ -49,10 +49,11 @@ def main_page(request):
     form = ProductFilterForm(request.GET or None)
 
     if form.is_valid():
-        name = form.cleaned_data['name']
-        group = form.cleaned_data['group']
-        min_price = form.cleaned_data['min_price']
-        max_price = form.cleaned_data['max_price']
+        name = form.cleaned_data["name"]
+        group = form.cleaned_data["group"]
+        min_price = form.cleaned_data["min_price"]
+        max_price = form.cleaned_data["max_price"]
+        brand = form.cleaned_data["brand"]
 
         if min_price is not None:
             products = products.filter(price__gte=min_price, stock__gte=1)
@@ -62,6 +63,8 @@ def main_page(request):
             products = products.filter(group__in=group)
         if name:
             products = products.filter(name__icontains=name)
+        if brand:
+            products = products.filter(brand__in=brand)
 
     return render(
         request,
@@ -71,7 +74,7 @@ def main_page(request):
             "group_product": group_product,
             "products": products,
             "count_cart_items": count_cart_items,
-            'form': form,
+            "form": form,
         },
     )
 
