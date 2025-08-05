@@ -61,6 +61,13 @@ class Brand(models.Model):
         return self.name
 
 
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Product(models.Model):
     name = models.CharField(max_length=100)
     group = models.ForeignKey(GroupProduct, on_delete=models.CASCADE)
@@ -70,6 +77,7 @@ class Product(models.Model):
     stock = models.PositiveIntegerField(default=0)
     code = models.PositiveIntegerField(unique=True, blank=True, null=True)
     image = models.ImageField(upload_to="product_images/", default="default/image.jpg")
+    tags = models.ManyToManyField(Tag, blank=True, related_name="products")
 
     def save(self, *args, **kwargs):
         if not self.code:
@@ -84,6 +92,14 @@ class Product(models.Model):
 
     def __str__(self):
         return f"{self.group.name} - {self.name}"
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('user', 'product')
 
 
 class Cart(models.Model):

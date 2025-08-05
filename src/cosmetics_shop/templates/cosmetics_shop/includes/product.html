@@ -6,6 +6,11 @@
 | {{  product.price  }}
 | {{  product.description  }} |
 
+<form method="POST" action="{% url 'add_to_favorites' product.id %}">
+    {% csrf_token %}
+    <button type="submit">Добавить в избранное</button>
+</form>
+
 <form method='POST' action="{%  url 'add_to_cart'  %}">
 {%  csrf_token  %}
     <input type="hidden" name='product_code'  value="{{ product.code }}">

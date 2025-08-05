@@ -21,5 +21,10 @@ urlpatterns = [
     path("delete_account/", views.delete_account, name="delete_account"),
     path("delivery/", views.delivery, name="delivery"),
     path("accounts/logout/", views.logout_view, name="logout"),
+
+    path('favorites/', views.favorites, name='favorites'),
+    path('favorites/add/<int:product_id>/', views.add_to_favorites, name='add_to_favorites'),
+    path('favorites/remove/<int:product_id>/', views.remove_from_favorites, name='remove_from_favorites'),
+
     path("", views.main_page, name="main_page"),
 ]

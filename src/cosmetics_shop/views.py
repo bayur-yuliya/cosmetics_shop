@@ -4,7 +4,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.db import transaction
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
 from .forms import ClientForm, DeliveryAddressForm, ProductFilterForm
@@ -17,7 +17,7 @@ from .models import (
     OrderItem,
     Client,
     DeliveryAddress,
-    Category, OrderStatusLog,
+    Category, OrderStatusLog, Favorite,
 )
 from .services.cart_services import (
     add_product_to_cart,
@@ -122,8 +122,8 @@ def user_account(request):
 @login_required
 def order_history(request):
     title = "История заказов"
-    orders = Order.objects.filter(client=Client.objects.get(user=request.user))
-
+    client, _ = Client.objects.get_or_create(user=request.user)
+    orders = Order.objects.filter(client=client)
     order_items = []
 
     for order in orders:
@@ -139,13 +139,11 @@ def order_history(request):
         else:
             dictt["item"] = items
         order_items.append(dictt)
-
     return render(
         request,
         "cosmetics_shop/order_history.html",
         {
             "title": title,
-            "orders": orders,
             "order_items": order_items,
         },
     )
@@ -364,4 +362,28 @@ def user_contact(request):
     return render(request, "cosmetics_shop/user_contact.html", {
         "form": form,
         "client": client
+    })
+
+
+@login_required
+@require_POST
+def add_to_favorites(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    Favorite.objects.get_or_create(user=request.user, product=product)
+    return redirect('product_page', product_code=product.code)
+
+
+@login_required
+@require_POST
+def remove_from_favorites(request, product_id):
+    Favorite.objects.filter(user=request.user, product_id=product_id).delete()
+    return redirect('favorites')
+
+
+@login_required
+def favorites(request):
+    favorite_products = Favorite.objects.filter(user=request.user)
+    return render(request, 'cosmetics_shop/favorites.html', {
+        'title': 'Избранное',
+        'favorite_products': favorite_products,
     })
