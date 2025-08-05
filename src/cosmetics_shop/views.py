@@ -5,7 +5,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.db import transaction
 from django.shortcuts import render, redirect
-from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from .forms import ClientForm, DeliveryAddressForm, ProductFilterForm
@@ -18,7 +17,7 @@ from .models import (
     OrderItem,
     Client,
     DeliveryAddress,
-    Category,
+    Category, OrderStatusLog,
 )
 from .services.cart_services import (
     add_product_to_cart,
@@ -44,9 +43,6 @@ def register(request):
 def main_page(request):
     group_product = GroupProduct.objects.all()
     products = Product.objects.all().order_by("-stock")
-    cart = get_or_create_cart(request)
-    cart_items = CartItem.objects.filter(cart=cart)
-    count_cart_items = sum(item.quantity for item in cart_items)
 
     query_params = request.GET.copy()
     for key in list(query_params.keys()):
@@ -82,7 +78,6 @@ def main_page(request):
             "title": "Главная страница",
             "group_product": group_product,
             "products": products,
-            "count_cart_items": count_cart_items,
             "form": form,
         },
     )
@@ -136,6 +131,7 @@ def order_history(request):
         dictt["order"] = order
         dictt["item"] = []
         items = OrderItem.objects.filter(order=order.id)
+        dictt["status"] = OrderStatusLog.objects.filter(order=order)[0]
         if items.count() > 1:
             for item in items:
                 dictt["order"] = order
@@ -253,7 +249,6 @@ def cart(request):
     cart = get_or_create_cart(request)
     cart_items = CartItem.objects.select_related("product").filter(cart=cart)
     total_price = sum(item.product.price * item.quantity for item in cart_items)
-    count_cart_items = sum(item.quantity for item in cart_items)
 
     return render(
         request,
@@ -262,7 +257,6 @@ def cart(request):
             "title": "Корзина",
             "cart_items": cart_items,
             "total_price": total_price,
-            "count_cart_items": count_cart_items,
         },
     )
 
@@ -360,10 +354,14 @@ def delivery(request):
 
 
 def user_contact(request):
+    client = Client.objects.get(user=request.user)
     if request.method == "POST":
-        form = ClientForm(request.POST, instance=request.user)
+        form = ClientForm(request.POST, instance=client)
         if form.is_valid():
             form.save()
             return redirect("user_contact")
-    form = ClientForm(instance=request.user)
-    return render(request, "cosmetics_shop/user_contact.html", {"form": form})
+    form = ClientForm(instance=client)
+    return render(request, "cosmetics_shop/user_contact.html", {
+        "form": form,
+        "client": client
+    })

@@ -3,6 +3,12 @@
 {%  block title  %}{{  title  }}{%  endblock  %}
 
 {%  block content  %}
+<hr>
+username: {{  user.username|default:"_"  }} <br>
+full_name: {{  client.full_name|default:"_"  }} <br>
+email: {{  client.email|default:"_"  }} <br>
+phone: {{  client.phone|default:"_"  }}
+<hr>
 <form method="post">
   {% csrf_token %}
   {{ form.as_p }}
