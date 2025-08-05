@@ -5,7 +5,7 @@
 {%  block content  %}
 
 
-{% regroup group_product by category as cat_list %}
+{% regroup all_groups by category as cat_list %}
 
 <ul>
 {% for cat in cat_list %}
@@ -27,7 +27,8 @@
 <hr>
 <a href="{%  url 'brand_page'  %}">Brands</a><br><br>
 <hr>
-
+<div align="center"><h2>{{  title  }}</h2></div>
+<hr>
 {%  for product in products %}
     {%  include 'cosmetics_shop/includes/product.html' with product=product  %}
 {%  endfor  %}<br>

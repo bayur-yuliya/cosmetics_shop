@@ -9,5 +9,22 @@
 <a href="{%  url 'group_page' product.group.id  %}">{{  product.group  }}</a>
 <hr>
 
-{%  include 'cosmetics_shop/includes/product.html'  %}
+<img src={{ product.image.url }}   hspace='40' vspace='40' width='100px' height='100px'>
+
+<a href="{%  url 'product_page' product.code  %}">{{  product.name  }}</a>
+| {{  product.group.name  }}
+| {{  product.brand  }}
+| {{  product.price  }}
+<hr>
+{{  product.description  }}
+<hr>
+<form method='POST' action="{%  url 'add_to_cart'  %}">
+{%  csrf_token  %}
+    <input type="hidden" name='product_code'  value="{{ product.code }}">
+    {%  if product.stock %}
+        <button>КУПИТЬ </button><br>
+    {%  else  %}
+        Товара нет в наличии
+    {%  endif  %}
+</form>
 {%  endblock  %}
