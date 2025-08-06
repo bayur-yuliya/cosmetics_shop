@@ -6,6 +6,7 @@ from cosmetics_shop.models import (
     GroupProduct,
     Brand,
     OrderStatusLog,
+    Tag,
 )
 
 
@@ -29,10 +30,22 @@ class BrandForm(forms.ModelForm):
 
 class ProductForm(forms.ModelForm):
     brand = forms.ModelChoiceField(queryset=Brand.objects.all(), initial=0)
+    tag = forms.ModelMultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple, queryset=Tag.objects.all(), initial=0
+    )
 
     class Meta:
         model = Product
-        fields = ["name", "image", "group", "brand", "price", "description", "stock"]
+        fields = [
+            "name",
+            "image",
+            "group",
+            "brand",
+            "tag",
+            "price",
+            "description",
+            "stock",
+        ]
 
 
 class OrderStatusForm(forms.ModelForm):
@@ -45,3 +58,9 @@ class ProductFilterForm(forms.Form):
     min_stock = forms.IntegerField(required=False, label="Мин. остаток")
     max_stock = forms.IntegerField(required=False, label="Макс. остаток")
     name = forms.CharField(required=False, label="Название содержит")
+
+
+class TagForm(forms.ModelForm):
+    class Meta:
+        model = Tag
+        fields = ["name"]

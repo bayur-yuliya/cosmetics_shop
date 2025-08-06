@@ -4,8 +4,25 @@ from django.db.models import OuterRef, Subquery
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
-from cosmetics_shop.models import Product, Order, OrderItem, OrderStatusLog
-from stuff.forms import ProductForm, OrderStatusForm, ProductFilterForm
+from cosmetics_shop.models import (
+    Product,
+    Order,
+    OrderItem,
+    OrderStatusLog,
+    Brand,
+    Category,
+    Tag,
+    GroupProduct,
+)
+from stuff.forms import (
+    ProductForm,
+    OrderStatusForm,
+    ProductFilterForm,
+    CategoryForm,
+    GroupProductForm,
+    BrandForm,
+    TagForm,
+)
 from .services.dashboard_service import (
     number_of_orders_today,
     number_of_orders_per_month,
@@ -194,5 +211,127 @@ def order_info(request, order_code):
             "order_items": order_items,
             "form": form,
             "order_status_log": order_status_log,
+        },
+    )
+
+
+def brands_list(request):
+    list = Brand.objects.all()
+    name = "brands"
+    return render(
+        request,
+        "stuff/lists_page.html",
+        {
+            "list": list,
+            "name": name,
+        },
+    )
+
+
+def categories_list(request):
+    list = Category.objects.all()
+    return render(
+        request,
+        "stuff/lists_page.html",
+        {
+            "list": list,
+        },
+    )
+
+
+def tags_list(request):
+    list = Tag.objects.all()
+    return render(
+        request,
+        "stuff/lists_page.html",
+        {
+            "list": list,
+        },
+    )
+
+
+def groups_list(request):
+    list = GroupProduct.objects.all()
+    return render(
+        request,
+        "stuff/lists_page.html",
+        {
+            "list": list,
+        },
+    )
+
+
+def create_categories(request):
+    name = "Категория"
+    if request.method == "POST":
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("categories_list")
+
+    form = CategoryForm()
+    return render(
+        request,
+        "stuff/create_page.html",
+        {
+            "name": name,
+            "form": form,
+        },
+    )
+
+
+def create_groups(request):
+    name = "Группа"
+    if request.method == "POST":
+        form = GroupProductForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("groups_list")
+
+    form = GroupProductForm()
+    return render(
+        request,
+        "stuff/create_page.html",
+        {
+            "name": name,
+            "form": form,
+        },
+    )
+
+
+def create_brands(request):
+    name = "Бренд"
+    if request.method == "POST":
+        form = BrandForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("brands_list")
+
+    form = BrandForm()
+    return render(
+        request,
+        "stuff/create_page.html",
+        {
+            "name": name,
+            "form": form,
+        },
+    )
+
+
+def create_tags(request):
+    name = "Тег"
+    if request.method == "POST":
+        form = TagForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("tags_list")
+
+    form = TagForm()
+    return render(
+        request,
+        "stuff/create_page.html",
+        {
+            "name": name,
+            "form": form,
         },
     )
