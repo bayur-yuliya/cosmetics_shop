@@ -11,8 +11,8 @@
 </form>
 <a href="{%  url 'orders'  %}"><button>Сбросить</button></a><hr>
 
-{%  for order in  status  %}
-{{  order.order.code  }} - <a href="{%  url 'order_info' order.order.code  %}">{{  order.order  }}</a><br>
+{%  for order in status  %}
+{{  order.order.code  }} - {{  order.get_status_display  }} - <a href="{%  url 'order_info' order.order.code  %}">{{  order.order  }}</a><br>
 {%  endfor  %}
 
 {%  endblock  %}

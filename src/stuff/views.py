@@ -4,6 +4,7 @@ from django.db.models import OuterRef, Subquery
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
+from cosmetics_shop.forms import ProductFilterForm
 from cosmetics_shop.models import (
     Product,
     Order,
@@ -17,7 +18,6 @@ from cosmetics_shop.models import (
 from stuff.forms import (
     ProductForm,
     OrderStatusForm,
-    ProductFilterForm,
     CategoryForm,
     GroupProductForm,
     BrandForm,
@@ -58,18 +58,35 @@ def products(request):
     title = "Товары"
     products = Product.objects.all().order_by("-id")
 
-    form = ProductFilterForm(request.GET or None)
-    if form.is_valid():
-        min_stock = form.cleaned_data["min_stock"]
-        max_stock = form.cleaned_data["max_stock"]
-        name = form.cleaned_data["name"]
+    query_params = request.GET.copy()
+    for key in list(query_params.keys()):
+        if not query_params[key].strip():
+            query_params.pop(key)
+    if request.GET.urlencode() != query_params.urlencode():
+        return redirect(f"{request.path}?{query_params.urlencode()}")
 
-        if min_stock is not None:
-            products = products.filter(stock__gte=min_stock)
-        if max_stock is not None:
-            products = products.filter(stock__lte=max_stock)
+    form = ProductFilterForm(request.GET or None)
+
+    if form.is_valid():
+        name = form.cleaned_data["name"]
+        group = form.cleaned_data["group"]
+        tags = form.cleaned_data["tags"]
+        min_price = form.cleaned_data["min_price"]
+        max_price = form.cleaned_data["max_price"]
+        brand = form.cleaned_data["brand"]
+
         if name:
             products = products.filter(name__icontains=name)
+        if min_price is not None:
+            products = products.filter(price__gte=min_price, stock__gte=1)
+        if max_price is not None:
+            products = products.filter(price__lte=max_price)
+        if group:
+            products = products.filter(group__in=group)
+        if brand:
+            products = products.filter(brand__in=brand)
+        if tags:
+            products = products.filter(tags__in=tags)
 
     return render(
         request,

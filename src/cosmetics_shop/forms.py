@@ -1,6 +1,6 @@
 from django import forms
 
-from cosmetics_shop.models import Client, DeliveryAddress, GroupProduct, Brand
+from cosmetics_shop.models import Client, DeliveryAddress, GroupProduct, Brand, Tag
 
 
 class ClientForm(forms.ModelForm):
@@ -30,6 +30,13 @@ class ProductFilterForm(forms.Form):
     brand = forms.ModelMultipleChoiceField(
         widget=forms.CheckboxSelectMultiple,
         queryset=Brand.objects.all(),
+        initial=0,
+        required=False,
+    )
+
+    tags = forms.ModelMultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple,
+        queryset=Tag.objects.all(),
         initial=0,
         required=False,
     )

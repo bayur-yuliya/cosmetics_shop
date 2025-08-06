@@ -31,6 +31,8 @@ from .services.cart_services import (
 )
 from .services.order_service import create_order_from_cart, get_client
 
+from .services.categories_services import context_categories
+
 
 def register(request):
     if request.method == "POST":
@@ -43,7 +45,7 @@ def register(request):
 
 
 def main_page(request):
-    group_product = GroupProduct.objects.all()
+    categories = context_categories()
     products = Product.objects.all().order_by("-stock")
 
     query_params = request.GET.copy()
@@ -58,27 +60,30 @@ def main_page(request):
     if form.is_valid():
         name = form.cleaned_data["name"]
         group = form.cleaned_data["group"]
+        tags = form.cleaned_data["tags"]
         min_price = form.cleaned_data["min_price"]
         max_price = form.cleaned_data["max_price"]
         brand = form.cleaned_data["brand"]
 
+        if name:
+            products = products.filter(name__icontains=name)
         if min_price is not None:
             products = products.filter(price__gte=min_price, stock__gte=1)
         if max_price is not None:
             products = products.filter(price__lte=max_price)
         if group:
             products = products.filter(group__in=group)
-        if name:
-            products = products.filter(name__icontains=name)
         if brand:
             products = products.filter(brand__in=brand)
+        if tags:
+            products = products.filter(tags__in=tags)
 
     return render(
         request,
         "cosmetics_shop/main_page.html",
         {
             "title": "Главная страница",
-            "group_product": group_product,
+            "context_categories": categories,
             "products": products,
             "form": form,
         },
@@ -153,7 +158,7 @@ def order_history(request):
 
 def category_page(request, category_id):
     title = Category.objects.get(id=category_id)
-    all_groups = GroupProduct.objects.all()
+    categories = context_categories()
     group_product = GroupProduct.objects.filter(category=category_id)
     products = Product.objects.filter(group__in=group_product).order_by("-stock")
 
@@ -164,14 +169,14 @@ def category_page(request, category_id):
             "title": title,
             "group_product": group_product,
             "products": products,
-            "all_groups": all_groups,
+            "context_categories": categories,
         },
     )
 
 
 def group_page(request, group_id):
     title = GroupProduct.objects.get(id=group_id)
-    all_groups = GroupProduct.objects.all()
+    categories = context_categories()
     group_product = GroupProduct.objects.filter(id=group_id)
     products = Product.objects.filter(group__in=group_product).order_by("-stock")
 
@@ -182,7 +187,7 @@ def group_page(request, group_id):
             "title": title,
             "group_product": group_product,
             "products": products,
-            "all_groups": all_groups,
+            "context_categories": categories,
         },
     )
 
@@ -215,7 +220,7 @@ def brand_page(request):
 
 def brand_products(request, brand_id):
     title = Brand.objects.get(id=brand_id)
-    all_groups = GroupProduct.objects.all()
+    categories = context_categories()
     products = Product.objects.filter(brand=brand_id)
     return render(
         request,
@@ -223,7 +228,7 @@ def brand_products(request, brand_id):
         {
             "title": title.name,
             "products": products,
-            "all_groups": all_groups,
+            "context_categories": categories,
         },
     )
 

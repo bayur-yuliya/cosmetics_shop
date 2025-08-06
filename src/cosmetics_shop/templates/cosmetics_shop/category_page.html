@@ -4,26 +4,25 @@
 
 {%  block content  %}
 
-
-{% regroup all_groups by category as cat_list %}
-
 <ul>
-{% for cat in cat_list %}
-    <li><a href="{% url 'category_page' cat.grouper.id %}">
-            {{ cat.grouper.name }}
+{% for item in context_categories %}
+    <li>
+        <a href="{% url 'category_page' item.category.id %}">
+            {{ item.category.name }}
         </a>
-        <ul>
-        {% for group in cat.list %}
-            <li>
-              <a href="{% url 'group_page' group.id %}">
-                  {{ group.name }}
-              </a>
-            </li>
-        {% endfor %}
-        </ul>
+        {% if item.groups %}
+            <ul>
+            {% for group in item.groups %}
+                <li>
+                    <a href="{% url 'group_page' group.id %}">{{ group.name }}</a>
+                </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
     </li>
 {% endfor %}
 </ul>
+
 <hr>
 <a href="{%  url 'brand_page'  %}">Brands</a><br><br>
 <hr>
