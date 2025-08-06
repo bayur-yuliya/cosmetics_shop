@@ -30,7 +30,7 @@ class BrandForm(forms.ModelForm):
 
 class ProductForm(forms.ModelForm):
     brand = forms.ModelChoiceField(queryset=Brand.objects.all(), initial=0)
-    tag = forms.ModelMultipleChoiceField(
+    tags = forms.ModelMultipleChoiceField(
         widget=forms.CheckboxSelectMultiple, queryset=Tag.objects.all(), initial=0
     )
 
@@ -41,7 +41,7 @@ class ProductForm(forms.ModelForm):
             "image",
             "group",
             "brand",
-            "tag",
+            "tags",
             "price",
             "description",
             "stock",

@@ -8,6 +8,15 @@
 {{  product.price  }} | {{  product.description  }} <br>
 Количество товара в наличии: {{  product.stock  }}<br>
 
+{%  if tags    %}
+Теги:
+{%  for tag in tags  %}
+    {{  tag.name  }},
+{%  endfor  %}
+{%  endif  %}
+
+
+
 <form action="{%  url 'edit_products' product.id  %}">
     {%  csrf_token  %}
     <input type="hidden" name="product_id" value="{{ product.id }}">

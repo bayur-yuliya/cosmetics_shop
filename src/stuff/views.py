@@ -85,11 +85,13 @@ def products(request):
 @staff_member_required
 def product_card(request, product_id):
     product = get_object_or_404(Product, id=product_id)
+    tags = product.tags.all()
     return render(
         request,
         "stuff/product_card.html",
         {
             "product": product,
+            "tags": tags,
         },
     )
 

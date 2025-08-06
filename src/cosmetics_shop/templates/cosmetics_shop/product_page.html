@@ -15,8 +15,17 @@
 | {{  product.group.name  }}
 | {{  product.brand  }}
 | {{  product.price  }}
+
+{%  if tags    %}
+<hr>Теги:
+{%  for tag in tags  %}
+    {{  tag.name  }},
+{%  endfor  %}
+{%  endif  %}
+
 <hr>
 {{  product.description  }}
+
 <hr>
 <form method='POST' action="{%  url 'add_to_cart'  %}">
 {%  csrf_token  %}

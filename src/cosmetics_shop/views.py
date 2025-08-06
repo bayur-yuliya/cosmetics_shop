@@ -17,7 +17,9 @@ from .models import (
     OrderItem,
     Client,
     DeliveryAddress,
-    Category, OrderStatusLog, Favorite,
+    Category,
+    OrderStatusLog,
+    Favorite,
 )
 from .services.cart_services import (
     add_product_to_cart,
@@ -187,12 +189,14 @@ def group_page(request, group_id):
 
 def product_page(request, product_code):
     product = Product.objects.get(code=product_code)
+    tags = product.tags.all()
     return render(
         request,
         "cosmetics_shop/product_page.html",
         {
             "title": "Product",
             "product": product,
+            "tags": tags,
         },
     )
 
@@ -359,10 +363,9 @@ def user_contact(request):
             form.save()
             return redirect("user_contact")
     form = ClientForm(instance=client)
-    return render(request, "cosmetics_shop/user_contact.html", {
-        "form": form,
-        "client": client
-    })
+    return render(
+        request, "cosmetics_shop/user_contact.html", {"form": form, "client": client}
+    )
 
 
 @login_required
@@ -370,20 +373,24 @@ def user_contact(request):
 def add_to_favorites(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     Favorite.objects.get_or_create(user=request.user, product=product)
-    return redirect('product_page', product_code=product.code)
+    return redirect("product_page", product_code=product.code)
 
 
 @login_required
 @require_POST
 def remove_from_favorites(request, product_id):
     Favorite.objects.filter(user=request.user, product_id=product_id).delete()
-    return redirect('favorites')
+    return redirect("favorites")
 
 
 @login_required
 def favorites(request):
     favorite_products = Favorite.objects.filter(user=request.user)
-    return render(request, 'cosmetics_shop/favorites.html', {
-        'title': 'Избранное',
-        'favorite_products': favorite_products,
-    })
+    return render(
+        request,
+        "cosmetics_shop/favorites.html",
+        {
+            "title": "Избранное",
+            "favorite_products": favorite_products,
+        },
+    )
