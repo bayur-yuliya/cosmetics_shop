@@ -31,7 +31,7 @@ from .services.cart_services import (
 )
 from .services.order_service import create_order_from_cart, get_client
 
-from .services.categories_services import context_categories
+from .services.categories_services import context_categories, favorites_products
 
 
 def register(request):
@@ -45,8 +45,9 @@ def register(request):
 
 
 def main_page(request):
+    products = favorites_products(request)
+
     categories = context_categories()
-    products = Product.objects.all().order_by("-stock")
 
     query_params = request.GET.copy()
     for key in list(query_params.keys()):
@@ -160,7 +161,8 @@ def category_page(request, category_id):
     title = Category.objects.get(id=category_id)
     categories = context_categories()
     group_product = GroupProduct.objects.filter(category=category_id)
-    products = Product.objects.filter(group__in=group_product).order_by("-stock")
+
+    products = favorites_products(request).filter(group__in=group_product)
 
     return render(
         request,
@@ -178,7 +180,8 @@ def group_page(request, group_id):
     title = GroupProduct.objects.get(id=group_id)
     categories = context_categories()
     group_product = GroupProduct.objects.filter(id=group_id)
-    products = Product.objects.filter(group__in=group_product).order_by("-stock")
+
+    products = favorites_products(request).filter(group__in=group_product)
 
     return render(
         request,
@@ -221,7 +224,9 @@ def brand_page(request):
 def brand_products(request, brand_id):
     title = Brand.objects.get(id=brand_id)
     categories = context_categories()
-    products = Product.objects.filter(brand=brand_id)
+
+    products = favorites_products(request).filter(brand=brand_id)
+
     return render(
         request,
         "cosmetics_shop/category_page.html",
@@ -384,8 +389,9 @@ def add_to_favorites(request, product_id):
 @login_required
 @require_POST
 def remove_from_favorites(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
     Favorite.objects.filter(user=request.user, product_id=product_id).delete()
-    return redirect("favorites")
+    return redirect("product_page", product_code=product.code)
 
 
 @login_required
@@ -397,5 +403,6 @@ def favorites(request):
         {
             "title": "Избранное",
             "favorite_products": favorite_products,
+            "is_favorite": True,
         },
     )

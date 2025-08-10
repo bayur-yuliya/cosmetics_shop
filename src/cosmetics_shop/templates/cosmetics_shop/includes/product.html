@@ -6,10 +6,18 @@
 | {{  product.price  }}
 | {{  product.description  }} |
 
+
+{%  if product.is_favorite or is_favorite  %}
+<form method="POST" action="{% url 'remove_from_favorites' product.id %}">
+    {% csrf_token %}
+    <button type="submit">Убрать из избранное</button>
+</form>
+{%  else  %}
 <form method="POST" action="{% url 'add_to_favorites' product.id %}">
     {% csrf_token %}
     <button type="submit">Добавить в избранное</button>
 </form>
+{%  endif  %}
 
 <form method='POST' action="{%  url 'add_to_cart'  %}">
 {%  csrf_token  %}
