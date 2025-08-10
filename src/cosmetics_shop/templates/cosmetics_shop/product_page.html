@@ -27,7 +27,7 @@
 {{  product.description  }}
 
 <hr>
-<form method='POST' action="{%  url 'add_to_cart'  %}">
+<form method='POST' action="{%  url 'add_to_cart'  %}?next={{  request.get_full_path|urlencode  }}">
 {%  csrf_token  %}
     <input type="hidden" name='product_code'  value="{{ product.code }}">
     {%  if product.stock %}

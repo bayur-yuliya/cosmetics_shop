@@ -14,13 +14,11 @@ def context_categories():
 
 def favorites_products(request):
     favorites_subquery = Favorite.objects.filter(
-        user=request.user,
-        product_id=OuterRef('pk')
+        user=request.user, product_id=OuterRef("pk")
     )
 
     products = (
-        Product.objects
-        .annotate(is_favorite=Exists(favorites_subquery))
+        Product.objects.annotate(is_favorite=Exists(favorites_subquery))
     ).order_by("-stock")
 
     return products

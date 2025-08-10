@@ -8,18 +8,18 @@
 
 
 {%  if product.is_favorite or is_favorite  %}
-<form method="POST" action="{% url 'remove_from_favorites' product.id %}">
+<form method="POST" action="{% url 'remove_from_favorites' product.id %}?next={{  request.get_full_path|urlencode  }}">
     {% csrf_token %}
     <button type="submit">Убрать из избранное</button>
 </form>
 {%  else  %}
-<form method="POST" action="{% url 'add_to_favorites' product.id %}">
+<form method="POST" action="{% url 'add_to_favorites' product.id %}?next={{  request.get_full_path|urlencode  }}">
     {% csrf_token %}
     <button type="submit">Добавить в избранное</button>
 </form>
 {%  endif  %}
 
-<form method='POST' action="{%  url 'add_to_cart'  %}">
+<form method='POST' action="{%  url 'add_to_cart'  %}?next={{  request.get_full_path|urlencode  }}">
 {%  csrf_token  %}
     <input type="hidden" name='product_code'  value="{{ product.code }}">
     {%  if product.stock %}

@@ -10,7 +10,7 @@
     <img src="/media/{{ item.product.image }}"   hspace='40' vspace='40' width='100px' height='100px'>
         {{ item.product }} — {{ item.product.price|multiply:item.quantity }} грн —
 
-        <form method="POST" action="{% url 'cart_remove' %}" style="display:inline;">
+        <form method="POST" action="{% url 'cart_remove' %}?next={{  request.get_full_path|urlencode  }}" style="display:inline;">
             {% csrf_token %}
             <input type="hidden" name="product_code" value="{{ item.product.code }}">
             <button>-</button>
@@ -18,13 +18,13 @@
 
         {{ item.quantity }}
 
-        <form method="POST" action="{% url 'cart_add' %}" style="display:inline;">
+        <form method="POST" action="{% url 'cart_add' %}?next={{  request.get_full_path|urlencode  }}" style="display:inline;">
             {% csrf_token %}
             <input type="hidden" name="product_code" value="{{ item.product.code }}">
             <button>+</button>
         </form>
 
-        <form method="POST" action="{% url 'cart_delete' %}" style="display:inline;">
+        <form method="POST" action="{% url 'cart_delete' %}?next={{  request.get_full_path|urlencode  }}" style="display:inline;">
             {% csrf_token %}
             <input type="hidden" name="product_code" value="{{ item.product.code }}">
             <button>Удалить</button>

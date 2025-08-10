@@ -254,7 +254,8 @@ def add_to_cart(request):
 
         item.quantity += 1
         item.save()
-    return redirect("main_page")
+    next_url = request.GET.get("next", "/")
+    return redirect(next_url)
 
 
 def cart(request):
@@ -301,21 +302,24 @@ def order_success(request, order_id):
 def cart_add(request):
     product_code = request.POST.get("product_code")
     add_product_to_cart(request, product_code)
-    return redirect("cart")
+    next_url = request.GET.get("next", "/")
+    return redirect(next_url)
 
 
 @require_POST
 def cart_remove(request):
     product_code = request.POST.get("product_code")
     remove_product_from_cart(request, product_code)
-    return redirect("cart")
+    next_url = request.GET.get("next", "/")
+    return redirect(next_url)
 
 
 @require_POST
 def cart_delete(request):
     product_code = request.POST.get("product_code")
     delete_product_from_cart(request, product_code)
-    return redirect("cart")
+    next_url = request.GET.get("next", "/")
+    return redirect(next_url)
 
 
 def delivery(request):
@@ -383,15 +387,16 @@ def user_contact(request):
 def add_to_favorites(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     Favorite.objects.get_or_create(user=request.user, product=product)
-    return redirect("product_page", product_code=product.code)
+    next_url = request.GET.get("next", "/")
+    return redirect(next_url)
 
 
 @login_required
 @require_POST
 def remove_from_favorites(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
     Favorite.objects.filter(user=request.user, product_id=product_id).delete()
-    return redirect("product_page", product_code=product.code)
+    next_url = request.GET.get("next", "/")
+    return redirect(next_url)
 
 
 @login_required
