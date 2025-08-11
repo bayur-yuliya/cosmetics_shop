@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
-from django.db.models import OuterRef, Subquery
+from django.db.models import OuterRef, Subquery, Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
@@ -13,7 +13,7 @@ from cosmetics_shop.models import (
     Brand,
     Category,
     Tag,
-    GroupProduct,
+    GroupProduct, Favorite,
 )
 from stuff.forms import (
     ProductForm,
@@ -39,6 +39,7 @@ def index(request):
     orders_per_month = number_of_orders_per_month()
     summ = summ_bill()
     average = average_bill()
+    max_favorite = (Favorite.objects.annotate(num_product=Count("product")).order_by("num_product"))[0:3]
 
     return render(
         request,
@@ -49,6 +50,7 @@ def index(request):
             "number_of_orders_per_month": orders_per_month,
             "summ_bill": summ,
             "average_bill": average,
+            "max_favorite": max_favorite,
         },
     )
 
@@ -173,7 +175,7 @@ def orders(request):
 
     latest_statuses = OrderStatusLog.objects.filter(
         id__in=Subquery(latest_status_subquery.values("id")[:1])
-    )
+    ).order_by("status")
     if request.method == "POST":
         form = OrderStatusForm(request.POST)
         if form.is_valid():
