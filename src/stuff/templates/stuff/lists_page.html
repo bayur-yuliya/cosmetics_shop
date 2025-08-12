@@ -1,6 +1,6 @@
 {%  extends "stuff/base.html"  %}
 
-{%  block title  %}{%  endblock  %}
+{%  block title  %}{{  title  }}{%  endblock  %}
 
 {%  block content  %}
 
@@ -8,9 +8,15 @@
 <hr>
 {%  if list  %}
 {%  for l in list  %}
-<li>
-    {{  l  }}<br>
-</li>
+    <li>
+        {{  l  }}
+        <a href="{{ request.path }}edit/{{ l.id }}/"><button>Изменить</button></a>
+        <form method="POST" action="{{  request.path  }}delete/" style="display:inline;">
+            {%  csrf_token  %}
+            <input type="hidden" name="id" value="{{  l.id  }}">
+            <button>Удалить</button>
+        </form>
+    </li>
 {%  endfor  %}
 {%  else  %}
 Пока пусто

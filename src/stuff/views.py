@@ -13,7 +13,8 @@ from cosmetics_shop.models import (
     Brand,
     Category,
     Tag,
-    GroupProduct, Favorite,
+    GroupProduct,
+    Favorite,
 )
 from stuff.forms import (
     ProductForm,
@@ -22,7 +23,7 @@ from stuff.forms import (
     GroupProductForm,
     BrandForm,
     TagForm,
-    FilterStockForm
+    FilterStockForm,
 )
 from .services.dashboard_service import (
     number_of_orders_today,
@@ -40,7 +41,9 @@ def index(request):
     orders_per_month = number_of_orders_per_month()
     summ = summ_bill()
     average = average_bill()
-    max_favorite = (Favorite.objects.annotate(num_product=Count("product")).order_by("num_product"))[0:3]
+    max_favorite = (
+        Favorite.objects.annotate(num_product=Count("product")).order_by("num_product")
+    )[0:3]
 
     return render(
         request,
@@ -93,8 +96,8 @@ def products(request):
             products = products.filter(tags__in=tags)
 
     if form_stock.is_valid():
-        min_stock = form_stock.cleaned_data['min_stock']
-        max_stock = form_stock.cleaned_data['max_stock']
+        min_stock = form_stock.cleaned_data["min_stock"]
+        max_stock = form_stock.cleaned_data["max_stock"]
         if min_stock:
             products = products.filter(stock__gte=min_stock)
         if max_stock:
@@ -260,12 +263,14 @@ def order_info(request, order_code):
 
 
 def brands_list(request):
+    title = "Список брендов"
     list = Brand.objects.all()
     name = "brands"
     return render(
         request,
         "stuff/lists_page.html",
         {
+            "title": title,
             "list": list,
             "name": name,
         },
@@ -273,34 +278,40 @@ def brands_list(request):
 
 
 def categories_list(request):
+    title = "Список категорий"
     list = Category.objects.all()
     return render(
         request,
         "stuff/lists_page.html",
         {
             "list": list,
+            "title": title,
         },
     )
 
 
 def tags_list(request):
+    title = "Список тегов"
     list = Tag.objects.all()
     return render(
         request,
         "stuff/lists_page.html",
         {
             "list": list,
+            "title": title,
         },
     )
 
 
 def groups_list(request):
+    title = " Список групп"
     list = GroupProduct.objects.all()
     return render(
         request,
         "stuff/lists_page.html",
         {
             "list": list,
+            "title": title,
         },
     )
 
@@ -376,6 +387,114 @@ def create_tags(request):
         "stuff/create_page.html",
         {
             "name": name,
+            "form": form,
+        },
+    )
+
+
+@require_POST
+def delete_tags(request):
+    tag_id = request.POST.get("id")
+    tag = get_object_or_404(Tag, id=tag_id)
+    tag.delete()
+    return redirect("tags_list")
+
+
+@require_POST
+def delete_categories(request):
+    category_id = request.POST.get("id")
+    category = get_object_or_404(Category, id=category_id)
+    category.delete()
+    return redirect("categories_list")
+
+
+@require_POST
+def delete_groups(request):
+    group_id = request.POST.get("id")
+    group = get_object_or_404(GroupProduct, id=group_id)
+    group.delete()
+    return redirect("groups_list")
+
+
+@require_POST
+def delete_brands(request):
+    brand_id = request.POST.get("id")
+    brand = get_object_or_404(Brand, id=brand_id)
+    brand.delete()
+    return redirect("brands_list")
+
+
+def edit_categories(request, pk):
+    category = get_object_or_404(Category, id=pk)
+
+    if request.method == "POST":
+        form = CategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            form.save()
+            return redirect("categories_list")
+
+    form = CategoryForm(instance=category)
+    return render(
+        request,
+        "stuff/edit_page.html",
+        {
+            "form": form,
+        },
+    )
+
+
+def edit_groups(request, pk):
+    group = get_object_or_404(GroupProduct, id=pk)
+
+    if request.method == "POST":
+        form = GroupProductForm(request.POST, instance=group)
+        if form.is_valid():
+            form.save()
+            return redirect("groups_list")
+
+    form = GroupProductForm(instance=group)
+    return render(
+        request,
+        "stuff/edit_page.html",
+        {
+            "form": form,
+        },
+    )
+
+
+def edit_brands(request, pk):
+    brand = get_object_or_404(Brand, id=pk)
+
+    if request.method == "POST":
+        form = BrandForm(request.POST, instance=brand)
+        if form.is_valid():
+            form.save()
+            return redirect("brands_list")
+
+    form = BrandForm(instance=brand)
+    return render(
+        request,
+        "stuff/edit_page.html",
+        {
+            "form": form,
+        },
+    )
+
+
+def edit_tags(request, pk):
+    tag = get_object_or_404(Tag, id=pk)
+
+    if request.method == "POST":
+        form = TagForm(request.POST, instance=tag)
+        if form.is_valid():
+            form.save()
+            return redirect("tags_list")
+
+    form = TagForm(instance=tag)
+    return render(
+        request,
+        "stuff/edit_page.html",
+        {
             "form": form,
         },
     )
