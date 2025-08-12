@@ -4,9 +4,13 @@
 
 {%  block content  %}
 <h1>Избранное</h1>
+{%  if favorite_products  %}
 {%  for product in favorite_products %}
     {%  include 'cosmetics_shop/includes/product.html' with product=product.product  %}
 {%  endfor  %}
+{%  else  %}
+Пока нет избранного <br>
+{%  endif  %}
 
 <a href="{%  url 'user_account'  %}"><button>Назад</button></a>
 {%  endblock%}

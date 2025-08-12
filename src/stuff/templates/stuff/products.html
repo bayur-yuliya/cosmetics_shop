@@ -6,11 +6,10 @@
 
 <form method="get">
     {{ form.as_p }}
+    {{ form_stock.as_p }}
     <button type="submit">Применить фильтр</button>
     <a href="{% url 'products' %}"><button type="button">Сбросить</button></a>
 </form>
-
-<hr>
 
 {%  for prod in  products  %}
     <img src="/media/{{ prod.image }}"   hspace='40' vspace='40' width='100px' height='100px'>

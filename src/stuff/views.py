@@ -22,6 +22,7 @@ from stuff.forms import (
     GroupProductForm,
     BrandForm,
     TagForm,
+    FilterStockForm
 )
 from .services.dashboard_service import (
     number_of_orders_today,
@@ -68,6 +69,7 @@ def products(request):
         return redirect(f"{request.path}?{query_params.urlencode()}")
 
     form = ProductFilterForm(request.GET or None)
+    form_stock = FilterStockForm(request.GET or None)
 
     if form.is_valid():
         name = form.cleaned_data["name"]
@@ -90,6 +92,14 @@ def products(request):
         if tags:
             products = products.filter(tags__in=tags)
 
+    if form_stock.is_valid():
+        min_stock = form_stock.cleaned_data['min_stock']
+        max_stock = form_stock.cleaned_data['max_stock']
+        if min_stock:
+            products = products.filter(stock__gte=min_stock)
+        if max_stock:
+            products = products.filter(stock__lte=max_stock)
+
     return render(
         request,
         "stuff/products.html",
@@ -97,6 +107,7 @@ def products(request):
             "title": title,
             "products": products,
             "form": form,
+            "form_stock": form_stock,
         },
     )
 
@@ -210,14 +221,26 @@ def order_info(request, order_code):
     if request.method == "POST":
         form = OrderStatusForm(request.POST, instance=order)
         if form.is_valid():
-            OrderStatusLog.objects.create(
-                order=order,
-                changed_by=request.user,
-                status=form.cleaned_data["status"],
-                comment=form.cleaned_data["comment"],
-            )
-            form.save()
-            messages.success(request, "Статус успешно изменен")
+            try:
+                last = OrderStatusLog.objects.filter(order=order).first()
+                if last.status != form.cleaned_data["status"]:
+                    OrderStatusLog.objects.create(
+                        order=order,
+                        changed_by=request.user,
+                        status=form.cleaned_data["status"],
+                        comment=form.cleaned_data["comment"],
+                    )
+                    form.save()
+                    messages.success(request, "Статус успешно изменен")
+            except OrderStatusLog.DoesNotExists:
+                OrderStatusLog.objects.create(
+                    order=order,
+                    changed_by=request.user,
+                    status=form.cleaned_data["status"],
+                    comment=form.cleaned_data["comment"],
+                )
+                form.save()
+                messages.success(request, "Статус успешно изменен")
             return redirect("order_info", order_code=order.code)
     else:
         form = OrderStatusForm(instance=order)
