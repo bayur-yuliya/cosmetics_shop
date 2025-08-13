@@ -1,6 +1,7 @@
 {%  extends 'cosmetics_shop/base.html'  %}
+{%  load custom_filters  %}
 
-{%  block title  %}{%  endblock  %}
+{%  block title  %}{{  title  }}{%  endblock  %}
 
 {%  block content  %}
 
@@ -12,7 +13,7 @@
         <ul>
             {% for i in order.item %}
                 <img src="{{ i.product.image.url }}"   hspace='30' width='50px' height='50px'>
-                {{ i.product }} - {{ i.price }} грн : {{ i.quantity }} <br>
+                {{ i.product }} - {{ i.price|number_format }} грн : {{ i.quantity }} <br>
             {% endfor %}
         </ul>
     <hr>

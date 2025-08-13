@@ -1,4 +1,5 @@
 {%  extends 'stuff/base.html'  %}
+{%  load custom_filters  %}
 
 {%  block title  %}{{  title  }}{%  endblock  %}
 
@@ -19,7 +20,7 @@
 |
 Код товара: {{  prod.code  }}
 | {{  prod.group.name  }} | {{  prod.brand  }} |
-    {{  prod.price  }} | {{  prod.description  }} | Количество: {{  prod.stock  }}<br>
+    {{  prod.price|number_format  }} | {{  prod.description  }} | Количество: {{  prod.stock  }}<br>
 {% empty %}
     <li>Нет товаров по заданным условиям.</li>
 {% endfor %}

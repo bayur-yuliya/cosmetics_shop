@@ -1,9 +1,11 @@
+{%  load custom_filters  %}
+
 <img src={{ product.image.url }}   hspace='40' vspace='40' width='100px' height='100px'>
 
 <a href="{%  url 'product_page' product.code  %}">{{  product.name  }}</a>
 | {{  product.group.name  }}
 | {{  product.brand  }}
-| {{  product.price  }}
+| {{  product.price|number_format  }}
 | {{  product.description  }} |
 
 

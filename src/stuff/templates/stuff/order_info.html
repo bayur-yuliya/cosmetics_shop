@@ -1,4 +1,5 @@
 {%  extends 'stuff/base.html'  %}
+{%  load custom_filters  %}
 
 {%  block title  %}{{  title  }}{%  endblock  %}
 
@@ -21,7 +22,7 @@
 
 <hr>
 {%  for item in  order_items  %}
-        {{  item.product  }}  - {{  item.quantity  }} шт<br>
+        {{  item.product.code  }}  - {{  item.product.name  }}  - {{  item.price|number_format  }} грн  -{{  item.quantity  }} шт<br>
 {%  endfor  %}
 <hr>
 {%  for status in  order_status_log  %}
@@ -34,7 +35,7 @@
         {%  endif  %}
 {%  endfor  %}
 <hr>
-{{  order.total_price  }} грн
+{{  order.total_price|number_format  }} грн
 <hr>
 {{  order.snapshot_name  }}<br>
 {{  order.snapshot_email  }}<br>

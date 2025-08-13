@@ -1,4 +1,5 @@
 {%  extends 'cosmetics_shop/base.html'  %}
+{%  load custom_filters  %}
 
 {%  block title  %}{{  title  }}{%  endblock  %}
 
@@ -9,5 +10,5 @@
     {{  prod  }}<br>
 {%  endfor  %}
 <hr><br>
-{{  order.total_price  }} грн
+{{  order.total_price|number_format  }} грн
 {%  endblock  %}
