@@ -33,6 +33,7 @@ class ProductForm(forms.ModelForm):
     tags = forms.ModelMultipleChoiceField(
         widget=forms.CheckboxSelectMultiple, queryset=Tag.objects.all(), initial=0
     )
+    price = forms.DecimalField()
 
     class Meta:
         model = Product

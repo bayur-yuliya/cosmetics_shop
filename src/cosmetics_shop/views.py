@@ -69,9 +69,9 @@ def main_page(request):
         if name:
             products = products.filter(name__icontains=name)
         if min_price is not None:
-            products = products.filter(price__gte=min_price, stock__gte=1)
+            products = products.filter(price__gte=min_price * 100, stock__gte=1)
         if max_price is not None:
-            products = products.filter(price__lte=max_price)
+            products = products.filter(price__lte=max_price * 100)
         if group:
             products = products.filter(group__in=group)
         if brand:

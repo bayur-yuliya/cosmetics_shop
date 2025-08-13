@@ -41,5 +41,5 @@ class ProductFilterForm(forms.Form):
         required=False,
     )
 
-    min_price = forms.IntegerField(required=False, label="Min price")
-    max_price = forms.IntegerField(required=False, label="Max price")
+    min_price = forms.DecimalField(required=False, label="Min price")
+    max_price = forms.DecimalField(required=False, label="Max price")

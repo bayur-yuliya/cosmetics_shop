@@ -15,7 +15,11 @@ def multiply(value, arg):
 @register.filter
 def number_format(value):
     try:
-        return f"{float(value):,.2f}".replace(",", " ").replace(".", ",")
+        value = str(value)
+        value = float(value[:-2]+"."+value[-2:])
+        if value.is_integer():
+            return f"{int(value):,}".replace(",", " ")
+        else:
+            return f"{value:,}".replace(",", " ").replace(".", ",")
     except (ValueError, TypeError):
         return value
-
