@@ -7,41 +7,44 @@
 
 {%  if cart_items  %}
     {% for item in cart_items %}
-        {{ item.product }} — {{ item.product.price|multiply:item.quantity }} грн —
+    <img src="/media/{{ item.product.image }}"   hspace='40' vspace='40' width='100px' height='100px'>  <br>
+        {{  item.product  }} — {{  item.product.price  }} грн  <br>
+        Сумма: {{ item.product.price|multiply:item.quantity }} грн —
 
-        <form method="POST" action="{% url 'cart_remove' %}" style="display:inline;">
+        <form method="POST" action="{% url 'cart_remove' %}?next={{  request.get_full_path|urlencode  }}" style="display:inline;">
             {% csrf_token %}
-            <input type="hidden" name="product_id" value="{{ item.product.id }}">
+            <input type="hidden" name="product_code" value="{{ item.product.code }}">
             <button>-</button>
         </form>
 
         {{ item.quantity }}
 
-        <form method="POST" action="{% url 'cart_add' %}" style="display:inline;">
+        <form method="POST" action="{% url 'cart_add' %}?next={{  request.get_full_path|urlencode  }}" style="display:inline;">
             {% csrf_token %}
-            <input type="hidden" name="product_id" value="{{ item.product.id }}">
+            <input type="hidden" name="product_code" value="{{ item.product.code }}">
             <button>+</button>
         </form>
 
-        <form method="POST" action="{% url 'cart_delete' %}" style="display:inline;">
+        <form method="POST" action="{% url 'cart_delete' %}?next={{  request.get_full_path|urlencode  }}" style="display:inline;">
             {% csrf_token %}
-            <input type="hidden" name="product_id" value="{{ item.product.id }}">
+            <input type="hidden" name="product_code" value="{{ item.product.code }}">
             <button>Удалить</button>
         </form>
         <br>
         <br>
-        Всего: {{  total_price  }}<br>
-        <hr>
-        <a href="{%  url 'main_page'  %}"><button>Продолжить выбор</button></a>
-        <a href="{%  url 'delivery'  %}"><button>Заказать</button></a>
     {%  endfor  %}
+    Всего: {{  total_price  }}<br>
+    <hr>
+    <a href="{%  url 'main_page'  %}"><button>Продолжить выбор</button></a>
+    <a href="{%  url 'delivery'  %}"><button>Заказать</button></a>
 {%  else  %}
     Корзина пустая
 {%  endif  %}
+<a href="{%  url 'main_page'  %}"><button>Назад</button></a>
 {% if messages %}
 <ul class="messages">
     {% for message in messages %}
-    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
     {% endfor %}
 </ul>
 {% endif %}

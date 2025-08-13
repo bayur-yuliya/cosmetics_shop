@@ -4,26 +4,32 @@
 
 {%  block content  %}
 
-{%  for cat in category  %}
-    Category Product:  <a href="{%  url 'category_page' cat.id  %}">{{  cat.name  }}</a><br>
-{%  endfor  %}
+<ul>
+{% for item in context_categories %}
+    <li>
+        <a href="{% url 'category_page' item.category.id %}">
+            {{ item.category.name }}
+        </a>
+        {% if item.groups %}
+            <ul>
+            {% for group in item.groups %}
+                <li>
+                    <a href="{% url 'group_page' group.id %}">{{ group.name }}</a>
+                </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    </li>
+{% endfor %}
+</ul>
+
 <hr>
-
-{%  for group in group_product  %}
-    <a href="{%  url 'group_page' group.id %}">{{  group.name  }}</a>
-    {%  if not forloop.last  %} | {%  endif  %}
-{%  endfor  %}<br>
+<a href="{%  url 'brand_page'  %}">Brands</a><br><br>
 <hr>
-
-{%  for prod in product %}
-    Product:  <a href="{%  url 'product_page' prod.id  %}">{{  prod.name  }}</a> | {{  prod.group.name  }} | {{  prod.brand  }} |
-    {{  prod.price  }} | {{  prod.description  }} |
-
-    <form method='POST' action="{%  url 'add_to_cart'  %}">
-    {%  csrf_token  %}
-        <input type="hidden" name='product_id'  value="{{ prod.id }}">
-        <button>КУПИТЬ </button><br><hr>
-    </form><br>
+<div align="center"><h2>{{  title  }}</h2></div>
+<hr>
+{%  for product in products %}
+    {%  include 'cosmetics_shop/includes/product.html' with product=product  %}
 {%  endfor  %}<br>
 
 {%  endblock  %}

@@ -21,17 +21,17 @@ def get_or_create_cart(request):
     return cart
 
 
-def get_cart_item(user, product_id):
+def get_cart_item(user, product_code):
     user = User.objects.get(username=user)
-    product = Product.objects.get(id=product_id)
+    product = Product.objects.get(code=product_code)
     cart, _ = Cart.objects.get_or_create(user=user)
     item, created = CartItem.objects.get_or_create(cart=cart, product=product)
     return item
 
 
-def add_product_to_cart(request, product_id):
+def add_product_to_cart(request, product_code):
     cart = get_or_create_cart(request)
-    product = Product.objects.get(id=product_id)
+    product = Product.objects.get(code=product_code)
 
     item, created = CartItem.objects.get_or_create(cart=cart, product=product)
     if item.quantity < item.product.stock:
@@ -41,9 +41,9 @@ def add_product_to_cart(request, product_id):
     item.save()
 
 
-def remove_product_from_cart(request, product_id):
+def remove_product_from_cart(request, product_code):
     cart = get_or_create_cart(request)
-    product = Product.objects.get(id=product_id)
+    product = Product.objects.get(code=product_code)
 
     try:
         item = CartItem.objects.get(cart=cart, product=product)
@@ -54,9 +54,9 @@ def remove_product_from_cart(request, product_id):
         pass
 
 
-def delete_product_from_cart(request, product_id):
+def delete_product_from_cart(request, product_code):
     cart = get_or_create_cart(request)
-    product = Product.objects.get(id=product_id)
+    product = Product.objects.get(code=product_code)
     CartItem.objects.filter(cart=cart, product=product).delete()
     messages.success(request, "Товар успешно удален")
 

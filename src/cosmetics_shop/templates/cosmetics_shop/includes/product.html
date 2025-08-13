@@ -1,14 +1,4 @@
-{%  extends 'cosmetics_shop/base.html'  %}
 {%  load custom_filters  %}
-
-{%  block title  %}{{  title  }}{%  endblock  %}
-
-{%  block content  %}
-<br>
-<a href="{%  url 'main_page'  %}">главная страница</a> |
-<a href="{%  url 'category_page' product.group.category.id  %}">{{  product.group.category  }}</a> |
-<a href="{%  url 'group_page' product.group.id  %}">{{  product.group  }}</a>
-<hr>
 
 <img src={{ product.image.url }}   hspace='40' vspace='40' width='100px' height='100px'>
 
@@ -16,18 +6,21 @@
 | {{  product.group.name  }}
 | {{  product.brand  }}
 | {{  product.price|number_format  }}
+| {{  product.description  }} |
 
-{%  if tags    %}
-<hr>Теги:
-{%  for tag in tags  %}
-    {{  tag.name  }},
-{%  endfor  %}
+
+{%  if product.is_favorite or is_favorite  %}
+<form method="POST" action="{% url 'remove_from_favorites' product.id %}?next={{  request.get_full_path|urlencode  }}">
+    {% csrf_token %}
+    <button type="submit">Убрать из избранное</button>
+</form>
+{%  else  %}
+<form method="POST" action="{% url 'add_to_favorites' product.id %}?next={{  request.get_full_path|urlencode  }}">
+    {% csrf_token %}
+    <button type="submit">Добавить в избранное</button>
+</form>
 {%  endif  %}
 
-<hr>
-{{  product.description  }}
-
-<hr>
 <form method='POST' action="{%  url 'add_to_cart'  %}?next={{  request.get_full_path|urlencode  }}">
 {%  csrf_token  %}
     <input type="hidden" name='product_code'  value="{{ product.code }}">
@@ -35,6 +28,5 @@
         <button>КУПИТЬ </button><br>
     {%  else  %}
         Товара нет в наличии
-    {%  endif  %}
+    {%  endif  %}<hr>
 </form>
-{%  endblock  %}

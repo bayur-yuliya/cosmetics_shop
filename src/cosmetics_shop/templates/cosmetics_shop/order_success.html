@@ -1,12 +1,14 @@
 {%  extends 'cosmetics_shop/base.html'  %}
+{%  load custom_filters  %}
 
 {%  block title  %}{{  title  }}{%  endblock  %}
 
 {%  block content  %}
-{{  status  }} | {{  order  }}<br><hr><br>
+{{  status  }} | {{  order.code  }}<br><hr><br>
 {%  for prod in products  %}
-    {{  prod }}<br>
+    <img src="{{ prod.product.image.url }}"  hspace='30' width='50px' height='50px'>
+    {{  prod  }}<br>
 {%  endfor  %}
 <hr><br>
-{{  order.total_price  }} грн
+{{  order.total_price|number_format  }} грн
 {%  endblock  %}

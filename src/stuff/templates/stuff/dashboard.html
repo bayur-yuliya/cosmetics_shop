@@ -1,10 +1,16 @@
 {%  extends 'stuff/base.html'  %}
+{%  load custom_filters  %}
 
 {%  block title  %}{{  title  }}{%  endblock  %}
 
 {%  block content  %}
+
 Количество заказов сегодня - {{  number_of_orders_today  }} <br>
 Количество заказов за месяц - {{  number_of_orders_per_month  }} <br>
-Общая сумма за заказы - {{  summ_bill  }} <br>
-Средний чек - {{  average_bill  }}
+Общая сумма за заказы - {{  summ_bill|number_format  }} <br>
+Средний чек - {{  average_bill|number_format   }} <br>
+Самые популярные товары -
+{%  for favorite in max_favorite  %}
+    <li>{{  favorite.product  }}</li>
+{%  endfor  %}
 {%  endblock  %}

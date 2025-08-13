@@ -1,3 +1,5 @@
+from django.db import transaction
+
 from cosmetics_shop.models import (
     Cart,
     CartItem,
@@ -6,6 +8,7 @@ from cosmetics_shop.models import (
     DeliveryAddress,
     Client,
     Product,
+    OrderStatusLog,
 )
 
 
@@ -32,8 +35,8 @@ def get_client(request):
         return Client.objects.get(id=client_id)
 
 
-def change_stock_product(product_id, count):
-    product = Product.objects.get(id=product_id)
+def change_stock_product(product_code, count):
+    product = Product.objects.get(code=product_code)
     if product.stock >= count:
         product.stock -= count
         product.save()
@@ -60,31 +63,35 @@ def create_order_from_cart(request, address_id):
 
     total_price = sum(item.product.price * item.quantity for item in cart_items)
 
-    order = Order.objects.create(
-        client=client,
-        snapshot_name=client.full_name,
-        snapshot_email=client.email,
-        snapshot_phone=client.phone,
-        snapshot_address=str(address),
-        total_price=total_price,
-    )
-
-    order_items = [
-        OrderItem(
-            order=order,
-            product=item.product.name,
-            price=item.product.price,
-            quantity=item.quantity,
+    with transaction.atomic():
+        order = Order.objects.create(
+            client=client,
+            snapshot_name=client.full_name,
+            snapshot_email=client.email,
+            snapshot_phone=client.phone,
+            snapshot_address=str(address),
+            total_price=total_price,
         )
-        for item in cart_items
-    ]
-    for item in cart_items:
-        change_stock_product(item.product.id, item.quantity)
-    OrderItem.objects.bulk_create(order_items)
 
-    cart_items.delete()
+        order_items = [
+            OrderItem(
+                order=order,
+                product=item.product,
+                price=item.product.price,
+                quantity=item.quantity,
+            )
+            for item in cart_items
+        ]
 
-    if not request.user.is_authenticated:
-        request.session.pop("cart_id", None)
+        for item in cart_items:
+            change_stock_product(item.product.code, item.quantity)
+
+        OrderStatusLog.objects.create(order=order)
+        OrderItem.objects.bulk_create(order_items)
+
+        cart_items.delete()
+
+        if not request.user.is_authenticated:
+            request.session.pop("cart_id", None)
 
     return order

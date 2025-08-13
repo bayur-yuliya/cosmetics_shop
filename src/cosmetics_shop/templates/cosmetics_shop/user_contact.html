@@ -1,0 +1,18 @@
+{%  extends 'cosmetics_shop/base.html'  %}
+
+{%  block title  %}{{  title  }}{%  endblock  %}
+
+{%  block content  %}
+<hr>
+username: {{  user.username|default:"_"  }} <br>
+full_name: {{  client.full_name|default:"_"  }} <br>
+email: {{  client.email|default:"_"  }} <br>
+phone: {{  client.phone|default:"_"  }}
+<hr>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Изменить</button>
+</form>
+<a href="{%  url 'user_account'  %}"><button>Назад</button></a>
+{%  endblock  %}

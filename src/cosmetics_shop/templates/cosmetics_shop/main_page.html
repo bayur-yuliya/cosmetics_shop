@@ -10,31 +10,40 @@
     {% endfor %}
 </ul>
 {% endif %}
-{%  for cat in category  %}
-    Category Product:  <a href="{%  url 'category_page' cat.id  %}">{{  cat.name  }}</a><br>
-    {%  for group in group_product  %}
-        {%  if group.category.id == cat.id %}
-            <a href="{%  url 'group_page' group.id %}">{{  group.name  }}</a> |
-        {%  endif  %}
-    {%  endfor  %}<br><br>
-{%  endfor  %}
+
+
+<ul>
+{% for item in context_categories %}
+    <li>
+        <a href="{% url 'category_page' item.category.id %}">
+            {{ item.category.name }}
+        </a>
+        {% if item.groups %}
+            <ul>
+            {% for group in item.groups %}
+                <li>
+                    <a href="{% url 'group_page' group.id %}">{{ group.name }}</a>
+                </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    </li>
+{% endfor %}
+</ul>
+
+<hr>
 <a href="{%  url 'brand_page'  %}">Brands</a><br><br>
 <hr>
-
-{%  for prod in product %}
-
-    <a href="{%  url 'product_page' prod.id  %}">{{  prod.name  }}</a> | {{  prod.group.name  }} | {{  prod.brand  }} |
-    {{  prod.price  }} | {{  prod.description  }} |
-    <form method='POST' action="{%  url 'add_to_cart'  %}">
-    {%  csrf_token  %}
-        <input type="hidden" name='product_id'  value="{{ prod.id }}">
-        {%  if prod.stock %}
-            <button>КУПИТЬ </button><br><hr>
-        {%  else  %}
-            Товара нет в наличии
-        {%  endif  %}
-    </form>
-
+<form method="get">
+    {{ form.as_p }}
+    <button type="submit">Применить фильтр</button>
+    <a href="{% url 'main_page' %}"><button type="button">Сбросить</button></a>
+</form>
+<hr>
+{%  for product in products %}
+    {%  include 'cosmetics_shop/includes/product.html' with product=product  %}
+{% empty %}
+    <li>Нет товаров по заданным условиям.</li>
 {%  endfor  %}<br>
 
 {%  endblock  %}

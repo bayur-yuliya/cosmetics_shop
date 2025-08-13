@@ -1,13 +1,28 @@
 {%  extends 'stuff/base.html'  %}
+{%  load custom_filters  %}
 
 {%  block title  %}{{  title  }}{%  endblock  %}
 
 {%  block content  %}
+
+<form method="get">
+    {{ form.as_p }}
+    {{ form_stock.as_p }}
+    <button type="submit">Применить фильтр</button>
+    <a href="{% url 'products' %}"><button type="button">Сбросить</button></a>
+</form>
+
 {%  for prod in  products  %}
+    <img src="/media/{{ prod.image }}"   hspace='40' vspace='40' width='100px' height='100px'>
     <a href="{%  url 'product_card' prod.id  %}" >
         {{  prod.name  }}
     </a>
+|
+Код товара: {{  prod.code  }}
 | {{  prod.group.name  }} | {{  prod.brand  }} |
-    {{  prod.price  }} | {{  prod.description  }} <br>
-{%  endfor  %}
+    {{  prod.price|number_format  }} | {{  prod.description  }} | Количество: {{  prod.stock  }}<br>
+{% empty %}
+    <li>Нет товаров по заданным условиям.</li>
+{% endfor %}
+
 {%  endblock  %}

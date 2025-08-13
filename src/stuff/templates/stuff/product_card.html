@@ -1,12 +1,20 @@
 {%  extends 'stuff/base.html'  %}
+{%  load custom_filters  %}
 
 {%  block title  %}{{  title  }}{%  endblock  %}
 
 {%  block content  %}
-
+<img src="/media/{{ product.image }}"   hspace='40' vspace='40' width='100px' height='100px'>
 {{  product.name  }} | {{  product.group.name  }} | {{  product.brand  }} |
-{{  product.price  }} | {{  product.description  }} <br>
+{{  product.price|number_format  }} | {{  product.description  }} <br>
 Количество товара в наличии: {{  product.stock  }}<br>
+
+{%  if tags    %}
+Теги:
+{%  for tag in tags  %}
+    {{  tag.name  }},
+{%  endfor  %}
+{%  endif  %}
 
 <form action="{%  url 'edit_products' product.id  %}">
     {%  csrf_token  %}

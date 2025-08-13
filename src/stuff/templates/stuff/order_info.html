@@ -1,4 +1,5 @@
 {%  extends 'stuff/base.html'  %}
+{%  load custom_filters  %}
 
 {%  block title  %}{{  title  }}{%  endblock  %}
 
@@ -7,11 +8,10 @@
 {% if messages %}
 <ul class="messages">
     {% for message in messages %}
-    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
     {% endfor %}
 </ul>
 {% endif %}
-
 {{  order  }}
 
 <form method="POST">
@@ -22,17 +22,20 @@
 
 <hr>
 {%  for item in  order_items  %}
-        {{  item.product  }}  - {{  item.quantity  }} шт<br>
+        {{  item.product.code  }}  - {{  item.product.name  }}  - {{  item.price|number_format  }} грн  -{{  item.quantity  }} шт<br>
 {%  endfor  %}
 <hr>
 {%  for status in  order_status_log  %}
-        {{  status.changed_at  }} - {{  status  }} - {{  status.changed_by  }}<br>
+        {{  status.changed_at  }} - {{  status  }}
+        {% if status.changed_by  %}
+             - {{  status.changed_by  }}
+        {%  endif  %}<br>
         {%  if status.comment  %}
                 {{  status.comment  }}<br>
         {%  endif  %}
 {%  endfor  %}
 <hr>
-{{  order.total_price  }} грн
+{{  order.total_price|number_format  }} грн
 <hr>
 {{  order.snapshot_name  }}<br>
 {{  order.snapshot_email  }}<br>
