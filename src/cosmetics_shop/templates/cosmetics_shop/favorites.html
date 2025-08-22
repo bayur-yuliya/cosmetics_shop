@@ -4,13 +4,27 @@
 
 {%  block content  %}
 <h1>Избранное</h1>
-{%  if favorite_products  %}
-{%  for product in favorite_products %}
+{%  if products  %}
+{%  for product in products %}
     {%  include 'cosmetics_shop/includes/product.html' with product=product.product  %}
 {%  endfor  %}
 {%  else  %}
 Пока нет избранного <br>
 {%  endif  %}
+<div class="pagination">
+    {%  if products.paginator.num_pages > 1  %}
+        {% if products.has_previous %}
+            <a href="?page=1">first</a>
+            <a href="?page={{ products.previous_page_number }}">previous</a>
+        {% endif %}
 
+        Page {{ products.number }} of {{ products.paginator.num_pages }}.
+
+        {% if products.has_next %}
+            <a href="?page={{ products.next_page_number }}">next</a>
+            <a href="?page={{ products.paginator.num_pages }}">last</a>
+        {% endif %}
+    {% endif %}
+</div>
 <a href="{%  url 'user_account'  %}"><button>Назад</button></a>
 {%  endblock%}

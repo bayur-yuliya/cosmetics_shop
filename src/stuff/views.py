@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
+from django.core.paginator import Paginator
 from django.db.models import OuterRef, Subquery, Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
@@ -103,6 +104,10 @@ def products(request):
         if max_stock:
             products = products.filter(stock__lte=max_stock)
 
+    paginator = Paginator(products, 20)
+    page_number = request.GET.get("page")
+    products = paginator.get_page(page_number)
+
     return render(
         request,
         "stuff/products.html",
@@ -137,7 +142,7 @@ def create_products(request):
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
             product = form.save(commit=False)
-            product.price = form.cleaned_data['price'] * 100
+            product.price = form.cleaned_data["price"] * 100
             product.save()
             return redirect("products")
 
@@ -192,6 +197,7 @@ def orders(request):
     latest_statuses = OrderStatusLog.objects.filter(
         id__in=Subquery(latest_status_subquery.values("id")[:1])
     ).order_by("status")
+
     if request.method == "POST":
         form = OrderStatusForm(request.POST)
         if form.is_valid():
@@ -207,6 +213,11 @@ def orders(request):
             )
     else:
         form = OrderStatusForm()
+
+    paginator = Paginator(latest_statuses, 20)
+    page_number = request.GET.get("page")
+    latest_statuses = paginator.get_page(page_number)
+
     return render(
         request,
         "stuff/orders.html",

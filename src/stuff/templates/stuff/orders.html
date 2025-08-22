@@ -15,4 +15,21 @@
 {{  order.order.code  }} - {{  order.get_status_display  }} - <a href="{%  url 'order_info' order.order.code  %}">{{  order.order  }}</a><br>
 {%  endfor  %}
 
+
+<div class="pagination">
+    {%  if status.paginator.num_pages > 1  %}
+        {% if status.has_previous %}
+            <a href="?page=1">first</a>
+            <a href="?page={{ status.previous_page_number }}">previous</a>
+        {% endif %}
+
+        Page {{ status.number }} of {{ status.paginator.num_pages }}.
+
+        {% if status.has_next %}
+            <a href="?page={{ status.next_page_number }}">next</a>
+            <a href="?page={{ status.paginator.num_pages }}">last</a>
+        {% endif %}
+    {% endif %}
+</div>
+
 {%  endblock  %}

@@ -3,6 +3,7 @@ import uuid
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
+from django.core.paginator import Paginator
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
@@ -45,8 +46,10 @@ def register(request):
 
 
 def main_page(request):
-    products = favorites_products(request)
-
+    if request.user.is_authenticated:
+        products = favorites_products(request)
+    else:
+        products = Product.objects.all()
     categories = context_categories()
 
     query_params = request.GET.copy()
@@ -78,6 +81,10 @@ def main_page(request):
             products = products.filter(brand__in=brand)
         if tags:
             products = products.filter(tags__in=tags)
+
+    paginator = Paginator(products, 20)
+    page_number = request.GET.get("page")
+    products = paginator.get_page(page_number)
 
     return render(
         request,
@@ -162,7 +169,12 @@ def category_page(request, category_id):
     categories = context_categories()
     group_product = GroupProduct.objects.filter(category=category_id)
 
-    products = favorites_products(request).filter(group__in=group_product)
+    if request.user.is_authenticated:
+        products = favorites_products(request).filter(group__in=group_product)
+
+    paginator = Paginator(products, 20)
+    page_number = request.GET.get("page")
+    products = paginator.get_page(page_number)
 
     return render(
         request,
@@ -181,7 +193,12 @@ def group_page(request, group_id):
     categories = context_categories()
     group_product = GroupProduct.objects.filter(id=group_id)
 
-    products = favorites_products(request).filter(group__in=group_product)
+    if request.user.is_authenticated:
+        products = favorites_products(request).filter(group__in=group_product)
+
+    paginator = Paginator(products, 20)
+    page_number = request.GET.get("page")
+    products = paginator.get_page(page_number)
 
     return render(
         request,
@@ -225,7 +242,12 @@ def brand_products(request, brand_id):
     title = Brand.objects.get(id=brand_id)
     categories = context_categories()
 
-    products = favorites_products(request).filter(brand=brand_id)
+    if request.user.is_authenticated:
+        products = favorites_products(request).filter(brand=brand_id)
+
+    paginator = Paginator(products, 20)
+    page_number = request.GET.get("page")
+    products = paginator.get_page(page_number)
 
     return render(
         request,
@@ -401,13 +423,18 @@ def remove_from_favorites(request, product_id):
 
 @login_required
 def favorites(request):
-    favorite_products = Favorite.objects.filter(user=request.user)
+    products = Favorite.objects.filter(user=request.user)
+
+    paginator = Paginator(products, 20)
+    page_number = request.GET.get("page")
+    products = paginator.get_page(page_number)
+
     return render(
         request,
         "cosmetics_shop/favorites.html",
         {
             "title": "Избранное",
-            "favorite_products": favorite_products,
+            "products": products,
             "is_favorite": True,
         },
     )

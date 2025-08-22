@@ -22,20 +22,26 @@ class ProductQuerySet(models.QuerySet):
             stock_zero=models.Case(
                 models.When(stock=0, then=models.Value(1)),
                 default=models.Value(0),
-                output_field=models.IntegerField()
+                output_field=models.IntegerField(),
             )
         ).order_by("stock_zero")
 
 
 class ProductManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().annotate(
-            stock_zero=models.Case(
-                models.When(stock=0, then=models.Value(1)),
-                default=models.Value(0),
-                output_field=models.IntegerField()
+        return (
+            super()
+            .get_queryset()
+            .annotate(
+                stock_zero=models.Case(
+                    models.When(stock=0, then=models.Value(1)),
+                    default=models.Value(0),
+                    output_field=models.IntegerField(),
+                )
             )
-        ).order_by("stock_zero")
+            .order_by("stock_zero")
+        )
+
 
 class Client(models.Model):
     user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True)

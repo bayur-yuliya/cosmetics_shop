@@ -12,12 +12,12 @@
 {%  if product.is_favorite or is_favorite  %}
 <form method="POST" action="{% url 'remove_from_favorites' product.id %}?next={{  request.get_full_path|urlencode  }}">
     {% csrf_token %}
-    <button type="submit">Убрать из избранное</button>
+    <button type="submit">&hearts;</button>
 </form>
 {%  else  %}
 <form method="POST" action="{% url 'add_to_favorites' product.id %}?next={{  request.get_full_path|urlencode  }}">
     {% csrf_token %}
-    <button type="submit">Добавить в избранное</button>
+    <button type="submit">&#9825;</button>
 </form>
 {%  endif  %}
 

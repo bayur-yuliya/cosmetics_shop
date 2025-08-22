@@ -32,4 +32,20 @@
     {%  include 'cosmetics_shop/includes/product.html' with product=product  %}
 {%  endfor  %}<br>
 
+<div class="pagination">
+    {%  if products.paginator.num_pages > 1  %}
+        {% if products.has_previous %}
+            <a href="?page=1">first</a>
+            <a href="?page={{ products.previous_page_number }}">previous</a>
+        {% endif %}
+
+        Page {{ products.number }} of {{ products.paginator.num_pages }}.
+
+        {% if products.has_next %}
+            <a href="?page={{ products.next_page_number }}">next</a>
+            <a href="?page={{ products.paginator.num_pages }}">last</a>
+        {% endif %}
+    {% endif %}
+</div>
+
 {%  endblock  %}
