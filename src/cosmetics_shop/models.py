@@ -67,14 +67,14 @@ class DeliveryAddress(models.Model):
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.name
 
 
 class GroupProduct(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -82,7 +82,7 @@ class GroupProduct(models.Model):
 
 
 class Brand(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name
@@ -96,7 +96,7 @@ class Tag(models.Model):
 
 
 class Product(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     group = models.ForeignKey(GroupProduct, on_delete=models.CASCADE)
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
     price = models.PositiveIntegerField()
@@ -105,6 +105,7 @@ class Product(models.Model):
     code = models.PositiveIntegerField(unique=True, blank=True, null=True)
     image = models.ImageField(upload_to="product_images/", default="default/image.jpg")
     tags = models.ManyToManyField(Tag, blank=True, related_name="products")
+    is_active = models.BooleanField(default=True)
 
     objects = ProductManager.from_queryset(ProductQuerySet)()
 
@@ -191,6 +192,10 @@ class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     price = models.PositiveIntegerField()
     quantity = models.PositiveIntegerField()
+
+    snapshot_product = models.CharField(max_length=100)
+    snapshot_price = models.IntegerField()
+    snapshot_quantity = models.IntegerField()
 
     def __str__(self):
         return f"{self.order} - {self.product}"

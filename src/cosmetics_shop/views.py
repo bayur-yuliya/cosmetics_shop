@@ -49,7 +49,7 @@ def main_page(request):
     if request.user.is_authenticated:
         products = favorites_products(request)
     else:
-        products = Product.objects.all()
+        products = Product.objects.filter(is_active=True)
     categories = context_categories()
 
     query_params = request.GET.copy()

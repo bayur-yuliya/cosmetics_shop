@@ -183,7 +183,8 @@ def edit_products(request, product_id):
 def delete_product(request):
     product_id = request.POST.get("product_id")
     product = Product.objects.get(id=product_id)
-    product.delete()
+    product.is_active = False
+    product.save()
     return redirect("products")
 
 

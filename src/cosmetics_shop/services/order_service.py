@@ -79,6 +79,9 @@ def create_order_from_cart(request, address_id):
                 product=item.product,
                 price=item.product.price,
                 quantity=item.quantity,
+                snapshot_product=item.product.name,
+                snapshot_price=item.product.price,
+                snapshot_quantity=item.quantity,
             )
             for item in cart_items
         ]

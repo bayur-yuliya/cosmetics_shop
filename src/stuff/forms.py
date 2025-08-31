@@ -31,9 +31,9 @@ class BrandForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     brand = forms.ModelChoiceField(queryset=Brand.objects.all(), initial=0)
     tags = forms.ModelMultipleChoiceField(
-        widget=forms.CheckboxSelectMultiple, queryset=Tag.objects.all(), initial=0
+        widget=forms.CheckboxSelectMultiple, queryset=Tag.objects.all(), required=False
     )
-    price = forms.DecimalField()
+    price = forms.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
         model = Product
