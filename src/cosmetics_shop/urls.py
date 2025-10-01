@@ -22,6 +22,7 @@ urlpatterns = [
     path("delivery/", views.delivery, name="delivery"),
     path("accounts/logout/", views.logout_view, name="logout"),
     path("favorites/", views.favorites, name="favorites"),
+    path("payment_and_delivery/", views.payment_and_delivery, name="payment_and_delivery"),
     path(
         "favorites/add/<int:product_id>/",
         views.add_to_favorites,

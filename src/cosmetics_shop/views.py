@@ -405,7 +405,6 @@ def user_contact(request):
 
 
 @login_required
-@require_POST
 def add_to_favorites(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     Favorite.objects.get_or_create(user=request.user, product=product)
@@ -438,3 +437,7 @@ def favorites(request):
             "is_favorite": True,
         },
     )
+
+
+def payment_and_delivery(request):
+    return render(request, "cosmetics_shop/payment_and_delivery_page.html")
