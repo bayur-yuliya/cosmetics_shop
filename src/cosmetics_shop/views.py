@@ -167,10 +167,11 @@ def order_history(request):
 def category_page(request, category_id):
     title = Category.objects.get(id=category_id)
     categories = context_categories()
-    group_product = GroupProduct.objects.filter(category=category_id)
+    group_products = GroupProduct.objects.filter(category=category_id).values_list('id', flat=True)
+    products = Product.objects.filter(group__in=group_products)
 
     if request.user.is_authenticated:
-        products = favorites_products(request).filter(group__in=group_product)
+        products = favorites_products(request).filter(group__in=group_products)
 
     paginator = Paginator(products, 20)
     page_number = request.GET.get("page")
@@ -181,7 +182,6 @@ def category_page(request, category_id):
         "cosmetics_shop/category_page.html",
         {
             "title": title,
-            "group_product": group_product,
             "products": products,
             "context_categories": categories,
         },
@@ -191,10 +191,10 @@ def category_page(request, category_id):
 def group_page(request, group_id):
     title = GroupProduct.objects.get(id=group_id)
     categories = context_categories()
-    group_product = GroupProduct.objects.filter(id=group_id)
+    products = Product.objects.filter(group=group_id)
 
     if request.user.is_authenticated:
-        products = favorites_products(request).filter(group__in=group_product)
+        products = favorites_products(request).filter(group=group_id)
 
     paginator = Paginator(products, 20)
     page_number = request.GET.get("page")
@@ -205,7 +205,6 @@ def group_page(request, group_id):
         "cosmetics_shop/category_page.html",
         {
             "title": title,
-            "group_product": group_product,
             "products": products,
             "context_categories": categories,
         },
@@ -241,6 +240,7 @@ def brand_page(request):
 def brand_products(request, brand_id):
     title = Brand.objects.get(id=brand_id)
     categories = context_categories()
+    products = Product.objects.filter(brand=brand_id)
 
     if request.user.is_authenticated:
         products = favorites_products(request).filter(brand=brand_id)
