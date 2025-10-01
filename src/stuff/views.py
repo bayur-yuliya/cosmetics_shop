@@ -5,7 +5,6 @@ from django.db.models import OuterRef, Subquery, Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
-from cosmetics_shop.forms import ProductFilterForm
 from cosmetics_shop.models import (
     Product,
     Order,
@@ -25,6 +24,7 @@ from stuff.forms import (
     BrandForm,
     TagForm,
     FilterStockForm,
+    ProductStuffFilterForm,
 )
 from .services.dashboard_service import (
     number_of_orders_today,
@@ -72,16 +72,14 @@ def products(request):
     if request.GET.urlencode() != query_params.urlencode():
         return redirect(f"{request.path}?{query_params.urlencode()}")
 
-    form = ProductFilterForm(request.GET or None)
+    form = ProductStuffFilterForm(request.GET or None)
     form_stock = FilterStockForm(request.GET or None)
 
     if form.is_valid():
         name = form.cleaned_data["name"]
-        group = form.cleaned_data["group"]
-        tags = form.cleaned_data["tags"]
+        code = form.cleaned_data["code"]
         min_price = form.cleaned_data["min_price"]
         max_price = form.cleaned_data["max_price"]
-        brand = form.cleaned_data["brand"]
 
         if name:
             products = products.filter(name__icontains=name)
@@ -89,12 +87,8 @@ def products(request):
             products = products.filter(price__gte=min_price * 100, stock__gte=1)
         if max_price is not None:
             products = products.filter(price__lte=max_price * 100)
-        if group:
-            products = products.filter(group__in=group)
-        if brand:
-            products = products.filter(brand__in=brand)
-        if tags:
-            products = products.filter(tags__in=tags)
+        if code:
+            products = products.filter(code__icontains=code)
 
     if form_stock.is_valid():
         min_stock = form_stock.cleaned_data["min_stock"]
@@ -141,9 +135,9 @@ def create_products(request):
     if request.method == "POST":
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
-            product = form.save(commit=False)
-            product.price = form.cleaned_data["price"] * 100
-            product.save()
+            saved_product = form.save(commit=False)
+            saved_product.price = form.cleaned_data["price"] * 100
+            saved_product.save()
             return redirect("products")
 
     form = ProductForm()
@@ -165,7 +159,9 @@ def edit_products(request, product_id):
     if request.method == "POST":
         form = ProductForm(request.POST, request.FILES, instance=product)
         if form.is_valid():
-            form.save()
+            saved_product = form.save(commit=False)
+            saved_product.price = form.cleaned_data["price"] * 100
+            saved_product.save()
             return redirect("product_card", product_id)
     form = ProductForm(instance=product)
     return render(

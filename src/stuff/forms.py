@@ -33,7 +33,7 @@ class ProductForm(forms.ModelForm):
     tags = forms.ModelMultipleChoiceField(
         widget=forms.CheckboxSelectMultiple, queryset=Tag.objects.all(), required=False
     )
-    price = forms.DecimalField(max_digits=10, decimal_places=2)
+    price = forms.DecimalField(max_digits=15, decimal_places=2)
 
     class Meta:
         model = Product
@@ -53,6 +53,13 @@ class OrderStatusForm(forms.ModelForm):
     class Meta:
         model = OrderStatusLog
         fields = ["status", "comment"]
+
+
+class ProductStuffFilterForm(forms.Form):
+    name = forms.CharField(required=False, label="Название содержит: ")
+    code = forms.IntegerField(required=False, label="Код товара: ")
+    min_price = forms.DecimalField(required=False, label="Минимальная цена: ")
+    max_price = forms.DecimalField(required=False, label="Максимальная цена: ")
 
 
 class FilterStockForm(forms.Form):
