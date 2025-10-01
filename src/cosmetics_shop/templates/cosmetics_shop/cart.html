@@ -8,8 +8,8 @@
 {%  if cart_items  %}
     {% for item in cart_items %}
     <img src="/media/{{ item.product.image }}"   hspace='40' vspace='40' width='100px' height='100px'>  <br>
-        {{  item.product  }} — {{  item.product.price  }} грн  <br>
-        Сумма: {{ item.product.price|multiply:item.quantity }} грн —
+        {{  item.product  }} — {{  item.product.price|number_format  }} грн  <br>
+        Сумма: {{ item.product.price|multiply:item.quantity|number_format }} грн —
 
         <form method="POST" action="{% url 'cart_remove' %}?next={{  request.get_full_path|urlencode  }}" style="display:inline;">
             {% csrf_token %}
@@ -33,7 +33,7 @@
         <br>
         <br>
     {%  endfor  %}
-    Всего: {{  total_price  }}<br>
+    Всего: {{  total_price|number_format  }}<br>
     <hr>
     <a href="{%  url 'main_page'  %}"><button>Продолжить выбор</button></a>
     <a href="{%  url 'delivery'  %}"><button>Заказать</button></a>
