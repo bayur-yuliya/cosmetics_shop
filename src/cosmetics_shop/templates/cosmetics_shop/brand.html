@@ -3,7 +3,24 @@
 {%  block title  %}{{  title  }}{%  endblock  %}
 
 {%  block content  %}
-{%  for brand in brands %}
-    <a href="{%  url 'brand_detail' brand.id %}">{{  brand.name  }}</a> <br>
-{%  endfor  %}
+<div class="alphabet">
+    {% for letter in alphabet %}
+        {% if letter in grouped %}
+            <a href="#{{ letter }}" class="active">{{ letter }}</a>
+        {% else %}
+            <span class="inactive">{{ letter }}</span>
+        {% endif %}
+    {% endfor %}
+</div>
+<hr>
+<div class="brands">
+    {% for letter, items in grouped.items %}
+        <h2 id="{{ letter }}">{{ letter }}</h2>
+        <ul>
+            {% for brand in items %}
+                <a href="{%  url 'brand_detail' brand.id %}">{{  brand.name  }}</a> <br>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+</div>
 {%  endblock  %}

@@ -1,3 +1,4 @@
+import string
 import uuid
 
 from django.contrib.auth import logout
@@ -5,6 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.core.paginator import Paginator
 from django.db import transaction
+from django.db.models import Count
+from django.db.models.functions import Upper, Substr
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
@@ -227,12 +230,22 @@ def product_page(request, product_code):
 
 def brand_page(request):
     brands = Brand.objects.all()
+    grouped = {}
+    for brand in brands:
+        letter = brand.name[0].upper()
+        grouped.setdefault(letter, []).append(brand)
+
+    alphabet = list(string.ascii_uppercase) + \
+               [chr(code) for code in range(ord("А"), ord("Z")+1)]
+
     return render(
         request,
         "cosmetics_shop/brand.html",
         {
             "title": "Brands",
             "brands": brands,
+            "grouped": grouped,
+            "alphabet": alphabet,
         },
     )
 
