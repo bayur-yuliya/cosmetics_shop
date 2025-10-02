@@ -14,7 +14,7 @@
         <form method="POST" action="{{  request.path  }}delete/" style="display:inline;">
             {%  csrf_token  %}
             <input type="hidden" name="id" value="{{  l.id  }}">
-            <button>Удалить</button>
+            <button onclick="return confirm('Удалить {{ l.name }}?')">Удалить</button>
         </form>
     </li>
 {%  endfor  %}
