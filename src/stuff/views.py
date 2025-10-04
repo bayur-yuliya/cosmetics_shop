@@ -198,7 +198,17 @@ def orders(request):
     if request.method == "POST":
         form = OrderStatusForm(request.POST)
         if form.is_valid():
-            latest_statuses = latest_statuses.filter(status=form.cleaned_data["status"])
+            status = form.cleaned_data.get("status")
+            date_from = form.cleaned_data.get("date_from")
+            date_to = form.cleaned_data.get("date_to")
+            if status:
+                latest_statuses = latest_statuses.filter(status=status)
+
+            if date_from:
+                latest_statuses = latest_statuses.filter(order__created_at__gte=date_from)
+            if date_to:
+                latest_statuses = latest_statuses.filter(order__created_at__lte=date_to)
+
             return render(
                 request,
                 "stuff/orders.html",

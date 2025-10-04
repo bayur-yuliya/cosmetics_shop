@@ -50,9 +50,20 @@ class ProductForm(forms.ModelForm):
 
 
 class OrderStatusForm(forms.ModelForm):
+    date_from = forms.DateField(
+        required=False,
+        label="Дата с",
+        widget=forms.DateInput(attrs={"type": "date"})
+    )
+    date_to = forms.DateField(
+        required=False,
+        label="Дата по",
+        widget=forms.DateInput(attrs={"type": "date"})
+    )
+
     class Meta:
         model = OrderStatusLog
-        fields = ["status", "comment"]
+        fields = ["status", "comment", "date_from", "date_to"]
 
 
 class ProductStuffFilterForm(forms.Form):
