@@ -1,0 +1,14 @@
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const openRegister = document.querySelector("#openRegister");
+  if (openRegister) {
+    openRegister.addEventListener("click", (e) => {
+      e.preventDefault();
+      const loginModal = bootstrap.Modal.getInstance(document.querySelector("#authModal"));
+      loginModal.hide();
+      const registerModal = new bootstrap.Modal(document.querySelector("#registerModal"));
+      registerModal.show();
+    });
+  }
+});
+</script>

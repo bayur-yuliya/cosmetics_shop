@@ -43,9 +43,9 @@ def register(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect("login")
+            return render(request, "cosmetics_shop/base.html", {"open_login_modal": True})
     form = UserCreationForm()
-    return render(request, "registration/register.html", {"form": form})
+    return render(request, "cosmetics_shop/base.html", {"form_register": form})
 
 
 def main_page(request):
@@ -405,7 +405,7 @@ def delivery(request):
 
 
 def user_contact(request):
-    client = Client.objects.get(user=request.user)
+    client, created = Client.objects.get_or_create(user=request.user)
     if request.method == "POST":
         form = ClientForm(request.POST, instance=client)
         if form.is_valid():
