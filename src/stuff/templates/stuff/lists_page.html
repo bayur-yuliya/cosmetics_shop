@@ -11,15 +11,28 @@
     <li>
         {{  l  }}
         <a href="{{ request.path }}edit/{{ l.id }}/"><button>Изменить</button></a>
-        <form method="POST" action="{{  request.path  }}delete/" style="display:inline;">
-            {%  csrf_token  %}
-            <input type="hidden" name="id" value="{{  l.id  }}">
-            <button onclick="return confirm('Удалить {{ l.name }}?')">Удалить</button>
-        </form>
+        <button onclick="openDeleteDialog({{ l.id  }}, '{{ l }}')">Удалить</button>
     </li>
 {%  endfor  %}
 {%  else  %}
 Пока пусто
 {%  endif  %}
 
+<dialog id="deleteDialog">
+  <form method="POST" action="{{ request.path }}delete/">
+    {% csrf_token %}
+    <p id="deleteText"></p>
+    <input type="hidden" name="id" id="deleteId">
+    <button type="reset" onclick="document.getElementById('deleteDialog').close()">Назад</button>
+    <button type="submit">Удалить</button>
+  </form>
+</dialog>
+
+<script>
+function openDeleteDialog(id, name) {
+  document.getElementById("deleteText").textContent = `Удалить товар ${name}?`;
+  document.getElementById("deleteId").value = id;
+  document.getElementById("deleteDialog").showModal();
+}
+</script>
 {%  endblock  %}
