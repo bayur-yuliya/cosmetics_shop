@@ -3,7 +3,7 @@ import datetime
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
-from django.db.models import OuterRef, Subquery, Count
+from django.db.models import OuterRef, Subquery, Count, Avg
 from django.db.models.functions import TruncMonth
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -46,7 +46,7 @@ def index(request):
     orders_today = number_of_orders_today()
     orders_per_month = number_of_orders_per_month(today)
     summ = summ_bill(today)
-    average = average_bill(today)
+    average = average_bill(today)  / 100
     max_favorite = (
         Favorite.objects.annotate(num_product=Count("product")).order_by("num_product")
     )[0:3]
@@ -83,16 +83,20 @@ def sales_comparison_chart_for_the_year(request):
         .filter(created_at__year=year)
         .annotate(month=TruncMonth("created_at"))
         .values("month")
-        .annotate(count=Count("id"))
+        .annotate(count=Count("id"), avg_price=Avg("total_price"),)
     )
-    counts = [0] * 12
+    sales_counts = [0] * 12
+    average_bill_counts = [0] * 12
     for item in orders_by_month:
-        counts[item["month"].month] = item["count"]
+        sales_counts[item["month"].month] = item["count"]
+        price = item["avg_price"] / 100
+        average_bill_counts[item["month"].month] = round(price or 0, 2)
 
     return JsonResponse({
         "labels": ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
-        "values": counts,
         "year": year,
+        'sales': sales_counts,
+        "average_bill": average_bill_counts,
     })
 
 
