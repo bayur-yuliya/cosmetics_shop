@@ -13,4 +13,63 @@
 {%  for favorite in max_favorite  %}
     <li>{{  favorite.product  }}</li>
 {%  endfor  %}
+
+<h3>Продажи по месяцам</h3>
+
+<label for="yearSelect">Выберите год:</label>
+<select id="yearSelect">
+  {% for y in years %}
+    <option value="{{ y }}" {% if y == current_year %}selected{% endif %}>{{ y }}</option>
+  {% endfor %}
+</select>
+
+<div style="width: 400px; height: 250px;">
+    <canvas id="salesChart" width="400" height="200"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('salesChart');
+let chart;
+
+async function loadChart(year) {
+    const response = await fetch(`sales_data/?year=${year}`);
+    const data = await response.json();
+
+    const config = {
+        type: 'bar',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: `Количество заказов за ${data.year}`,
+                data: data.values,
+                borderWidth: 1,
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            }]
+        },
+        options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1,
+                    precision: 0,
+                }
+            }
+        }
+        }
+    };
+
+    if (chart) {
+        chart.destroy();
+    }
+    chart = new Chart(ctx, config);
+}
+
+document.getElementById('yearSelect').addEventListener('change', e => {
+    loadChart(e.target.value);
+});
+
+loadChart(document.getElementById('yearSelect').value);
+</script>
 {%  endblock  %}

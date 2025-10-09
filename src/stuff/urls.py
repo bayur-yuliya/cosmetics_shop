@@ -31,5 +31,8 @@ urlpatterns = [
     path("tags/edit/<int:pk>/", views.edit_tags, name="edit_tags"),
     path("tags/delete/", views.delete_tags, name="delete_tags"),
     path("tags/", views.tags_list, name="tags_list"),
+    # chart
+    path("sales_data/", views.sales_comparison_chart_for_the_year, name="sales_data"),
+
     path("", views.index, name="index"),
 ]

@@ -1,8 +1,13 @@
+import datetime
+
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.db.models import OuterRef, Subquery, Count
+from django.db.models.functions import TruncMonth
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from cosmetics_shop.models import (
@@ -37,14 +42,16 @@ from .services.dashboard_service import (
 @staff_member_required
 def index(request):
     title = "Главная страница"
-
+    today = datetime.date.today()
     orders_today = number_of_orders_today()
-    orders_per_month = number_of_orders_per_month()
-    summ = summ_bill()
-    average = average_bill()
+    orders_per_month = number_of_orders_per_month(today)
+    summ = summ_bill(today)
+    average = average_bill(today)
     max_favorite = (
         Favorite.objects.annotate(num_product=Count("product")).order_by("num_product")
     )[0:3]
+    current_year = timezone.now().year
+    years = range(current_year - 5, current_year + 1)
 
     return render(
         request,
@@ -56,8 +63,37 @@ def index(request):
             "summ_bill": summ,
             "average_bill": average,
             "max_favorite": max_favorite,
+            "years": years,
+            "current_year": current_year,
         },
     )
+
+
+def sales_comparison_chart_for_the_year(request):
+    year = request.GET.get("year")
+    now = timezone.now()
+
+    try:
+        year = int(year)
+    except (TypeError, ValueError):
+        year = now.year
+
+    orders_by_month = (
+        Order.objects
+        .filter(created_at__year=year)
+        .annotate(month=TruncMonth("created_at"))
+        .values("month")
+        .annotate(count=Count("id"))
+    )
+    counts = [0] * 12
+    for item in orders_by_month:
+        counts[item["month"].month] = item["count"]
+
+    return JsonResponse({
+        "labels": ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
+        "values": counts,
+        "year": year,
+    })
 
 
 @staff_member_required
