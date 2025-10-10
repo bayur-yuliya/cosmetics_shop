@@ -1,4 +1,3 @@
-<script>
 document.addEventListener("DOMContentLoaded", () => {
   const openRegister = document.querySelector("#openRegister");
   if (openRegister) {
@@ -11,4 +10,3 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-</script>

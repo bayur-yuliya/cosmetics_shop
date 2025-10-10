@@ -10,6 +10,11 @@
         <form method="post" action="{% url 'register' %}">
           {% csrf_token %}
           {{ form_register.as_p }}
+          {% if form_register.errors %}
+              <div class="alert alert-danger">
+                  {{ form_register.errors }}
+              </div>
+          {% endif %}
           <button type="submit" class="btn btn-success w-100">Зарегистрироваться</button>
         </form>
       </div>

@@ -3,11 +3,9 @@ import uuid
 
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.paginator import Paginator
 from django.db import transaction
-from django.db.models import Count
-from django.db.models.functions import Upper, Substr
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
@@ -39,13 +37,30 @@ from .services.categories_services import context_categories, favorites_products
 
 
 def register(request):
+    login_form = AuthenticationForm()
+    register_form = UserCreationForm()
+
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return render(request, "cosmetics_shop/base.html", {"open_login_modal": True})
-    form = UserCreationForm()
-    return render(request, "cosmetics_shop/base.html", {"form_register": form})
+        register_form = UserCreationForm(request.POST)
+        if register_form.is_valid():
+            register_form.save()
+            return render(
+                request,
+                "cosmetics_shop/base.html",
+                {"open_login_modal": True, "form_register": register_form, "form_login": login_form},
+            )
+        else:
+            return render(
+                request,
+                "cosmetics_shop/base.html",
+                {"form_register": register_form, "form_login": login_form, "open_register_modal": True},
+            )
+
+    return render(
+        request,
+        "cosmetics_shop/base.html",
+        {"form_register": register_form, "form_login": login_form},
+    )
 
 
 def main_page(request):
