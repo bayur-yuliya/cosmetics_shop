@@ -51,14 +51,10 @@ class ProductForm(forms.ModelForm):
 
 class OrderStatusForm(forms.ModelForm):
     date_from = forms.DateField(
-        required=False,
-        label="Дата с",
-        widget=forms.DateInput(attrs={"type": "date"})
+        required=False, label="Дата с", widget=forms.DateInput(attrs={"type": "date"})
     )
     date_to = forms.DateField(
-        required=False,
-        label="Дата по",
-        widget=forms.DateInput(attrs={"type": "date"})
+        required=False, label="Дата по", widget=forms.DateInput(attrs={"type": "date"})
     )
 
     class Meta:

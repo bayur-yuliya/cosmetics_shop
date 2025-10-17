@@ -88,7 +88,7 @@ class Brand(models.Model):
         return self.name
 
     class Meta:
-        ordering = ['name']
+        ordering = ["name"]
 
 
 class Tag(models.Model):

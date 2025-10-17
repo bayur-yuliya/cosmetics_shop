@@ -46,7 +46,7 @@ def index(request):
     orders_today = number_of_orders_today()
     orders_per_month = number_of_orders_per_month(today)
     summ = summ_bill(today)
-    average = average_bill(today)  / 100
+    average = average_bill(today) / 100
     max_favorite = (
         Favorite.objects.annotate(num_product=Count("product")).order_by("num_product")
     )[0:3]
@@ -79,11 +79,13 @@ def sales_comparison_chart_for_the_year(request):
         year = now.year
 
     orders_by_month = (
-        Order.objects
-        .filter(created_at__year=year)
+        Order.objects.filter(created_at__year=year)
         .annotate(month=TruncMonth("created_at"))
         .values("month")
-        .annotate(count=Count("id"), avg_price=Avg("total_price"),)
+        .annotate(
+            count=Count("id"),
+            avg_price=Avg("total_price"),
+        )
     )
     sales_counts = [0] * 12
     average_bill_counts = [0] * 12
@@ -92,12 +94,27 @@ def sales_comparison_chart_for_the_year(request):
         price = item["avg_price"] / 100
         average_bill_counts[item["month"].month] = round(price or 0, 2)
 
-    return JsonResponse({
-        "labels": ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
-        "year": year,
-        'sales': sales_counts,
-        "average_bill": average_bill_counts,
-    })
+    return JsonResponse(
+        {
+            "labels": [
+                "Янв",
+                "Фев",
+                "Мар",
+                "Апр",
+                "Май",
+                "Июн",
+                "Июл",
+                "Авг",
+                "Сен",
+                "Окт",
+                "Ноя",
+                "Дек",
+            ],
+            "year": year,
+            "sales": sales_counts,
+            "average_bill": average_bill_counts,
+        }
+    )
 
 
 @staff_member_required
@@ -245,7 +262,9 @@ def orders(request):
                 latest_statuses = latest_statuses.filter(status=status)
 
             if date_from:
-                latest_statuses = latest_statuses.filter(order__created_at__gte=date_from)
+                latest_statuses = latest_statuses.filter(
+                    order__created_at__gte=date_from
+                )
             if date_to:
                 latest_statuses = latest_statuses.filter(order__created_at__lte=date_to)
 
