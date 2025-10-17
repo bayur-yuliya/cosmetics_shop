@@ -7,10 +7,10 @@
       </div>
 
       <div class="modal-body">
-        <form method="post" action="{% url 'login' %}">
+        <form method="post" action="{% url 'modal_login' %}">
           {% csrf_token %}
           <div class="mb-3">
-            <input type="text" name="username" class="form-control" placeholder="Логин" required>
+            <input type="text" name="email" class="form-control" placeholder="email" required>
           </div>
           <div class="mb-3">
             <input type="password" name="password" class="form-control" placeholder="Пароль" required>

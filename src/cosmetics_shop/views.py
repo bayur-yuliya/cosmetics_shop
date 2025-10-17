@@ -1,7 +1,8 @@
 import string
 import uuid
 
-from django.contrib.auth import logout
+from django.contrib import messages
+from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.paginator import Paginator
@@ -47,13 +48,21 @@ def register(request):
             return render(
                 request,
                 "cosmetics_shop/base.html",
-                {"open_login_modal": True, "form_register": register_form, "form_login": login_form},
+                {
+                    "open_login_modal": True,
+                    "form_register": register_form,
+                    "form_login": login_form,
+                },
             )
         else:
             return render(
                 request,
                 "cosmetics_shop/base.html",
-                {"form_register": register_form, "form_login": login_form, "open_register_modal": True},
+                {
+                    "form_register": register_form,
+                    "form_login": login_form,
+                    "open_register_modal": True,
+                },
             )
 
     return render(
@@ -61,6 +70,20 @@ def register(request):
         "cosmetics_shop/base.html",
         {"form_register": register_form, "form_login": login_form},
     )
+
+
+def login_view(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        user = authenticate(request, username=email, password=password)
+        if user is not None:
+            login(request, user)
+            messages.success(request, "Вы вошли")
+            return redirect(request.META.get("HTTP_REFERER", "main_page"))
+        else:
+            messages.error(request, "Неверный email или пароль")
+            return redirect(request.META.get("HTTP_REFERER", "main_page"))
 
 
 def main_page(request):
@@ -185,7 +208,9 @@ def order_history(request):
 def category_page(request, category_id):
     title = Category.objects.get(id=category_id)
     categories = context_categories()
-    group_products = GroupProduct.objects.filter(category=category_id).values_list('id', flat=True)
+    group_products = GroupProduct.objects.filter(category=category_id).values_list(
+        "id", flat=True
+    )
     products = Product.objects.filter(group__in=group_products)
 
     if request.user.is_authenticated:
@@ -250,8 +275,9 @@ def brand_page(request):
         letter = brand.name[0].upper()
         grouped.setdefault(letter, []).append(brand)
 
-    alphabet = list(string.ascii_uppercase) + \
-               [chr(code) for code in range(ord("А"), ord("Z")+1)]
+    alphabet = list(string.ascii_uppercase) + [
+        chr(code) for code in range(ord("А"), ord("Z") + 1)
+    ]
 
     return render(
         request,
