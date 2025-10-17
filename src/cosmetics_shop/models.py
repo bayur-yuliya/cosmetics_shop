@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils.timezone import now
 
+from accounts.models import CustomUser
+
 
 class Status(models.IntegerChoices):
     NEW = 0, "New"
@@ -44,7 +46,9 @@ class ProductManager(models.Manager):
 
 
 class Client(models.Model):
-    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True)
+    user = models.OneToOneField(
+        CustomUser, on_delete=models.SET_NULL, null=True, blank=True
+    )
     full_name = models.CharField(max_length=100)
     email = models.EmailField()
     phone = models.CharField(max_length=10)
@@ -128,7 +132,7 @@ class Product(models.Model):
 
 
 class Favorite(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
 
     class Meta:
@@ -136,7 +140,7 @@ class Favorite(models.Model):
 
 
 class Cart(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, null=True)
     created_at = models.DateField(auto_now=True)
 
     def __str__(self):

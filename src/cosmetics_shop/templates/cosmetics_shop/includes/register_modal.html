@@ -5,17 +5,19 @@
         <h5 class="modal-title">Регистрация</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-
       <div class="modal-body">
-        <form method="post" action="{% url 'register' %}">
+        <form method="post" action="{% url 'account_signup' %}">
           {% csrf_token %}
-          {{ form_register.as_p }}
-          {% if form_register.errors %}
-              <div class="alert alert-danger">
-                  {{ form_register.errors }}
-              </div>
-          {% endif %}
-          <button type="submit" class="btn btn-success w-100">Зарегистрироваться</button>
+          <div class="mb-3">
+            <input type="email" name="email" class="form-control" placeholder="Email" required>
+          </div>
+          <div class="mb-3">
+            <input type="password" name="password1" class="form-control" placeholder="Пароль" required>
+          </div>
+          <div class="mb-3">
+            <input type="password" name="password2" class="form-control" placeholder="Повторение пароля" required>
+          </div>
+          <button type="submit">Зарегистрироваться</button>
         </form>
       </div>
     </div>

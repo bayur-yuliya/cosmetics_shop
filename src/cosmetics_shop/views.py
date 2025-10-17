@@ -4,13 +4,16 @@ import uuid
 from django.contrib import messages
 from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
-from .forms import ClientForm, DeliveryAddressForm, ProductFilterForm
+from .forms import (
+    ClientForm,
+    DeliveryAddressForm,
+    ProductFilterForm,
+)
 from .models import (
     Product,
     GroupProduct,
@@ -35,41 +38,6 @@ from .services.cart_services import (
 from .services.order_service import create_order_from_cart, get_client
 
 from .services.categories_services import context_categories, favorites_products
-
-
-def register(request):
-    login_form = AuthenticationForm()
-    register_form = UserCreationForm()
-
-    if request.method == "POST":
-        register_form = UserCreationForm(request.POST)
-        if register_form.is_valid():
-            register_form.save()
-            return render(
-                request,
-                "cosmetics_shop/base.html",
-                {
-                    "open_login_modal": True,
-                    "form_register": register_form,
-                    "form_login": login_form,
-                },
-            )
-        else:
-            return render(
-                request,
-                "cosmetics_shop/base.html",
-                {
-                    "form_register": register_form,
-                    "form_login": login_form,
-                    "open_register_modal": True,
-                },
-            )
-
-    return render(
-        request,
-        "cosmetics_shop/base.html",
-        {"form_register": register_form, "form_login": login_form},
-    )
 
 
 def login_view(request):

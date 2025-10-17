@@ -2,12 +2,12 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path("account/login/", views.login_view, name="account_login"),
     path("group/<int:group_id>/", views.group_page, name="group_page"),
     path("category/<int:category_id>/", views.category_page, name="category_page"),
     path("product/<int:product_code>/", views.product_page, name="product_page"),
     path("brand/", views.brand_page, name="brand_page"),
     path("brand/<int:brand_id>/", views.brand_products, name="brand_detail"),
-    path("register/", views.register, name="register"),
     path("add_to_cart/", views.add_to_cart, name="add_to_cart"),
     path("cart/add/", views.cart_add, name="cart_add"),
     path("cart/remove/", views.cart_remove, name="cart_remove"),
@@ -20,7 +20,6 @@ urlpatterns = [
     path("user_account/", views.user_account, name="user_account"),
     path("delete_account/", views.delete_account, name="delete_account"),
     path("delivery/", views.delivery, name="delivery"),
-    path("modal_login/", views.login_view, name="modal_login"),
     path("logout/", views.logout_view, name="logout"),
     path("favorites/", views.favorites, name="favorites"),
     path(
