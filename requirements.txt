@@ -13,6 +13,7 @@ jwt==1.4.0
 mypy_extensions==1.1.0
 packaging==25.0
 pathspec==0.12.1
+phonenumbers==9.0.16
 pillow==11.3.0
 platformdirs==4.3.8
 pycparser==2.23

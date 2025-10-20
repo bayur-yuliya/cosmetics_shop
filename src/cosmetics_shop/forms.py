@@ -2,13 +2,15 @@ from django import forms
 from django.contrib.auth.models import User
 
 from cosmetics_shop.models import Client, DeliveryAddress, GroupProduct, Brand, Tag
+from cosmetics_shop.validators import validate_phone_number
 
 
 class ClientForm(forms.ModelForm):
+    phone = forms.CharField(max_length=10, validators=[validate_phone_number])
 
     class Meta:
         model = Client
-        fields = ["full_name", "email", "phone"]
+        fields = ["first_name", "last_name", "email", "phone"]
 
 
 class DeliveryAddressForm(forms.ModelForm):

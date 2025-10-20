@@ -376,7 +376,8 @@ def delivery(request):
         if form.is_valid() and form_delivery.is_valid():
             if request.user.is_authenticated:
                 client, _ = Client.objects.get_or_create(user=request.user)
-                client.full_name = form.cleaned_data["full_name"]
+                client.first_name = form.cleaned_data["first_name"]
+                client.last_name = form.cleaned_data["last_name"]
                 client.email = form.cleaned_data["email"]
                 client.phone = form.cleaned_data["phone"]
                 client.is_active = True

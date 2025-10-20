@@ -1,11 +1,11 @@
 import random
 
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.db import models
 from django.utils.timezone import now
 
 from accounts.models import CustomUser
+from cosmetics_shop.validators import validate_phone_number
 
 
 class Status(models.IntegerChoices):
@@ -49,14 +49,15 @@ class Client(models.Model):
     user = models.OneToOneField(
         CustomUser, on_delete=models.SET_NULL, null=True, blank=True
     )
-    full_name = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=50, blank=True)
+    last_name = models.CharField(max_length=50, blank=True)
     email = models.EmailField()
-    phone = models.CharField(max_length=10)
+    phone = models.CharField(max_length=10, validators=[validate_phone_number])
     is_active = models.BooleanField(default=True)
     was_registered = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.full_name
+        return self.first_name
 
 
 class DeliveryAddress(models.Model):
