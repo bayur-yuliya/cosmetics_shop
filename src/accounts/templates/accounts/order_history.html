@@ -1,4 +1,4 @@
-{%  extends 'cosmetics_shop/base.html'  %}
+{%  extends 'accounts/base.html'  %}
 {%  load custom_filters  %}
 
 {%  block title  %}{{  title  }}{%  endblock  %}
@@ -22,5 +22,5 @@
     Пока нет заказов
 {% endif %}
 <br>
-<a href="{%  url 'user_account'  %}"><button>Назад</button></a>
+<a href="{%  url 'user_contact'  %}"><button>Назад</button></a>
 {%  endblock%}

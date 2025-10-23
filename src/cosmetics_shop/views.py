@@ -1,11 +1,9 @@
 import string
-import uuid
 
 from django.contrib import messages
-from django.contrib.auth import logout, login, authenticate
+from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
@@ -24,7 +22,6 @@ from .models import (
     Client,
     DeliveryAddress,
     Category,
-    OrderStatusLog,
     Favorite,
 )
 from .services.cart_services import (
@@ -103,72 +100,6 @@ def main_page(request):
             "context_categories": categories,
             "products": products,
             "form": form,
-        },
-    )
-
-
-@login_required
-def logout_view(request):
-    logout(request)
-    return redirect("main_page")
-
-
-@login_required
-@transaction.atomic
-def delete_account(request):
-    user = request.user
-
-    user.username = f"deleted_user_{uuid.uuid4().hex[:8]}"
-    user.email = ""
-    user.first_name = ""
-    user.last_name = ""
-
-    user.is_active = False
-    user.save()
-
-    logout(request)
-
-    return redirect("main_page")
-
-
-@login_required
-def user_account(request):
-    title = "Аккаунт"
-    return render(
-        request,
-        "cosmetics_shop/user_account.html",
-        {
-            "title": title,
-        },
-    )
-
-
-@login_required
-def order_history(request):
-    title = "История заказов"
-    client, _ = Client.objects.get_or_create(user=request.user)
-    orders = Order.objects.filter(client=client)
-    order_items = []
-
-    for order in orders:
-        dictt = {}
-        dictt["order"] = order
-        dictt["item"] = []
-        items = OrderItem.objects.filter(order=order.id)
-        dictt["status"] = OrderStatusLog.objects.filter(order=order)[0]
-        if items.count() > 1:
-            for item in items:
-                dictt["order"] = order
-                dictt["item"] += [item]
-        else:
-            dictt["item"] = items
-        order_items.append(dictt)
-    return render(
-        request,
-        "cosmetics_shop/order_history.html",
-        {
-            "title": title,
-            "order_items": order_items,
         },
     )
 
@@ -414,19 +345,6 @@ def delivery(request):
     )
 
 
-def user_contact(request):
-    client, created = Client.objects.get_or_create(user=request.user)
-    if request.method == "POST":
-        form = ClientForm(request.POST, instance=client)
-        if form.is_valid():
-            form.save()
-            return redirect("user_contact")
-    form = ClientForm(instance=client)
-    return render(
-        request, "cosmetics_shop/user_contact.html", {"form": form, "client": client}
-    )
-
-
 @login_required
 def add_to_favorites(request, product_id):
     product = get_object_or_404(Product, id=product_id)
@@ -441,25 +359,6 @@ def remove_from_favorites(request, product_id):
     Favorite.objects.filter(user=request.user, product_id=product_id).delete()
     next_url = request.GET.get("next", "/")
     return redirect(next_url)
-
-
-@login_required
-def favorites(request):
-    products = Favorite.objects.filter(user=request.user)
-
-    paginator = Paginator(products, 20)
-    page_number = request.GET.get("page")
-    products = paginator.get_page(page_number)
-
-    return render(
-        request,
-        "cosmetics_shop/favorites.html",
-        {
-            "title": "Избранное",
-            "products": products,
-            "is_favorite": True,
-        },
-    )
 
 
 def payment_and_delivery(request):

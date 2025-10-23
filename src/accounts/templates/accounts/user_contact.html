@@ -1,10 +1,11 @@
-{%  extends 'cosmetics_shop/base.html'  %}
+{%  extends 'accounts/base.html'  %}
 
 {%  block title  %}{{  title  }}{%  endblock  %}
 
 {%  block content  %}
 <hr>
-full_name: {{  client.full_name|default:"_"  }} <br>
+Фамилия: {{  client.last_name|default:"_"  }} <br>
+Имя: {{  client.first_name|default:"_"  }} <br>
 email: {{  client.email|default:"_"  }} <br>
 phone: {{  client.phone|default:"_"  }}
 <hr>
@@ -13,5 +14,5 @@ phone: {{  client.phone|default:"_"  }}
   {{ form.as_p }}
   <button type="submit">Изменить</button>
 </form>
-<a href="{%  url 'user_account'  %}"><button>Назад</button></a>
+<a href="{%  url 'user_contact'  %}"><button>Назад</button></a>
 {%  endblock  %}
