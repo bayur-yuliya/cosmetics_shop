@@ -1,4 +1,5 @@
 {%  extends "stuff/base.html"  %}
+{%  load static  %}
 
 {%  block title  %}{{  title  }}{%  endblock  %}
 
@@ -11,15 +12,21 @@
     <li>
         {{  l  }}
         <a href="{{ request.path }}edit/{{ l.id }}/"><button>Изменить</button></a>
-        <form method="POST" action="{{  request.path  }}delete/" style="display:inline;">
-            {%  csrf_token  %}
-            <input type="hidden" name="id" value="{{  l.id  }}">
-            <button>Удалить</button>
-        </form>
+        <button onclick="openDeleteDialog({{ l.id  }}, '{{ l }}')">Удалить</button>
     </li>
 {%  endfor  %}
 {%  else  %}
 Пока пусто
 {%  endif  %}
 
+<dialog id="deleteDialog">
+  <form method="POST" action="{{ request.path }}delete/">
+    {% csrf_token %}
+    <p id="deleteText"></p>
+    <input type="hidden" name="id" id="deleteId">
+    <button type="reset" onclick="document.getElementById('deleteDialog').close()">Назад</button>
+    <button type="submit">Удалить</button>
+  </form>
+</dialog>
+<script src="{%  static 'stuff/js/delete_dialog_script.js'  %}"></script>
 {%  endblock  %}

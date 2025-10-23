@@ -1,10 +1,15 @@
+import datetime
+
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
-from django.db.models import OuterRef, Subquery, Count
+from django.core.paginator import Paginator
+from django.db.models import OuterRef, Subquery, Count, Avg
+from django.db.models.functions import TruncMonth
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-from cosmetics_shop.forms import ProductFilterForm
 from cosmetics_shop.models import (
     Product,
     Order,
@@ -24,6 +29,7 @@ from stuff.forms import (
     BrandForm,
     TagForm,
     FilterStockForm,
+    ProductStuffFilterForm,
 )
 from .services.dashboard_service import (
     number_of_orders_today,
@@ -36,14 +42,16 @@ from .services.dashboard_service import (
 @staff_member_required
 def index(request):
     title = "Главная страница"
-
+    today = datetime.date.today()
     orders_today = number_of_orders_today()
-    orders_per_month = number_of_orders_per_month()
-    summ = summ_bill()
-    average = average_bill()
+    orders_per_month = number_of_orders_per_month(today)
+    summ = summ_bill(today)
+    average = average_bill(today) / 100
     max_favorite = (
         Favorite.objects.annotate(num_product=Count("product")).order_by("num_product")
     )[0:3]
+    current_year = timezone.now().year
+    years = range(current_year - 5, current_year + 1)
 
     return render(
         request,
@@ -55,7 +63,57 @@ def index(request):
             "summ_bill": summ,
             "average_bill": average,
             "max_favorite": max_favorite,
+            "years": years,
+            "current_year": current_year,
         },
+    )
+
+
+def sales_comparison_chart_for_the_year(request):
+    year = request.GET.get("year")
+    now = timezone.now()
+
+    try:
+        year = int(year)
+    except (TypeError, ValueError):
+        year = now.year
+
+    orders_by_month = (
+        Order.objects.filter(created_at__year=year)
+        .annotate(month=TruncMonth("created_at"))
+        .values("month")
+        .annotate(
+            count=Count("id"),
+            avg_price=Avg("total_price"),
+        )
+    )
+    sales_counts = [0] * 12
+    average_bill_counts = [0] * 12
+    for item in orders_by_month:
+        sales_counts[item["month"].month] = item["count"]
+        price = item["avg_price"] / 100
+        average_bill_counts[item["month"].month] = round(price or 0, 2)
+
+    return JsonResponse(
+        {
+            "labels": [
+                "Янв",
+                "Фев",
+                "Мар",
+                "Апр",
+                "Май",
+                "Июн",
+                "Июл",
+                "Авг",
+                "Сен",
+                "Окт",
+                "Ноя",
+                "Дек",
+            ],
+            "year": year,
+            "sales": sales_counts,
+            "average_bill": average_bill_counts,
+        }
     )
 
 
@@ -71,16 +129,14 @@ def products(request):
     if request.GET.urlencode() != query_params.urlencode():
         return redirect(f"{request.path}?{query_params.urlencode()}")
 
-    form = ProductFilterForm(request.GET or None)
+    form = ProductStuffFilterForm(request.GET or None)
     form_stock = FilterStockForm(request.GET or None)
 
     if form.is_valid():
         name = form.cleaned_data["name"]
-        group = form.cleaned_data["group"]
-        tags = form.cleaned_data["tags"]
+        code = form.cleaned_data["code"]
         min_price = form.cleaned_data["min_price"]
         max_price = form.cleaned_data["max_price"]
-        brand = form.cleaned_data["brand"]
 
         if name:
             products = products.filter(name__icontains=name)
@@ -88,12 +144,8 @@ def products(request):
             products = products.filter(price__gte=min_price * 100, stock__gte=1)
         if max_price is not None:
             products = products.filter(price__lte=max_price * 100)
-        if group:
-            products = products.filter(group__in=group)
-        if brand:
-            products = products.filter(brand__in=brand)
-        if tags:
-            products = products.filter(tags__in=tags)
+        if code:
+            products = products.filter(code__icontains=code)
 
     if form_stock.is_valid():
         min_stock = form_stock.cleaned_data["min_stock"]
@@ -102,6 +154,10 @@ def products(request):
             products = products.filter(stock__gte=min_stock)
         if max_stock:
             products = products.filter(stock__lte=max_stock)
+
+    paginator = Paginator(products, 20)
+    page_number = request.GET.get("page")
+    products = paginator.get_page(page_number)
 
     return render(
         request,
@@ -136,9 +192,10 @@ def create_products(request):
     if request.method == "POST":
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
-            product = form.save(commit=False)
-            product.price = form.cleaned_data['price'] * 100
-            product.save()
+            saved_product = form.save(commit=False)
+            saved_product.price = form.cleaned_data["price"] * 100
+            saved_product.save()
+            form.save_m2m()
             return redirect("products")
 
     form = ProductForm()
@@ -160,7 +217,10 @@ def edit_products(request, product_id):
     if request.method == "POST":
         form = ProductForm(request.POST, request.FILES, instance=product)
         if form.is_valid():
-            form.save()
+            saved_product = form.save(commit=False)
+            saved_product.price = form.cleaned_data["price"] * 100
+            saved_product.save()
+            form.save_m2m()
             return redirect("product_card", product_id)
     form = ProductForm(instance=product)
     return render(
@@ -178,7 +238,8 @@ def edit_products(request, product_id):
 def delete_product(request):
     product_id = request.POST.get("product_id")
     product = Product.objects.get(id=product_id)
-    product.delete()
+    product.is_active = False
+    product.save()
     return redirect("products")
 
 
@@ -192,10 +253,23 @@ def orders(request):
     latest_statuses = OrderStatusLog.objects.filter(
         id__in=Subquery(latest_status_subquery.values("id")[:1])
     ).order_by("status")
+
     if request.method == "POST":
         form = OrderStatusForm(request.POST)
         if form.is_valid():
-            latest_statuses = latest_statuses.filter(status=form.cleaned_data["status"])
+            status = form.cleaned_data.get("status")
+            date_from = form.cleaned_data.get("date_from")
+            date_to = form.cleaned_data.get("date_to")
+            if status:
+                latest_statuses = latest_statuses.filter(status=status)
+
+            if date_from:
+                latest_statuses = latest_statuses.filter(
+                    order__created_at__gte=date_from
+                )
+            if date_to:
+                latest_statuses = latest_statuses.filter(order__created_at__lte=date_to)
+
             return render(
                 request,
                 "stuff/orders.html",
@@ -207,6 +281,11 @@ def orders(request):
             )
     else:
         form = OrderStatusForm()
+
+    paginator = Paginator(latest_statuses, 20)
+    page_number = request.GET.get("page")
+    latest_statuses = paginator.get_page(page_number)
+
     return render(
         request,
         "stuff/orders.html",

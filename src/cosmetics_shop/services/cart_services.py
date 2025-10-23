@@ -91,8 +91,8 @@ def get_or_create_session_client(request, form=None):
 
     if form:
         client = Client.objects.create(
-            full_name=form.cleaned_data["full_name"],
-            email=form.cleaned_data["email"],
+            first_name=form.cleaned_data["first_name"],
+            last_name=form.cleaned_data["last_name"],
             phone=form.cleaned_data["phone"],
             is_active=False,
         )

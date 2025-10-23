@@ -18,7 +18,9 @@ def favorites_products(request):
     )
 
     products = (
-        Product.objects.annotate(is_favorite=Exists(favorites_subquery))
+        Product.objects.filter(is_active=True).annotate(
+            is_favorite=Exists(favorites_subquery)
+        )
     ).order_by("-stock")
 
     return products

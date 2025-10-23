@@ -1,13 +1,16 @@
 from django import forms
+from django.contrib.auth.models import User
 
 from cosmetics_shop.models import Client, DeliveryAddress, GroupProduct, Brand, Tag
+from accounts.validators import validate_phone_number
 
 
 class ClientForm(forms.ModelForm):
+    phone = forms.CharField(max_length=10, validators=[validate_phone_number])
 
     class Meta:
         model = Client
-        fields = ["full_name", "email", "phone"]
+        fields = ["first_name", "last_name", "phone"]
 
 
 class DeliveryAddressForm(forms.ModelForm):
@@ -43,3 +46,18 @@ class ProductFilterForm(forms.Form):
 
     min_price = forms.DecimalField(required=False, label="Min price")
     max_price = forms.DecimalField(required=False, label="Max price")
+
+
+class UserRegistrationForm(forms.ModelForm):
+    password = forms.CharField(label="Password", widget=forms.PasswordInput)
+    password2 = forms.CharField(label="Repeat password", widget=forms.PasswordInput)
+
+    class Meta:
+        model = User
+        fields = ("email",)
+
+    def clean_password2(self):
+        cd = self.cleaned_data
+        if cd["password"] != cd["password2"]:
+            raise forms.ValidationError("Passwords don't match.")
+        return cd["password2"]

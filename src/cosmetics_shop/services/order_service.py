@@ -64,10 +64,10 @@ def create_order_from_cart(request, address_id):
     total_price = sum(item.product.price * item.quantity for item in cart_items)
 
     with transaction.atomic():
+        full_name = f"{client.last_name} {client.first_name}"
         order = Order.objects.create(
             client=client,
-            snapshot_name=client.full_name,
-            snapshot_email=client.email,
+            snapshot_name=full_name,
             snapshot_phone=client.phone,
             snapshot_address=str(address),
             total_price=total_price,
@@ -79,6 +79,9 @@ def create_order_from_cart(request, address_id):
                 product=item.product,
                 price=item.product.price,
                 quantity=item.quantity,
+                snapshot_product=item.product.name,
+                snapshot_price=item.product.price,
+                snapshot_quantity=item.quantity,
             )
             for item in cart_items
         ]

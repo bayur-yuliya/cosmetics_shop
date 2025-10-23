@@ -1,9 +1,11 @@
 import random
 
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.db import models
 from django.utils.timezone import now
+
+from accounts.models import CustomUser
+from accounts.validators import validate_phone_number
 
 
 class Status(models.IntegerChoices):
@@ -22,31 +24,39 @@ class ProductQuerySet(models.QuerySet):
             stock_zero=models.Case(
                 models.When(stock=0, then=models.Value(1)),
                 default=models.Value(0),
-                output_field=models.IntegerField()
+                output_field=models.IntegerField(),
             )
         ).order_by("stock_zero")
 
 
 class ProductManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().annotate(
-            stock_zero=models.Case(
-                models.When(stock=0, then=models.Value(1)),
-                default=models.Value(0),
-                output_field=models.IntegerField()
+        return (
+            super()
+            .get_queryset()
+            .annotate(
+                stock_zero=models.Case(
+                    models.When(stock=0, then=models.Value(1)),
+                    default=models.Value(0),
+                    output_field=models.IntegerField(),
+                )
             )
-        ).order_by("stock_zero")
+            .order_by("stock_zero")
+        )
+
 
 class Client(models.Model):
-    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True)
-    full_name = models.CharField(max_length=100)
-    email = models.EmailField()
-    phone = models.CharField(max_length=10)
+    user = models.OneToOneField(
+        CustomUser, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    first_name = models.CharField(max_length=50, blank=True)
+    last_name = models.CharField(max_length=50, blank=True)
+    phone = models.CharField(max_length=10, validators=[validate_phone_number])
     is_active = models.BooleanField(default=True)
     was_registered = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.full_name
+        return self.first_name
 
 
 class DeliveryAddress(models.Model):
@@ -61,14 +71,14 @@ class DeliveryAddress(models.Model):
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.name
 
 
 class GroupProduct(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -76,10 +86,13 @@ class GroupProduct(models.Model):
 
 
 class Brand(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        ordering = ["name"]
 
 
 class Tag(models.Model):
@@ -90,7 +103,7 @@ class Tag(models.Model):
 
 
 class Product(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     group = models.ForeignKey(GroupProduct, on_delete=models.CASCADE)
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
     price = models.PositiveIntegerField()
@@ -99,6 +112,7 @@ class Product(models.Model):
     code = models.PositiveIntegerField(unique=True, blank=True, null=True)
     image = models.ImageField(upload_to="product_images/", default="default/image.jpg")
     tags = models.ManyToManyField(Tag, blank=True, related_name="products")
+    is_active = models.BooleanField(default=True)
 
     objects = ProductManager.from_queryset(ProductQuerySet)()
 
@@ -118,7 +132,7 @@ class Product(models.Model):
 
 
 class Favorite(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
 
     class Meta:
@@ -126,7 +140,7 @@ class Favorite(models.Model):
 
 
 class Cart(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, null=True)
     created_at = models.DateField(auto_now=True)
 
     def __str__(self):
@@ -152,7 +166,6 @@ class Order(models.Model):
     total_price = models.PositiveIntegerField(default=0)
 
     snapshot_name = models.CharField(max_length=100)
-    snapshot_email = models.EmailField()
     snapshot_phone = models.CharField(max_length=20)
     snapshot_address = models.TextField()
 
@@ -185,6 +198,10 @@ class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     price = models.PositiveIntegerField()
     quantity = models.PositiveIntegerField()
+
+    snapshot_product = models.CharField(max_length=100)
+    snapshot_price = models.IntegerField()
+    snapshot_quantity = models.IntegerField()
 
     def __str__(self):
         return f"{self.order} - {self.product}"

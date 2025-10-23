@@ -4,11 +4,12 @@
 {%  block title  %}{{  title  }}{%  endblock  %}
 
 {%  block content  %}
-{{  status  }} | {{  order.code  }}<br><hr><br>
+{{  status  }} | Номер заказа: {{  order.code  }}<br><hr><br>
 {%  for prod in products  %}
     <img src="{{ prod.product.image.url }}"  hspace='30' width='50px' height='50px'>
-    {{  prod  }}<br>
+    {{  prod.order  }}<br>
+    {{  prod.product.name  }}({{  prod.product.price|number_format  }} грн)  -  {{  prod.quantity  }}<br>
 {%  endfor  %}
 <hr><br>
-{{  order.total_price|number_format  }} грн
+Итого: {{  order.total_price|number_format  }} грн
 {%  endblock  %}

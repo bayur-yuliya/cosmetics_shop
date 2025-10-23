@@ -31,9 +31,9 @@ class BrandForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     brand = forms.ModelChoiceField(queryset=Brand.objects.all(), initial=0)
     tags = forms.ModelMultipleChoiceField(
-        widget=forms.CheckboxSelectMultiple, queryset=Tag.objects.all(), initial=0
+        widget=forms.CheckboxSelectMultiple, queryset=Tag.objects.all(), required=False
     )
-    price = forms.DecimalField()
+    price = forms.DecimalField(max_digits=15, decimal_places=2)
 
     class Meta:
         model = Product
@@ -50,9 +50,23 @@ class ProductForm(forms.ModelForm):
 
 
 class OrderStatusForm(forms.ModelForm):
+    date_from = forms.DateField(
+        required=False, label="Дата с", widget=forms.DateInput(attrs={"type": "date"})
+    )
+    date_to = forms.DateField(
+        required=False, label="Дата по", widget=forms.DateInput(attrs={"type": "date"})
+    )
+
     class Meta:
         model = OrderStatusLog
-        fields = ["status", "comment"]
+        fields = ["status", "comment", "date_from", "date_to"]
+
+
+class ProductStuffFilterForm(forms.Form):
+    name = forms.CharField(required=False, label="Название содержит: ")
+    code = forms.IntegerField(required=False, label="Код товара: ")
+    min_price = forms.DecimalField(required=False, label="Минимальная цена: ")
+    max_price = forms.DecimalField(required=False, label="Максимальная цена: ")
 
 
 class FilterStockForm(forms.Form):

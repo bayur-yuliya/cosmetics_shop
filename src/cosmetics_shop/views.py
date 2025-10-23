@@ -1,13 +1,17 @@
-import uuid
+import string
 
-from django.contrib.auth import logout
+from django.contrib import messages
+from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
-from django.db import transaction
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
-from .forms import ClientForm, DeliveryAddressForm, ProductFilterForm
+from .forms import (
+    ClientForm,
+    DeliveryAddressForm,
+    ProductFilterForm,
+)
 from .models import (
     Product,
     GroupProduct,
@@ -18,7 +22,6 @@ from .models import (
     Client,
     DeliveryAddress,
     Category,
-    OrderStatusLog,
     Favorite,
 )
 from .services.cart_services import (
@@ -34,19 +37,25 @@ from .services.order_service import create_order_from_cart, get_client
 from .services.categories_services import context_categories, favorites_products
 
 
-def register(request):
+def login_view(request):
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("login")
-    form = UserCreationForm()
-    return render(request, "registration/register.html", {"form": form})
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        user = authenticate(request, username=email, password=password)
+        if user is not None:
+            login(request, user)
+            messages.success(request, "Вы вошли")
+            return redirect(request.META.get("HTTP_REFERER", "main_page"))
+        else:
+            messages.error(request, "Неверный email или пароль")
+            return redirect(request.META.get("HTTP_REFERER", "main_page"))
 
 
 def main_page(request):
-    products = favorites_products(request)
-
+    if request.user.is_authenticated:
+        products = favorites_products(request)
+    else:
+        products = Product.objects.filter(is_active=True)
     categories = context_categories()
 
     query_params = request.GET.copy()
@@ -79,6 +88,10 @@ def main_page(request):
         if tags:
             products = products.filter(tags__in=tags)
 
+    paginator = Paginator(products, 20)
+    page_number = request.GET.get("page")
+    products = paginator.get_page(page_number)
+
     return render(
         request,
         "cosmetics_shop/main_page.html",
@@ -91,85 +104,26 @@ def main_page(request):
     )
 
 
-@login_required
-def logout_view(request):
-    logout(request)
-    return redirect("main_page")
-
-
-@login_required
-@transaction.atomic
-def delete_account(request):
-    user = request.user
-
-    user.username = f"deleted_user_{uuid.uuid4().hex[:8]}"
-    user.email = ""
-    user.first_name = ""
-    user.last_name = ""
-
-    user.is_active = False
-    user.save()
-
-    logout(request)
-
-    return redirect("main_page")
-
-
-@login_required
-def user_account(request):
-    title = "Аккаунт"
-    return render(
-        request,
-        "cosmetics_shop/user_account.html",
-        {
-            "title": title,
-        },
-    )
-
-
-@login_required
-def order_history(request):
-    title = "История заказов"
-    client, _ = Client.objects.get_or_create(user=request.user)
-    orders = Order.objects.filter(client=client)
-    order_items = []
-
-    for order in orders:
-        dictt = {}
-        dictt["order"] = order
-        dictt["item"] = []
-        items = OrderItem.objects.filter(order=order.id)
-        dictt["status"] = OrderStatusLog.objects.filter(order=order)[0]
-        if items.count() > 1:
-            for item in items:
-                dictt["order"] = order
-                dictt["item"] += [item]
-        else:
-            dictt["item"] = items
-        order_items.append(dictt)
-    return render(
-        request,
-        "cosmetics_shop/order_history.html",
-        {
-            "title": title,
-            "order_items": order_items,
-        },
-    )
-
-
 def category_page(request, category_id):
     title = Category.objects.get(id=category_id)
     categories = context_categories()
-    group_product = GroupProduct.objects.filter(category=category_id)
+    group_products = GroupProduct.objects.filter(category=category_id).values_list(
+        "id", flat=True
+    )
+    products = Product.objects.filter(group__in=group_products)
 
-    products = favorites_products(request).filter(group__in=group_product)
+    if request.user.is_authenticated:
+        products = favorites_products(request).filter(group__in=group_products)
+
+    paginator = Paginator(products, 20)
+    page_number = request.GET.get("page")
+    products = paginator.get_page(page_number)
 
     return render(
         request,
         "cosmetics_shop/category_page.html",
         {
             "title": title,
-            "group_product": group_product,
             "products": products,
             "context_categories": categories,
         },
@@ -179,16 +133,20 @@ def category_page(request, category_id):
 def group_page(request, group_id):
     title = GroupProduct.objects.get(id=group_id)
     categories = context_categories()
-    group_product = GroupProduct.objects.filter(id=group_id)
+    products = Product.objects.filter(group=group_id)
 
-    products = favorites_products(request).filter(group__in=group_product)
+    if request.user.is_authenticated:
+        products = favorites_products(request).filter(group=group_id)
+
+    paginator = Paginator(products, 20)
+    page_number = request.GET.get("page")
+    products = paginator.get_page(page_number)
 
     return render(
         request,
         "cosmetics_shop/category_page.html",
         {
             "title": title,
-            "group_product": group_product,
             "products": products,
             "context_categories": categories,
         },
@@ -211,12 +169,23 @@ def product_page(request, product_code):
 
 def brand_page(request):
     brands = Brand.objects.all()
+    grouped = {}
+    for brand in brands:
+        letter = brand.name[0].upper()
+        grouped.setdefault(letter, []).append(brand)
+
+    alphabet = list(string.ascii_uppercase) + [
+        chr(code) for code in range(ord("А"), ord("Z") + 1)
+    ]
+
     return render(
         request,
         "cosmetics_shop/brand.html",
         {
             "title": "Brands",
             "brands": brands,
+            "grouped": grouped,
+            "alphabet": alphabet,
         },
     )
 
@@ -224,8 +193,14 @@ def brand_page(request):
 def brand_products(request, brand_id):
     title = Brand.objects.get(id=brand_id)
     categories = context_categories()
+    products = Product.objects.filter(brand=brand_id)
 
-    products = favorites_products(request).filter(brand=brand_id)
+    if request.user.is_authenticated:
+        products = favorites_products(request).filter(brand=brand_id)
+
+    paginator = Paginator(products, 20)
+    page_number = request.GET.get("page")
+    products = paginator.get_page(page_number)
 
     return render(
         request,
@@ -332,8 +307,8 @@ def delivery(request):
         if form.is_valid() and form_delivery.is_valid():
             if request.user.is_authenticated:
                 client, _ = Client.objects.get_or_create(user=request.user)
-                client.full_name = form.cleaned_data["full_name"]
-                client.email = form.cleaned_data["email"]
+                client.first_name = form.cleaned_data["first_name"]
+                client.last_name = form.cleaned_data["last_name"]
                 client.phone = form.cleaned_data["phone"]
                 client.is_active = True
                 client.save()
@@ -369,21 +344,7 @@ def delivery(request):
     )
 
 
-def user_contact(request):
-    client = Client.objects.get(user=request.user)
-    if request.method == "POST":
-        form = ClientForm(request.POST, instance=client)
-        if form.is_valid():
-            form.save()
-            return redirect("user_contact")
-    form = ClientForm(instance=client)
-    return render(
-        request, "cosmetics_shop/user_contact.html", {"form": form, "client": client}
-    )
-
-
 @login_required
-@require_POST
 def add_to_favorites(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     Favorite.objects.get_or_create(user=request.user, product=product)
@@ -399,15 +360,5 @@ def remove_from_favorites(request, product_id):
     return redirect(next_url)
 
 
-@login_required
-def favorites(request):
-    favorite_products = Favorite.objects.filter(user=request.user)
-    return render(
-        request,
-        "cosmetics_shop/favorites.html",
-        {
-            "title": "Избранное",
-            "favorite_products": favorite_products,
-            "is_favorite": True,
-        },
-    )
+def payment_and_delivery(request):
+    return render(request, "cosmetics_shop/payment_and_delivery_page.html")

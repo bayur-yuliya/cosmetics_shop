@@ -20,7 +20,11 @@
 {%  if tags    %}
 <hr>Теги:
 {%  for tag in tags  %}
-    {{  tag.name  }},
+    {%  if forloop.last  %}
+        {{  tag.name  }}
+    {%  else  %}
+        {{  tag.name  }},
+    {%  endif  %}
 {%  endfor  %}
 {%  endif  %}
 

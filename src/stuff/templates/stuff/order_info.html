@@ -16,13 +16,19 @@
 
 <form method="POST">
         {%  csrf_token  %}
-        {{  form  }}
+        {{  form.status  }}
+        {{  form.comment  }}
         <button>Изменить</button>
 </form>
 
 <hr>
 {%  for item in  order_items  %}
-        {{  item.product.code  }}  - {{  item.product.name  }}  - {{  item.price|number_format  }} грн  -{{  item.quantity  }} шт<br>
+    {%  if item.product.code  %}
+        {{  item.product.code  }}
+    {%  else  %}
+        Товара сейчас нет в наличии
+    {%  endif  %}
+    - {{  item.snapshot_product  }}  - {{  item.snapshot_price|number_format  }} грн  -{{  item.snapshot_quantity  }} шт<br>
 {%  endfor  %}
 <hr>
 {%  for status in  order_status_log  %}
