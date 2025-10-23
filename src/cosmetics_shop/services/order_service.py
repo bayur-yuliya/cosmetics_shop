@@ -68,7 +68,6 @@ def create_order_from_cart(request, address_id):
         order = Order.objects.create(
             client=client,
             snapshot_name=full_name,
-            snapshot_email=client.email,
             snapshot_phone=client.phone,
             snapshot_address=str(address),
             total_price=total_price,

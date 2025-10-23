@@ -195,6 +195,7 @@ def create_products(request):
             saved_product = form.save(commit=False)
             saved_product.price = form.cleaned_data["price"] * 100
             saved_product.save()
+            form.save_m2m()
             return redirect("products")
 
     form = ProductForm()
@@ -219,6 +220,7 @@ def edit_products(request, product_id):
             saved_product = form.save(commit=False)
             saved_product.price = form.cleaned_data["price"] * 100
             saved_product.save()
+            form.save_m2m()
             return redirect("product_card", product_id)
     form = ProductForm(instance=product)
     return render(

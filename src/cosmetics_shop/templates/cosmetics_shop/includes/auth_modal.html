@@ -1,3 +1,5 @@
+{% load socialaccount %}
+
 <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content shadow-lg rounded-4">
@@ -17,6 +19,11 @@
           <button type="submit" class="btn btn-primary w-100">Войти</button>
         </form>
         <div class="text-center mt-3">
+        <div style="margin-top: 20px;">
+          <a href="{% provider_login_url 'google' %}" class="btn btn-google">
+              <i class="fab fa-google"></i> Войти через Google
+          </a>
+        </div>
           <a href="#" id="openRegister">Нет аккаунта? Зарегистрироваться</a>
         </div>
       </div>

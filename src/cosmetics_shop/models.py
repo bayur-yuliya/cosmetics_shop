@@ -51,7 +51,6 @@ class Client(models.Model):
     )
     first_name = models.CharField(max_length=50, blank=True)
     last_name = models.CharField(max_length=50, blank=True)
-    email = models.EmailField()
     phone = models.CharField(max_length=10, validators=[validate_phone_number])
     is_active = models.BooleanField(default=True)
     was_registered = models.BooleanField(default=False)
@@ -167,7 +166,6 @@ class Order(models.Model):
     total_price = models.PositiveIntegerField(default=0)
 
     snapshot_name = models.CharField(max_length=100)
-    snapshot_email = models.EmailField()
     snapshot_phone = models.CharField(max_length=20)
     snapshot_address = models.TextField()
 

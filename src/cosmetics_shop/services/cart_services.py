@@ -93,7 +93,6 @@ def get_or_create_session_client(request, form=None):
         client = Client.objects.create(
             first_name=form.cleaned_data["first_name"],
             last_name=form.cleaned_data["last_name"],
-            email=form.cleaned_data["email"],
             phone=form.cleaned_data["phone"],
             is_active=False,
         )

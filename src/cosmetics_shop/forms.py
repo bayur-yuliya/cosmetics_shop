@@ -7,11 +7,10 @@ from accounts.validators import validate_phone_number
 
 class ClientForm(forms.ModelForm):
     phone = forms.CharField(max_length=10, validators=[validate_phone_number])
-    email = forms.EmailField()
 
     class Meta:
         model = Client
-        fields = ["first_name", "last_name", "email", "phone"]
+        fields = ["first_name", "last_name", "phone"]
 
 
 class DeliveryAddressForm(forms.ModelForm):

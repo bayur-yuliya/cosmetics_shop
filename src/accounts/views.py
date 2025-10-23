@@ -1,7 +1,12 @@
 import uuid
 
+from allauth.account.models import EmailAddress
+from allauth.account.views import login
+from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.shortcuts import render, redirect
@@ -21,16 +26,20 @@ def logout_view(request):
 def delete_account(request):
     user = request.user
 
+    SocialAccount.objects.filter(user=user).delete()
+    EmailAddress.objects.filter(user=user).delete()
+
     user.username = f"deleted_user_{uuid.uuid4().hex[:8]}"
-    user.email = ""
+    user.email = None
     user.first_name = ""
     user.last_name = ""
 
     user.is_active = False
     user.save()
+    user.set_unusable_password()
 
     logout(request)
-
+    cache.clear()
     return redirect("main_page")
 
 

@@ -309,7 +309,6 @@ def delivery(request):
                 client, _ = Client.objects.get_or_create(user=request.user)
                 client.first_name = form.cleaned_data["first_name"]
                 client.last_name = form.cleaned_data["last_name"]
-                client.email = form.cleaned_data["email"]
                 client.phone = form.cleaned_data["phone"]
                 client.is_active = True
                 client.save()
