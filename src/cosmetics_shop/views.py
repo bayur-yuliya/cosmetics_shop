@@ -32,9 +32,9 @@ from .services.cart_services import (
     delete_product_from_cart,
     get_or_create_session_client,
 )
-from .services.order_service import create_order_from_cart, get_client
-
 from .services.categories_services import context_categories, favorites_products
+from .services.order_service import create_order_from_cart, get_client
+from .utils.product_filter import ProductFilter
 
 
 def login_view(request):
@@ -65,28 +65,11 @@ def main_page(request):
     if request.GET.urlencode() != query_params.urlencode():
         return redirect(f"{request.path}?{query_params.urlencode()}")
 
+    product_filter = ProductFilter(request, products)
     form = ProductFilterForm(request.GET or None)
 
     if form.is_valid():
-        name = form.cleaned_data["name"]
-        group = form.cleaned_data["group"]
-        tags = form.cleaned_data["tags"]
-        min_price = form.cleaned_data["min_price"]
-        max_price = form.cleaned_data["max_price"]
-        brand = form.cleaned_data["brand"]
-
-        if name:
-            products = products.filter(name__icontains=name)
-        if min_price is not None:
-            products = products.filter(price__gte=min_price * 100, stock__gte=1)
-        if max_price is not None:
-            products = products.filter(price__lte=max_price * 100)
-        if group:
-            products = products.filter(group__in=group)
-        if brand:
-            products = products.filter(brand__in=brand)
-        if tags:
-            products = products.filter(tags__in=tags)
+        products = product_filter.apply_filters(form)
 
     paginator = Paginator(products, 20)
     page_number = request.GET.get("page")
