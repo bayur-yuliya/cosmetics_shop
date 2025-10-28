@@ -71,6 +71,8 @@ def main_page(request):
     if form.is_valid():
         products = product_filter.apply_filters(form)
 
+    products = product_filter.apply_sorting()
+
     paginator = Paginator(products, 20)
     page_number = request.GET.get("page")
     products = paginator.get_page(page_number)
@@ -83,6 +85,9 @@ def main_page(request):
             "context_categories": categories,
             "products": products,
             "form": form,
+            "product_filter": product_filter,
+            "current_sort": product_filter.current_sort,
+            "current_direction": product_filter.current_direction,
         },
     )
 
