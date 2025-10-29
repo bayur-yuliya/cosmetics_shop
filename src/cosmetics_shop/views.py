@@ -65,6 +65,14 @@ def main_page(request):
     if request.GET.urlencode() != query_params.urlencode():
         return redirect(f"{request.path}?{query_params.urlencode()}")
 
+    if request.GET.get('sort') == 'None' or not request.GET.get('sort'):
+        clean_params = request.GET.copy()
+        clean_params.pop('sort', None)
+        clean_params.pop('direction', None)
+        clean_url = '?' + clean_params.urlencode() if clean_params else '.'
+        if request.GET.get('sort'):
+            return redirect(f"{request.path}{clean_url}")
+
     product_filter = ProductFilter(request, products)
     form = ProductFilterForm(request.GET or None)
 
