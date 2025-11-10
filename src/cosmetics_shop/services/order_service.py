@@ -10,6 +10,7 @@ from cosmetics_shop.models import (
     Product,
     OrderStatusLog,
 )
+from cosmetics_shop.services.cart_services import clear_cart_after_order
 
 
 def get_cart(request):
@@ -92,7 +93,7 @@ def create_order_from_cart(request, address_id):
         OrderStatusLog.objects.create(order=order)
         OrderItem.objects.bulk_create(order_items)
 
-        cart_items.delete()
+        clear_cart_after_order(request)
 
         if not request.user.is_authenticated:
             request.session.pop("cart_id", None)

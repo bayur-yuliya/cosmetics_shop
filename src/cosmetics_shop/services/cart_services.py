@@ -100,3 +100,9 @@ def get_or_create_session_client(request, form=None):
         return client
 
     return None
+
+
+def clear_cart_after_order(request):
+    cart = get_or_create_cart(request)
+    cart.cartitem_set.all().delete()
+    return cart

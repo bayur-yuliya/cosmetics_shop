@@ -34,6 +34,7 @@ from .services.cart_services import (
 )
 from .services.categories_services import context_categories, favorites_products
 from .services.order_service import create_order_from_cart, get_client
+from .utils.decorators import cart_required, order_session_required
 from .utils.product_filter import ProductFilter
 
 
@@ -245,18 +246,24 @@ def cart(request):
     )
 
 
+@cart_required
 def create_order(request, address_id):
     order = create_order_from_cart(request, address_id)
     if order:
-        return redirect("order_success", order_id=order.id)
+        request.session["order_id"] = order.id
+        return redirect("order_success")
     return redirect("delivery")
 
 
-def order_success(request, order_id):
+@order_session_required
+def order_success(request):
     title = "Заказ"
-    order = Order.objects.get(id=order_id)
-    products = OrderItem.objects.filter(order=order)
+    order_id = request.session.get("order_id")
     status = "Заказ успешно обработан"
+    if order_id:
+        order = Order.objects.get(id=order_id)
+        products = OrderItem.objects.filter(order=order)
+        del request.session["order_id"]
     return render(
         request,
         "cosmetics_shop/order_success.html",
@@ -293,6 +300,7 @@ def cart_delete(request):
     return redirect(next_url)
 
 
+@cart_required
 def delivery(request):
     title = "Оформление заказа"
 
