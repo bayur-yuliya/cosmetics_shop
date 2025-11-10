@@ -45,16 +45,20 @@ def delete_account(request):
 
 @login_required
 def user_contact(request):
-    title = 'Контактная информация'
+    title = "Контактная информация"
     client, created = Client.objects.get_or_create(user=request.user)
     if request.method == "POST":
-        form = ClientCreationForm(request.POST, instance=client, initial={"email": request.user.email})
+        form = ClientCreationForm(
+            request.POST, instance=client, initial={"email": request.user.email}
+        )
         if form.is_valid():
             form.save()
             return redirect("user_contact")
     form = ClientCreationForm(instance=client, initial={"email": request.user.email})
     return render(
-        request, "accounts/user_contact.html", {"title": title, "form": form, "client": client}
+        request,
+        "accounts/user_contact.html",
+        {"title": title, "form": form, "client": client},
     )
 
 
@@ -105,4 +109,3 @@ def order_history(request):
             "order_items": order_items,
         },
     )
-
