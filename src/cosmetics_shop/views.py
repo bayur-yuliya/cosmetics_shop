@@ -35,7 +35,7 @@ from .services.cart_services import (
 from .services.categories_services import context_categories, favorites_products
 from .services.order_service import create_order_from_cart, get_client
 from .utils.decorators import cart_required, order_session_required
-from .utils.product_filter import ProductFilter
+from .utils.view_helpers import processing_product_page
 
 
 def login_view(request):
@@ -57,96 +57,49 @@ def main_page(request):
         products = favorites_products(request)
     else:
         products = Product.objects.filter(is_active=True)
-    categories = context_categories()
 
-    query_params = request.GET.copy()
-    for key in list(query_params.keys()):
-        if not query_params[key].strip():
-            query_params.pop(key)
-    if request.GET.urlencode() != query_params.urlencode():
-        return redirect(f"{request.path}?{query_params.urlencode()}")
-
-    if request.GET.get("sort") == "None" or not request.GET.get("sort"):
-        clean_params = request.GET.copy()
-        clean_params.pop("sort", None)
-        clean_params.pop("direction", None)
-        clean_url = "?" + clean_params.urlencode() if clean_params else "."
-        if request.GET.get("sort"):
-            return redirect(f"{request.path}{clean_url}")
-
-    product_filter = ProductFilter(request, products)
-    form = ProductFilterForm(request.GET or None)
-
-    if form.is_valid():
-        products = product_filter.apply_filters(form)
-
-    products = product_filter.apply_sorting()
-
-    paginator = Paginator(products, 20)
-    page_number = request.GET.get("page")
-    products = paginator.get_page(page_number)
-
-    return render(
-        request,
-        "cosmetics_shop/main_page.html",
-        {
-            "title": "Главная страница",
-            "context_categories": categories,
-            "products": products,
-            "form": form,
-            "product_filter": product_filter,
-            "current_sort": product_filter.current_sort,
-            "current_direction": product_filter.current_direction,
-        },
+    return processing_product_page(
+        request=request,
+        products=products,
+        title="Главная страница",
+        template_name="cosmetics_shop/main_page.html",
     )
 
 
 def category_page(request, category_id):
     title = Category.objects.get(id=category_id)
-    categories = context_categories()
     group_products = GroupProduct.objects.filter(category=category_id).values_list(
         "id", flat=True
     )
-    products = Product.objects.filter(group__in=group_products)
 
     if request.user.is_authenticated:
         products = favorites_products(request).filter(group__in=group_products)
+    else:
+        products = Product.objects.filter(group__in=group_products)
 
-    paginator = Paginator(products, 20)
-    page_number = request.GET.get("page")
-    products = paginator.get_page(page_number)
-
-    return render(
-        request,
-        "cosmetics_shop/category_page.html",
-        {
-            "title": title,
-            "products": products,
-            "context_categories": categories,
-        },
+    return processing_product_page(
+        request=request,
+        products=products,
+        title=title,
+        template_name="cosmetics_shop/category_page.html",
+        hide_group_field=True,
     )
 
 
 def group_page(request, group_id):
     title = GroupProduct.objects.get(id=group_id)
-    categories = context_categories()
-    products = Product.objects.filter(group=group_id)
 
     if request.user.is_authenticated:
         products = favorites_products(request).filter(group=group_id)
+    else:
+        products = Product.objects.filter(group=group_id)
 
-    paginator = Paginator(products, 20)
-    page_number = request.GET.get("page")
-    products = paginator.get_page(page_number)
-
-    return render(
-        request,
-        "cosmetics_shop/category_page.html",
-        {
-            "title": title,
-            "products": products,
-            "context_categories": categories,
-        },
+    return processing_product_page(
+        request=request,
+        title=title,
+        products=products,
+        template_name="cosmetics_shop/category_page.html",
+        hide_group_field=True,
     )
 
 
@@ -189,24 +142,18 @@ def brand_page(request):
 
 def brand_products(request, brand_id):
     title = Brand.objects.get(id=brand_id)
-    categories = context_categories()
-    products = Product.objects.filter(brand=brand_id)
 
     if request.user.is_authenticated:
         products = favorites_products(request).filter(brand=brand_id)
+    else:
+        products = Product.objects.filter(brand=brand_id)
 
-    paginator = Paginator(products, 20)
-    page_number = request.GET.get("page")
-    products = paginator.get_page(page_number)
-
-    return render(
-        request,
-        "cosmetics_shop/category_page.html",
-        {
-            "title": title.name,
-            "products": products,
-            "context_categories": categories,
-        },
+    return processing_product_page(
+        request=request,
+        products=products,
+        title=title,
+        template_name="cosmetics_shop/category_page.html",
+        hide_brands_field=True,
     )
 
 

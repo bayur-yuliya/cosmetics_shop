@@ -33,7 +33,9 @@ def order_session_required(view_func):
         order_id = request.session.get("order_id")
 
         if not order_id:
-            messages.warning(request, "Заказ не найден. Пожалуйста, оформите заказ заново.")
+            messages.warning(
+                request, "Заказ не найден. Пожалуйста, оформите заказ заново."
+            )
             return redirect("cart")
 
         from ..models import Order
@@ -49,3 +51,15 @@ def order_session_required(view_func):
         return view_func(request, *args, **kwargs)
 
     return wrapped_view
+
+
+def order_session_required1(view_func):
+    """"""
+
+    @wraps(view_func)
+    def wrapped_view(request, *args, **kwargs):
+        order_id = request.session.get("order_id")
+        if not order_id:
+            messages.warning(request, "some messages")
+            #     Почему там errror, a здесь warning??????????????????
+            return redirect()
