@@ -313,3 +313,7 @@ def remove_from_favorites(request, product_id):
 
 def payment_and_delivery(request):
     return render(request, "cosmetics_shop/payment_and_delivery_page.html")
+
+
+def page_not_found(request, exception):
+    return render(request, "cosmetics_shop/404_page_not_found.html", status=404)
