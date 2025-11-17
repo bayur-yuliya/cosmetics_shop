@@ -1,11 +1,9 @@
 import uuid
 
 from allauth.account.models import EmailAddress
-from allauth.account.views import login
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.db import transaction

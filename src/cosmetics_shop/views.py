@@ -3,14 +3,12 @@ import string
 from django.contrib import messages
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
 from .forms import (
     ClientForm,
     DeliveryAddressForm,
-    ProductFilterForm,
 )
 from .models import (
     Product,
@@ -32,7 +30,7 @@ from .services.cart_services import (
     delete_product_from_cart,
     get_or_create_session_client,
 )
-from .services.categories_services import context_categories, favorites_products
+from .services.categories_services import favorites_products
 from .services.order_service import create_order_from_cart, get_client
 from .utils.decorators import cart_required, order_session_required
 from .utils.view_helpers import processing_product_page
