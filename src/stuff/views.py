@@ -61,7 +61,7 @@ def index(request):
             "number_of_orders_today": orders_today,
             "number_of_orders_per_month": orders_per_month,
             "summ_bill": summ,
-            "average_bill": average,
+            "average_bill": "{:10.2f}".format(average),
             "max_favorite": max_favorite,
             "years": years,
             "current_year": current_year,
@@ -90,9 +90,10 @@ def sales_comparison_chart_for_the_year(request):
     sales_counts = [0] * 12
     average_bill_counts = [0] * 12
     for item in orders_by_month:
-        sales_counts[item["month"].month] = item["count"]
+        month = item["month"].month - 1
+        sales_counts[month] = item["count"]
         price = item["avg_price"] / 100
-        average_bill_counts[item["month"].month] = round(price or 0, 2)
+        average_bill_counts[month] = round(price or 0, 2)
 
     return JsonResponse(
         {
@@ -174,11 +175,13 @@ def products(request):
 @staff_member_required
 def product_card(request, product_id):
     product = get_object_or_404(Product, id=product_id)
+    title = product.name
     tags = product.tags.all()
     return render(
         request,
         "stuff/product_card.html",
         {
+            "title": title,
             "product": product,
             "tags": tags,
         },
