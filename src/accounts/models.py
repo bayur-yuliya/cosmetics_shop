@@ -1,3 +1,6 @@
+import datetime
+import secrets
+
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.utils import timezone
@@ -33,3 +36,22 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+
+class ActivationToken(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    token = models.CharField(max_length=255, unique=True)
+    expires_at = models.DateTimeField()
+
+    def is_valid(self):
+        return timezone.now() < self.expires_at
+
+    @staticmethod
+    def create_for_user(user):
+        token = secrets.token_urlsafe(48)
+        expires_at = timezone.now() + datetime.timedelta(hours=24)
+        return ActivationToken.objects.create(
+            user=user,
+            token=token,
+            expires_at=expires_at,
+        )

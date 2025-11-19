@@ -2,6 +2,7 @@ import uuid
 
 from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
@@ -9,7 +10,7 @@ from django.core.paginator import Paginator
 from django.db import transaction
 from django.shortcuts import render, redirect
 
-from accounts.forms import ClientCreationForm
+from accounts.forms import ClientCreationForm, AdminCreateUserForm
 from cosmetics_shop.models import Client, Favorite, Order, OrderItem, OrderStatusLog
 
 
@@ -107,3 +108,18 @@ def order_history(request):
             "order_items": order_items,
         },
     )
+
+
+@staff_member_required
+def create_staff_user(request):
+    if request.method == "POST":
+        form = AdminCreateUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('main_page')
+    form = AdminCreateUserForm()
+    return render(request, 'accounts/create_staff_user.html', {'form': form})
+
+
+def activate_account(request):
+    pass

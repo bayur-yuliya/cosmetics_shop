@@ -23,3 +23,17 @@ class ClientCreationForm(forms.ModelForm):
     class Meta:
         model = Client
         fields = ["first_name", "last_name", "email", "phone"]
+
+
+class AdminCreateUserForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ("email",)
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_unusable_password()
+        user.is_active = False
+        if commit:
+            user.save()
+        return user
