@@ -21,7 +21,7 @@ from cosmetics_shop.models import (
     GroupProduct,
     Favorite,
 )
-from stuff.forms import (
+from staff.forms import (
     ProductForm,
     OrderStatusForm,
     CategoryForm,
@@ -55,7 +55,7 @@ def index(request):
 
     return render(
         request,
-        "stuff/dashboard.html",
+        "staff/dashboard.html",
         {
             "title": title,
             "number_of_orders_today": orders_today,
@@ -121,7 +121,7 @@ def sales_comparison_chart_for_the_year(request):
 @staff_member_required
 def products(request):
     title = "Товары"
-    products = Product.objects.all().order_by("-id")
+    products = Product.objects.all().order_by("-id").filter(is_active=True)
 
     query_params = request.GET.copy()
     for key in list(query_params.keys()):
@@ -162,7 +162,7 @@ def products(request):
 
     return render(
         request,
-        "stuff/products.html",
+        "staff/products.html",
         {
             "title": title,
             "products": products,
@@ -179,7 +179,7 @@ def product_card(request, product_id):
     tags = product.tags.all()
     return render(
         request,
-        "stuff/product_card.html",
+        "staff/product_card.html",
         {
             "title": title,
             "product": product,
@@ -205,7 +205,7 @@ def create_products(request):
 
     return render(
         request,
-        "stuff/create_product.html",
+        "staff/create_product.html",
         {
             "title": title,
             "form": form,
@@ -228,7 +228,7 @@ def edit_products(request, product_id):
     form = ProductForm(instance=product)
     return render(
         request,
-        "stuff/edit_product.html",
+        "staff/edit_product.html",
         {
             "title": title,
             "form": form,
@@ -275,7 +275,7 @@ def orders(request):
 
             return render(
                 request,
-                "stuff/orders.html",
+                "staff/orders.html",
                 {
                     "title": title,
                     "form": form,
@@ -291,7 +291,7 @@ def orders(request):
 
     return render(
         request,
-        "stuff/orders.html",
+        "staff/orders.html",
         {
             "title": title,
             "form": form,
@@ -335,7 +335,7 @@ def order_info(request, order_code):
 
     return render(
         request,
-        "stuff/order_info.html",
+        "staff/order_info.html",
         {
             "title": title,
             "order": order,
@@ -352,7 +352,7 @@ def brands_list(request):
     name = "brands"
     return render(
         request,
-        "stuff/lists_page.html",
+        "staff/lists_page.html",
         {
             "title": title,
             "list": list,
@@ -366,7 +366,7 @@ def categories_list(request):
     list = Category.objects.all()
     return render(
         request,
-        "stuff/lists_page.html",
+        "staff/lists_page.html",
         {
             "list": list,
             "title": title,
@@ -379,7 +379,7 @@ def tags_list(request):
     list = Tag.objects.all()
     return render(
         request,
-        "stuff/lists_page.html",
+        "staff/lists_page.html",
         {
             "list": list,
             "title": title,
@@ -392,7 +392,7 @@ def groups_list(request):
     list = GroupProduct.objects.all()
     return render(
         request,
-        "stuff/lists_page.html",
+        "staff/lists_page.html",
         {
             "list": list,
             "title": title,
@@ -411,7 +411,7 @@ def create_categories(request):
     form = CategoryForm()
     return render(
         request,
-        "stuff/create_page.html",
+        "staff/create_page.html",
         {
             "name": name,
             "form": form,
@@ -430,7 +430,7 @@ def create_groups(request):
     form = GroupProductForm()
     return render(
         request,
-        "stuff/create_page.html",
+        "staff/create_page.html",
         {
             "name": name,
             "form": form,
@@ -449,7 +449,7 @@ def create_brands(request):
     form = BrandForm()
     return render(
         request,
-        "stuff/create_page.html",
+        "staff/create_page.html",
         {
             "name": name,
             "form": form,
@@ -468,7 +468,7 @@ def create_tags(request):
     form = TagForm()
     return render(
         request,
-        "stuff/create_page.html",
+        "staff/create_page.html",
         {
             "name": name,
             "form": form,
@@ -520,7 +520,7 @@ def edit_categories(request, pk):
     form = CategoryForm(instance=category)
     return render(
         request,
-        "stuff/edit_page.html",
+        "staff/edit_page.html",
         {
             "form": form,
         },
@@ -539,7 +539,7 @@ def edit_groups(request, pk):
     form = GroupProductForm(instance=group)
     return render(
         request,
-        "stuff/edit_page.html",
+        "staff/edit_page.html",
         {
             "form": form,
         },
@@ -558,7 +558,7 @@ def edit_brands(request, pk):
     form = BrandForm(instance=brand)
     return render(
         request,
-        "stuff/edit_page.html",
+        "staff/edit_page.html",
         {
             "form": form,
         },
@@ -577,7 +577,7 @@ def edit_tags(request, pk):
     form = TagForm(instance=tag)
     return render(
         request,
-        "stuff/edit_page.html",
+        "staff/edit_page.html",
         {
             "form": form,
         },

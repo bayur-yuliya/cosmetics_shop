@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
     # apps
     "cosmetics_shop.apps.CosmeticsShopConfig",
-    "stuff.apps.StuffConfig",
+    "staff.apps.StaffConfig",
     "accounts.apps.AccountsConfig",
 ]
 
