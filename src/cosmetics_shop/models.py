@@ -5,7 +5,7 @@ from django.db import models
 from django.utils.timezone import now
 
 from accounts.models import CustomUser
-from accounts.validators import validate_phone_number
+from accounts.utils.validators import validate_phone_number
 
 
 class Status(models.IntegerChoices):

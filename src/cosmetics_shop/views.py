@@ -50,6 +50,7 @@ def login_view(request):
             return redirect(request.META.get("HTTP_REFERER", "main_page"))
     return redirect("main_page")
 
+
 def main_page(request):
     if request.user.is_authenticated:
         products = favorites_products(request)

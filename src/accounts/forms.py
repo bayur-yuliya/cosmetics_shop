@@ -1,11 +1,10 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
 from cosmetics_shop.models import Client
 from .models import CustomUser
-from .validators import validate_phone_number
+from accounts.utils.validators import validate_phone_number
 
 
 class CustomUserCreationForm(UserCreationForm):

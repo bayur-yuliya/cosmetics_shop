@@ -14,9 +14,11 @@ from django.shortcuts import render, redirect
 
 from accounts.forms import (
     ClientCreationForm,
-    AdminCreateUserForm, SetInitialPasswordForm,
+    AdminCreateUserForm,
+    SetInitialPasswordForm,
 )
 from accounts.models import ActivationToken
+from accounts.utils.validators import validate_activation_token
 from cosmetics_shop.models import Client, Favorite, Order, OrderItem, OrderStatusLog
 
 
@@ -130,15 +132,8 @@ def create_staff_user(request):
 def activate_account(request):
     token_value = request.GET.get("token")
 
-    try:
-        token_obj = ActivationToken.objects.get(token=token_value)
-    except ActivationToken.DoesNotExist:
-        messages.error(request, "Токен недействителен.")
-        return redirect("main_page")
-
-    if not token_obj.is_valid():
-        messages.error(request, "Срок действия ссылки истёк.")
-        token_obj.delete()
+    validate_activation_token(request, token_value)
+    token_obj = ActivationToken.objects.get(token=token_value)
 
     user = token_obj.user
     if request.method == "POST":
@@ -155,6 +150,7 @@ def activate_account(request):
             messages.success(request, "Аккаунт активирован!")
 
             from django.contrib.auth import authenticate
+
             user = authenticate(request, email=user.email, password=password)
             if user is not None:
                 login(request, user)
@@ -166,6 +162,10 @@ def activate_account(request):
             return redirect("main_page")
 
     form = SetInitialPasswordForm()
-    return render(request, "accounts/activate_staff_password.html", {
-        "form": form,
-    })
+    return render(
+        request,
+        "accounts/activate_staff_password.html",
+        {
+            "form": form,
+        },
+    )
