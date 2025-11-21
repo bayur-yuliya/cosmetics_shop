@@ -3,20 +3,26 @@ import datetime
 from dateutil.relativedelta import relativedelta
 from django.db.models import Avg, Sum
 
-from cosmetics_shop.models import Order
+from cosmetics_shop.models import Order, Status
 
 
 def number_of_orders_today():
-    number_of_orders_today = Order.objects.filter(
-        created_at__gte=datetime.date.today()
-    ).count()
+    number_of_orders_today = (
+        Order.objects.filter(
+            created_at__gte=datetime.date.today(), status_log__status=Status.CLOSED
+        )
+        .distinct()
+        .count()
+    )
 
     return number_of_orders_today
 
 
 def orders_per_month(month):
     one_month_ago = month - relativedelta(months=1)
-    orders_per_month = Order.objects.filter(created_at__gte=one_month_ago)
+    orders_per_month = Order.objects.filter(
+        created_at__gte=one_month_ago, status_log__status=Status.CLOSED
+    ).distinct()
     return orders_per_month
 
 

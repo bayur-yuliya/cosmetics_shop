@@ -13,15 +13,17 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+load_dotenv()
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -46,7 +48,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
     # apps
     "cosmetics_shop.apps.CosmeticsShopConfig",
-    "stuff.apps.StuffConfig",
+    "staff.apps.StaffConfig",
     "accounts.apps.AccountsConfig",
 ]
 
@@ -118,7 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Europe/Kyiv"
 
 USE_I18N = True
 
@@ -140,7 +142,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = "/"
 ACCOUNT_SIGNUP_REDIRECT_URL = "/"
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.cookie.CookieStorage"
@@ -162,17 +164,17 @@ AUTHENTICATION_BACKENDS = [
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-
 SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'APP': {
-            'client_id': '123',
-            'secret': '456',
-            'key': ''
+    "google": {
+        "APP": {
+            "client_id": os.getenv("CLIENT_ID"),
+            "secret": os.getenv("CLIENT_SECRET"),
+            "key": "",
         }
     }
 }
 
 SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_AUTO_SIGNUP = True
+
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

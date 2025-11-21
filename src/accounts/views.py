@@ -3,15 +3,22 @@ import uuid
 from allauth.account.models import EmailAddress
 from allauth.account.views import login
 from allauth.socialaccount.models import SocialAccount
+from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.shortcuts import render, redirect
 
-from accounts.forms import ClientCreationForm
+from accounts.forms import (
+    ClientCreationForm,
+    AdminCreateUserForm,
+    SetInitialPasswordForm,
+)
+from accounts.models import ActivationToken
+from accounts.utils.validators import validate_activation_token
 from cosmetics_shop.models import Client, Favorite, Order, OrderItem, OrderStatusLog
 
 
@@ -45,16 +52,20 @@ def delete_account(request):
 
 @login_required
 def user_contact(request):
-    title = 'Контактная информация'
+    title = "Контактная информация"
     client, created = Client.objects.get_or_create(user=request.user)
     if request.method == "POST":
-        form = ClientCreationForm(request.POST, instance=client, initial={"email": request.user.email})
+        form = ClientCreationForm(
+            request.POST, instance=client, initial={"email": request.user.email}
+        )
         if form.is_valid():
             form.save()
             return redirect("user_contact")
     form = ClientCreationForm(instance=client, initial={"email": request.user.email})
     return render(
-        request, "accounts/user_contact.html", {"title": title, "form": form, "client": client}
+        request,
+        "accounts/user_contact.html",
+        {"title": title, "form": form, "client": client},
     )
 
 
@@ -106,3 +117,55 @@ def order_history(request):
         },
     )
 
+
+@staff_member_required
+def create_staff_user(request):
+    if request.method == "POST":
+        form = AdminCreateUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("main_page")
+    form = AdminCreateUserForm()
+    return render(request, "accounts/create_staff_user.html", {"form": form})
+
+
+def activate_account(request):
+    token_value = request.GET.get("token")
+
+    validate_activation_token(request, token_value)
+    token_obj = ActivationToken.objects.get(token=token_value)
+
+    user = token_obj.user
+    if request.method == "POST":
+        form = SetInitialPasswordForm(request.POST)
+        if form.is_valid():
+            password = form.cleaned_data["password1"]
+
+            user.set_password(password)
+            user.is_active = True
+            user.is_staff = True
+            user.save()
+
+            token_obj.delete()
+            messages.success(request, "Аккаунт активирован!")
+
+            from django.contrib.auth import authenticate
+
+            user = authenticate(request, email=user.email, password=password)
+            if user is not None:
+                login(request, user)
+                messages.success(request, "Пользователь успешно залогинен")
+                return redirect("main_page")
+            else:
+                messages.error(request, "Ошибка аутентификации")
+
+            return redirect("main_page")
+
+    form = SetInitialPasswordForm()
+    return render(
+        request,
+        "accounts/activate_staff_password.html",
+        {
+            "form": form,
+        },
+    )

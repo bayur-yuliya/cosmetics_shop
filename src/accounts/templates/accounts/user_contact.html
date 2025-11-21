@@ -4,15 +4,9 @@
 
 {%  block content  %}
 <hr>
-Фамилия: {{  client.last_name|default:"_"  }} <br>
-Имя: {{  client.first_name|default:"_"  }} <br>
-email: {{  client.email|default:"_"  }} <br>
-phone: {{  client.phone|default:"_"  }}
-<hr>
 <form method="post">
   {% csrf_token %}
   {{ form.as_p }}
   <button type="submit">Изменить</button>
 </form>
-<a href="{%  url 'user_contact'  %}"><button>Назад</button></a>
 {%  endblock  %}

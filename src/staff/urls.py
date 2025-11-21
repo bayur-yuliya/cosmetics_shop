@@ -1,6 +1,6 @@
 from django.urls import path
 
-from stuff import views
+from staff import views
 
 
 urlpatterns = [

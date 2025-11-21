@@ -22,7 +22,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("stuff/", include("stuff.urls")),
+    path("staff/", include("staff.urls")),
     path("accounts/", include("allauth.urls")),
     path("profile/", include("accounts.urls")),
     path("", include("cosmetics_shop.urls")),
@@ -30,3 +30,5 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+handler404 = "cosmetics_shop.views.page_not_found"

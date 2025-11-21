@@ -28,6 +28,54 @@
 <hr>
 <div align="center"><h2>{{  title  }}</h2></div>
 <hr>
+
+<div class="filters">
+    <form method="get">
+        {{ form.name.label_tag }}{{ form.name }}<br>
+
+        {% if not hide_group_field %}
+            {{ form.group.label_tag }}{{ form.group }}<br>
+        {% endif %}
+
+        {% if not hide_brands_field %}
+            {{ form.brand.label_tag }}{{ form.brand }}<br>
+        {% endif %}
+
+        {{ form.tags.label_tag }}{{ form.tags }}<br>
+
+        {{ form.min_price.label_tag }}{{ form.min_price }}<br>
+
+        {{ form.max_price.label_tag }}{{ form.max_price }}<br>
+
+        <input type="hidden" name="sort" value="{{ current_sort }}">
+        <input type="hidden" name="direction" value="{{ current_direction }}">
+
+        <button type="submit">Применить фильтры</button>
+    </form>
+</div>
+
+<div class="sorting-panel" style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+    <strong>Сортировка:</strong>
+    {% for option in product_filter.get_sort_options %}
+        <a href="{{ option.url }}"
+           class="sort-btn {% if option.is_active %}active{% endif %}"
+           style="margin: 0 10px; padding: 5px 10px; text-decoration: none; border: 1px solid #ddd; border-radius: 4px;">
+            {{ option.label }}
+            {% if option.is_active %}
+                {% if current_direction == 'desc' %}↑{% else %}↓{% endif %}
+            {% endif %}
+        </a>
+    {% endfor %}
+        <a href="{{ product_filter.get_clear_sort_url }}"
+            class="sort-btn reset"
+            style="margin-left: 20px; padding: 5px 10px; border: 1px solid #bbb; border-radius: 4px; text-decoration: none; color: #555;">
+        Сбросить сортировку
+        </a>
+</div>
+<hr>
+
+
+
 {%  for product in products %}
     {%  include 'cosmetics_shop/includes/product.html' with product=product  %}
 {%  endfor  %}<br>

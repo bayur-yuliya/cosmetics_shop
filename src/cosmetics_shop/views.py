@@ -3,14 +3,12 @@ import string
 from django.contrib import messages
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
 from .forms import (
     ClientForm,
     DeliveryAddressForm,
-    ProductFilterForm,
 )
 from .models import (
     Product,
@@ -32,9 +30,10 @@ from .services.cart_services import (
     delete_product_from_cart,
     get_or_create_session_client,
 )
+from .services.categories_services import favorites_products
 from .services.order_service import create_order_from_cart, get_client
-
-from .services.categories_services import context_categories, favorites_products
+from .utils.decorators import cart_required, order_session_required
+from .utils.view_helpers import processing_product_page
 
 
 def login_view(request):
@@ -49,6 +48,7 @@ def login_view(request):
         else:
             messages.error(request, "Неверный email или пароль")
             return redirect(request.META.get("HTTP_REFERER", "main_page"))
+    return redirect("main_page")
 
 
 def main_page(request):
@@ -56,100 +56,49 @@ def main_page(request):
         products = favorites_products(request)
     else:
         products = Product.objects.filter(is_active=True)
-    categories = context_categories()
 
-    query_params = request.GET.copy()
-    for key in list(query_params.keys()):
-        if not query_params[key].strip():
-            query_params.pop(key)
-    if request.GET.urlencode() != query_params.urlencode():
-        return redirect(f"{request.path}?{query_params.urlencode()}")
-
-    form = ProductFilterForm(request.GET or None)
-
-    if form.is_valid():
-        name = form.cleaned_data["name"]
-        group = form.cleaned_data["group"]
-        tags = form.cleaned_data["tags"]
-        min_price = form.cleaned_data["min_price"]
-        max_price = form.cleaned_data["max_price"]
-        brand = form.cleaned_data["brand"]
-
-        if name:
-            products = products.filter(name__icontains=name)
-        if min_price is not None:
-            products = products.filter(price__gte=min_price * 100, stock__gte=1)
-        if max_price is not None:
-            products = products.filter(price__lte=max_price * 100)
-        if group:
-            products = products.filter(group__in=group)
-        if brand:
-            products = products.filter(brand__in=brand)
-        if tags:
-            products = products.filter(tags__in=tags)
-
-    paginator = Paginator(products, 20)
-    page_number = request.GET.get("page")
-    products = paginator.get_page(page_number)
-
-    return render(
-        request,
-        "cosmetics_shop/main_page.html",
-        {
-            "title": "Главная страница",
-            "context_categories": categories,
-            "products": products,
-            "form": form,
-        },
+    return processing_product_page(
+        request=request,
+        products=products,
+        title="Главная страница",
+        template_name="cosmetics_shop/main_page.html",
     )
 
 
 def category_page(request, category_id):
     title = Category.objects.get(id=category_id)
-    categories = context_categories()
     group_products = GroupProduct.objects.filter(category=category_id).values_list(
         "id", flat=True
     )
-    products = Product.objects.filter(group__in=group_products)
 
     if request.user.is_authenticated:
         products = favorites_products(request).filter(group__in=group_products)
+    else:
+        products = Product.objects.filter(group__in=group_products)
 
-    paginator = Paginator(products, 20)
-    page_number = request.GET.get("page")
-    products = paginator.get_page(page_number)
-
-    return render(
-        request,
-        "cosmetics_shop/category_page.html",
-        {
-            "title": title,
-            "products": products,
-            "context_categories": categories,
-        },
+    return processing_product_page(
+        request=request,
+        products=products,
+        title=title,
+        template_name="cosmetics_shop/category_page.html",
+        hide_group_field=True,
     )
 
 
 def group_page(request, group_id):
     title = GroupProduct.objects.get(id=group_id)
-    categories = context_categories()
-    products = Product.objects.filter(group=group_id)
 
     if request.user.is_authenticated:
         products = favorites_products(request).filter(group=group_id)
+    else:
+        products = Product.objects.filter(group=group_id)
 
-    paginator = Paginator(products, 20)
-    page_number = request.GET.get("page")
-    products = paginator.get_page(page_number)
-
-    return render(
-        request,
-        "cosmetics_shop/category_page.html",
-        {
-            "title": title,
-            "products": products,
-            "context_categories": categories,
-        },
+    return processing_product_page(
+        request=request,
+        title=title,
+        products=products,
+        template_name="cosmetics_shop/category_page.html",
+        hide_group_field=True,
     )
 
 
@@ -192,24 +141,18 @@ def brand_page(request):
 
 def brand_products(request, brand_id):
     title = Brand.objects.get(id=brand_id)
-    categories = context_categories()
-    products = Product.objects.filter(brand=brand_id)
 
     if request.user.is_authenticated:
         products = favorites_products(request).filter(brand=brand_id)
+    else:
+        products = Product.objects.filter(brand=brand_id)
 
-    paginator = Paginator(products, 20)
-    page_number = request.GET.get("page")
-    products = paginator.get_page(page_number)
-
-    return render(
-        request,
-        "cosmetics_shop/category_page.html",
-        {
-            "title": title.name,
-            "products": products,
-            "context_categories": categories,
-        },
+    return processing_product_page(
+        request=request,
+        products=products,
+        title=title,
+        template_name="cosmetics_shop/category_page.html",
+        hide_brands_field=True,
     )
 
 
@@ -249,18 +192,24 @@ def cart(request):
     )
 
 
+@cart_required
 def create_order(request, address_id):
     order = create_order_from_cart(request, address_id)
     if order:
-        return redirect("order_success", order_id=order.id)
+        request.session["order_id"] = order.id
+        return redirect("order_success")
     return redirect("delivery")
 
 
-def order_success(request, order_id):
+@order_session_required
+def order_success(request):
     title = "Заказ"
-    order = Order.objects.get(id=order_id)
-    products = OrderItem.objects.filter(order=order)
+    order_id = request.session.get("order_id")
     status = "Заказ успешно обработан"
+    if order_id:
+        order = Order.objects.get(id=order_id)
+        products = OrderItem.objects.filter(order=order)
+        del request.session["order_id"]
     return render(
         request,
         "cosmetics_shop/order_success.html",
@@ -297,6 +246,7 @@ def cart_delete(request):
     return redirect(next_url)
 
 
+@cart_required
 def delivery(request):
     title = "Оформление заказа"
 
@@ -362,3 +312,7 @@ def remove_from_favorites(request, product_id):
 
 def payment_and_delivery(request):
     return render(request, "cosmetics_shop/payment_and_delivery_page.html")
+
+
+def page_not_found(request, exception):
+    return render(request, "cosmetics_shop/404_page_not_found.html", status=404)
