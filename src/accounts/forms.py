@@ -1,5 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 
 from cosmetics_shop.models import Client
 from .models import CustomUser
@@ -37,3 +39,24 @@ class AdminCreateUserForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+
+
+class SetInitialPasswordForm(forms.Form):
+    password1 = forms.CharField(
+        widget=forms.PasswordInput,
+        label="Введите пароль",
+    )
+    password2 = forms.CharField(
+        widget=forms.PasswordInput,
+        label="Повторное введение пароля",
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password1 = cleaned_data.get("password1")
+        password2 = cleaned_data.get("password2")
+
+        if password1 != password2:
+            raise ValidationError("Пароли не совпадают")
+
+        return cleaned_data

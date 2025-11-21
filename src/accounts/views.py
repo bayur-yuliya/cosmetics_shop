@@ -1,7 +1,9 @@
 import uuid
 
 from allauth.account.models import EmailAddress
+from allauth.account.views import login
 from allauth.socialaccount.models import SocialAccount
+from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
@@ -10,7 +12,11 @@ from django.core.paginator import Paginator
 from django.db import transaction
 from django.shortcuts import render, redirect
 
-from accounts.forms import ClientCreationForm, AdminCreateUserForm
+from accounts.forms import (
+    ClientCreationForm,
+    AdminCreateUserForm, SetInitialPasswordForm,
+)
+from accounts.models import ActivationToken
 from cosmetics_shop.models import Client, Favorite, Order, OrderItem, OrderStatusLog
 
 
@@ -116,10 +122,50 @@ def create_staff_user(request):
         form = AdminCreateUserForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('main_page')
+            return redirect("main_page")
     form = AdminCreateUserForm()
-    return render(request, 'accounts/create_staff_user.html', {'form': form})
+    return render(request, "accounts/create_staff_user.html", {"form": form})
 
 
 def activate_account(request):
-    pass
+    token_value = request.GET.get("token")
+
+    try:
+        token_obj = ActivationToken.objects.get(token=token_value)
+    except ActivationToken.DoesNotExist:
+        messages.error(request, "Токен недействителен.")
+        return redirect("main_page")
+
+    if not token_obj.is_valid():
+        messages.error(request, "Срок действия ссылки истёк.")
+        token_obj.delete()
+
+    user = token_obj.user
+    if request.method == "POST":
+        form = SetInitialPasswordForm(request.POST)
+        if form.is_valid():
+            password = form.cleaned_data["password1"]
+
+            user.set_password(password)
+            user.is_active = True
+            user.is_staff = True
+            user.save()
+
+            token_obj.delete()
+            messages.success(request, "Аккаунт активирован!")
+
+            from django.contrib.auth import authenticate
+            user = authenticate(request, email=user.email, password=password)
+            if user is not None:
+                login(request, user)
+                messages.success(request, "Пользователь успешно залогинен")
+                return redirect("main_page")
+            else:
+                messages.error(request, "Ошибка аутентификации")
+
+            return redirect("main_page")
+
+    form = SetInitialPasswordForm()
+    return render(request, "accounts/activate_staff_password.html", {
+        "form": form,
+    })

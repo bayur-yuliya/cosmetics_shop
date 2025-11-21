@@ -4,7 +4,9 @@ from django.urls import reverse
 
 def send_activation_email(user, token_obj):
     try:
-        activation_url = f"http://127.0.0.1:8000{reverse('activate')}?token={token_obj.token}"
+        activation_url = (
+            f"http://127.0.0.1:8000{reverse('activate')}?token={token_obj.token}"
+        )
 
         subject = "Активация аккаунта"
 

@@ -48,7 +48,7 @@ def login_view(request):
         else:
             messages.error(request, "Неверный email или пароль")
             return redirect(request.META.get("HTTP_REFERER", "main_page"))
-
+    return redirect("main_page")
 
 def main_page(request):
     if request.user.is_authenticated:
