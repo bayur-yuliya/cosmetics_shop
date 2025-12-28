@@ -232,6 +232,7 @@ def edit_products(request, product_id):
         {
             "title": title,
             "form": form,
+            "product": product,
         },
     )
 

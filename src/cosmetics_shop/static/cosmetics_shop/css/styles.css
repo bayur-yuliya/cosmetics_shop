@@ -126,3 +126,6 @@ button.btn-success {
     padding: 5px 0;
 }
 
+.form-control-file .current {
+    display: none;
+}
