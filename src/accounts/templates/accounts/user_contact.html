@@ -1,12 +1,31 @@
-{%  extends 'accounts/base.html'  %}
+{% extends 'accounts/base.html' %}
 
-{%  block title  %}{{  title  }}{%  endblock  %}
+{% block title %}{{ title }}{% endblock %}
 
-{%  block content  %}
-<hr>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Изменить</button>
-</form>
-{%  endblock  %}
+{% block content %}
+<div class="container my-4">
+    <h2 class="mb-4">Контактная информация</h2>
+
+    <div class="card p-4">
+        <form method="post">
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <button type="submit" class="btn btn-success mt-3">
+                Сохранить изменения
+            </button>
+        </form>
+    </div>
+
+    {% if messages %}
+        <ul class="messages mt-3">
+            {% for message in messages %}
+                <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>
+                    {{ message }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
+{% endblock %}

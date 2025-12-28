@@ -1,26 +1,77 @@
-{%  extends 'accounts/base.html'  %}
-{%  load custom_filters  %}
+{% extends 'accounts/base.html' %}
+{% load custom_filters %}
 
-{%  block title  %}{{  title  }}{%  endblock  %}
+{% block title %}{{ title }}{% endblock %}
 
-{%  block content  %}
+{% block content %}
+<div class="container my-4">
+    <h2 class="mb-4">История заказов</h2>
 
-<br>
-{% if order_items %}
-    {% for order in order_items  %}
-        {{ order.status }} - {{  order.order.code  }}<br>
-        {{ order.order.created_at }} - {{ order.order.total_price|number_format }} грн:
-        <ul>
-            {% for i in order.item %}
-                <img src="{{ i.product.image.url }}"   hspace='30' width='50px' height='50px'>
-                {{ i.snapshot_product }} - {{ i.snapshot_price|number_format }} грн : {{ i.snapshot_quantity }} шт.<br>
-            {% endfor %}
-        </ul>
-    <hr>
-    {% endfor %}
-{% else %}
-    Пока нет заказов
-{% endif %}
-<br>
-<a href="{%  url 'user_contact'  %}"><button>Назад</button></a>
-{%  endblock%}
+    {% if order_items %}
+        {% for order in order_items %}
+            <div class="card mb-4 shadow-sm">
+                <!-- ШАПКА ЗАКАЗА -->
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>Заказ № {{ order.order.code }}</strong><br>
+                        <small class="text-muted">
+                            {{ order.order.created_at }}
+                        </small>
+                    </div>
+                    <span class="badge bg-secondary">
+                        {{ order.status }}
+                    </span>
+                </div>
+
+                <!-- ТЕЛО ЗАКАЗА -->
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Товар</th>
+                                    <th>Цена</th>
+                                    <th>Кол-во</th>
+                                    <th>Сумма</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order.item %}
+                                <tr>
+                                    <td class="d-flex align-items-center">
+                                        <img src="{{ item.product.image.url }}"
+                                             class="img-thumbnail me-3"
+                                             style="width:60px; height:60px; object-fit:cover;">
+                                        {{ item.snapshot_product }}
+                                    </td>
+                                    <td>{{ item.snapshot_price|number_format }} грн</td>
+                                    <td>{{ item.snapshot_quantity }}</td>
+                                    <td>
+                                        {{ item.snapshot_price|multiply:item.snapshot_quantity|number_format }} грн
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ИТОГО -->
+                <div class="card-footer d-flex justify-content-end">
+                    <strong>
+                        Итого: {{ order.order.total_price|number_format }} грн
+                    </strong>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">
+            У вас пока нет заказов
+        </div>
+    {% endif %}
+
+    <a href="{% url 'user_contact' %}" class="btn btn-outline-secondary">
+        ←
+    </a>
+</div>
+{% endblock %}
