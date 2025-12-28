@@ -1,12 +1,53 @@
-{%  extends 'cosmetics_shop/base.html'  %}
+{% extends 'cosmetics_shop/base.html' %}
 
-{%  block title  %}{{  title  }}{%  endblock  %}
+{% block title %}{{ title }}{% endblock %}
 
-{%  block content  %}
-<form method="POST">
-    {%  csrf_token  %}
-    {{  form  }}
-    {{  form_delivery  }}
-    <button>Заказать</button>
-</form>
-{%  endblock  %}
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">Оформление заказа</h2>
+
+    <form method="POST" class="needs-validation" novalidate>
+        {% csrf_token %}
+
+        <div class="row">
+            <!-- Информация о пользователе -->
+            <div class="col-md-6 mb-4">
+                <div class="card p-3">
+                    <h5 class="card-title mb-3">Информация о пользователе</h5>
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-danger small">{{ field.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Доставка -->
+            <div class="col-md-6 mb-4">
+                <div class="card p-3">
+                    <h5 class="card-title mb-3">Доставка</h5>
+                    {% for field in form_delivery %}
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-danger small">{{ field.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Кнопка заказа -->
+        <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-success btn-lg">Заказать</button>
+        </div>
+
+    </form>
+</div>
+{% endblock %}

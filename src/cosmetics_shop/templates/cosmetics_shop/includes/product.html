@@ -1,11 +1,12 @@
 {%  load custom_filters  %}
 
-<img src={{ product.image.url }}   hspace='40' vspace='40' width='100px' height='100px'>
+<div class="product-card">
+<img src={{ product.image.url }} alt="{{ product.name }}" class="product-image">
 
-<a href="{%  url 'product_page' product.code  %}">{{  product.name  }}</a>
+<a href="{%  url 'product_page' product.code  %}"><h5 class="product-title">{{ product.name }}</h5></a>
 | {{  product.group.name  }}
 | {{  product.brand  }}
-| {{  product.price|number_format  }}
+|<p class="product-price">{{ product.price|number_format }} грн</p>
 | {{  product.description  }} |
 
 
@@ -25,8 +26,9 @@
 {%  csrf_token  %}
     <input type="hidden" name='product_code'  value="{{ product.code }}">
     {%  if product.stock %}
-        <button>КУПИТЬ </button><br>
+        <button type="submit" class="btn btn-success btn-sm mt-2">В корзину</button><br>
     {%  else  %}
         Товара нет в наличии
-    {%  endif  %}<hr>
+    {%  endif  %}
 </form>
+</div>

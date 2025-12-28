@@ -1,15 +1,56 @@
-{%  extends 'cosmetics_shop/base.html'  %}
-{%  load custom_filters  %}
+{% extends 'cosmetics_shop/base.html' %}
+{% load custom_filters %}
 
-{%  block title  %}{{  title  }}{%  endblock  %}
+{% block title %}{{ title }}{% endblock %}
 
-{%  block content  %}
-{{  status  }} | Номер заказа: {{  order.code  }}<br><hr><br>
-{%  for prod in products  %}
-    <img src="{{ prod.product.image.url }}"  hspace='30' width='50px' height='50px'>
-    {{  prod.order  }}<br>
-    {{  prod.product.name  }}({{  prod.product.price|number_format  }} грн)  -  {{  prod.quantity  }} шт.<br>
-{%  endfor  %}
-<hr><br>
-Итого: {{  order.total_price|number_format  }} грн
-{%  endblock  %}
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">Заказ успешно оформлен</h2>
+
+    <!-- Статус и номер заказа -->
+    <div class="alert alert-success">
+        {{ status }}<br>
+        Номер заказа: <strong>{{ order.code }}</strong>
+    </div>
+
+    {% if products %}
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Товар</th>
+                    <th>Цена</th>
+                    <th>Количество</th>
+                    <th>Сумма</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prod in products %}
+                <tr>
+                    <td class="d-flex align-items-center">
+                        <img src="{{ prod.product.image.url }}" class="img-thumbnail me-3" style="width:80px; height:80px; object-fit:cover;">
+                        <a href="{% url 'product_page' prod.product.code %}">{{ prod.product.name }}</a>
+                    </td>
+                    <td>{{ prod.product.price|number_format }} грн</td>
+                    <td>{{ prod.quantity }}</td>
+                    <td>{{ prod.product.price|multiply:prod.quantity|number_format }} грн</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Итоговая сумма -->
+    <div class="d-flex justify-content-end mt-3">
+        <h5>Итого: <strong>{{ order.total_price|number_format }} грн</strong></h5>
+    </div>
+
+    <!-- Кнопка возврата -->
+    <div class="mt-4">
+        <a href="{% url 'main_page' %}" class="btn btn-primary">Вернуться на главную</a>
+    </div>
+    {% else %}
+        <div class="alert alert-info">Нет товаров в этом заказе.</div>
+    {% endif %}
+</div>
+{% endblock %}

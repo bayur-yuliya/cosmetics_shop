@@ -1,1 +1,128 @@
-body{ font-family: Verdana;}
+body {
+    font-family: Verdana;
+}
+
+.product-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    background-color: #fff;
+}
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+.product-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+.product-title {
+    font-size: 1.1rem;
+    margin-top: 10px;
+}
+.product-price {
+    font-weight: bold;
+    color: #2c3e50;
+}
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.sort-btn reset {
+    margin-left: 20px;
+    padding: 5px 10px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #555;
+}
+.sorting-panel {
+    margin: 20px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+.categories h4 {
+    margin-bottom: 15px;
+}
+.category-card {
+    background-color: #f8f9fa;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-align: center;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.category-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.subcategories li a {
+    display: block;
+    font-size: 0.9rem;
+    color: #555;
+    padding: 2px 0;
+}
+
+.subcategories li a:hover {
+    color: #0d6efd;
+    text-decoration: underline;
+}
+
+
+.table img.img-thumbnail {
+    border-radius: 8px;
+}
+
+.table a {
+    text-decoration: none;
+    color: #0d6efd;
+}
+
+.table a:hover {
+    text-decoration: underline;
+}
+
+.btn-outline-secondary {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+}
+
+.card {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.card-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.form-label {
+    font-weight: 500;
+}
+
+button.btn-success {
+    padding: 10px 30px;
+    font-size: 1rem;
+}
+
+.alphabet .btn {
+    min-width: 35px;
+    text-align: center;
+    padding: 5px 0;
+}
+

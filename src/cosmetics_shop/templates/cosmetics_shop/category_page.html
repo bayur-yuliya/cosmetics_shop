@@ -4,96 +4,106 @@
 
 {%  block content  %}
 
-<ul>
-{% for item in context_categories %}
-    <li>
-        <a href="{% url 'category_page' item.category.id %}">
-            {{ item.category.name }}
-        </a>
-        {% if item.groups %}
-            <ul>
-            {% for group in item.groups %}
-                <li>
-                    <a href="{% url 'group_page' group.id %}">{{ group.name }}</a>
-                </li>
-            {% endfor %}
-            </ul>
-        {% endif %}
-    </li>
-{% endfor %}
-</ul>
+<div class="categories mb-4">
+    <div class="row">
+        {% for item in context_categories %}
+            <div class="col-6 col-md-4 col-lg-3 mb-3">
+                <div class="category-card p-3 border rounded h-100">
+                    <a href="{% url 'category_page' item.category.id %}" class="category-title d-block mb-2">
+                        {{ item.category.name }}
+                    </a>
+                    {% if item.groups %}
+                        <ul class="list-unstyled subcategories">
+                            {% for group in item.groups %}
+                                <li>
+                                    <a href="{% url 'group_page' group.id %}" class="text-decoration-none">
+                                        {{ group.name }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
 
-<hr>
-<a href="{%  url 'brand_page'  %}">Brands</a><br><br>
-<hr>
+
 <div align="center"><h2>{{  title  }}</h2></div>
 <hr>
 
-<div class="filters">
-    <form method="get">
-        {{ form.name.label_tag }}{{ form.name }}<br>
+<div class="row">
+    <div class="col-md-3">
+        <div class="filters p-3 border rounded">
+            <h5>Фильтры</h5>
+            <form method="get">
+                {{ form.name.label_tag }}{{ form.name }}<br>
 
-        {% if not hide_group_field %}
-            {{ form.group.label_tag }}{{ form.group }}<br>
-        {% endif %}
+                {% if not hide_group_field %}
+                    {{ form.group.label_tag }}{{ form.group }}<br>
+                {% endif %}
 
-        {% if not hide_brands_field %}
-            {{ form.brand.label_tag }}{{ form.brand }}<br>
-        {% endif %}
+                {% if not hide_brands_field %}
+                    {{ form.brand.label_tag }}{{ form.brand }}<br>
+                {% endif %}
 
-        {{ form.tags.label_tag }}{{ form.tags }}<br>
+                {{ form.tags.label_tag }}{{ form.tags }}<br>
 
-        {{ form.min_price.label_tag }}{{ form.min_price }}<br>
+                {{ form.min_price.label_tag }}{{ form.min_price }}<br>
 
-        {{ form.max_price.label_tag }}{{ form.max_price }}<br>
+                {{ form.max_price.label_tag }}{{ form.max_price }}<br>
 
-        <input type="hidden" name="sort" value="{{ current_sort }}">
-        <input type="hidden" name="direction" value="{{ current_direction }}">
+                <input type="hidden" name="sort" value="{{ current_sort }}">
+                <input type="hidden" name="direction" value="{{ current_direction }}">
+                <button type="submit" class="btn btn-primary btn-sm mt-2">Применить</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-9">
+        <div class="sorting-panel mb-3">
+            <div class="sorting-panel">
+                <strong>Сортировка:</strong>
+                {% for option in product_filter.get_sort_options %}
+                    <a href="{{ option.url }}"
+                       class="sort-btn {% if option.is_active %}active{% endif %}"
+                       style="margin: 0 10px; padding: 5px 10px; text-decoration: none; border: 1px solid #ddd; border-radius: 4px;">
+                        {{ option.label }}
+                        {% if option.is_active %}
+                            {% if current_direction == 'desc' %}↑{% else %}↓{% endif %}
+                        {% endif %}
+                    </a>
+                {% endfor %}
+                    <a href="{{ product_filter.get_clear_sort_url }}"
+                        class="sort-btn reset">
+                    Сбросить сортировку
+                    </a>
+            </div>
+        </div>
+        <div class="products-grid">
+            {% for product in products %}
+                {% include 'cosmetics_shop/includes/product.html' with product=product %}
+            {% empty %}
+                <p>Нет товаров по заданным условиям.</p>
+            {% endfor %}
+        </div>
+        <!-- пагинация -->
+        <div class="pagination">
+            {%  if products.paginator.num_pages > 1  %}
+                {% if products.has_previous %}
+                    <a href="?page=1">first</a> |
+                    <a href="?page={{ products.previous_page_number }}">previous</a>
+                {% endif %}
 
-        <button type="submit">Применить фильтры</button>
-    </form>
-</div>
+                Page {{ products.number }} of {{ products.paginator.num_pages }}.
 
-<div class="sorting-panel" style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-    <strong>Сортировка:</strong>
-    {% for option in product_filter.get_sort_options %}
-        <a href="{{ option.url }}"
-           class="sort-btn {% if option.is_active %}active{% endif %}"
-           style="margin: 0 10px; padding: 5px 10px; text-decoration: none; border: 1px solid #ddd; border-radius: 4px;">
-            {{ option.label }}
-            {% if option.is_active %}
-                {% if current_direction == 'desc' %}↑{% else %}↓{% endif %}
+                {% if products.has_next %}
+                    <a href="?page={{ products.next_page_number }}">next</a> |
+                    <a href="?page={{ products.paginator.num_pages }}">last</a>
+                {% endif %}
             {% endif %}
-        </a>
-    {% endfor %}
-        <a href="{{ product_filter.get_clear_sort_url }}"
-            class="sort-btn reset"
-            style="margin-left: 20px; padding: 5px 10px; border: 1px solid #bbb; border-radius: 4px; text-decoration: none; color: #555;">
-        Сбросить сортировку
-        </a>
+        </div>
+    </div>
+    </div>
 </div>
-<hr>
-
-
-
-{%  for product in products %}
-    {%  include 'cosmetics_shop/includes/product.html' with product=product  %}
-{%  endfor  %}<br>
-
-<div class="pagination">
-    {%  if products.paginator.num_pages > 1  %}
-        {% if products.has_previous %}
-            <a href="?page=1">first</a>
-            <a href="?page={{ products.previous_page_number }}">previous</a>
-        {% endif %}
-
-        Page {{ products.number }} of {{ products.paginator.num_pages }}.
-
-        {% if products.has_next %}
-            <a href="?page={{ products.next_page_number }}">next</a>
-            <a href="?page={{ products.paginator.num_pages }}">last</a>
-        {% endif %}
-    {% endif %}
-</div>
-
 {%  endblock  %}
