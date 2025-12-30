@@ -1,7 +1,88 @@
-{%  extends "cosmetics_shop/base.html"  %}
+{% extends "cosmetics_shop/base.html" %}
 
-{%  block title  %}Оплата и доставка{%  endblock  %}
+{% block title %}Оплата и доставка{% endblock %}
 
-{%  block content  %}
-Информация об оплате и доставке товара
-{%  endblock  %}
+{% block content %}
+<div class="container my-5">
+
+    <h1 class="mb-4">Оплата и доставка</h1>
+
+    <!-- ДОСТАВКА -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h4 class="card-title mb-3">🚚 Доставка по Украине</h4>
+
+            <p>
+                Мы осуществляем доставку заказов по всей территории Украины
+                с помощью надежных служб доставки.
+            </p>
+
+            <ul class="list-group list-group-flush mb-3">
+                <li class="list-group-item">
+                    <strong>Новая Почта</strong> — доставка в отделение или курьером
+                </li>
+                <li class="list-group-item">
+                    <strong>Укрпочта</strong> — доставка в отделение
+                </li>
+            </ul>
+
+            <p class="mb-1">
+                ⏱ <strong>Срок доставки:</strong> 1–3 рабочих дня
+            </p>
+            <p>
+                💰 <strong>Стоимость доставки:</strong> согласно тарифам перевозчика
+            </p>
+        </div>
+    </div>
+
+    <!-- ОПЛАТА -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h4 class="card-title mb-3">💳 Способы оплаты</h4>
+
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <strong>Онлайн-оплата банковской картой</strong> (Visa / MasterCard)
+                </li>
+                <li class="list-group-item">
+                    <strong>Оплата при получении</strong> (наложенный платеж)
+                </li>
+                <li class="list-group-item">
+                    <strong>Оплата на расчетный счет</strong> (для юридических лиц)
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- УСЛОВИЯ -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h4 class="card-title mb-3">📦 Условия обработки заказов</h4>
+
+            <ul>
+                <li>Заказы обрабатываются с понедельника по пятницу</li>
+                <li>Заказы, оформленные после 17:00, отправляются на следующий рабочий день</li>
+                <li>Отправка осуществляется после подтверждения заказа менеджером</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ВОЗВРАТ -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h4 class="card-title mb-3">↩️ Возврат и обмен</h4>
+
+            <p>
+                Возврат и обмен товаров осуществляется в соответствии
+                с действующим законодательством Украины.
+            </p>
+
+            <p class="mb-0">
+                Если у вас возникли вопросы по оплате или доставке —
+                свяжитесь с нашей службой поддержки.
+            </p>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
