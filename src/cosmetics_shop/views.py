@@ -156,26 +156,6 @@ def brand_products(request, brand_id):
     )
 
 
-def add_to_cart(request):
-    product_code = request.POST.get("product_code")
-    if not product_code:
-        return redirect("main_page")
-
-    if request.user.is_authenticated:
-        add_product_to_cart(request, product_code=product_code)
-
-    else:
-        cart = get_or_create_cart_for_session(request)
-        product = Product.objects.get(code=product_code)
-
-        item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-
-        item.quantity += 1
-        item.save()
-    next_url = request.GET.get("next", "/")
-    return redirect(next_url)
-
-
 def cart(request):
     cart = get_or_create_cart(request)
     cart_items = CartItem.objects.select_related("product").filter(cart=cart)
@@ -220,14 +200,6 @@ def order_success(request):
             "status": status,
         },
     )
-
-
-@require_POST
-def cart_remove(request):
-    product_code = request.POST.get("product_code")
-    remove_product_from_cart(request, product_code)
-    next_url = request.GET.get("next", "/")
-    return redirect(next_url)
 
 
 @require_POST

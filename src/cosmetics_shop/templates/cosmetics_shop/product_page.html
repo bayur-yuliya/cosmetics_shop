@@ -51,17 +51,16 @@
 
             <hr>
 
-            <!-- Форма покупки -->
-            <form method="POST" action="{% url 'add_to_cart' %}?next={{ request.get_full_path|urlencode }}">
-                {% csrf_token %}
-                <input type="hidden" name="product_code" value="{{ product.code }}">
-                {% if product.stock %}
-                    <button type="submit" class="btn btn-success btn-lg">Купить</button>
-                    <span class="ms-3 text-success">В наличии</span>
-                {% else %}
-                    <span class="text-danger">Товара нет в наличии</span>
-                {% endif %}
-            </form>
+            <!-- Кнопка покупки -->
+            {% if product.stock %}
+                <button class="btn btn-success btn-lg js-cart-btn"
+                    data-product-code="{{  product.code  }}">В корзину
+                </button>
+                <span class="ms-3 text-success">В наличии</span>
+            {% else %}
+                <span class="text-danger">Товара нет в наличии</span>
+            {% endif %}
+
         </div>
     </div>
 </div>

@@ -80,6 +80,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".js-cart-btn-remove").forEach(button => {
+        button.addEventListener("click", () => {
+            const productCode = button.dataset.productCode;
+
+            fetch(`/ajax/cart/remove/${productCode}/`, {
+                method:"POST",
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken"),
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({})
+            })
+
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    console.log('Товар уменьшен в количестве в корзине');
+                    console.log('Обновляем счетчик значением:', data.count);
+                    updateCartCounter(data.count);
+                } else {
+                    console.error('Ошибка при удалении товара');
+                }
+            })
+        });
+    });
+});
+
 // Функция для показа уведомления (опционально)
 // Модифицированная функция
 function updateCartCounter(count) {
@@ -110,3 +143,4 @@ function updateCartCounter(count) {
             baseHtml.trim();
     });
 }
+

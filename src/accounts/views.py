@@ -169,3 +169,9 @@ def activate_account(request):
             "form": form,
         },
     )
+
+
+@login_required
+def remove_from_favorites(request, product_id):
+    Favorite.objects.filter(user=request.user, product_id=product_id).delete()
+    return redirect("favorites")

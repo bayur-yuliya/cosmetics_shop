@@ -8,6 +8,8 @@ from cosmetics_shop.services.cart_services import (
     add_product_to_cart,
     get_or_create_cart_for_session,
     get_or_create_cart,
+    remove_product_from_cart,
+    delete_product_from_cart,
 )
 
 
@@ -35,7 +37,6 @@ def add_to_cart(request, product_code):
             return JsonResponse({"success": False, "error": "No product code"})
 
         if request.user.is_authenticated:
-            # Ваша функция для авторизованных пользователей
             add_product_to_cart(request, product_code=product_code)
             cart = get_or_create_cart(request)
         else:
@@ -49,10 +50,23 @@ def add_to_cart(request, product_code):
 
         cart_items = CartItem.objects.filter(cart=cart)
         count = sum(item.quantity for item in cart_items)
-        print(count)
         return JsonResponse({"success": True, "count": count})
 
     except Product.DoesNotExist:
         return JsonResponse({"success": False, "error": "Product not found"})
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)})
+
+
+@require_POST
+def cart_remove(request, product_code):
+    remove_product_from_cart(request, product_code)
+
+    if request.user.is_authenticated:
+        cart = get_or_create_cart(request)
+    else:
+        cart = get_or_create_cart_for_session(request)
+
+    cart_items = CartItem.objects.filter(cart=cart)
+    count = sum(item.quantity for item in cart_items)
+    return JsonResponse({"success": True, "count": count})

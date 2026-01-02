@@ -13,19 +13,25 @@ urlpatterns = [
         ajax.toggle_favorite,
         name="ajax_remove_to_favorites",
     ),
+    # ajax cart
     path(
         "ajax/cart/add/<int:product_code>/", ajax.add_to_cart, name="ajax_add_to_cart"
     ),
+    path(
+        "ajax/cart/remove/<int:product_code>/",
+        ajax.cart_remove,
+        name="ajax_cart_remove",
+    ),
     # login
     path("account/login/", views.login_view, name="account_login"),
+    # main pages
     path("group/<int:group_id>/", views.group_page, name="group_page"),
     path("category/<int:category_id>/", views.category_page, name="category_page"),
     path("product/<int:product_code>/", views.product_page, name="product_page"),
-    path("brand/", views.brand_page, name="brand_page"),
+    # brand
     path("brand/<int:brand_id>/", views.brand_products, name="brand_detail"),
-    path("add_to_cart/", views.add_to_cart, name="add_to_cart"),
+    path("brand/", views.brand_page, name="brand_page"),
     # cart
-    path("cart/remove/", views.cart_remove, name="cart_remove"),
     path("cart/delete/", views.cart_delete, name="cart_delete"),
     path("cart/", views.cart, name="cart"),
     # order
