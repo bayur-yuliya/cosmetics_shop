@@ -10,25 +10,22 @@
 | {{  product.description  }} |
 
 
-{%  if product.is_favorite or is_favorite  %}
-<form method="POST" action="{% url 'remove_from_favorites' product.id %}?next={{  request.get_full_path|urlencode  }}">
-    {% csrf_token %}
-    <button type="submit">&hearts;</button>
-</form>
+<button
+    class="favorite-btn"
+    data-product-id="{{ product.id }}"
+    data-in-favorites="{{ product.is_favorite|yesno:'1,0' }}"
+>
+    {% if product.is_favorite %}♥{% else %}♡{% endif %}
+</button>
+
+
+{%  if product.stock %}
+    <button class="btn btn-success btn-sm mt-2 js-cart-btn"
+            data-product-code="{{  product.code  }}">В корзину
+    </button>
+<br>
 {%  else  %}
-<form method="POST" action="{% url 'add_to_favorites' product.id %}?next={{  request.get_full_path|urlencode  }}">
-    {% csrf_token %}
-    <button type="submit">&#9825;</button>
-</form>
+    Товара нет в наличии
 {%  endif  %}
 
-<form method='POST' action="{%  url 'add_to_cart'  %}?next={{  request.get_full_path|urlencode  }}">
-{%  csrf_token  %}
-    <input type="hidden" name='product_code'  value="{{ product.code }}">
-    {%  if product.stock %}
-        <button type="submit" class="btn btn-success btn-sm mt-2">В корзину</button><br>
-    {%  else  %}
-        Товара нет в наличии
-    {%  endif  %}
-</form>
 </div>

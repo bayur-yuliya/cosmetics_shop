@@ -34,11 +34,13 @@
                                     <button type="submit" class="btn btn-sm btn-outline-secondary">-</button>
                                 </form>
                                 <span class="mx-2">{{ item.quantity }}</span>
-                                <form method="POST" action="{% url 'cart_add' %}?next={{ request.get_full_path|urlencode }}" style="display:inline;">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="product_code" value="{{ item.product.code }}">
-                                    <button type="submit" class="btn btn-sm btn-outline-secondary">+</button>
-                                </form>
+
+                                <button
+                                        class="btn btn-sm btn-outline-secondary js-cart-btn"
+                                        data-product-id="{{  item.product.code  }}">
+                                    +
+                                </button>
+
                             </td>
                             <td>{{ item.product.price|multiply:item.quantity|number_format }} грн</td>
                             <td>

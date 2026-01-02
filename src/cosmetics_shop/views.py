@@ -223,14 +223,6 @@ def order_success(request):
 
 
 @require_POST
-def cart_add(request):
-    product_code = request.POST.get("product_code")
-    add_product_to_cart(request, product_code)
-    next_url = request.GET.get("next", "/")
-    return redirect(next_url)
-
-
-@require_POST
 def cart_remove(request):
     product_code = request.POST.get("product_code")
     remove_product_from_cart(request, product_code)
@@ -292,22 +284,6 @@ def delivery(request):
             "form_delivery": form_delivery,
         },
     )
-
-
-@login_required
-def add_to_favorites(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
-    Favorite.objects.get_or_create(user=request.user, product=product)
-    next_url = request.GET.get("next", "/")
-    return redirect(next_url)
-
-
-@login_required
-@require_POST
-def remove_from_favorites(request, product_id):
-    Favorite.objects.filter(user=request.user, product_id=product_id).delete()
-    next_url = request.GET.get("next", "/")
-    return redirect(next_url)
 
 
 def payment_and_delivery(request):
