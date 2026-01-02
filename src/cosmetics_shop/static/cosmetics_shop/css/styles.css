@@ -129,3 +129,68 @@ button.btn-success {
 .form-control-file .current {
     display: none;
 }
+
+
+
+/* ОСНОВНОЙ КОНТЕЙНЕР */
+.categories-menu {
+    position: relative;
+    background: #fff;
+}
+
+/* СТРОКА КАТЕГОРИЙ */
+.category-list {
+    display: flex;
+    gap: 24px;
+    list-style: none;
+    margin: 0;
+    padding: 12px 20px;
+}
+
+/* ССЫЛКА КАТЕГОРИИ */
+.category-link {
+    text-decoration: none;
+    color: #000;
+    font-weight: 500;
+    padding: 6px 0;
+}
+
+/* ВСПЛЫВАЮЩИЙ БЛОК */
+.submenu-full {
+    position: absolute;
+    left: 0;
+    top: 100%;
+    width: 100%;
+    background: #fff;
+    border-top: 1px solid #e5e5e5;
+    z-index: 1000;
+
+    display: none;
+}
+
+/* ВНУТРЕННИЙ КОНТЕНТ */
+.submenu-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* СПИСОК ПОДКАТЕГОРИЙ */
+.subcategories {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.subcategories li {
+    margin-bottom: 8px;
+}
+
+.subcategories a {
+    text-decoration: none;
+    color: #333;
+}
+
+.subcategories a:hover {
+    text-decoration: underline;
+}
