@@ -9,7 +9,6 @@ from cosmetics_shop.services.cart_services import (
     get_or_create_cart_for_session,
     get_or_create_cart,
     remove_product_from_cart,
-    delete_product_from_cart,
 )
 
 
@@ -24,7 +23,7 @@ def toggle_favorite(request, product_id):
         favorite.delete()
         in_favorites = False
     else:
-        Favorite.objects.get_or_create(user=request.user, product=product)
+        Favorite.objects.get(user=request.user, product=product)
         in_favorites = True
 
     return JsonResponse({"in_favorites": in_favorites})
@@ -48,9 +47,28 @@ def add_to_cart(request, product_code):
             item.quantity += 1
             item.save()
 
-        cart_items = CartItem.objects.filter(cart=cart)
+        cart_items = CartItem.objects.select_related("product").filter(cart=cart)
         count = sum(item.quantity for item in cart_items)
-        return JsonResponse({"success": True, "count": count})
+
+        product_count = cart_items.filter(product__code=product_code).first()
+
+        total_price = sum(item.product.price * item.quantity for item in cart_items) / 100
+
+        message = None
+        if product_count.quantity == product_count.product.stock:
+            message = {
+                "level": "error",
+                "text": "Это последний товар",
+            }
+
+        return JsonResponse({
+            "success": True,
+            "count": count,
+            "product_count": product_count.quantity,
+            "total_price": float(total_price),
+            "product_code": product_code,
+            "message": message,
+        })
 
     except Product.DoesNotExist:
         return JsonResponse({"success": False, "error": "Product not found"})
@@ -67,6 +85,16 @@ def cart_remove(request, product_code):
     else:
         cart = get_or_create_cart_for_session(request)
 
-    cart_items = CartItem.objects.filter(cart=cart)
+    cart_items = CartItem.objects.select_related("product").filter(cart=cart)
     count = sum(item.quantity for item in cart_items)
-    return JsonResponse({"success": True, "count": count})
+
+    product_count = cart_items.filter(product__code=product_code).first()
+    total_price = sum(item.product.price * item.quantity for item in cart_items) / 100
+
+    return JsonResponse({
+        "success": True,
+        "count": count,
+        "product_count": product_count.quantity,
+        "total_price": float(total_price),
+        "product_code": product_code,
+    })

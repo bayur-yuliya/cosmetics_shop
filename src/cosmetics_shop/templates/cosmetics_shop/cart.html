@@ -35,7 +35,11 @@
                                 -
                             </button>
 
-                            <span class="mx-2">{{ item.quantity }}</span>
+                            <span
+                                class="mx-2 item-counter"
+                                data-product-code="{{ item.product.code }}">
+                                {{ item.quantity }}
+                            </span>
 
                             <button
                                     class="btn btn-sm btn-outline-secondary js-cart-btn"
@@ -59,7 +63,7 @@
         </div>
 
         <div class="d-flex justify-content-between align-items-center mt-4">
-            <h5>Итого: {{ total_price|number_format }} грн</h5>
+            <h5 id="cart-total">Итого: {{ total_price|number_format }} грн</h5>
             <div>
                 <a href="{% url 'main_page' %}" class="btn btn-outline-primary me-2">Продолжить выбор</a>
                 <a href="{% url 'delivery' %}" class="btn btn-success">Оформить заказ</a>
@@ -71,14 +75,6 @@
             Корзина пуста
         </div>
         <a href="{% url 'main_page' %}" class="btn btn-primary">Перейти к покупкам</a>
-    {% endif %}
-
-    {% if messages %}
-        <ul class="messages mt-3">
-            {% for message in messages %}
-                <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-            {% endfor %}
-        </ul>
     {% endif %}
 </div>
 {% endblock %}

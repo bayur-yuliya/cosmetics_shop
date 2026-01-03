@@ -2,8 +2,7 @@ import string
 
 from django.contrib import messages
 from django.contrib.auth import login, authenticate
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 
 from .forms import (
@@ -20,13 +19,9 @@ from .models import (
     Client,
     DeliveryAddress,
     Category,
-    Favorite,
 )
 from .services.cart_services import (
-    add_product_to_cart,
-    get_or_create_cart_for_session,
     get_or_create_cart,
-    remove_product_from_cart,
     delete_product_from_cart,
     get_or_create_session_client,
 )

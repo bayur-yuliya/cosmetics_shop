@@ -61,7 +61,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 },
                 body: JSON.stringify({})
             })
-
             .then(res => {
                 if (!res.ok) {
                     throw new Error('Network response was not ok');
@@ -72,6 +71,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (data.success) {
                     console.log('Обновляем счетчик значением:', data.count);
                     updateCartCounter(data.count);
+                    updateItemCounter(data.product_code, data.product_count);
+                    updateTotalPrice(data.total_price);
+                    showMessage(data.message);
                 }
             })
         });
@@ -105,6 +107,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     console.log('Товар уменьшен в количестве в корзине');
                     console.log('Обновляем счетчик значением:', data.count);
                     updateCartCounter(data.count);
+                    updateItemCounter(data.product_code, data.product_count);
+                    updateTotalPrice(data.total_price);
                 } else {
                     console.error('Ошибка при удалении товара');
                 }
@@ -144,3 +148,49 @@ function updateCartCounter(count) {
     });
 }
 
+function updateItemCounter(productCode, quantity) {
+    const counter = document.querySelector(
+        `.item-counter[data-product-code="${productCode}"]`
+    );
+
+    if (!counter) return;
+
+    if (quantity > 0) {
+        counter.textContent = quantity;
+    } else {
+        // если товара больше нет — можно скрыть строку
+        const row = counter.closest("tr");
+        if (row) row.remove();
+    }
+}
+
+function updateTotalPrice(totalPrice) {
+    const totalElement = document.getElementById("cart-total");
+    if (!totalElement) return;
+
+    totalElement.textContent = `Итого: ${totalPrice} грн`;
+}
+
+
+function showMessage(message) {
+    if (!message) return;
+
+    const container = document.getElementById("messages-container");
+
+    const alert = document.createElement("div");
+    alert.className = `alert alert-${message.level === "error" ? "danger" : "success"} alert-dismissible fade show`;
+    alert.role = "alert";
+
+    alert.innerHTML = `
+        ${message.text}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+
+    container.appendChild(alert);
+
+    // автозакрытие
+    setTimeout(() => {
+        alert.classList.remove("show");
+        alert.remove();
+    }, 4000);
+}
