@@ -36,7 +36,7 @@
                             </button>
 
                             <span
-                                class="mx-2 item-counter"
+                                class="mx-2 js-item-counter-quantity"
                                 data-product-code="{{ item.product.code }}">
                                 {{ item.quantity }}
                             </span>
@@ -48,7 +48,13 @@
                             </button>
 
                             </td>
-                            <td>{{ item.product.price|multiply:item.quantity|number_format }} грн</td>
+                            <td>
+                            <span
+                                class="mx-2 js-item-counter-total"
+                                data-product-code="{{ item.product.code }}">
+                                {{ item.product.price|multiply:item.quantity|number_format }} грн
+                            </span>
+                            </td>
                             <td>
                                 <form method="POST" action="{% url 'cart_delete' %}?next={{ request.get_full_path|urlencode }}">
                                     {% csrf_token %}
@@ -76,5 +82,14 @@
         </div>
         <a href="{% url 'main_page' %}" class="btn btn-primary">Перейти к покупкам</a>
     {% endif %}
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}></li>
+    {% endfor %}
+</ul>
+{% endif %}
+
 </div>
 {% endblock %}

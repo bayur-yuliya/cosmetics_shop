@@ -72,6 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     console.log('Обновляем счетчик значением:', data.count);
                     updateCartCounter(data.count);
                     updateItemCounter(data.product_code, data.product_count);
+                    updateItemTotal(data.product_code, data.product_total_price);
                     updateTotalPrice(data.total_price);
                     showMessage(data.message);
                 }
@@ -106,8 +107,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (data.success) {
                     console.log('Товар уменьшен в количестве в корзине');
                     console.log('Обновляем счетчик значением:', data.count);
-                    updateCartCounter(data.count);
                     updateItemCounter(data.product_code, data.product_count);
+                    updateItemTotal(data.product_code, data.product_total_price);
+                    updateCartCounter(data.count);
                     updateTotalPrice(data.total_price);
                 } else {
                     console.error('Ошибка при удалении товара');
@@ -150,7 +152,7 @@ function updateCartCounter(count) {
 
 function updateItemCounter(productCode, quantity) {
     const counter = document.querySelector(
-        `.item-counter[data-product-code="${productCode}"]`
+        `.js-item-counter-quantity[data-product-code="${productCode}"]`
     );
 
     if (!counter) return;
@@ -193,4 +195,27 @@ function showMessage(message) {
         alert.classList.remove("show");
         alert.remove();
     }, 4000);
+}
+
+function updateItemQuantity(productCode, quantity) {
+    const el = document.querySelector(
+        `.js-item-counter-total[data-product-code="${productCode}"]`
+    );
+    if (!el) return;
+
+    el.textContent = quantity;
+}
+
+function updateItemTotal(productCode, totalPrice) {
+    const el = document.querySelector(
+        `.js-item-counter-total[data-product-code="${productCode}"]`
+    );
+    if (!el) return;
+
+    const price = parseFloat(totalPrice);
+
+    el.textContent = new Intl.NumberFormat("uk-UA", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(price) + " грн";
 }

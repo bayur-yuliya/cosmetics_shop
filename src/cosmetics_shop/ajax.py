@@ -23,7 +23,7 @@ def toggle_favorite(request, product_id):
         favorite.delete()
         in_favorites = False
     else:
-        Favorite.objects.get(user=request.user, product=product)
+        Favorite.objects.get_or_create(user=request.user, product=product)
         in_favorites = True
 
     return JsonResponse({"in_favorites": in_favorites})
@@ -54,6 +54,8 @@ def add_to_cart(request, product_code):
 
         total_price = sum(item.product.price * item.quantity for item in cart_items) / 100
 
+        product_total_price = product_count.quantity * product_count.product.price / 100
+
         message = None
         if product_count.quantity == product_count.product.stock:
             message = {
@@ -66,6 +68,7 @@ def add_to_cart(request, product_code):
             "count": count,
             "product_count": product_count.quantity,
             "total_price": float(total_price),
+            "product_total_price": product_total_price,
             "product_code": product_code,
             "message": message,
         })
@@ -91,10 +94,13 @@ def cart_remove(request, product_code):
     product_count = cart_items.filter(product__code=product_code).first()
     total_price = sum(item.product.price * item.quantity for item in cart_items) / 100
 
+    product_total_price = product_count.quantity * product_count.product.price / 100
+
     return JsonResponse({
         "success": True,
         "count": count,
         "product_count": product_count.quantity,
+        "product_total_price": product_total_price,
         "total_price": float(total_price),
         "product_code": product_code,
     })
