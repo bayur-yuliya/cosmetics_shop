@@ -240,3 +240,22 @@ document.addEventListener("click", function (e) {
         });
     }
 });
+
+// Filter panel
+document.querySelector("form").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const form = this;
+    const params = new URLSearchParams(new FormData(form));
+
+    fetch(`?${params.toString()}`, {
+        headers: {
+            "X-Requested-With": "XMLHttpRequest",
+        },
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("products-container").innerHTML = data.html;
+        history.pushState(null, "", `?${params.toString()}`);
+    });
+});
