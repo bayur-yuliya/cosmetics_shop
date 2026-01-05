@@ -1,5 +1,7 @@
 from django.core.paginator import Paginator
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
+from django.template.loader import render_to_string
 
 from cosmetics_shop.forms import ProductFilterForm
 from cosmetics_shop.services.categories_services import context_categories
@@ -53,6 +55,15 @@ def processing_product_page(
         "hide_brands_field": hide_brands_field,
         "hide_group_field": hide_group_field,
     }
+
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        html = render_to_string(
+            "cosmetics_shop/includes/product_list.html",
+            context,
+            request=request,
+        )
+        return JsonResponse({"html": html})
+
     if extra_context:
         context.update(extra_context)
 

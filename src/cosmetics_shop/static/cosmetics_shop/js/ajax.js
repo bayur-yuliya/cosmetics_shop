@@ -219,3 +219,24 @@ function updateItemTotal(productCode, totalPrice) {
         maximumFractionDigits: 2,
     }).format(price) + " грн";
 }
+
+// Sorting panel
+document.addEventListener("click", function (e) {
+    const link = e.target.closest("a");
+    if (!link) return;
+
+    if  (link.closest(".sorting-panel")) {
+        e.preventDefault();
+
+        fetch(link.href, {
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+            },
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("products-container").innerHTML = data.html;
+            history.pushState(null, "", link.href);
+        });
+    }
+});

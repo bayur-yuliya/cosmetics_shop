@@ -1,0 +1,15 @@
+<strong>Сортировка:</strong>
+{% for option in product_filter.get_sort_options %}
+    <a href="{{ option.url }}"
+       class="sort-btn {% if option.is_active %}active{% endif %}"
+       style="margin: 0 10px; padding: 5px 10px; text-decoration: none; border: 1px solid #ddd; border-radius: 4px;">
+        {{ option.label }}
+        {% if option.is_active %}
+            {% if current_direction == 'desc' %}↑{% else %}↓{% endif %}
+        {% endif %}
+    </a>
+{% endfor %}
+    <a href="{{ product_filter.get_clear_sort_url }}"
+        class="sort-btn reset">
+    Сбросить сортировку
+    </a>
