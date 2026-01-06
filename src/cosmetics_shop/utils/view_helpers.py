@@ -21,17 +21,7 @@ def processing_product_page(
     for key in list(query_params.keys()):
         if not query_params[key].strip():
             query_params.pop(key)
-    if request.GET.urlencode() != query_params.urlencode():
-        return redirect(f"{request.path}?{query_params.urlencode()}")
 
-    if request.GET.get("sort") == "None" or not request.GET.get("sort"):
-        clean_params = request.GET.copy()
-        clean_params.pop("sort", None)
-        clean_params.pop("direction", None)
-        clean_url = "?" + clean_params.urlencode() if clean_params else "."
-        if request.GET.get("sort"):
-            return redirect(f"{request.path}{clean_url}")
-    categories = context_categories()
     product_filter = ProductFilter(request, products)
     form = ProductFilterForm(request.GET or None)
 
@@ -46,7 +36,6 @@ def processing_product_page(
 
     context = {
         "title": title,
-        "context_categories": categories,
         "products": products,
         "form": form,
         "product_filter": product_filter,

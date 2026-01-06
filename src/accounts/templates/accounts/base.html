@@ -33,12 +33,6 @@
                     ({{ cart_item_count }})
                 {% endif %}
             </a>
-
-            {% if user.is_authenticated %}
-                <a href="{% url 'logout' %}" class="btn btn-outline-danger">
-                    Выйти
-                </a>
-            {% endif %}
         </div>
     </div>
 </nav>
@@ -59,6 +53,7 @@
                 <a href="{% url 'favorites' %}" class="list-group-item list-group-item-action">
                     Избранное
                 </a>
+                <button class="list-group-item list-group-item-action text-danger" onclick="openLogoutDialog()">Выйти</button>
                 <button class="list-group-item list-group-item-action text-danger" onclick="openDeleteDialog()">Удалить аккаунт</button>
             </div>
         </div>
@@ -72,7 +67,7 @@
 
     </div>
 </div>
-<!-- Диалог подтверждения удаления -->
+<!-- Диалог подтверждения удаления аккаунта -->
 <dialog id="deleteDialog">
     <form method="POST" action="{%  url 'delete_account'  %}">
         {% csrf_token %}
@@ -83,9 +78,19 @@
         </div>
     </form>
 </dialog>
-
+<!--Диалог подтверждения выхода из аккаунта -->
+<dialog id="logoutDialog">
+    <form action="{%  url 'logout'  %}" method="POST">
+        {%  csrf_token  %}
+        <p id="logoutText"></p>
+        <div class="d-flex gap-2 mt-2">
+            <button type="reset" class="btn btn-secondary" onclick="document.getElementById('logoutDialog').close()">Назад</button>
+            <button type="submit" class="btn btn-danger">Выйти</button>
+        </div>
+    </form>
+</dialog>
 {% include 'cosmetics_shop/includes/footer.html' %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="{% static 'cosmetics_shop/js/delete_dialog_script.js' %}"></script>
+<script src="{% static 'cosmetics_shop/js/dialog_scripts.js' %}"></script>
 </body>
 </html>
