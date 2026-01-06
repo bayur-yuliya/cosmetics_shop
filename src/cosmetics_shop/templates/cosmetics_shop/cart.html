@@ -83,13 +83,5 @@
         <a href="{% url 'main_page' %}" class="btn btn-primary">Перейти к покупкам</a>
     {% endif %}
 
-{% if messages %}
-<ul class="messages">
-    {% for message in messages %}
-    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}></li>
-    {% endfor %}
-</ul>
-{% endif %}
-
 </div>
 {% endblock %}

@@ -242,7 +242,7 @@ document.addEventListener("click", function (e) {
 });
 
 // Filter panel
-document.querySelector("form").addEventListener("submit", function (e) {
+document.querySelector("form[.product-filter-form]").addEventListener("submit", function (e) {
     e.preventDefault();
 
     const form = this;
