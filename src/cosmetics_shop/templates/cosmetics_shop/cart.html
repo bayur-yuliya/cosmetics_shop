@@ -19,7 +19,14 @@
 
     {% if cart_items %}
         <div class="table-responsive">
-            <table class="table align-middle">
+            <table class="table align-middle cart-table">
+                    <colgroup>
+                        <col style="width:55%">
+                        <col style="width:10%">
+                        <col style="width:10%">
+                        <col style="width:15%">
+                        <col style="width:10%">
+                    </colgroup>
                 <thead>
                     <tr>
                         <th>Товар</th>
@@ -32,38 +39,48 @@
                 <tbody>
                     {% for item in cart_items %}
                         <tr>
-                            <td class="d-flex align-items-center">
-                                <img src="/media/{{ item.product.image }}" class="img-thumbnail me-3" style="width:80px; height:80px; object-fit:cover;">
-                                <a href="{% url 'product_page' item.product.code %}">{{ item.product.name }}</a>
+                            <td>
+                                <div class="d-flex align-items-center product-cell">
+                                    <img src="/media/{{ item.product.image }}" class="img-thumbnail me-3" style="width:80px; height:80px; object-fit:cover;">
+                                    <a href="{% url 'product_page' item.product.code %}">{{ item.product.name }}</a>
+                                </div>
                             </td>
                             <td>{{ item.product.price|number_format }} грн</td>
                             <td>
-
-                            <button
+                                {%  if item.quantity == 1  %}
+                                <button
+                                    class="btn btn-sm btn-outline-secondary js-cart-btn-remove"
+                                    data-product-code="{{  item.product.code  }}" disabled>
+                                    -
+                                </button>
+                                {%  else  %}
+                                <button
                                     class="btn btn-sm btn-outline-secondary js-cart-btn-remove"
                                     data-product-code="{{  item.product.code  }}">
-                                -
-                            </button>
+                                    -
+                                </button>
+                                {%  endif  %}
+                                <span
+                                    class="mx-2 js-item-counter-quantity"
+                                    data-product-code="{{ item.product.code }}">
+                                    {{ item.quantity }}
+                                </span>
 
-                            <span
-                                class="mx-2 js-item-counter-quantity"
-                                data-product-code="{{ item.product.code }}">
-                                {{ item.quantity }}
-                            </span>
-
-                            <button
-                                    class="btn btn-sm btn-outline-secondary js-cart-btn"
-                                    data-product-code="{{  item.product.code  }}">
-                                +
-                            </button>
+                                <button
+                                        class="btn btn-sm btn-outline-secondary js-cart-btn"
+                                        data-product-code="{{  item.product.code  }}">
+                                    +
+                                </button>
 
                             </td>
                             <td>
-                            <span
-                                class="mx-2 js-item-counter-total"
-                                data-product-code="{{ item.product.code }}">
-                                {{ item.product.price|multiply:item.quantity|number_format }} грн
-                            </span>
+                                <div class="d-flex align-items-center product-cell">
+                                    <span
+                                        class="mx-2 js-item-counter-total"
+                                        data-product-code="{{ item.product.code }}">
+                                        {{ item.product.price|multiply:item.quantity|number_format }} грн
+                                    </span>
+                                </div>
                             </td>
                             <td>
                             <button

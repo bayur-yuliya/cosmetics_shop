@@ -194,3 +194,25 @@ button.btn-success {
 .subcategories a:hover {
     text-decoration: underline;
 }
+
+.cart-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.table-responsive {
+    overflow-x: hidden;
+}
+
+.product-cell {
+    width: 100%;
+    min-width: 0;
+}
+
+.js-item-counter-total {
+    display: inline-block;
+    width: 110px;
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}

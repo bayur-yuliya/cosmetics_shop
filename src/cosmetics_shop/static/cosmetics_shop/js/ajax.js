@@ -156,14 +156,27 @@ function updateItemCounter(productCode, quantity) {
     );
 
     if (!counter) return;
+    const row = counter.closest("tr");
+    const removeBtn = row?.querySelector(
+        `.js-cart-btn-remove[data-product-code="${productCode}"]`
+    );
 
-    if (quantity > 0) {
+    if (quantity > 1) {
         counter.textContent = quantity;
-    } else {
-        // если товара больше нет — можно скрыть строку
-        const row = counter.closest("tr");
-        if (row) row.remove();
-    }
+    // если раньше была выключена — включаем обратно
+        if (removeBtn) {
+            removeBtn.disabled = false;
+            removeBtn.classList.remove("disabled");
+        }
+        } else {
+            counter.textContent = 1;
+
+            // делаем кнопку "-" неактивной
+            if (removeBtn) {
+                removeBtn.disabled = true;
+                removeBtn.classList.add("disabled");
+            }
+        }
 }
 
 function updateTotalPrice(totalPrice) {
