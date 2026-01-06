@@ -1,9 +1,19 @@
 {% extends 'cosmetics_shop/base.html' %}
+{%  load static  %}
 {% load custom_filters %}
 
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
 <div class="container my-4">
     <h2 class="mb-4">Ваша корзина</h2>
 
@@ -56,13 +66,17 @@
                             </span>
                             </td>
                             <td>
-                                <form method="POST" action="{% url 'cart_delete' %}?next={{ request.get_full_path|urlencode }}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="product_code" value="{{ item.product.code }}">
-                                    <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
-                                </form>
+                            <button
+                                    onclick="openDeleteDialog({{ item.product.id }}, '{{ item.product.name }}')"
+                                    class="btn btn-sm btn-danger">
+                                Удалить
+                            </button>
+
                             </td>
                         </tr>
+
+
+
                     {% endfor %}
                 </tbody>
             </table>
@@ -84,4 +98,18 @@
     {% endif %}
 
 </div>
+
+<dialog id="deleteDialog">
+    <form
+        action="{%  url 'cart_delete' %}?next={{ request.get_full_path|urlencode }}"
+        method="POST">
+        {%  csrf_token  %}
+            <p id="deleteText"></p>
+            <input type="hidden" name="product_id" id="deleteId">
+            <button type="reset" onclick="document.getElementById('deleteDialog').close()" class="btn btn-secondary">Назад</button>
+            <button type="submit" class="btn btn-danger">Удалить</button>
+    </form>
+</dialog>
+
+<script src="{%  static 'staff/js/delete_dialog_script.js'  %}"></script>
 {% endblock %}

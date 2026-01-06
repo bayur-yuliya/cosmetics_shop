@@ -52,9 +52,9 @@ def remove_product_from_cart(request, product_code):
         pass
 
 
-def delete_product_from_cart(request, product_code):
+def delete_product_from_cart(request, product_id):
     cart = get_or_create_cart(request)
-    product = Product.objects.get(code=product_code)
+    product = Product.objects.get(id=product_id)
     CartItem.objects.filter(cart=cart, product=product).delete()
     messages.success(request, "Товар успешно удален")
 

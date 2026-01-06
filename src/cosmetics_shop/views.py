@@ -199,8 +199,8 @@ def order_success(request):
 
 @require_POST
 def cart_delete(request):
-    product_code = request.POST.get("product_code")
-    delete_product_from_cart(request, product_code)
+    product_id = request.POST.get("product_id")
+    delete_product_from_cart(request, product_id)
     next_url = request.GET.get("next", "/")
     return redirect(next_url)
 
