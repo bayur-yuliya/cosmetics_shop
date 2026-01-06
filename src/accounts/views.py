@@ -59,7 +59,12 @@ def user_contact(request):
             request.POST, instance=client, initial={"email": request.user.email}
         )
         if form.is_valid():
-            form.save()
+            if form.has_changed():
+                form.save()
+                messages.success(request, "Данные успешно обновлены")
+            else:
+                messages.info(request, "Изменений не обнаружено")
+
             return redirect("user_contact")
     form = ClientCreationForm(instance=client, initial={"email": request.user.email})
     return render(

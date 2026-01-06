@@ -193,7 +193,13 @@ function showMessage(message) {
     const container = document.getElementById("messages-container");
 
     const alert = document.createElement("div");
-    alert.className = `alert alert-${message.level === "error" ? "danger" : "success"} alert-dismissible fade show`;
+
+    const level =
+        message.level === "error" ? "danger" :
+        message.level === "warning" ? "warning" :
+        "success";
+
+    alert.className = `alert alert-${level} alert-dismissible fade show`;
     alert.role = "alert";
 
     alert.innerHTML = `
@@ -209,6 +215,11 @@ function showMessage(message) {
         alert.remove();
     }, 4000);
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    djangoMessages.forEach(message => showMessage(message));
+});
+
 
 function updateItemQuantity(productCode, quantity) {
     const el = document.querySelector(
@@ -272,3 +283,5 @@ document.querySelector("form[.product-filter-form]").addEventListener("submit", 
         history.pushState(null, "", `?${params.toString()}`);
     });
 });
+
+

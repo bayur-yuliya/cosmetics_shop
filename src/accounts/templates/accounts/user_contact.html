@@ -3,6 +3,7 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
+
 <div class="container my-4">
     <h2 class="mb-4">Контактная информация</h2>
 
@@ -17,15 +18,5 @@
             </button>
         </form>
     </div>
-
-    {% if messages %}
-        <ul class="messages mt-3">
-            {% for message in messages %}
-                <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>
-                    {{ message }}
-                </li>
-            {% endfor %}
-        </ul>
-    {% endif %}
 </div>
 {% endblock %}

@@ -6,16 +6,6 @@
 {% block content %}
 <div class="container my-4">
     <h2 class="mb-4">Заказ № {{ order.code }}</h2>
-
-    <!-- Сообщения -->
-    {% if messages %}
-        <ul class="messages mb-3">
-            {% for message in messages %}
-                <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-
     <!-- Товары заказа -->
     <h4>Товары</h4>
     {% if order_items %}

@@ -52,7 +52,9 @@ def add_to_cart(request, product_code):
 
         product_count = cart_items.filter(product__code=product_code).first()
 
-        total_price = sum(item.product.price * item.quantity for item in cart_items) / 100
+        total_price = (
+            sum(item.product.price * item.quantity for item in cart_items) / 100
+        )
 
         product_total_price = product_count.quantity * product_count.product.price / 100
 
@@ -63,15 +65,17 @@ def add_to_cart(request, product_code):
                 "text": "Это последний товар",
             }
 
-        return JsonResponse({
-            "success": True,
-            "count": count,
-            "product_count": product_count.quantity,
-            "total_price": float(total_price),
-            "product_total_price": product_total_price,
-            "product_code": product_code,
-            "message": message,
-        })
+        return JsonResponse(
+            {
+                "success": True,
+                "count": count,
+                "product_count": product_count.quantity,
+                "total_price": float(total_price),
+                "product_total_price": product_total_price,
+                "product_code": product_code,
+                "message": message,
+            }
+        )
 
     except Product.DoesNotExist:
         return JsonResponse({"success": False, "error": "Product not found"})
@@ -96,11 +100,13 @@ def cart_remove(request, product_code):
 
     product_total_price = product_count.quantity * product_count.product.price / 100
 
-    return JsonResponse({
-        "success": True,
-        "count": count,
-        "product_count": product_count.quantity,
-        "product_total_price": product_total_price,
-        "total_price": float(total_price),
-        "product_code": product_code,
-    })
+    return JsonResponse(
+        {
+            "success": True,
+            "count": count,
+            "product_count": product_count.quantity,
+            "product_total_price": product_total_price,
+            "total_price": float(total_price),
+            "product_code": product_code,
+        }
+    )
