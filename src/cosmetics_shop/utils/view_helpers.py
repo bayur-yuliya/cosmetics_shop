@@ -1,6 +1,6 @@
 from django.core.paginator import Paginator
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 
 from cosmetics_shop.forms import ProductFilterForm
@@ -18,10 +18,22 @@ def processing_product_page(
     hide_group_field=False,
     hide_brands_field=False,
 ):
+
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+
     query_params = request.GET.copy()
-    for key in list(query_params.keys()):
-        if not query_params[key].strip():
+    for key, value in list(query_params.items()):
+        if value in ("", "None", None):
             query_params.pop(key)
+
+    clean_url = (
+        f"{request.path}?{query_params.urlencode()}"
+        if query_params else request.path
+    )
+
+    if clean_url != request.get_full_path():
+        if not is_ajax:
+            return redirect(clean_url)
 
     product_filter = ProductFilter(request, products)
     form = ProductFilterForm(request.GET or None)

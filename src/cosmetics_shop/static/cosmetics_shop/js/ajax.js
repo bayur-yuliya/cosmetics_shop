@@ -39,6 +39,7 @@ document.addEventListener("click", function (e) {
             } else {
                 button.innerHTML = "♡";
                 button.dataset.inFavorites = "0";
+                showMessage(data.message);
             }
         }
     })
@@ -285,7 +286,14 @@ document.addEventListener("submit", function (e) {
         e.preventDefault();
 
         const form = document.querySelector("#product-filter-form");
-        const params = new URLSearchParams(new FormData(form));
+        const formData = new FormData(form);
+        // Удаляем пустые значения
+        for (const [key, value] of formData.entries()) {
+            if (value === "") {
+                formData.delete(key);
+            }
+        }
+        const params = new URLSearchParams(formData);
 
         fetch(`?${params.toString()}`, {
             headers: {
@@ -295,7 +303,9 @@ document.addEventListener("submit", function (e) {
         .then(res => res.json())
         .then(data => {
             document.getElementById("products-container").innerHTML = data.html;
-            history.pushState(null, "", `?${params.toString()}`);
+            if (data.url) {
+                history.pushState(null, "", data.url);
+            }
         });
     }
 });

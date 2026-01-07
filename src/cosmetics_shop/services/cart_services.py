@@ -66,7 +66,8 @@ def delete_cart(request):
 def calculate_cart_total(cart):
     return sum(item.product.price * item.quantity for item in cart.cartitem_set.all()) / 100
 
-def calculate_product_total_price(product_code):
+
+def calculate_product_total_price(cart_items, product_code):
     product_count = cart_items.filter(product__code=product_code).first()
     return product_count.quantity * product_count.product.price / 100
 

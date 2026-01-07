@@ -1,4 +1,3 @@
-from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
@@ -12,22 +11,29 @@ from cosmetics_shop.services.cart_services import (
 )
 
 
-@login_required
 @require_POST
 def toggle_favorite(request):
     product_id = request.POST.get("product_id")
     product = get_object_or_404(Product, id=product_id)
+    message = None
+    if request.user.is_authenticated:
 
-    favorite = Favorite.objects.filter(user=request.user, product=product)
+        favorite = Favorite.objects.filter(user=request.user, product=product)
 
-    if favorite.exists():
-        favorite.delete()
-        in_favorites = False
+        if favorite.exists():
+            favorite.delete()
+            in_favorites = False
+        else:
+            Favorite.objects.get_or_create(user=request.user, product=product)
+            in_favorites = True
     else:
-        Favorite.objects.get_or_create(user=request.user, product=product)
-        in_favorites = True
+        message = {
+            "level": "warning",
+            "text": "Требуется зарегистрироваться для добавления товара в избранное"
+        }
+        in_favorites = False
 
-    return JsonResponse({"in_favorites": in_favorites})
+    return JsonResponse({"in_favorites": in_favorites, "message": message})
 
 
 @require_POST

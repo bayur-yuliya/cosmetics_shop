@@ -19,7 +19,12 @@
 </button>
 
 
-{%  if product.stock %}
+{%  if product.id in cart_products %}
+<button class="btn btn-sm mt-2  btn-primary disabled"
+        data-product-code="{{  product.code  }}">В корзинe
+</button>
+<br>
+{%  elif product.stock %}
 <button class="btn btn-success btn-sm mt-2 js-cart-btn-list"
         data-product-code="{{  product.code  }}">В корзину
 </button>
