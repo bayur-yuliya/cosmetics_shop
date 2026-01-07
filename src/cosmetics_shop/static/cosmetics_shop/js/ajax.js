@@ -12,39 +12,73 @@ function getCookie(name) {
     }
     return cookieValue;
 }
-document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".favorite-btn").forEach(button => {
-        // Удаляем старый обработчик событий и добавляем новый
-        button.addEventListener("click", () => {
-            const productId = button.dataset.productId;
-            const isFavorite = button.dataset.inFavorites === "1";
-            const url = isFavorite
-                ? `/ajax/favorites/delete/${productId}/`
-                : `/ajax/favorites/add/${productId}/`;
 
-            fetch(url, {
-                method: "POST",
-                headers: {
-                    "X-CSRFToken": getCookie("csrftoken"),
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.in_favorites !== undefined) {
-                    // Обновляем иконку и состояние
-                    if (data.in_favorites) {
-                        button.innerHTML = "♥";
-                        button.dataset.inFavorites = "1";
-                    } else {
-                        button.innerHTML = "♡";
-                        button.dataset.inFavorites = "0";
-                    }
-                }
-            })
-            .catch(error => {
-                console.error("Ошибка:", error);
-            });
-        });
+document.addEventListener("click", function (e) {
+    const button = e.target.closest(".favorite-btn");
+    if (!button) return;
+
+    const productId = button.dataset.productId;
+    const isFavorite = button.dataset.inFavorites === "1";
+    const url = isFavorite
+        ? `/ajax/favorites/delete/${productId}/`
+        : `/ajax/favorites/add/${productId}/`;
+
+
+    fetch(url, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.in_favorites !== undefined) {
+            // Обновляем иконку и состояние
+            if (data.in_favorites) {
+                button.innerHTML = "♥";
+                button.dataset.inFavorites = "1";
+            } else {
+                button.innerHTML = "♡";
+                button.dataset.inFavorites = "0";
+            }
+        }
+    })
+    .catch(error => {
+        console.error("Ошибка:", error);
+    });
+});
+
+document.addEventListener("click", function (e) {
+    const button = e.target.closest(".js-cart-btn-list");
+    if (!button) return;
+
+    const productCode = button.dataset.productCode;
+
+    fetch(`/ajax/cart/add/${productCode}/`, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({})
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Обновляем счетчик значением:', data.count);
+
+            button.textContent = "В корзине";
+            button.classList.remove("btn-success");
+            button.classList.add("btn-primary");
+            button.disabled = true;
+            button.classList.remove("js-cart-btn");
+
+            updateCartCounter(data.count);
+            updateItemCounter(data.product_code, data.product_count);
+            updateItemTotal(data.product_code, data.product_total_price);
+            updateTotalPrice(data.total_price);
+            showMessage(data.message);
+        }
     });
 });
 
@@ -70,6 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(data => {
                 if (data.success) {
                     console.log('Обновляем счетчик значением:', data.count);
+
                     updateCartCounter(data.count);
                     updateItemCounter(data.product_code, data.product_count);
                     updateItemTotal(data.product_code, data.product_total_price);
@@ -80,7 +115,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 });
-
 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -266,7 +300,7 @@ document.addEventListener("click", function (e) {
 });
 
 // Filter panel
-document.querySelector("form[.product-filter-form]").addEventListener("submit", function (e) {
+document.querySelector("#product-filter-form-id").addEventListener("submit", function (e) {
     e.preventDefault();
 
     const form = this;

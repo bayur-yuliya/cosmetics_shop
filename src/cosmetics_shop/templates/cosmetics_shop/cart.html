@@ -98,7 +98,9 @@
                 <a href="{% url 'delivery' %}" class="btn btn-success">Оформить заказ</a>
             </div>
         </div>
-
+        <div>
+            <a href="{%  url 'clean_cart'  %}" class="btn btn-danger">Очистить корзину</a>
+        </div>
     {% else %}
         <div class="alert alert-info">
             Корзина пуста

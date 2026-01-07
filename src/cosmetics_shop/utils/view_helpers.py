@@ -4,7 +4,8 @@ from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 
 from cosmetics_shop.forms import ProductFilterForm
-from cosmetics_shop.services.categories_services import context_categories
+from cosmetics_shop.models import CartItem
+from cosmetics_shop.services.cart_services import get_or_create_cart
 from cosmetics_shop.utils.product_filter import ProductFilter
 
 
@@ -28,6 +29,13 @@ def processing_product_page(
     if form.is_valid():
         products = product_filter.apply_filters(form)
 
+    cart = get_or_create_cart(request)
+    cart_products = set()
+    if cart:
+        cart_products = set(
+            CartItem.objects.filter(cart=cart)
+            .values_list("product_id", flat=True)
+        )
     products = product_filter.apply_sorting()
 
     paginator = Paginator(products, 20)
@@ -43,6 +51,7 @@ def processing_product_page(
         "current_direction": product_filter.current_direction,
         "hide_brands_field": hide_brands_field,
         "hide_group_field": hide_group_field,
+        "cart_products": cart_products,
     }
 
     if request.headers.get("x-requested-with") == "XMLHttpRequest":

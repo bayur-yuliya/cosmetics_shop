@@ -59,6 +59,12 @@ def delete_product_from_cart(request, product_id):
     messages.success(request, "Товар успешно удален")
 
 
+def delete_cart(request):
+    cart = get_or_create_cart(request)
+    CartItem.objects.filter(cart=cart).delete()
+    messages.success(request, "Корзина очищена")
+
+
 def calculate_cart_total(user):
     cart = get_or_create_cart(user)
     return sum(item.product.price * item.quantity for item in cart.cartitem_set.all())
