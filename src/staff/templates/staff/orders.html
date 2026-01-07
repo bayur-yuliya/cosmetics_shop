@@ -49,8 +49,7 @@
                         <td>{{ order.order.user.get_full_name }}</td>
                         <td>{{ order.order.total_price|number_format }} грн</td>
                         <td>
-                            <span class="badge
-                                {% if order.status == 'new' %}bg-primary{% elif order.status == 'processing' %}bg-warning{% elif order.status == 'completed' %}bg-success{% elif order.status == 'cancelled' %}bg-danger{% else %}bg-secondary{% endif %}">
+                            <span class="badge bg-{{  order.status_badge_class  }}">
                                 {{ order.get_status_display }}
                             </span>
                         </td>

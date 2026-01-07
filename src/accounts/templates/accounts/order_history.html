@@ -18,7 +18,7 @@
                             {{ order.order.created_at }}
                         </small>
                     </div>
-                    <span class="badge bg-secondary">
+                    <span class="badge bg-{{  order.status_badge_class  }}">
                         {{ order.status }}
                     </span>
                 </div>

@@ -17,6 +17,16 @@ class Status(models.IntegerChoices):
     CLOSED = 5, "Closed"
     CANCELED = 6, "Canceled"
 
+    @classmethod
+    def badge_class(cls, status):
+        return {cls.NEW: "info",
+                cls.PAYMENT_RECEIVED: "primary",
+                cls.PAYMENT_FAILED: "warning",
+                cls.IN_PROGRESS: "info",
+                cls.COMPLETED: "success",
+                cls.CLOSED: "warning",
+                cls.CANCELED: "danger"}.get(status)
+
 
 class ProductQuerySet(models.QuerySet):
     def with_stock_order(self):
@@ -220,6 +230,9 @@ class OrderStatusLog(models.Model):
 
     def __str__(self):
         return f"{self.get_status_display()}"
+
+    def status_badge_class(self):
+        return Status.badge_class(self.status)
 
     class Meta:
         ordering = ["-changed_at"]

@@ -106,6 +106,7 @@ def order_history(request):
         dictt["item"] = []
         items = OrderItem.objects.filter(order=order.id)
         dictt["status"] = OrderStatusLog.objects.filter(order=order)[0]
+        dictt["status_badge_class"] = OrderStatusLog.objects.filter(order=order)[0].status_badge_class()
         if items.count() > 1:
             for item in items:
                 dictt["order"] = order
