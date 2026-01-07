@@ -1,6 +1,6 @@
 from django.core.paginator import Paginator
 from django.http import JsonResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import render
 from django.template.loader import render_to_string
 
 from cosmetics_shop.forms import ProductFilterForm

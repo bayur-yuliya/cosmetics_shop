@@ -19,16 +19,15 @@ document.addEventListener("click", function (e) {
 
     const productId = button.dataset.productId;
     const isFavorite = button.dataset.inFavorites === "1";
-    const url = isFavorite
-        ? `/ajax/favorites/delete/${productId}/`
-        : `/ajax/favorites/add/${productId}/`;
+    const formData = new FormData();
+    formData.append('product_id', productId);
 
-
-    fetch(url, {
+    fetch(`/ajax/favorites/`, {
         method: "POST",
         headers: {
             "X-CSRFToken": getCookie("csrftoken"),
-        }
+        },
+        body: formData,
     })
     .then(res => res.json())
     .then(data => {
@@ -53,20 +52,19 @@ document.addEventListener("click", function (e) {
     if (!button) return;
 
     const productCode = button.dataset.productCode;
+    const formData = new FormData();
+    formData.append("product_code", productCode);
 
-    fetch(`/ajax/cart/add/${productCode}/`, {
+    fetch(`/ajax/cart/add/`, {
         method: "POST",
         headers: {
             "X-CSRFToken": getCookie("csrftoken"),
-            "Content-Type": "application/json",
         },
-        body: JSON.stringify({})
+        body: formData,
     })
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            console.log('Обновляем счетчик значением:', data.count);
-
             button.textContent = "В корзине";
             button.classList.remove("btn-success");
             button.classList.add("btn-primary");
@@ -86,14 +84,15 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".js-cart-btn").forEach(button => {
         button.addEventListener("click", () => {
             const productCode = button.dataset.productCode;
+            const formData = new FormData();
+            formData.append("product_code", productCode);
 
-            fetch(`/ajax/cart/add/${productCode}/`, {
+            fetch(`/ajax/cart/add/`, {
                 method:"POST",
                 headers: {
                     "X-CSRFToken": getCookie("csrftoken"),
-                    "Content-Type": "application/json",
                 },
-                body: JSON.stringify({})
+                body: formData,
             })
             .then(res => {
                 if (!res.ok) {
@@ -103,8 +102,6 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .then(data => {
                 if (data.success) {
-                    console.log('Обновляем счетчик значением:', data.count);
-
                     updateCartCounter(data.count);
                     updateItemCounter(data.product_code, data.product_count);
                     updateItemTotal(data.product_code, data.product_total_price);
@@ -121,14 +118,15 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".js-cart-btn-remove").forEach(button => {
         button.addEventListener("click", () => {
             const productCode = button.dataset.productCode;
+            const formData = new FormData();
+            formData.append("product_code", productCode)
 
-            fetch(`/ajax/cart/remove/${productCode}/`, {
+            fetch(`/ajax/cart/remove/`, {
                 method:"POST",
                 headers: {
                     "X-CSRFToken": getCookie("csrftoken"),
-                    "Content-Type": "application/json",
                 },
-                body: JSON.stringify({})
+                body: formData,
             })
 
             .then(res => {
@@ -139,8 +137,6 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .then(data => {
                 if (data.success) {
-                    console.log('Товар уменьшен в количестве в корзине');
-                    console.log('Обновляем счетчик значением:', data.count);
                     updateItemCounter(data.product_code, data.product_count);
                     updateItemTotal(data.product_code, data.product_total_price);
                     updateCartCounter(data.count);
@@ -154,33 +150,11 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // Функция для показа уведомления (опционально)
-// Модифицированная функция
 function updateCartCounter(count) {
-    console.log('Обновление счетчика:', count); // Для отладки
-
-    // Способ 1: Если есть элемент с классом cart-counter
+    // Если есть элемент с классом cart-counter
     const cartCounterElements = document.querySelectorAll('.cart-counter');
     cartCounterElements.forEach(element => {
         element.textContent = count > 0 ? `(${count})` : '';
-    });
-
-    // Способ 2: Ищем ссылку на корзину и обновляем её текст
-    const cartLinks = document.querySelectorAll('a[href*="cart"]');
-    cartLinks.forEach(link => {
-        // Сохраняем базовый текст (без числа в скобках)
-        const baseText = link.textContent.replace(/\(\d+\)/g, '').trim();
-        link.textContent = count > 0 ?
-            `${baseText} (${count})` :
-            baseText;
-    });
-
-    // Способ 3: Если в шаблоне используется контекстный процессор
-    const cartButtons = document.querySelectorAll('.nav-item a[href*="cart"]');
-    cartButtons.forEach(button => {
-        const baseHtml = button.innerHTML.replace(/\(\d+\)/g, '');
-        button.innerHTML = count > 0 ?
-            `${baseHtml.trim()} (${count})` :
-            baseHtml.trim();
     });
 }
 
@@ -217,7 +191,12 @@ function updateTotalPrice(totalPrice) {
     const totalElement = document.getElementById("cart-total");
     if (!totalElement) return;
 
-    totalElement.textContent = `Итого: ${totalPrice} грн`;
+    const formatted = new Intl.NumberFormat('uk-UA', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(totalPrice);
+
+    totalElement.textContent = `Итого: ${formatted} грн`;
 }
 
 
@@ -300,22 +279,23 @@ document.addEventListener("click", function (e) {
 });
 
 // Filter panel
-document.querySelector("#product-filter-form-id").addEventListener("submit", function (e) {
-    e.preventDefault();
+document.addEventListener("submit", function (e) {
+    if (e.target && e.target.id === "product-filter-form") {
 
-    const form = this;
-    const params = new URLSearchParams(new FormData(form));
+        e.preventDefault();
 
-    fetch(`?${params.toString()}`, {
-        headers: {
-            "X-Requested-With": "XMLHttpRequest",
-        },
-    })
-    .then(res => res.json())
-    .then(data => {
-        document.getElementById("products-container").innerHTML = data.html;
-        history.pushState(null, "", `?${params.toString()}`);
-    });
+        const form = document.querySelector("#product-filter-form");
+        const params = new URLSearchParams(new FormData(form));
+
+        fetch(`?${params.toString()}`, {
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+            },
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("products-container").innerHTML = data.html;
+            history.pushState(null, "", `?${params.toString()}`);
+        });
+    }
 });
-
-

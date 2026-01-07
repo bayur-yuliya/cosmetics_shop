@@ -206,8 +206,7 @@ def clean_cart(request):
 def cart_delete(request):
     product_id = request.POST.get("product_id")
     delete_product_from_cart(request, product_id)
-    next_url = request.GET.get("next", "/")
-    return redirect(next_url)
+    return redirect("cart")
 
 
 @cart_required

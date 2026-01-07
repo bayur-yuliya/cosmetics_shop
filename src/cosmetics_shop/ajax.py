@@ -8,13 +8,14 @@ from cosmetics_shop.services.cart_services import (
     add_product_to_cart,
     get_or_create_cart_for_session,
     get_or_create_cart,
-    remove_product_from_cart,
+    remove_product_from_cart, calculate_cart_total,
 )
 
 
 @login_required
 @require_POST
-def toggle_favorite(request, product_id):
+def toggle_favorite(request):
+    product_id = request.POST.get("product_id")
     product = get_object_or_404(Product, id=product_id)
 
     favorite = Favorite.objects.filter(user=request.user, product=product)
@@ -30,14 +31,16 @@ def toggle_favorite(request, product_id):
 
 
 @require_POST
-def add_to_cart(request, product_code):
+def add_to_cart(request):
     try:
+        product_code = request.POST.get("product_code")
+
         if not product_code:
             return JsonResponse({"success": False, "error": "No product code"})
 
         if request.user.is_authenticated:
-            add_product_to_cart(request, product_code=product_code)
             cart = get_or_create_cart(request)
+            add_product_to_cart(cart, product_code=product_code)
         else:
             cart = get_or_create_cart_for_session(request)
             product = Product.objects.get(code=product_code)
@@ -52,9 +55,7 @@ def add_to_cart(request, product_code):
 
         product_count = cart_items.filter(product__code=product_code).first()
 
-        total_price = (
-            sum(item.product.price * item.quantity for item in cart_items) / 100
-        )
+        total_price = calculate_cart_total(cart)
 
         product_total_price = product_count.quantity * product_count.product.price / 100
 
@@ -84,19 +85,21 @@ def add_to_cart(request, product_code):
 
 
 @require_POST
-def cart_remove(request, product_code):
-    remove_product_from_cart(request, product_code)
+def cart_remove(request):
+    product_code = request.POST.get("product_code")
 
     if request.user.is_authenticated:
         cart = get_or_create_cart(request)
     else:
         cart = get_or_create_cart_for_session(request)
 
+    remove_product_from_cart(cart, product_code)
+
     cart_items = CartItem.objects.select_related("product").filter(cart=cart)
     count = sum(item.quantity for item in cart_items)
 
     product_count = cart_items.filter(product__code=product_code).first()
-    total_price = sum(item.product.price * item.quantity for item in cart_items) / 100
+    total_price = calculate_cart_total(cart)
 
     product_total_price = product_count.quantity * product_count.product.price / 100
 

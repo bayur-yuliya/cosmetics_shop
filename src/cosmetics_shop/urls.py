@@ -4,21 +4,16 @@ from . import views, ajax
 urlpatterns = [
     # ajax
     path(
-        "ajax/favorites/add/<int:product_id>/",
+        "ajax/favorites/",
         ajax.toggle_favorite,
-        name="ajax_add_to_favorites",
-    ),
-    path(
-        "ajax/favorites/delete/<int:product_id>/",
-        ajax.toggle_favorite,
-        name="ajax_remove_to_favorites",
+        name="ajax_toggle_favorites",
     ),
     # ajax cart
     path(
-        "ajax/cart/add/<int:product_code>/", ajax.add_to_cart, name="ajax_add_to_cart"
+        "ajax/cart/add/", ajax.add_to_cart, name="ajax_add_to_cart"
     ),
     path(
-        "ajax/cart/remove/<int:product_code>/",
+        "ajax/cart/remove/",
         ajax.cart_remove,
         name="ajax_cart_remove",
     ),
@@ -36,7 +31,7 @@ urlpatterns = [
     path("cart/clean/", views.clean_cart, name="clean_cart"),
     path("cart/", views.cart, name="cart"),
     # order
-    path("order_success/", views.order_success, name="order_success"),
+    path("order/success/", views.order_success, name="order_success"),
     path("order/<int:address_id>", views.create_order, name="order"),
     path("delivery/", views.delivery, name="delivery"),
     path(
