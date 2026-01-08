@@ -6,6 +6,7 @@ from django.template.loader import render_to_string
 from cosmetics_shop.forms import ProductFilterForm
 from cosmetics_shop.models import CartItem
 from cosmetics_shop.services.cart_services import get_or_create_cart, get_id_products_in_cart
+from cosmetics_shop.services.categories_services import context_categories
 from cosmetics_shop.utils.product_filter import ProductFilter
 
 
@@ -43,12 +44,13 @@ def processing_product_page(
     paginator = Paginator(products, 20)
     page_number = request.GET.get("page")
     products = paginator.get_page(page_number)
-
+    categories = context_categories()
     context = {
         "title": title,
         "products": products,
         "form": form,
         "product_filter": product_filter,
+        "context_categories": categories,
         "current_sort": product_filter.current_sort,
         "current_direction": product_filter.current_direction,
         "hide_brands_field": hide_brands_field,

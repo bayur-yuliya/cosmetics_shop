@@ -3,43 +3,8 @@
 {%  block title  %}{{  title  }}{%  endblock  %}
 
 {%  block content  %}
-<!-- КОНТЕЙНЕР МЕНЮ -->
-<div class="categories-menu">
 
-    <!-- СТРОКА КАТЕГОРИЙ -->
-    <ul class="category-list">
-        {% for item in context_categories %}
-            <li class="category-item"
-                data-category="{{ item.category.id }}">
-                <a href="{% url 'category_page' item.category.id %}"
-                   class="category-link">
-                    {{ item.category.name }}
-                </a>
-            </li>
-        {% endfor %}
-    </ul>
-
-    <!-- ВСПЛЫВАЮЩИЕ ПОДКАТЕГОРИИ -->
-    {% for item in context_categories %}
-        {% if item.groups %}
-            <div class="submenu-full"
-                 data-submenu="{{ item.category.id }}">
-                <div class="submenu-inner">
-                    <ul class="subcategories">
-                        {% for group in item.groups %}
-                            <li>
-                                <a href="{% url 'group_page' group.id %}">
-                                    {{ group.name }}
-                                </a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        {% endif %}
-    {% endfor %}
-
-</div>
+{% include 'cosmetics_shop/includes/categories_menu.html' %}
 
 <div align="center"><h2>{{  title  }}</h2></div>
 <hr>

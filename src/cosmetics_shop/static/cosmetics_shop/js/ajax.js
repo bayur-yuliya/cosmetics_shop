@@ -266,12 +266,21 @@ document.addEventListener("click", function (e) {
     e.preventDefault();
 
     const currentParams = new URLSearchParams(window.location.search);
-    const linkParams = new URLSearchParams(link.search);
 
-    // перезаписываем только sort и direction
-    linkParams.forEach((value, key) => {
-        currentParams.set(key, value);
-    });
+    if (link.classList.contains("reset")) {
+        currentParams.delete("sort");
+        currentParams.delete("direction");
+    } else {
+        // обычная сортировка
+        // перезаписываем только sort и direction
+        const linkParams = new URLSearchParams(link.search);
+        linkParams.forEach((value, key) => {
+            if (key === "sort" || key === "direction") {
+                currentParams.delete(key); // удаляем старое
+                currentParams.append(key, value); // добавляем новое
+            }
+        });
+    };
 
     fetch(`?${currentParams.toString()}`, {
         headers: {

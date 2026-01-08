@@ -46,15 +46,10 @@ def add_to_cart(request):
 
         if request.user.is_authenticated:
             cart = get_or_create_cart(request)
-            add_product_to_cart(cart, product_code=product_code)
         else:
             cart = get_or_create_cart_for_session(request)
-            product = Product.objects.get(code=product_code)
 
-            item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-
-            item.quantity += 1
-            item.save()
+        add_product_to_cart(cart, product_code=product_code)
 
         cart_items = CartItem.objects.select_related("product").filter(cart=cart)
         count = sum(item.quantity for item in cart_items)
