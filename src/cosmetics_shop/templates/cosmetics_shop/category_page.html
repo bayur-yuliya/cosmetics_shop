@@ -48,7 +48,7 @@
         <div class="col-md-3">
             <div class="filters p-3 border rounded">
                 <h5>Фильтры</h5>
-                <form method="get">
+                <form id="product-filter-form" method="get">
                     {{ form.name.label_tag }}{{ form.name }}<br>
 
                     {% if not hide_group_field %}
@@ -64,10 +64,7 @@
                     {{ form.min_price.label_tag }}{{ form.min_price }}<br>
 
                     {{ form.max_price.label_tag }}{{ form.max_price }}<br>
-
-                    <input type="hidden" name="sort" value="{{ current_sort }}">
-                    <input type="hidden" name="direction" value="{{ current_direction }}">
-                    <button type="submit" class="btn btn-primary btn-sm mt-2">Применить</button>
+                    <button class="btn btn-primary btn-sm mt-2 filter-form-submit">Применить</button>
                 </form>
             </div>
         </div>

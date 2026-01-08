@@ -290,11 +290,28 @@ document.addEventListener("submit", function (e) {
     if (e.target && e.target.id === "product-filter-form") {
 
         e.preventDefault();
+        const form = e.target;
 
-        const form = document.querySelector("#product-filter-form");
+        // 1. текущие параметры из URL (там уже есть sort/direction)
+        const params = new URLSearchParams(window.location.search);
+
+        // 2. данные формы ПЕРЕЗАПИСЫВАЮТ фильтры
         const formData = new FormData(form);
 
-        const params = new URLSearchParams(formData);
+        //удалить старые значения полей формы
+        for (const key of new Set([...formData.keys()])) {
+            params.delete(key);
+        }
+        formData.forEach((value, key) => {
+            if (value === "") {
+                params.delete(key);
+            } else {
+                params.append(key, value);
+            }
+        });
+
+        // 3. сбрасываем страницу (важно)
+        params.delete("page");
 
         fetch(`?${params.toString()}`, {
             headers: {

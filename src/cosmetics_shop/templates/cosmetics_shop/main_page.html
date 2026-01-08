@@ -48,8 +48,6 @@
                 <h5>Фильтры</h5>
                 <form id="product-filter-form" method="get">
                     {{ form.as_p }}
-                    <input type="hidden" name="sort" value="{{ current_sort }}">
-                    <input type="hidden" name="direction" value="{{ current_direction }}">
                     <button class="btn btn-primary btn-sm mt-2 filter-form-submit">Применить</button>
                 </form>
             </div>
