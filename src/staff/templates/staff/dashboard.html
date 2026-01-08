@@ -1,39 +1,83 @@
-{%  extends 'staff/base.html'  %}
-{%  load custom_filters  %}
-{%  load static  %}
+{% extends 'staff/base.html' %}
+{% load custom_filters %}
+{% load static %}
 
-{%  block title  %}{{  title  }}{%  endblock  %}
+{% block title %}{{ title }}{% endblock %}
 
-{%  block content  %}
+{% block content %}
+<div class="container my-4">
+    <h2 class="mb-4">Дашборд магазина</h2>
 
-
-<label for="yearSelect">Выберите год:</label>
-<select id="yearSelect">
-  {% for y in years %}
-    <option value="{{ y }}" {% if y == current_year %}selected{% endif %}>{{ y }}</option>
-  {% endfor %}
-</select>
-
-<div style="display: flex;">
-    <div style="width: 450px; height: 250 px;">
-        <h3>Продажи за год</h3>
-        <canvas id="salesChart"></canvas>
+    <!-- Выбор года -->
+    <div class="mb-4">
+        <label for="yearSelect" class="form-label">Выберите год:</label>
+        <select id="yearSelect" class="form-select w-auto">
+            {% for y in years %}
+                <option value="{{ y }}" {% if y == current_year %}selected{% endif %}>{{ y }}</option>
+            {% endfor %}
+        </select>
     </div>
-    <div style="width: 450px; height: 250 px;">
-        <h3>Средний чек</h3>
-        <canvas id="averageBillChart"></canvas>
+
+    <!-- Графики -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card p-3 mb-3">
+                <h5>Продажи за год</h5>
+                <canvas id="salesChart" style="height:250px;"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-3 mb-3">
+                <h5>Средний чек</h5>
+                <canvas id="averageBillChart" style="height:250px;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основная статистика -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center p-3">
+                <h6>Заказы сегодня</h6>
+                <span class="fs-4">{{ number_of_orders_today }}</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center p-3">
+                <h6>Заказы за месяц</h6>
+                <span class="fs-4">{{ number_of_orders_per_month }}</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center p-3">
+                <h6>Общая сумма</h6>
+                <span class="fs-5">{{ summ_bill|number_format }} грн</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center p-3">
+                <h6>Средний чек</h6>
+                <span class="fs-5">{{ average_bill|number_format }} грн</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Популярные товары -->
+    <div class="card p-3 mb-4">
+        <h5>Самые популярные товары</h5>
+        {% if max_favorite %}
+            <ul class="list-group list-group-flush">
+                {% for favorite in max_favorite %}
+                    <li class="list-group-item">{{ favorite.product }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="alert alert-info">Нет данных о популярных товарах</div>
+        {% endif %}
     </div>
 </div>
-<hr>
-Количество заказов сегодня - {{  number_of_orders_today  }} <br>
-Количество заказов за месяц - {{  number_of_orders_per_month  }} <br>
-Общая сумма за заказы - {{  summ_bill|number_format  }} <br>
-Средний чек - {{  average_bill|number_format   }} <br>
-Самые популярные товары -
-{%  for favorite in max_favorite  %}
-    <li>{{  favorite.product  }}</li>
-{%  endfor  %}
 
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="{%  static 'staff/js/dashboard.js'  %}"></script>
-{%  endblock  %}
+<script src="{% static 'staff/js/dashboard.js' %}"></script>
+{% endblock %}

@@ -1,30 +1,74 @@
-{%  extends 'accounts/base.html'  %}
+{% extends 'accounts/base.html' %}
+{% load custom_filters %}
 
-{%  block title  %}{{  title  }}{%  endblock  %}
+{% block title %}{{ title }}{% endblock %}
 
-{%  block content  %}
-<h1>Избранное</h1>
-{%  if products  %}
-{%  for product in products %}
-    {%  include 'cosmetics_shop/includes/product.html' with product=product.product  %}
-{%  endfor  %}
-{%  else  %}
-Пока нет избранного <br>
-{%  endif  %}
-<div class="pagination">
-    {%  if products.paginator.num_pages > 1  %}
-        {% if products.has_previous %}
-            <a href="?page=1">first</a>
-            <a href="?page={{ products.previous_page_number }}">previous</a>
-        {% endif %}
+{% block content %}
+<h3 class="mb-4">Избранное</h3>
 
-        Page {{ products.number }} of {{ products.paginator.num_pages }}.
+{% if products %}
+<table class="table table-bordered align-middle">
+    <thead class="table-light">
+        <tr>
+            <th>Фото</th>
+            <th>Название</th>
+            <th>Цена</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in products %}
+        <tr>
+            <td width="80">
+                <img src="{{ item.product.image.url }}" width="60">
+            </td>
+            <td>
+                <a href="{% url 'product_page' item.product.code %}">
+                    {{ item.product.name }}
+                </a>
+            </td>
+            <td>
+                {{ item.product.price|number_format }} грн
+            </td>
+            <td width="120">
+                <a href="{% url 'remove_from_favorites' item.product.id %}"
+                   class="btn btn-sm btn-outline-danger">
+                    Удалить
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
-        {% if products.has_next %}
-            <a href="?page={{ products.next_page_number }}">next</a>
-            <a href="?page={{ products.paginator.num_pages }}">last</a>
-        {% endif %}
+<!-- Пагинация как в корзине -->
+{% if products.paginator.num_pages > 1 %}
+<div class="d-flex justify-content-center mt-3">
+    {% if products.has_previous %}
+        <a href="?page={{ products.previous_page_number }}" class="btn btn-outline-secondary btn-sm me-2">
+            ← Назад
+        </a>
+    {% endif %}
+
+    <span class="align-self-center">
+        {{ products.number }} / {{ products.paginator.num_pages }}
+    </span>
+
+    {% if products.has_next %}
+        <a href="?page={{ products.next_page_number }}" class="btn btn-outline-secondary btn-sm ms-2">
+            Вперёд →
+        </a>
     {% endif %}
 </div>
-<a href="{%  url 'user_contact'  %}"><button>Назад</button></a>
-{%  endblock%}
+{% endif %}
+
+{% else %}
+<div class="alert alert-info">
+    В избранном пока нет товаров.
+</div>
+{% endif %}
+
+<a href="{% url 'user_contact' %}" class="btn btn-outline-secondary mt-3">
+    ←
+</a>
+{% endblock %}

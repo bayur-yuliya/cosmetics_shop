@@ -1,24 +1,44 @@
-{%  load static  %}
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{%  block title  %}{%  endblock  %}</title>
-    <link type="text/css" rel="stylesheet" href="{%  static 'staff/css/styles.css'  %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="{% static 'staff/css/styles.css' %}">
 </head>
 <body>
-<a href="{%  url 'products'  %}"><button>Список товаров</button></a>
-<a href="{%  url 'create_products'  %}"><button>Создать новый товар</button></a>
-<a href="{%  url 'orders'  %}"><button>Список заказов</button></a>
-<a href="{%  url 'index'  %}"><button>Дашборд</button></a>
-<div>
-<a href="{%  url 'categories_list'  %}"><button>Категории</button></a>
-<a href="{%  url 'tags_list'  %}"><button>Теги</button></a>
-<a href="{%  url 'brands_list'  %}"><button>Брэнд</button></a>
-<a href="{%  url 'groups_list'  %}"><button>Группы</button></a>
+
+<div class="container my-4">
+    <h2 class="mb-4">Панель сотрудника</h2>
+    <!-- Основные действия -->
+    <div class="mb-2">
+        <a href="{% url 'products' %}" class="btn btn-outline-primary me-2 mb-2">Список товаров</a>
+        <a href="{% url 'create_products' %}" class="btn btn-success me-2 mb-2">Создать новый товар</a>
+        <a href="{% url 'orders' %}" class="btn btn-outline-secondary me-2 mb-2">Список заказов</a>
+        <a href="{% url 'index' %}" class="btn btn-outline-info me-2 mb-2">Дашборд</a>
+    </div>
+
+    <!-- Справочные разделы -->
+    <div class="mb-1">
+        <a href="{% url 'categories_list' %}" class="btn btn-outline-primary me-2 mb-2">Категории</a>
+        <a href="{% url 'tags_list' %}" class="btn btn-outline-primary me-2 mb-2">Теги</a>
+        <a href="{% url 'brands_list' %}" class="btn btn-outline-primary me-2 mb-2">Брэнд</a>
+        <a href="{% url 'groups_list' %}" class="btn btn-outline-primary me-2 mb-2">Группы</a>
+    </div>
+
+    <hr>
+
+    <!-- Контент страниц -->
+    <main class="flex-grow-1">
+        {%  include 'cosmetics_shop/includes/messages.html'  %}
+        {% block content %}{% endblock %}
+    </main>
 </div>
-<hr>
-{%  block content  %}{%  endblock  %}
+{% include 'cosmetics_shop/includes/footer.html' %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{%  static 'cosmetics_shop/js/ajax.js'  %}"></script>
 </body>
 </html>

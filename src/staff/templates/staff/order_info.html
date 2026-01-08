@@ -1,50 +1,96 @@
-{%  extends 'staff/base.html'  %}
-{%  load custom_filters  %}
+{% extends 'staff/base.html' %}
+{% load custom_filters %}
 
-{%  block title  %}{{  title  }}{%  endblock  %}
+{% block title %}{{ title }}{% endblock %}
 
-{%  block content  %}
+{% block content %}
+<div class="container my-4">
+    <h2 class="mb-4">Заказ № {{ order.code }}</h2>
+    <!-- Товары заказа -->
+    <h4>Товары</h4>
+    {% if order_items %}
+        <div class="table-responsive mb-4">
+            <table class="table align-middle table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Код</th>
+                        <th>Название</th>
+                        <th>Цена</th>
+                        <th>Количество</th>
+                        <th>Сумма</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order_items %}
+                        <tr>
+                            <td>
+                                {% if item.product.code %}
+                                    {{ item.product.code }}
+                                {% else %}
+                                    Товара сейчас нет
+                                {% endif %}
+                            </td>
+                            <td>{{ item.snapshot_product }}</td>
+                            <td>{{ item.snapshot_price|number_format }} грн</td>
+                            <td>{{ item.snapshot_quantity }}</td>
+                            <td>{{ item.snapshot_price|multiply:item.snapshot_quantity|number_format }} грн</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info">Нет товаров в этом заказе</div>
+    {% endif %}
 
-{% if messages %}
-<ul class="messages">
-    {% for message in messages %}
-    <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
-{{  order  }}
+    <!-- Итоговая информация -->
+    <h6>Сумма заказа: {{ order.total_price|number_format }} грн</h6>
+    <hr>
+    <br>
+    <h5>Контактная информация клиента</h5>
+    <ul class="list-group mb-4">
+        <li class="list-group-item"><strong>Имя:</strong> {{ order.snapshot_name }}</li>
+        <li class="list-group-item"><strong>Email:</strong> {{ order.snapshot_email }}</li>
+        <li class="list-group-item"><strong>Телефон:</strong> {{ order.snapshot_phone }}</li>
+        <li class="list-group-item"><strong>Адрес:</strong> {{ order.snapshot_address }}</li>
+    </ul>
+    <br>
 
-<form method="POST">
-        {%  csrf_token  %}
-        {{  form.status  }}
-        {{  form.comment  }}
-        <button>Изменить</button>
-</form>
 
-<hr>
-{%  for item in  order_items  %}
-    {%  if item.product.code  %}
-        {{  item.product.code  }}
-    {%  else  %}
-        Товара сейчас нет в наличии
-    {%  endif  %}
-    - {{  item.snapshot_product  }}  - {{  item.snapshot_price|number_format  }} грн  -{{  item.snapshot_quantity  }} шт<br>
-{%  endfor  %}
-<hr>
-{%  for status in  order_status_log  %}
-        {{  status.changed_at  }} - {{  status  }}
-        {% if status.changed_by  %}
-             - {{  status.changed_by  }}
-        {%  endif  %}<br>
-        {%  if status.comment  %}
-                {{  status.comment  }}<br>
-        {%  endif  %}
-{%  endfor  %}
-<hr>
-{{  order.total_price|number_format  }} грн
-<hr>
-{{  order.snapshot_name  }}<br>
-{{  order.snapshot_email  }}<br>
-{{  order.snapshot_phone  }}<br>
-{{  order.snapshot_address  }}<br>
-{%  endblock  %}
+    <!-- Форма изменения статуса / комментария -->
+    <div class="card p-3 mb-4">
+        <form method="POST" class="row g-3">
+            {% csrf_token %}
+            <div class="col-md-4">
+                {{ form.status.label_tag }}<br>
+                {{ form.status }}
+            </div>
+            <div class="col-md-6">
+                {{ form.comment.label_tag }}<br>
+                {{ form.comment }}
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-success">Изменить</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Лог изменений статуса -->
+    <h4>История изменений</h4>
+    {% if order_status_log %}
+        <ul class="list-group mb-4">
+            {% for status in order_status_log %}
+                <li class="list-group-item">
+                    <strong>{{ status.changed_at|date:"d.m.Y H:i" }}</strong> - {{ status }}
+                    {% if status.changed_by %}- {{ status.changed_by }}{% endif %}
+                    {% if status.comment %}<br>{{ status.comment }}{% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="alert alert-info">История изменений отсутствует</div>
+    {% endif %}
+
+    <a href="{% url 'orders' %}" class="btn btn-outline-secondary">← Назад к списку заказов</a>
+</div>
+{% endblock %}

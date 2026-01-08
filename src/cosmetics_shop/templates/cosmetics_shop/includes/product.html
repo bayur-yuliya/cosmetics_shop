@@ -1,32 +1,38 @@
 {%  load custom_filters  %}
 
-<img src={{ product.image.url }}   hspace='40' vspace='40' width='100px' height='100px'>
+<div class="product-card">
+<img src={{ product.image.url }} alt="{{ product.name }}" class="product-image">
 
-<a href="{%  url 'product_page' product.code  %}">{{  product.name  }}</a>
+<a href="{%  url 'product_page' product.code  %}"><h5 class="product-title">{{ product.name }}</h5></a>
 | {{  product.group.name  }}
 | {{  product.brand  }}
-| {{  product.price|number_format  }}
+{%  if product.stock %}
+|   <p class="product-price">{{ product.price|number_format }} грн</p>
+{%  endif  %}
 | {{  product.description  }} |
 
 
-{%  if product.is_favorite or is_favorite  %}
-<form method="POST" action="{% url 'remove_from_favorites' product.id %}?next={{  request.get_full_path|urlencode  }}">
-    {% csrf_token %}
-    <button type="submit">&hearts;</button>
-</form>
+<button
+    class="favorite-btn"
+    data-product-id="{{ product.id }}"
+    data-in-favorites="{{ product.is_favorite|yesno:'1,0' }}"
+>
+    {% if product.is_favorite %}♥{% else %}♡{% endif %}
+</button>
+
+
+{%  if product.id in cart_products %}
+<button class="btn btn-sm mt-2  btn-primary disabled"
+        data-product-code="{{  product.code  }}">В корзинe
+</button>
+<br>
+{%  elif product.stock %}
+<button class="btn btn-success btn-sm mt-2 js-cart-btn-list"
+        data-product-code="{{  product.code  }}">В корзину
+</button>
+<br>
 {%  else  %}
-<form method="POST" action="{% url 'add_to_favorites' product.id %}?next={{  request.get_full_path|urlencode  }}">
-    {% csrf_token %}
-    <button type="submit">&#9825;</button>
-</form>
+    Товара нет в наличии
 {%  endif  %}
 
-<form method='POST' action="{%  url 'add_to_cart'  %}?next={{  request.get_full_path|urlencode  }}">
-{%  csrf_token  %}
-    <input type="hidden" name='product_code'  value="{{ product.code }}">
-    {%  if product.stock %}
-        <button>КУПИТЬ </button><br>
-    {%  else  %}
-        Товара нет в наличии
-    {%  endif  %}<hr>
-</form>
+</div>

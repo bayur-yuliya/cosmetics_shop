@@ -1,50 +1,123 @@
-{%  extends 'cosmetics_shop/base.html'  %}
-{%  load custom_filters  %}
+{% extends 'cosmetics_shop/base.html' %}
+{%  load static  %}
+{% load custom_filters %}
 
-{%  block title  %}{{  title  }}{%  endblock  %}
+{% block title %}{{ title }}{% endblock %}
 
-{%  block content  %}
+{% block content %}
 
-{%  if cart_items  %}
-    {% for item in cart_items %}
-    <img src="/media/{{ item.product.image }}"   hspace='40' vspace='40' width='100px' height='100px'>  <br>
-        {{  item.product  }} — {{  item.product.price|number_format  }} грн  <br>
-        Сумма: {{ item.product.price|multiply:item.quantity|number_format }} грн —
+<div class="container my-4">
+    <h2 class="mb-4">Ваша корзина</h2>
 
-        <form method="POST" action="{% url 'cart_remove' %}?next={{  request.get_full_path|urlencode  }}" style="display:inline;">
-            {% csrf_token %}
-            <input type="hidden" name="product_code" value="{{ item.product.code }}">
-            <button>-</button>
-        </form>
+    {% if cart_items %}
+        <div class="table-responsive">
+            <table class="table align-middle cart-table">
+                    <colgroup>
+                        <col style="width:55%">
+                        <col style="width:10%">
+                        <col style="width:10%">
+                        <col style="width:15%">
+                        <col style="width:10%">
+                    </colgroup>
+                <thead>
+                    <tr>
+                        <th>Товар</th>
+                        <th>Цена</th>
+                        <th>Количество</th>
+                        <th>Сумма</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center product-cell">
+                                    <img src="/media/{{ item.product.image }}" class="img-thumbnail me-3" style="width:80px; height:80px; object-fit:cover;">
+                                    <a href="{% url 'product_page' item.product.code %}">{{ item.product.name }}</a>
+                                </div>
+                            </td>
+                            <td>{{ item.product.price|number_format }} грн</td>
+                            <td>
+                                {%  if item.quantity == 1  %}
+                                <button
+                                    class="btn btn-sm btn-outline-secondary js-cart-btn-remove"
+                                    data-product-code="{{  item.product.code  }}" disabled>
+                                    -
+                                </button>
+                                {%  else  %}
+                                <button
+                                    class="btn btn-sm btn-outline-secondary js-cart-btn-remove"
+                                    data-product-code="{{  item.product.code  }}">
+                                    -
+                                </button>
+                                {%  endif  %}
+                                <span
+                                    class="mx-2 js-item-counter-quantity"
+                                    data-product-code="{{ item.product.code }}">
+                                    {{ item.quantity }}
+                                </span>
 
-        {{ item.quantity }}
+                                <button
+                                        class="btn btn-sm btn-outline-secondary js-cart-btn"
+                                        data-product-code="{{  item.product.code  }}">
+                                    +
+                                </button>
 
-        <form method="POST" action="{% url 'cart_add' %}?next={{  request.get_full_path|urlencode  }}" style="display:inline;">
-            {% csrf_token %}
-            <input type="hidden" name="product_code" value="{{ item.product.code }}">
-            <button>+</button>
-        </form>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center product-cell">
+                                    <span
+                                        class="mx-2 js-item-counter-total"
+                                        data-product-code="{{ item.product.code }}">
+                                        {{ item.product.price|multiply:item.quantity|number_format }} грн
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                            <button
+                                    onclick="openDeleteDialog({{ item.product.id }}, '{{ item.product.name }}')"
+                                    class="btn btn-sm btn-danger">
+                                Удалить
+                            </button>
 
-        <form method="POST" action="{% url 'cart_delete' %}?next={{  request.get_full_path|urlencode  }}" style="display:inline;">
-            {% csrf_token %}
-            <input type="hidden" name="product_code" value="{{ item.product.code }}">
-            <button>Удалить</button>
-        </form>
-        <br>
-        <br>
-    {%  endfor  %}
-    Всего: {{  total_price|number_format  }}<br>
-    <hr>
-    <a href="{%  url 'main_page'  %}"><button>Продолжить выбор</button></a>
-    <a href="{%  url 'delivery'  %}"><button>Заказать</button></a>
-{%  else  %}
-    Корзина пустая
-{%  endif  %}
-{% if messages %}
-<ul class="messages">
-    {% for message in messages %}
-    <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
-{%  endblock  %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <h5 id="cart-total">Итого: {{ total_price|number_format }} грн</h5>
+            <div>
+                <a href="{% url 'main_page' %}" class="btn btn-outline-primary me-2">Продолжить выбор</a>
+                <a href="{% url 'delivery' %}" class="btn btn-success">Оформить заказ</a>
+            </div>
+        </div>
+        <div>
+            <a href="{%  url 'clean_cart'  %}" class="btn btn-danger">Очистить корзину</a>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            Корзина пуста
+        </div>
+        <a href="{% url 'main_page' %}" class="btn btn-primary">Перейти к покупкам</a>
+    {% endif %}
+
+</div>
+
+<dialog id="deleteDialog">
+    <form
+        action="{%  url 'cart_delete' %}"
+        method="POST">
+        {%  csrf_token  %}
+            <p id="deleteText"></p>
+            <input type="hidden" name="product_id" id="deleteId">
+            <button type="reset" onclick="document.getElementById('deleteDialog').close()" class="btn btn-secondary">Назад</button>
+            <button type="submit" class="btn btn-danger">Удалить</button>
+    </form>
+</dialog>
+
+<script src="{%  static 'staff/js/delete_dialog_script.js'  %}"></script>
+{% endblock %}

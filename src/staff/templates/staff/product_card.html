@@ -1,36 +1,56 @@
-{%  extends 'staff/base.html'  %}
-{%  load custom_filters  %}
+{% extends 'staff/base.html' %}
+{% load static %}
+{% load custom_filters %}
 
-{%  block title  %}{{  title  }}{%  endblock  %}
+{% block title %}{{ title }}{% endblock %}
 
-{%  block content  %}
-<img src="/media/{{ product.image }}"   hspace='40' vspace='40' width='100px' height='100px'>
-{{  product.name  }} | {{  product.group.name  }} | {{  product.brand  }} |
-{{  product.price|number_format  }} | {{  product.description  }} <br>
-Количество товара в наличии: {{  product.stock  }}<br>
+{% block content %}
+<div class="container my-4">
 
-{%  if tags    %}
-    Теги:
-    {%  for tag in tags  %}
-        {%  if forloop.last  %}
-            {{  tag.name  }}
-        {%  else  %}
-            {{  tag.name  }},
-        {%  endif  %}
-    {%  endfor  %}
-{%  endif  %}
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <img id="previewImage"
+                 src="{% if product.image %}/media/{{ product.image }}{% else %}{% static 'staff/img/placeholder.png' %}{% endif %}"
+                 alt="Превью изображения"
+                 class="img-fluid border"
+                 style="max-height:250px;">
+        </div>
+        <div class="col-md-8">
+            <h3>{{ product.name }}</h3>
+            <p>
+                <strong>Группа:</strong> {{ product.group.name }} |
+                <strong>Брэнд:</strong> {{ product.brand }} |
+                <strong>Цена:</strong> {{ product.price|number_format }} грн
+            </p>
 
-<form method="POST" action="{%  url 'edit_products' product.id  %}">
-    {%  csrf_token  %}
-    <input type="hidden" name="product_id" value="{{ product.id }}">
-  <button>Изменить</button>
-</form>
+            <p><strong>В наличии:</strong> {{ product.stock }} шт.</p>
+            {% if tags %}
+            <p><strong>Теги:</strong>
+                {% for tag in tags %}
+                    {{ tag.name }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </p>
+            {% endif %}
+            <p>{{ product.description }}</p>
+        </div>
+    </div>
 
-<form method="POST" action="{%  url 'delete_product'  %}">
-    {%  csrf_token  %}
-    <input type="hidden" name="product_id" value="{{ product.id }}">
-    <button onclick="return confirm('Вы уверены, что хотите удалить {{ product.name }}?')">Удалить</button>
-</form>
+    <div class="d-flex gap-2">
+        <form method="POST" action="{% url 'edit_products' product.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <button type="submit" class="btn btn-primary">Изменить</button>
+        </form>
 
-<a href="{%  url 'products'  %}"><button>Назад</button></a>
-{%  endblock  %}
+        <form method="POST" action="{% url 'delete_product' %}">
+            {% csrf_token %}
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <button type="submit" class="btn btn-danger"
+                    onclick="return confirm('Вы уверены, что хотите удалить {{ product.name }}?')">Удалить</button>
+        </form>
+
+        <a href="{% url 'products' %}" class="btn btn-secondary">Назад</a>
+    </div>
+
+</div>
+{% endblock %}

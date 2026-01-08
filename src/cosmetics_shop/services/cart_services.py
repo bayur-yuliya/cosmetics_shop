@@ -29,20 +29,16 @@ def get_cart_item(user, product_code):
     return item
 
 
-def add_product_to_cart(request, product_code):
-    cart = get_or_create_cart(request)
+def add_product_to_cart(cart, product_code):
     product = Product.objects.get(code=product_code)
 
     item, created = CartItem.objects.get_or_create(cart=cart, product=product)
     if item.quantity < item.product.stock:
         item.quantity += 1
-    else:
-        messages.warning(request, "Этого товара больше нет")
     item.save()
 
 
-def remove_product_from_cart(request, product_code):
-    cart = get_or_create_cart(request)
+def remove_product_from_cart(cart, product_code):
     product = Product.objects.get(code=product_code)
 
     try:
@@ -54,16 +50,26 @@ def remove_product_from_cart(request, product_code):
         pass
 
 
-def delete_product_from_cart(request, product_code):
+def delete_product_from_cart(request, product_id):
     cart = get_or_create_cart(request)
-    product = Product.objects.get(code=product_code)
+    product = Product.objects.get(id=product_id)
     CartItem.objects.filter(cart=cart, product=product).delete()
     messages.success(request, "Товар успешно удален")
 
 
-def calculate_cart_total(user):
-    cart = get_or_create_cart(user)
-    return sum(item.product.price * item.quantity for item in cart.cartitem_set.all())
+def delete_cart(request):
+    cart = get_or_create_cart(request)
+    CartItem.objects.filter(cart=cart).delete()
+    messages.success(request, "Корзина очищена")
+
+
+def calculate_cart_total(cart):
+    return sum(item.product.price * item.quantity for item in cart.cartitem_set.all()) / 100
+
+
+def calculate_product_total_price(cart_items, product_code):
+    product_count = cart_items.filter(product__code=product_code).first()
+    return product_count.quantity * product_count.product.price / 100
 
 
 def get_or_create_cart_for_session(request):
@@ -106,3 +112,21 @@ def clear_cart_after_order(request):
     cart = get_or_create_cart(request)
     cart.cartitem_set.all().delete()
     return cart
+
+
+def is_product_in_cart(request, product_id):
+    cart = get_or_create_cart(request)
+    cart_products = set(
+        CartItem.objects.filter(cart=cart)
+        .values_list("product_id", flat=True)
+    )
+    return product_id in cart_products
+
+
+def get_id_products_in_cart(request):
+    cart = get_or_create_cart(request)
+    cart_products = set(
+        CartItem.objects.filter(cart=cart)
+        .values_list("product_id", flat=True)
+    )
+    return cart_products

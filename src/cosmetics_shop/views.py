@@ -2,8 +2,7 @@ import string
 
 from django.contrib import messages
 from django.contrib.auth import login, authenticate
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 
 from .forms import (
@@ -20,15 +19,11 @@ from .models import (
     Client,
     DeliveryAddress,
     Category,
-    Favorite,
 )
 from .services.cart_services import (
-    add_product_to_cart,
-    get_or_create_cart_for_session,
     get_or_create_cart,
-    remove_product_from_cart,
     delete_product_from_cart,
-    get_or_create_session_client,
+    get_or_create_session_client, delete_cart, is_product_in_cart,
 )
 from .services.categories_services import favorites_products
 from .services.order_service import create_order_from_cart, get_client
@@ -105,6 +100,7 @@ def group_page(request, group_id):
 def product_page(request, product_code):
     product = Product.objects.get(code=product_code)
     tags = product.tags.all()
+    is_it_in_cart = is_product_in_cart(request, product.id)
     return render(
         request,
         "cosmetics_shop/product_page.html",
@@ -112,6 +108,7 @@ def product_page(request, product_code):
             "title": "Product",
             "product": product,
             "tags": tags,
+            "is_it_in_cart": is_it_in_cart,
         },
     )
 
@@ -154,26 +151,6 @@ def brand_products(request, brand_id):
         template_name="cosmetics_shop/category_page.html",
         hide_brands_field=True,
     )
-
-
-def add_to_cart(request):
-    product_code = request.POST.get("product_code")
-    if not product_code:
-        return redirect("main_page")
-
-    if request.user.is_authenticated:
-        add_product_to_cart(request, product_code=product_code)
-
-    else:
-        cart = get_or_create_cart_for_session(request)
-        product = Product.objects.get(code=product_code)
-
-        item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-
-        item.quantity += 1
-        item.save()
-    next_url = request.GET.get("next", "/")
-    return redirect(next_url)
 
 
 def cart(request):
@@ -222,28 +199,16 @@ def order_success(request):
     )
 
 
-@require_POST
-def cart_add(request):
-    product_code = request.POST.get("product_code")
-    add_product_to_cart(request, product_code)
-    next_url = request.GET.get("next", "/")
-    return redirect(next_url)
-
-
-@require_POST
-def cart_remove(request):
-    product_code = request.POST.get("product_code")
-    remove_product_from_cart(request, product_code)
-    next_url = request.GET.get("next", "/")
-    return redirect(next_url)
+def clean_cart(request):
+    delete_cart(request)
+    return redirect("cart")
 
 
 @require_POST
 def cart_delete(request):
-    product_code = request.POST.get("product_code")
-    delete_product_from_cart(request, product_code)
-    next_url = request.GET.get("next", "/")
-    return redirect(next_url)
+    product_id = request.POST.get("product_id")
+    delete_product_from_cart(request, product_id)
+    return redirect("cart")
 
 
 @cart_required
@@ -292,22 +257,6 @@ def delivery(request):
             "form_delivery": form_delivery,
         },
     )
-
-
-@login_required
-def add_to_favorites(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
-    Favorite.objects.get_or_create(user=request.user, product=product)
-    next_url = request.GET.get("next", "/")
-    return redirect(next_url)
-
-
-@login_required
-@require_POST
-def remove_from_favorites(request, product_id):
-    Favorite.objects.filter(user=request.user, product_id=product_id).delete()
-    next_url = request.GET.get("next", "/")
-    return redirect(next_url)
 
 
 def payment_and_delivery(request):

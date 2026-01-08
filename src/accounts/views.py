@@ -59,7 +59,12 @@ def user_contact(request):
             request.POST, instance=client, initial={"email": request.user.email}
         )
         if form.is_valid():
-            form.save()
+            if form.has_changed():
+                form.save()
+                messages.success(request, "Данные успешно обновлены")
+            else:
+                messages.info(request, "Изменений не обнаружено")
+
             return redirect("user_contact")
     form = ClientCreationForm(instance=client, initial={"email": request.user.email})
     return render(
@@ -101,6 +106,7 @@ def order_history(request):
         dictt["item"] = []
         items = OrderItem.objects.filter(order=order.id)
         dictt["status"] = OrderStatusLog.objects.filter(order=order)[0]
+        dictt["status_badge_class"] = OrderStatusLog.objects.filter(order=order)[0].status_badge_class()
         if items.count() > 1:
             for item in items:
                 dictt["order"] = order
@@ -169,3 +175,9 @@ def activate_account(request):
             "form": form,
         },
     )
+
+
+@login_required
+def remove_from_favorites(request, product_id):
+    Favorite.objects.filter(user=request.user, product_id=product_id).delete()
+    return redirect("favorites")

@@ -1,37 +1,87 @@
-{%  extends 'staff/base.html'  %}
+{% extends 'staff/base.html' %}
+{% load custom_filters %}
 
-{%  block title  %}{{  title  }}{%  endblock  %}
+{% block title %}{{ title }}{% endblock %}
 
-{%  block content  %}
+{% block content %}
+<div class="container my-4">
+    <h2 class="mb-4">Список заказов</h2>
 
-<form method="POST">
-        {%  csrf_token  %}
-        {{  form.status  }}
-        {{  form.date_from  }}
-        {{  form.date_to  }}
-        <button>Изменить</button>
-</form>
-<a href="{%  url 'orders'  %}"><button>Сбросить</button></a><hr>
+    <!-- Фильтры -->
+    <form method="POST" class="row g-3 mb-4">
+        {% csrf_token %}
+        <div class="col-md-3">
+            {{ form.status.label_tag }}<br>
+            {{ form.status }}
+        </div>
+        <div class="col-md-3">
+            {{ form.date_from.label_tag }}<br>
+            {{ form.date_from }}
+        </div>
+        <div class="col-md-3">
+            {{ form.date_to.label_tag }}<br>
+            {{ form.date_to }}
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-success me-2">Применить</button>
+            <a href="{% url 'orders' %}" class="btn btn-outline-secondary">Сбросить</a>
+        </div>
+    </form>
 
-{%  for order in status  %}
-{{  order.order.code  }} - {{  order.get_status_display  }} - <a href="{%  url 'order_info' order.order.code  %}">{{  order.order  }}</a><br>
-{%  endfor  %}
+    {% if status %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Номер заказа</th>
+                        <th>Дата</th>
+                        <th>Клиент</th>
+                        <th>Сумма</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in status %}
+                    <tr>
+                        <td>{{ order.order.code }}</td>
+                        <td>{{ order.order.created_at }}</td>
+                        <td>{{ order.order.user.get_full_name }}</td>
+                        <td>{{ order.order.total_price|number_format }} грн</td>
+                        <td>
+                            <span class="badge bg-{{  order.status_badge_class  }}">
+                                {{ order.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'order_info' order.order.code %}" class="btn btn-sm btn-outline-primary">Просмотр</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
+        <!-- Пагинация -->
+        {% if status.paginator.num_pages > 1 %}
+        <div class="d-flex justify-content-center mt-3">
+            {% if status.has_previous %}
+                <a href="?page={{ status.previous_page_number }}" class="btn btn-outline-secondary btn-sm me-2">← Назад</a>
+            {% endif %}
 
-<div class="pagination">
-    {%  if status.paginator.num_pages > 1  %}
-        {% if status.has_previous %}
-            <a href="?page=1">first</a>
-            <a href="?page={{ status.previous_page_number }}">previous</a>
+            <span class="align-self-center">
+                {{ status.number }} / {{ status.paginator.num_pages }}
+            </span>
+
+            {% if status.has_next %}
+                <a href="?page={{ status.next_page_number }}" class="btn btn-outline-secondary btn-sm ms-2">Вперёд →</a>
+            {% endif %}
+        </div>
         {% endif %}
-
-        Page {{ status.number }} of {{ status.paginator.num_pages }}.
-
-        {% if status.has_next %}
-            <a href="?page={{ status.next_page_number }}">next</a>
-            <a href="?page={{ status.paginator.num_pages }}">last</a>
-        {% endif %}
+    {% else %}
+        <div class="alert alert-info">
+            Нет заказов по выбранным условиям.
+        </div>
     {% endif %}
 </div>
-
-{%  endblock  %}
+{% endblock %}
