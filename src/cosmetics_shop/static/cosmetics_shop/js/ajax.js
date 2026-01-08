@@ -260,23 +260,29 @@ function updateItemTotal(productCode, totalPrice) {
 
 // Sorting panel
 document.addEventListener("click", function (e) {
-    const link = e.target.closest("a");
+    const link = e.target.closest(".sorting-panel a");
     if (!link) return;
 
-    if  (link.closest(".sorting-panel")) {
-        e.preventDefault();
+    e.preventDefault();
 
-        fetch(link.href, {
-            headers: {
-                "X-Requested-With": "XMLHttpRequest",
-            },
-        })
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById("products-container").innerHTML = data.html;
-            history.pushState(null, "", link.href);
-        });
-    }
+    const currentParams = new URLSearchParams(window.location.search);
+    const linkParams = new URLSearchParams(link.search);
+
+    // перезаписываем только sort и direction
+    linkParams.forEach((value, key) => {
+        currentParams.set(key, value);
+    });
+
+    fetch(`?${currentParams.toString()}`, {
+        headers: {
+            "X-Requested-With": "XMLHttpRequest",
+        },
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("products-container").innerHTML = data.html;
+        history.pushState(null, "", `?${currentParams.toString()}`);
+    });
 });
 
 // Filter panel
@@ -287,12 +293,7 @@ document.addEventListener("submit", function (e) {
 
         const form = document.querySelector("#product-filter-form");
         const formData = new FormData(form);
-        // Удаляем пустые значения
-        for (const [key, value] of formData.entries()) {
-            if (value === "") {
-                formData.delete(key);
-            }
-        }
+
         const params = new URLSearchParams(formData);
 
         fetch(`?${params.toString()}`, {

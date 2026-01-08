@@ -9,34 +9,33 @@ class ProductFilter:
     def apply_filters(self, form):
         """Applies filters from forms"""
 
-        if form.is_valid():
-            name = form.cleaned_data["name"]
-            group = form.cleaned_data["group"]
-            tags = form.cleaned_data["tags"]
-            min_price = form.cleaned_data["min_price"]
-            max_price = form.cleaned_data["max_price"]
-            brand = form.cleaned_data["brand"]
+        if not form.is_valid():
+            return
 
-            if group:
-                self.queryset = self.queryset.filter(group__in=group)
-            if tags:
-                self.queryset = self.queryset.filter(tags__in=tags)
-            if min_price is not None:
-                self.queryset = self.queryset.filter(
-                    price__gte=min_price * 100, stock__gte=1
-                )
-            if max_price is not None:
-                self.queryset = self.queryset.filter(price__lte=max_price * 100)
-            if brand:
-                self.queryset = self.queryset.filter(brand__in=brand)
-            if name:
-                name_lower = name.lower()
-                found_objects_id = [
-                    obj.id for obj in self.queryset if name_lower in obj.name.lower()
-                ]
-                self.queryset = self.queryset.filter(pk__in=found_objects_id)
+        if form.cleaned_data["group"]:
+            self.queryset = self.queryset.filter(group__in=form.cleaned_data["group"])
 
-        return self.queryset
+        if form.cleaned_data["tags"]:
+            self.queryset = self.queryset.filter(tags__in=form.cleaned_data["tags"])
+
+        if form.cleaned_data["min_price"] is not None:
+            self.queryset = self.queryset.filter(
+                price__gte=form.cleaned_data["min_price"] * 100
+            )
+
+        if form.cleaned_data["max_price"] is not None:
+            self.queryset = self.queryset.filter(
+                price__lte=form.cleaned_data["max_price"] * 100
+            )
+
+        if form.cleaned_data["brand"]:
+            self.queryset = self.queryset.filter(
+                brand__in=form.cleaned_data["brand"]
+            )
+
+        if form.cleaned_data["name"]:
+            name = form.cleaned_data["name"].lower()
+            self.queryset = self.queryset.filter(name__icontains=name)
 
     def _get_param(self, key, default=None):
         """Getting parameters from GET request"""

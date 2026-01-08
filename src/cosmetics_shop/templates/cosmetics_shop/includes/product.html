@@ -6,7 +6,9 @@
 <a href="{%  url 'product_page' product.code  %}"><h5 class="product-title">{{ product.name }}</h5></a>
 | {{  product.group.name  }}
 | {{  product.brand  }}
-|<p class="product-price">{{ product.price|number_format }} грн</p>
+{%  if product.stock %}
+|   <p class="product-price">{{ product.price|number_format }} грн</p>
+{%  endif  %}
 | {{  product.description  }} |
 
 

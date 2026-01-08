@@ -5,7 +5,7 @@ from django.template.loader import render_to_string
 
 from cosmetics_shop.forms import ProductFilterForm
 from cosmetics_shop.models import CartItem
-from cosmetics_shop.services.cart_services import get_or_create_cart
+from cosmetics_shop.services.cart_services import get_or_create_cart, get_id_products_in_cart
 from cosmetics_shop.utils.product_filter import ProductFilter
 
 
@@ -31,23 +31,13 @@ def processing_product_page(
         if query_params else request.path
     )
 
-    if clean_url != request.get_full_path():
-        if not is_ajax:
-            return redirect(clean_url)
-
     product_filter = ProductFilter(request, products)
     form = ProductFilterForm(request.GET or None)
 
     if form.is_valid():
-        products = product_filter.apply_filters(form)
+        product_filter.apply_filters(form)
 
-    cart = get_or_create_cart(request)
-    cart_products = set()
-    if cart:
-        cart_products = set(
-            CartItem.objects.filter(cart=cart)
-            .values_list("product_id", flat=True)
-        )
+    cart_products = get_id_products_in_cart(request)
     products = product_filter.apply_sorting()
 
     paginator = Paginator(products, 20)
@@ -66,13 +56,20 @@ def processing_product_page(
         "cart_products": cart_products,
     }
 
+    if clean_url != request.get_full_path():
+        if not is_ajax:
+            return redirect(clean_url)
+
     if request.headers.get("x-requested-with") == "XMLHttpRequest":
         html = render_to_string(
             "cosmetics_shop/includes/product_list.html",
             context,
             request=request,
         )
-        return JsonResponse({"html": html})
+        return JsonResponse({
+            "html": html,
+            "url": clean_url,
+        })
 
     if extra_context:
         context.update(extra_context)

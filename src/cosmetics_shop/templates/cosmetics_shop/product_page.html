@@ -33,8 +33,9 @@
                 Группа: <a href="{% url 'group_page' product.group.id %}">{{ product.group.name }}</a> |
                 Бренд: {{ product.brand }}
             </p>
-            <h4 class="text-primary">{{ product.price|number_format }} грн</h4>
-
+            {%  if product.stock %}
+                <h4 class="text-primary">{{ product.price|number_format }} грн</h4>
+            {%  endif  %}
             <!-- Теги -->
             {% if tags %}
                 <p>Теги:
@@ -52,15 +53,21 @@
             <hr>
 
             <!-- Кнопка покупки -->
-            {% if product.stock %}
-                <button class="btn btn-success btn-lg js-cart-btn-list"
+            {%  if is_it_in_cart  %}
+            <button class="btn btn-sm mt-2  btn-primary disabled"
+                    data-product-code="{{  product.code  }}">В корзинe
+            </button>
+            <span class="ms-3 text-success">В наличии</span>
+            <br>
+            {%  elif product.stock %}
+            <button class="btn btn-success btn-sm mt-2 js-cart-btn-list"
                     data-product-code="{{  product.code  }}">В корзину
-                </button>
-                <span class="ms-3 text-success">В наличии</span>
-            {% else %}
+            </button>
+            <span class="ms-3 text-success">В наличии</span>
+            <br>
+            {%  else  %}
                 <span class="text-danger">Товара нет в наличии</span>
-            {% endif %}
-
+            {%  endif  %}
         </div>
     </div>
 </div>

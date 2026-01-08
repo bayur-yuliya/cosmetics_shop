@@ -23,7 +23,7 @@ from .models import (
 from .services.cart_services import (
     get_or_create_cart,
     delete_product_from_cart,
-    get_or_create_session_client, delete_cart,
+    get_or_create_session_client, delete_cart, is_product_in_cart,
 )
 from .services.categories_services import favorites_products
 from .services.order_service import create_order_from_cart, get_client
@@ -100,6 +100,7 @@ def group_page(request, group_id):
 def product_page(request, product_code):
     product = Product.objects.get(code=product_code)
     tags = product.tags.all()
+    is_it_in_cart = is_product_in_cart(request, product.id)
     return render(
         request,
         "cosmetics_shop/product_page.html",
@@ -107,6 +108,7 @@ def product_page(request, product_code):
             "title": "Product",
             "product": product,
             "tags": tags,
+            "is_it_in_cart": is_it_in_cart,
         },
     )
 

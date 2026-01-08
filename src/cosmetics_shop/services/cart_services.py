@@ -112,3 +112,21 @@ def clear_cart_after_order(request):
     cart = get_or_create_cart(request)
     cart.cartitem_set.all().delete()
     return cart
+
+
+def is_product_in_cart(request, product_id):
+    cart = get_or_create_cart(request)
+    cart_products = set(
+        CartItem.objects.filter(cart=cart)
+        .values_list("product_id", flat=True)
+    )
+    return product_id in cart_products
+
+
+def get_id_products_in_cart(request):
+    cart = get_or_create_cart(request)
+    cart_products = set(
+        CartItem.objects.filter(cart=cart)
+        .values_list("product_id", flat=True)
+    )
+    return cart_products
