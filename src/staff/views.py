@@ -2,6 +2,8 @@ import datetime
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.models import Group
 from django.core.paginator import Paginator
 from django.db.models import OuterRef, Subquery, Count, Avg
 from django.db.models.functions import TruncMonth
@@ -10,6 +12,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
+from accounts.models import CustomUser
 from cosmetics_shop.models import (
     Product,
     Order,
@@ -29,7 +32,7 @@ from staff.forms import (
     BrandForm,
     TagForm,
     FilterStockForm,
-    ProductStuffFilterForm,
+    ProductStuffFilterForm, GroupForm,
 )
 from .services.dashboard_service import (
     number_of_orders_today,
@@ -116,6 +119,33 @@ def sales_comparison_chart_for_the_year(request):
             "average_bill": average_bill_counts,
         }
     )
+
+
+def is_superuser(user):
+    return user.is_superuser
+
+
+@user_passes_test(is_superuser)
+def staff_group_list(request):
+    groups = Group.objects.all()
+
+    return render(request, "staff/staff_groups_list.html", {"groups": groups})
+
+
+@user_passes_test(is_superuser)
+def staff_group_edit(request, pk=None):
+    group = get_object_or_404(Group, pk=pk) if pk else None
+    form = GroupForm(request.POST or None, instance=group)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("groups:list")
+    return render(request, "staff/edit_staff_groups.html", {"form": form})
+
+
+@user_passes_test(is_superuser)
+def staff_list(request):
+    staffs = CustomUser.objects.all()
+    return render(request, "staff/staff_list.html", {"staffs": staffs})
 
 
 @staff_member_required

@@ -9,6 +9,11 @@ urlpatterns = [
     path("products/<int:product_id>", views.product_card, name="product_card"),
     path("products/delete", views.delete_product, name="delete_product"),
     path("products/", views.products, name="products"),
+    # staff groups
+    path("staff_groups/edit/<int:pk>/", views.edit_groups, name="edit_staff_groups"),
+    path("staff_groups/", views.staff_group_list, name="staff_groups_list"),
+    path("staff_list/", views.staff_list, name="staff_list"),
+    # orders
     path("orders/<str:order_code>", views.order_info, name="order_info"),
     path("orders/", views.orders, name="orders"),
     # categories

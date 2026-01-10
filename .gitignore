@@ -177,5 +177,5 @@ cython_debug/
 .env
 
 src/db.sqlite3
-src/cosmetics_shop/management/
+src/cosmetics_shop/management/commands/create_info.py
 src/media/

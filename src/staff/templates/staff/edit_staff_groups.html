@@ -1,0 +1,7 @@
+<form method="post">
+    {% csrf_token %}
+    {{ form.name }}
+    <h3>Разрешения</h3>
+    {{ form.permissions }}
+    <button type="submit">Сохранить</button>
+</form>

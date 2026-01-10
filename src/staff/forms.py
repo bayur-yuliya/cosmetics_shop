@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.models import Permission, Group
 
 from cosmetics_shop.models import (
     Product,
@@ -78,3 +79,15 @@ class TagForm(forms.ModelForm):
     class Meta:
         model = Tag
         fields = ["name"]
+
+
+class GroupForm(forms.ModelForm):
+    permissions = forms.ModelMultipleChoiceField(
+        queryset=Permission.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
+    class Meta:
+        model = Group
+        fields = ["name", "permissions"]
