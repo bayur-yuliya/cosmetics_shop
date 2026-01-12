@@ -29,9 +29,7 @@ class ProductFilter:
             )
 
         if form.cleaned_data["brand"]:
-            self.queryset = self.queryset.filter(
-                brand__in=form.cleaned_data["brand"]
-            )
+            self.queryset = self.queryset.filter(brand__in=form.cleaned_data["brand"])
 
         if form.cleaned_data["name"]:
             name = form.cleaned_data["name"].lower()

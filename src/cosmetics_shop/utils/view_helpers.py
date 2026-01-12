@@ -5,7 +5,10 @@ from django.template.loader import render_to_string
 
 from cosmetics_shop.forms import ProductFilterForm
 from cosmetics_shop.models import CartItem
-from cosmetics_shop.services.cart_services import get_or_create_cart, get_id_products_in_cart
+from cosmetics_shop.services.cart_services import (
+    get_or_create_cart,
+    get_id_products_in_cart,
+)
 from cosmetics_shop.services.categories_services import context_categories
 from cosmetics_shop.utils.product_filter import ProductFilter
 
@@ -28,8 +31,7 @@ def processing_product_page(
             query_params.pop(key)
 
     clean_url = (
-        f"{request.path}?{query_params.urlencode()}"
-        if query_params else request.path
+        f"{request.path}?{query_params.urlencode()}" if query_params else request.path
     )
 
     product_filter = ProductFilter(request, products)
@@ -68,10 +70,12 @@ def processing_product_page(
             context,
             request=request,
         )
-        return JsonResponse({
-            "html": html,
-            "url": clean_url,
-        })
+        return JsonResponse(
+            {
+                "html": html,
+                "url": clean_url,
+            }
+        )
 
     if extra_context:
         context.update(extra_context)

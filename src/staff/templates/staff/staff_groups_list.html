@@ -1,3 +1,27 @@
-{%  for group in groups  %}
-    {{  groups  }}
-{%  endfor  %}
+{%  extends "staff/base.html"  %}
+
+{%  block title  %}{{  title  }}{%  endblock  %}
+
+{%  block content  %}
+<h1>{{  title  }}</h1>
+<div class="table-responsive">
+    <table class="table align-middle table-bordered">
+        <thead class="table-light">
+            <tr>
+                <th style="width: 5%;">#</th>
+                <th>Название</th>
+                <th style="width: 150px;">Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%  for group in groups  %}
+                <tr>
+                    <td>{{  group.id  }}</td>
+                    <td>{{  group  }}</td>
+                    <td class="d-flex gap-2">Кнопки</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{%  endblock  %}

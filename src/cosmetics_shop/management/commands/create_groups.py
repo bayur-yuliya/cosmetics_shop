@@ -5,43 +5,38 @@ from cosmetics_shop.models import Order
 
 
 class Command(BaseCommand):
-    help = 'Создает стандартные группы с разрешениями для сотрудников'
+    help = "Создает стандартные группы с разрешениями для сотрудников"
 
     def handle(self, *args, **kwargs):
-        sales_group, created = Group.objects.get_or_create(name='Менеджеры по продажам')
+        sales_group, created = Group.objects.get_or_create(name="Менеджеры по продажам")
         sales_permissions = [
-            'can_change_order_status',
-            'can_view_all_orders',
-            'can_export_orders',
+            "can_change_order_status",
+            "can_view_all_orders",
         ]
 
         order_content_type = ContentType.objects.get_for_model(Order)
         for perm_code in sales_permissions:
-            perm = Permission.objects.get(content_type=order_content_type, codename=perm_code)
-            sales_group.permissions.add(perm)
+            perm, _ = Permission.objects.get_or_create(
+                content_type=order_content_type, codename=perm_code
+            )
+            sales_group.permissions.add(perm.id)
 
-        content_group, created = Group.objects.get_or_create(name='Контент-менеджеры')
+        content_group, created = Group.objects.get_or_create(name="Контент-менеджеры")
         content_permissions = [
-            ('product', 'can_edit_product_price'),
-            ('product', 'can_manage_product_stock'),
-            ('category', 'can_manage_categories'),
+            ("product", "can_edit_product"),
+            ("product", "can_manage_product_stock"),
+            ("category", "can_manage_categories"),
         ]
 
         for app_label, perm_code in content_permissions:
-            perm = Permission.objects.get(content_type__app_label=app_label, codename=perm_code)
+            content_type, _ = ContentType.objects.get_or_create(app_label=app_label)
+            perm, _ = Permission.objects.get_or_create(
+                content_type=content_type, codename=perm_code
+            )
             content_group.permissions.add(perm)
 
-        courier_group, created = Group.objects.get_or_create(name='Курьеры')
-        courier_permissions = [
-            ('order', 'can_change_order_status'),
-        ]
-
-        for app_label, perm_code in courier_permissions:
-            perm = Permission.objects.get(content_type__app_label=app_label, codename=perm_code)
-            courier_group.permissions.add(perm)
-
-        senior_group, created = Group.objects.get_or_create(name='Старшие менеджеры')
+        senior_group, created = Group.objects.get_or_create(name="Старшие менеджеры")
         all_order_perms = Permission.objects.filter(content_type=order_content_type)
         senior_group.permissions.add(*all_order_perms)
 
-        self.stdout.write(self.style.SUCCESS('Группы успешно созданы!'))
+        self.stdout.write(self.style.SUCCESS("Группы успешно созданы!"))

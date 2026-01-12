@@ -32,7 +32,8 @@ from staff.forms import (
     BrandForm,
     TagForm,
     FilterStockForm,
-    ProductStuffFilterForm, GroupForm,
+    ProductStuffFilterForm,
+    GroupForm,
 )
 from .services.dashboard_service import (
     number_of_orders_today,
@@ -129,7 +130,11 @@ def is_superuser(user):
 def staff_group_list(request):
     groups = Group.objects.all()
 
-    return render(request, "staff/staff_groups_list.html", {"groups": groups})
+    return render(
+        request,
+        "staff/staff_groups_list.html",
+        {"title": "Список групп разрешений", "groups": groups},
+    )
 
 
 @user_passes_test(is_superuser)
@@ -145,7 +150,11 @@ def staff_group_edit(request, pk=None):
 @user_passes_test(is_superuser)
 def staff_list(request):
     staffs = CustomUser.objects.all()
-    return render(request, "staff/staff_list.html", {"staffs": staffs})
+    return render(
+        request,
+        "staff/staff_list.html",
+        {"title": "Страница сотрудников", "staffs": staffs},
+    )
 
 
 @staff_member_required

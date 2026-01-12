@@ -7,7 +7,8 @@ from cosmetics_shop.services.cart_services import (
     add_product_to_cart,
     get_or_create_cart_for_session,
     get_or_create_cart,
-    remove_product_from_cart, calculate_cart_total,
+    remove_product_from_cart,
+    calculate_cart_total,
 )
 
 
@@ -29,7 +30,7 @@ def toggle_favorite(request):
     else:
         message = {
             "level": "warning",
-            "text": "Требуется зарегистрироваться для добавления товара в избранное"
+            "text": "Требуется зарегистрироваться для добавления товара в избранное",
         }
         in_favorites = False
 
