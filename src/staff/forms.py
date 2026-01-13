@@ -82,6 +82,7 @@ class TagForm(forms.ModelForm):
 
 
 class GroupForm(forms.ModelForm):
+    name = forms.CharField(max_length=200)
     permissions = forms.ModelMultipleChoiceField(
         queryset=Permission.objects.all(),
         widget=forms.CheckboxSelectMultiple,
@@ -90,4 +91,4 @@ class GroupForm(forms.ModelForm):
 
     class Meta:
         model = Group
-        fields = ["permissions"]
+        fields = ["name", "permissions"]

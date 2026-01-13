@@ -6,8 +6,9 @@
 <h1>{{  group  }}</h1><br>
 <form method="post">
     {% csrf_token %}
+    <div class="d-flex"><h3>Изменить название группы: </h3> {{ form.name }}</div>
     <h3>Разрешения</h3>
-    {{ form }}
+    {{ form.permissions }}
     <button type="submit">Сохранить</button>
 </form>
 {%  endblock  %}

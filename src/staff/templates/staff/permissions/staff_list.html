@@ -10,7 +10,8 @@
             <tr>
                 <th style="width: 5%;">#</th>
                 <th>Сотрудник</th>
-                <th>Его группы и права</th>
+                <th>Его группы</th>
+                <th>Его права</th>
                 <th style="width: 150px;">Действия</th>
             </tr>
         </thead>
@@ -19,8 +20,32 @@
                 <tr>
                     <td>{{  staff.id  }}</td>
                     <td>{{  staff  }}</td>
-                    <td>{{  staff.permissions  }}</td>
-                    <td class="d-flex gap-2">Кнопки</td>
+                    <td>
+                        {%  if user.groups.all  %}
+                            {%  for group in user.groups.all  %}
+                                {{  group  }}{%  if not forloop.last  %}, {%  endif  %}
+                            {%  endfor  %}
+                        {% else %}
+                            <span class="text-muted">Нет групп</span>
+                        {% endif %}
+                        </td>
+                        <td>
+                            {% if staff.user_permissions.all %}
+                            <div class="mt-1">
+                                {% for perm in staff.user_permissions.all|slice:":3" %}
+                                    <span>{{ perm.name }}</span><br>
+                                {% endfor %}
+                                {% if staff.user_permissions.count > 3 %}
+                                    <span>+{{ staff.user_permissions.count|add:"-3" }} ещё</span>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <span class="text-muted">Нет индивидуальных прав</span>
+                        {% endif %}
+                    </td>
+                    <td class="d-flex gap-2">
+                        <a href="{%  url 'edit_staff_permissions' staff.id %}"><button>Управление разрешениями</button></a>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>

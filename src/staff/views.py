@@ -3,7 +3,7 @@ import datetime
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import user_passes_test
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
 from django.core.paginator import Paginator
 from django.db.models import OuterRef, Subquery, Count, Avg
 from django.db.models.functions import TruncMonth
@@ -128,11 +128,11 @@ def is_superuser(user):
 
 @user_passes_test(is_superuser)
 def staff_group_list(request):
-    groups = Group.objects.all().prefetch_related("permissions")
+    groups = Group.objects.all().prefetch_related("permissions").annotate(count_staff=Count("CustomUser"))
 
     return render(
         request,
-        "staff/permissions/staff_groups_list.html",
+        "staff/permissions/groups_list.html",
         {"title": "Список групп разрешений", "groups": groups},
     )
 
@@ -148,7 +148,7 @@ def staff_group_edit(request, pk=None):
         return redirect("staff_groups_list")
     return render(
         request,
-        "staff/permissions/edit_staff_groups.html",
+        "staff/permissions/edit_groups.html",
         {
             "title": "Страница управления разрешениями",
             "group": group,
@@ -159,12 +159,71 @@ def staff_group_edit(request, pk=None):
 
 @user_passes_test(is_superuser)
 def staff_list(request):
-    staffs = CustomUser.objects.all()
+    staffs = CustomUser.objects.filter(is_staff=True).prefetch_related('groups', 'user_permissions')
     return render(
         request,
         "staff/permissions/staff_list.html",
         {"title": "Страница сотрудников", "staffs": staffs},
     )
+
+
+@user_passes_test(is_superuser)
+def edit_staff_permissions(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+
+    if request.method == 'POST':
+        # Получаем выбранные группы из формы
+        selected_groups = request.POST.getlist('groups')
+
+        # Очищаем текущие группы и добавляем новые
+        user.groups.clear()
+        for group_id in selected_groups:
+            group = Group.objects.get(id=group_id)
+            user.groups.add(group)
+
+        # Получаем все доступные разрешения, сгруппированные по приложениям
+        from django.contrib.auth.models import Permission
+
+        # Сохраняем также индивидуальные разрешения (если есть)
+        all_permissions = Permission.objects.all()
+        for perm in all_permissions:
+            perm_codename = f"{perm.content_type.app_label}.{perm.codename}"
+            if perm_codename in request.POST:
+                user.user_permissions.add(perm)
+            else:
+                user.user_permissions.remove(perm)
+
+        return redirect('staff_list')
+
+    # Получаем все доступные группы и разрешения
+    all_groups = Group.objects.all()
+    user_groups = user.groups.all()
+
+    from django.contrib.auth.models import Permission
+    from django.db.models import Q
+    # Разрешения, которые можно назначать индивидуально
+    assignable_permissions = Permission.objects.exclude(
+        Q(codename__startswith='add_') |
+        Q(codename__startswith='change_') |
+        Q(codename__startswith='delete_') |
+        Q(codename__startswith='view_')
+    )
+
+    # Группируем разрешения по приложениям
+    permissions_by_app = {}
+    for perm in assignable_permissions:
+        app_label = perm.content_type.app_label
+        if app_label not in permissions_by_app:
+            permissions_by_app[app_label] = []
+        permissions_by_app[app_label].append(perm)
+
+    return render(request, "staff/permissions/edit_staff_permissions.html", {
+        'user': user,
+        'all_groups': all_groups,
+        'user_groups': user_groups,
+        'permissions_by_app': permissions_by_app,
+        'user_permissions': user.user_permissions.all(),
+    })
 
 
 @staff_member_required

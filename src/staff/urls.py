@@ -14,6 +14,7 @@ urlpatterns = [
         "staff_groups/edit/<int:pk>/", views.staff_group_edit, name="edit_staff_groups"
     ),
     path("staff_groups/", views.staff_group_list, name="staff_groups_list"),
+    path("staff_list/<int:user_id>/groups/edit", views.edit_staff_permissions, name="edit_staff_permissions"),
     path("staff_list/", views.staff_list, name="staff_list"),
     # orders
     path("orders/<str:order_code>", views.order_info, name="order_info"),
