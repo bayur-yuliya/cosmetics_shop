@@ -2,8 +2,8 @@ import datetime
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth.decorators import user_passes_test
-from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.decorators import user_passes_test, permission_required
+from django.contrib.auth.models import Group
 from django.core.paginator import Paginator
 from django.db.models import OuterRef, Subquery, Count, Avg
 from django.db.models.functions import TruncMonth
@@ -122,13 +122,11 @@ def sales_comparison_chart_for_the_year(request):
     )
 
 
-def is_superuser(user):
-    return user.is_superuser
-
-
-@user_passes_test(is_superuser)
+@permission_required("auth.view_group", raise_exception=True)
 def staff_group_list(request):
-    groups = Group.objects.all().prefetch_related("permissions").annotate(count_staff=Count("CustomUser"))
+    groups = Group.objects.annotate(user_count=Count("user")).prefetch_related(
+        "permissions"
+    )
 
     return render(
         request,
@@ -137,7 +135,7 @@ def staff_group_list(request):
     )
 
 
-@user_passes_test(is_superuser)
+@permission_required("auth.change_group", raise_exception=True)
 def staff_group_edit(request, pk=None):
     group = get_object_or_404(Group, pk=pk) if pk else None
     form = GroupForm(request.POST or None, instance=group)
@@ -157,9 +155,11 @@ def staff_group_edit(request, pk=None):
     )
 
 
-@user_passes_test(is_superuser)
+@permission_required("auth.view_group", raise_exception=True)
 def staff_list(request):
-    staffs = CustomUser.objects.filter(is_staff=True).prefetch_related('groups', 'user_permissions')
+    staffs = CustomUser.objects.filter(is_staff=True).prefetch_related(
+        "groups", "user_permissions"
+    )
     return render(
         request,
         "staff/permissions/staff_list.html",
@@ -167,13 +167,13 @@ def staff_list(request):
     )
 
 
-@user_passes_test(is_superuser)
+@permission_required("auth.change_group", raise_exception=True)
 def edit_staff_permissions(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         # Получаем выбранные группы из формы
-        selected_groups = request.POST.getlist('groups')
+        selected_groups = request.POST.getlist("groups")
 
         # Очищаем текущие группы и добавляем новые
         user.groups.clear()
@@ -185,15 +185,10 @@ def edit_staff_permissions(request, user_id):
         from django.contrib.auth.models import Permission
 
         # Сохраняем также индивидуальные разрешения (если есть)
-        all_permissions = Permission.objects.all()
-        for perm in all_permissions:
-            perm_codename = f"{perm.content_type.app_label}.{perm.codename}"
-            if perm_codename in request.POST:
-                user.user_permissions.add(perm)
-            else:
-                user.user_permissions.remove(perm)
+        selected_perm_ids = request.POST.getlist("permissions")
+        user.user_permissions.set(selected_perm_ids)
 
-        return redirect('staff_list')
+        return redirect("staff_list")
 
     # Получаем все доступные группы и разрешения
     all_groups = Group.objects.all()
@@ -201,12 +196,13 @@ def edit_staff_permissions(request, user_id):
 
     from django.contrib.auth.models import Permission
     from django.db.models import Q
+
     # Разрешения, которые можно назначать индивидуально
     assignable_permissions = Permission.objects.exclude(
-        Q(codename__startswith='add_') |
-        Q(codename__startswith='change_') |
-        Q(codename__startswith='delete_') |
-        Q(codename__startswith='view_')
+        Q(codename__startswith="add_")
+        | Q(codename__startswith="change_")
+        | Q(codename__startswith="delete_")
+        | Q(codename__startswith="view_")
     )
 
     # Группируем разрешения по приложениям
@@ -217,16 +213,20 @@ def edit_staff_permissions(request, user_id):
             permissions_by_app[app_label] = []
         permissions_by_app[app_label].append(perm)
 
-    return render(request, "staff/permissions/edit_staff_permissions.html", {
-        'user': user,
-        'all_groups': all_groups,
-        'user_groups': user_groups,
-        'permissions_by_app': permissions_by_app,
-        'user_permissions': user.user_permissions.all(),
-    })
+    return render(
+        request,
+        "staff/permissions/edit_staff_permissions.html",
+        {
+            "user": user,
+            "all_groups": all_groups,
+            "user_groups": user_groups,
+            "permissions_by_app": permissions_by_app,
+            "user_permissions": user.user_permissions.all(),
+        },
+    )
 
 
-@staff_member_required
+@permission_required("cosmetics_shop.view_product", raise_exception=True)
 def products(request):
     title = "Товары"
     products = Product.objects.all().order_by("-id").filter(is_active=True)
@@ -280,7 +280,7 @@ def products(request):
     )
 
 
-@staff_member_required
+@permission_required("cosmetics_shop.view_product", raise_exception=True)
 def product_card(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     title = product.name
@@ -296,7 +296,7 @@ def product_card(request, product_id):
     )
 
 
-@staff_member_required
+@permission_required("cosmetics_shop.add_product", raise_exception=True)
 def create_products(request):
     title = "Создание карточки товара"
 
@@ -321,7 +321,7 @@ def create_products(request):
     )
 
 
-@staff_member_required
+@permission_required("cosmetics_shop.change_product", raise_exception=True)
 def edit_products(request, product_id):
     title = "Изменение товара"
     product = Product.objects.get(id=product_id)
@@ -346,7 +346,7 @@ def edit_products(request, product_id):
 
 
 @require_POST
-@staff_member_required
+@permission_required("cosmetics_shop.delete_product", raise_exception=True)
 def delete_product(request):
     product_id = request.POST.get("product_id")
     product = Product.objects.get(id=product_id)
@@ -355,7 +355,7 @@ def delete_product(request):
     return redirect("products")
 
 
-@staff_member_required
+@permission_required("cosmetics_shop.view_order", raise_exception=True)
 def orders(request):
     title = "Список заказов"
     latest_status_subquery = OrderStatusLog.objects.filter(
@@ -409,7 +409,7 @@ def orders(request):
     )
 
 
-@staff_member_required
+@permission_required("cosmetics_shop.view_order", raise_exception=True)
 def order_info(request, order_code):
     title = f"Заказ {order_code}"
     order = Order.objects.get(code=order_code)
@@ -455,6 +455,7 @@ def order_info(request, order_code):
     )
 
 
+@permission_required("cosmetics_shop.view_brand", raise_exception=True)
 def brands_list(request):
     title = "Список брендов"
     list = Brand.objects.all()
@@ -470,6 +471,7 @@ def brands_list(request):
     )
 
 
+@permission_required("cosmetics_shop.view_category", raise_exception=True)
 def categories_list(request):
     title = "Список категорий"
     list = Category.objects.all()
@@ -483,6 +485,7 @@ def categories_list(request):
     )
 
 
+@permission_required("cosmetics_shop.view_tag", raise_exception=True)
 def tags_list(request):
     title = "Список тегов"
     list = Tag.objects.all()
@@ -496,6 +499,7 @@ def tags_list(request):
     )
 
 
+@permission_required("cosmetics_shop.view_groupproduct", raise_exception=True)
 def groups_list(request):
     title = " Список групп"
     list = GroupProduct.objects.all()
@@ -509,6 +513,7 @@ def groups_list(request):
     )
 
 
+@permission_required("cosmetics_shop.add_category", raise_exception=True)
 def create_categories(request):
     name = "Категория"
     if request.method == "POST":
@@ -528,6 +533,7 @@ def create_categories(request):
     )
 
 
+@permission_required("cosmetics_shop.add_groupproduct", raise_exception=True)
 def create_groups(request):
     name = "Группа"
     if request.method == "POST":
@@ -547,6 +553,7 @@ def create_groups(request):
     )
 
 
+@permission_required("cosmetics_shop.add_brand", raise_exception=True)
 def create_brands(request):
     name = "Бренд"
     if request.method == "POST":
@@ -566,6 +573,7 @@ def create_brands(request):
     )
 
 
+@permission_required("cosmetics_shop.add_tag", raise_exception=True)
 def create_tags(request):
     name = "Тег"
     if request.method == "POST":
@@ -586,6 +594,7 @@ def create_tags(request):
 
 
 @require_POST
+@permission_required("cosmetics_shop.delete_tag", raise_exception=True)
 def delete_tags(request):
     tag_id = request.POST.get("id")
     tag = get_object_or_404(Tag, id=tag_id)
@@ -594,6 +603,7 @@ def delete_tags(request):
 
 
 @require_POST
+@permission_required("cosmetics_shop.delete_category", raise_exception=True)
 def delete_categories(request):
     category_id = request.POST.get("id")
     category = get_object_or_404(Category, id=category_id)
@@ -602,6 +612,7 @@ def delete_categories(request):
 
 
 @require_POST
+@permission_required("cosmetics_shop.delete_groupproduct", raise_exception=True)
 def delete_groups(request):
     group_id = request.POST.get("id")
     group = get_object_or_404(GroupProduct, id=group_id)
@@ -610,6 +621,7 @@ def delete_groups(request):
 
 
 @require_POST
+@permission_required("cosmetics_shop.delete_brand", raise_exception=True)
 def delete_brands(request):
     brand_id = request.POST.get("id")
     brand = get_object_or_404(Brand, id=brand_id)
@@ -617,6 +629,7 @@ def delete_brands(request):
     return redirect("brands_list")
 
 
+@permission_required("cosmetics_shop.change_category", raise_exception=True)
 def edit_categories(request, pk):
     category = get_object_or_404(Category, id=pk)
 
@@ -636,6 +649,7 @@ def edit_categories(request, pk):
     )
 
 
+@permission_required("cosmetics_shop.change_groupproduct", raise_exception=True)
 def edit_groups(request, pk):
     group = get_object_or_404(GroupProduct, id=pk)
 
@@ -655,6 +669,7 @@ def edit_groups(request, pk):
     )
 
 
+@permission_required("cosmetics_shop.change_brand", raise_exception=True)
 def edit_brands(request, pk):
     brand = get_object_or_404(Brand, id=pk)
 
@@ -674,6 +689,7 @@ def edit_brands(request, pk):
     )
 
 
+@permission_required("cosmetics_shop.change_tag", raise_exception=True)
 def edit_tags(request, pk):
     tag = get_object_or_404(Tag, id=pk)
 

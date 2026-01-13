@@ -27,12 +27,12 @@
                         Нет разрешений
                     {% endfor %}
                     </td>
-                    <td>0</td>
+                    <td>{{  group.user_count  }}</td>
                     <td>
-                        <a href="{%  url 'edit_staff_groups' group.id %}"><button>
+                        <a href="{%  url 'edit_staff_groups' group.id %}" class="btn btn-secondary">
                             Изменить
-                        </button></a>
-                        <button>Удалить</button>
+                        </a>
+                        <button  class="btn btn-danger">Удалить</button>
                     </td>
                 </tr>
             {% endfor %}

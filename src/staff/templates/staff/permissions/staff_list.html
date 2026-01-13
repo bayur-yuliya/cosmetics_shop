@@ -23,7 +23,7 @@
                     <td>
                         {%  if user.groups.all  %}
                             {%  for group in user.groups.all  %}
-                                {{  group  }}{%  if not forloop.last  %}, {%  endif  %}
+                                {{  group  }}{%  if not forloop.last  %}, {%  endif  %}<br>
                             {%  endfor  %}
                         {% else %}
                             <span class="text-muted">Нет групп</span>
@@ -44,7 +44,7 @@
                         {% endif %}
                     </td>
                     <td class="d-flex gap-2">
-                        <a href="{%  url 'edit_staff_permissions' staff.id %}"><button>Управление разрешениями</button></a>
+                        <a href="{%  url 'edit_staff_permissions' staff.id %}" class="btn btn-secondary">Управление разрешениями</a>
                     </td>
                 </tr>
             {% endfor %}
