@@ -9,15 +9,17 @@
         <thead class="table-light">
             <tr>
                 <th style="width: 5%;">#</th>
-                <th>Название</th>
+                <th>Сотрудник</th>
+                <th>Его группы и права</th>
                 <th style="width: 150px;">Действия</th>
             </tr>
         </thead>
         <tbody>
-            {%  for group in groups  %}
+            {%  for staff in staffs  %}
                 <tr>
-                    <td>{{  group.id  }}</td>
-                    <td>{{  group  }}</td>
+                    <td>{{  staff.id  }}</td>
+                    <td>{{  staff  }}</td>
+                    <td>{{  staff.permissions  }}</td>
                     <td class="d-flex gap-2">Кнопки</td>
                 </tr>
             {% endfor %}

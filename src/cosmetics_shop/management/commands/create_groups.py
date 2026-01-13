@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
-from cosmetics_shop.models import Order
+from cosmetics_shop.models import Order, Product, Category
 
 
 class Command(BaseCommand):
@@ -10,29 +10,26 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         sales_group, created = Group.objects.get_or_create(name="Менеджеры по продажам")
         sales_permissions = [
-            "can_change_order_status",
             "can_view_all_orders",
         ]
 
         order_content_type = ContentType.objects.get_for_model(Order)
         for perm_code in sales_permissions:
-            perm, _ = Permission.objects.get_or_create(
+            perm = Permission.objects.get(
                 content_type=order_content_type, codename=perm_code
             )
-            sales_group.permissions.add(perm.id)
+            sales_group.permissions.add(perm)
 
         content_group, created = Group.objects.get_or_create(name="Контент-менеджеры")
         content_permissions = [
-            ("product", "can_edit_product"),
-            ("product", "can_manage_product_stock"),
-            ("category", "can_manage_categories"),
+            (Product, "can_edit_product"),
+            (Product, "can_manage_product_stock"),
+            (Category, "can_manage_categories"),
         ]
 
         for app_label, perm_code in content_permissions:
-            content_type, _ = ContentType.objects.get_or_create(app_label=app_label)
-            perm, _ = Permission.objects.get_or_create(
-                content_type=content_type, codename=perm_code
-            )
+            content_type = ContentType.objects.get_for_model(app_label)
+            perm = Permission.objects.get(content_type=content_type, codename=perm_code)
             content_group.permissions.add(perm)
 
         senior_group, created = Group.objects.get_or_create(name="Старшие менеджеры")

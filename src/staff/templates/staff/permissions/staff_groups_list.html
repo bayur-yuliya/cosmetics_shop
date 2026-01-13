@@ -1,0 +1,45 @@
+{%  extends "staff/base.html"  %}
+
+{%  block title  %}{{  title  }}{%  endblock  %}
+
+{%  block content  %}
+<h1>{{  title  }}</h1>
+<div class="table-responsive">
+    <table class="table align-middle table-bordered">
+        <thead class="table-light">
+            <tr>
+                <th style="width: 5%;">#</th>
+                <th>Название группы</th>
+                <th>Список прав</th>
+                <th style="width: 150px;">Количество пользователей</th>
+                <th style="width: 150px;">Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%  for group in groups  %}
+                <tr>
+                    <td>{{  group.id  }}</td>
+                    <td>{{  group  }}</td>
+                    <td>
+                    {% for perm in group.permissions.all %}
+                        {{ perm.name }}{% if not forloop.last %}, {% endif %}<br>
+                    {% empty %}
+                        Нет разрешений
+                    {% endfor %}
+                    </td>
+                    <td>0</td>
+                    <td class="d-flex gap-2">
+                        <a href="{%  url 'edit_staff_groups' group.id %}"><button>
+                            Изменить
+                        </button></a>
+                        <button>Клонировать</button>
+                    </td>
+                    <td class="d-flex gap-2">
+                        <button>Удалить</button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{%  endblock  %}

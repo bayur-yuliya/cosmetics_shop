@@ -128,11 +128,11 @@ def is_superuser(user):
 
 @user_passes_test(is_superuser)
 def staff_group_list(request):
-    groups = Group.objects.all()
+    groups = Group.objects.all().prefetch_related("permissions")
 
     return render(
         request,
-        "staff/staff_groups_list.html",
+        "staff/permissions/staff_groups_list.html",
         {"title": "Список групп разрешений", "groups": groups},
     )
 
@@ -142,9 +142,19 @@ def staff_group_edit(request, pk=None):
     group = get_object_or_404(Group, pk=pk) if pk else None
     form = GroupForm(request.POST or None, instance=group)
     if request.method == "POST" and form.is_valid():
+        print(form)
         form.save()
-        return redirect("groups:list")
-    return render(request, "staff/edit_staff_groups.html", {"form": form})
+
+        return redirect("staff_groups_list")
+    return render(
+        request,
+        "staff/permissions/edit_staff_groups.html",
+        {
+            "title": "Страница управления разрешениями",
+            "group": group,
+            "form": form,
+        },
+    )
 
 
 @user_passes_test(is_superuser)
@@ -152,7 +162,7 @@ def staff_list(request):
     staffs = CustomUser.objects.all()
     return render(
         request,
-        "staff/staff_list.html",
+        "staff/permissions/staff_list.html",
         {"title": "Страница сотрудников", "staffs": staffs},
     )
 

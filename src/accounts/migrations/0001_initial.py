@@ -50,14 +50,14 @@ class Migration(migrations.Migration):
                     models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 (
-                    "groups",
+                    "permissions",
                     models.ManyToManyField(
                         blank=True,
-                        help_text="The groups this user belongs to. A user will get all permissions granted to each of their groups.",
+                        help_text="The permissions this user belongs to. A user will get all permissions granted to each of their permissions.",
                         related_name="user_set",
                         related_query_name="user",
                         to="auth.group",
-                        verbose_name="groups",
+                        verbose_name="permissions",
                     ),
                 ),
                 (

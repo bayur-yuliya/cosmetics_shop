@@ -138,6 +138,7 @@ class Product(models.Model):
             self.code = self._generate_unique_code()
         super().save(*args, **kwargs)
 
+    @staticmethod
     def _generate_unique_code(self):
         while True:
             code = random.randint(10000, 99999)
@@ -151,7 +152,6 @@ class Product(models.Model):
         permissions = [
             ("can_edit_product", "Может изменять товар"),
             ("can_delete_product", "Может удалить товар"),
-            ("can_add_product", "Может добавлять товар"),
             ("can_manage_product_stock", "Может управлять остатками товара"),
         ]
 
@@ -199,6 +199,7 @@ class Order(models.Model):
             self.code = self.generate_unique_code()
         super().save(*args, **kwargs)
 
+    @staticmethod
     def generate_unique_code(self):
         """
         Code generation: ORD-20250715-XXXX (date + serial number)
@@ -218,7 +219,6 @@ class Order(models.Model):
         ordering = ["-id"]
         permissions = [
             ("can_view_all_orders", "Может просматривать все заказы"),
-            ("can_delete_orders", "Может удалять заказы"),
         ]
 
 

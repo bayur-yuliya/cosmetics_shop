@@ -9,8 +9,10 @@ urlpatterns = [
     path("products/<int:product_id>", views.product_card, name="product_card"),
     path("products/delete", views.delete_product, name="delete_product"),
     path("products/", views.products, name="products"),
-    # staff groups
-    path("staff_groups/edit/<int:pk>/", views.edit_groups, name="edit_staff_groups"),
+    # staff permissions
+    path(
+        "staff_groups/edit/<int:pk>/", views.staff_group_edit, name="edit_staff_groups"
+    ),
     path("staff_groups/", views.staff_group_list, name="staff_groups_list"),
     path("staff_list/", views.staff_list, name="staff_list"),
     # orders
@@ -21,11 +23,11 @@ urlpatterns = [
     path("categories/edit/<int:pk>/", views.edit_categories, name="edit_categories"),
     path("categories/delete/", views.delete_categories, name="delete_categories"),
     path("categories/", views.categories_list, name="categories_list"),
-    # groups
-    path("groups/create/", views.create_groups, name="create_groups"),
-    path("groups/edit/<int:pk>/", views.edit_groups, name="edit_groups"),
-    path("groups/delete/", views.delete_groups, name="delete_groups"),
-    path("groups/", views.groups_list, name="groups_list"),
+    # permissions
+    path("permissions/create/", views.create_groups, name="create_groups"),
+    path("permissions/edit/<int:pk>/", views.edit_groups, name="edit_groups"),
+    path("permissions/delete/", views.delete_groups, name="delete_groups"),
+    path("permissions/", views.groups_list, name="groups_list"),
     # brands
     path("brands/create/", views.create_brands, name="create_brands"),
     path("brands/edit/<int:pk>/", views.edit_brands, name="edit_brands"),
