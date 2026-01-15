@@ -1,7 +1,6 @@
 import datetime
 
 from django.contrib import messages
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.models import Group
 from django.core.paginator import Paginator
@@ -43,7 +42,7 @@ from .services.dashboard_service import (
 )
 
 
-@staff_member_required
+@permission_required("staff.view_dashboard", raise_exception=False)
 def index(request):
     title = "Главная страница"
     today = datetime.date.today()
@@ -140,7 +139,6 @@ def staff_group_edit(request, pk=None):
     group = get_object_or_404(Group, pk=pk) if pk else None
     form = GroupForm(request.POST or None, instance=group)
     if request.method == "POST" and form.is_valid():
-        print(form)
         form.save()
 
         return redirect("staff_groups_list")

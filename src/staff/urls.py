@@ -28,11 +28,11 @@ urlpatterns = [
     path("categories/edit/<int:pk>/", views.edit_categories, name="edit_categories"),
     path("categories/delete/", views.delete_categories, name="delete_categories"),
     path("categories/", views.categories_list, name="categories_list"),
-    # permissions
-    path("permissions/create/", views.create_groups, name="create_groups"),
-    path("permissions/edit/<int:pk>/", views.edit_groups, name="edit_groups"),
-    path("permissions/delete/", views.delete_groups, name="delete_groups"),
-    path("permissions/", views.groups_list, name="groups_list"),
+    # groups
+    path("groups/create/", views.create_groups, name="create_groups"),
+    path("groups/edit/<int:pk>/", views.edit_groups, name="edit_groups"),
+    path("groups/delete/", views.delete_groups, name="delete_groups"),
+    path("groups/", views.groups_list, name="groups_list"),
     # brands
     path("brands/create/", views.create_brands, name="create_brands"),
     path("brands/edit/<int:pk>/", views.edit_brands, name="edit_brands"),

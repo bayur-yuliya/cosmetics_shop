@@ -1,7 +1,14 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
-from cosmetics_shop.models import Order, Product, Category, Tag, GroupProduct
+from cosmetics_shop.models import (
+    Order,
+    Product,
+    Category,
+    Tag,
+    GroupProduct,
+    OrderStatusLog, Brand,
+)
 from staff.models import StaffPermission
 
 
@@ -12,21 +19,19 @@ class Command(BaseCommand):
         # Менеджеры по продажам
         sales_group, _ = Group.objects.get_or_create(name="Менеджеры магазина")
         sales_permissions = [
-            "can_view_all_orders",
-        ]
-        a = [
             (StaffPermission, "view_dashboard"),
             (Order, "view_order"),
+            (OrderStatusLog, "view_orderstatuslog"),
             (Product, "view_product"),
             (Category, "view_category"),
             (Tag, "view_tag"),
             (GroupProduct, "view_groupproduct"),
         ]
 
-        order_content_type = ContentType.objects.get_for_model(Order)
-        for perm_code in sales_permissions:
+        for order_content_type, perm_code in sales_permissions:
+            content_type = ContentType.objects.get_for_model(order_content_type)
             perm = Permission.objects.get(
-                content_type=order_content_type, codename=perm_code
+                content_type=content_type, codename=perm_code
             )
             sales_group.permissions.add(perm)
 
@@ -42,6 +47,9 @@ class Command(BaseCommand):
             (Tag, "add_tag"),
             (Tag, "change_tag"),
             (Tag, "view_tag"),
+            (Brand, "add_brand"),
+            (Brand, "change_brand"),
+            (Brand, "view_brand"),
             (GroupProduct, "add_groupproduct"),
             (GroupProduct, "change_groupproduct"),
             (GroupProduct, "view_groupproduct"),
@@ -60,6 +68,8 @@ class Command(BaseCommand):
         operator_permissions = [
             (Order, "view_order"),
             (StaffPermission, "can_change_order_status"),
+            (OrderStatusLog, "add_orderstatuslog"),
+            (OrderStatusLog, "view_orderstatuslog"),
         ]
 
         for app_label, perm_code in operator_permissions:
@@ -70,11 +80,20 @@ class Command(BaseCommand):
         # Старшие менеджеры
 
         senior_group, _ = Group.objects.get_or_create(name="Администратор")
-        all_order_perms = Permission.objects.filter(content_type=order_content_type)
-        dashboard_perm = Permission.objects.get(
-            content_type=ContentType.objects.get_for_model(StaffPermission),
-            codename="view_dashboard"
+        all_order_perms = Permission.objects.filter(
+            content_type__model__in=[
+                "order",
+                "product",
+                "category",
+                "tag",
+                "groupproduct",
+                "brand",
+                "orderstatuslog",
+                "can_change_product_price",
+                "can_manage_product_stock",
+                "can_change_order_status",
+            ]
         )
-        senior_group.permissions.add(*all_order_perms, dashboard_perm)
+        senior_group.permissions.add(*all_order_perms)
 
         self.stdout.write(self.style.SUCCESS("Группы успешно созданы!"))
