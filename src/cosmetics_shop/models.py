@@ -88,11 +88,6 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
-    class Meta:
-        permissions = [
-            ("can_manage_categories", "Может управлять категориями"),
-        ]
-
 
 class GroupProduct(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -135,7 +130,7 @@ class Product(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.code:
-            self.code = self._generate_unique_code()
+            self.code = self._generate_unique_code(self)
         super().save(*args, **kwargs)
 
     @staticmethod
@@ -147,13 +142,6 @@ class Product(models.Model):
 
     def __str__(self):
         return f"{self.group.name} - {self.name}"
-
-    class Meta:
-        permissions = [
-            ("can_edit_product", "Может изменять товар"),
-            ("can_delete_product", "Может удалить товар"),
-            ("can_manage_product_stock", "Может управлять остатками товара"),
-        ]
 
 
 class Favorite(models.Model):
@@ -217,9 +205,6 @@ class Order(models.Model):
 
     class Meta:
         ordering = ["-id"]
-        permissions = [
-            ("can_view_all_orders", "Может просматривать все заказы"),
-        ]
 
 
 class OrderItem(models.Model):
@@ -255,6 +240,3 @@ class OrderStatusLog(models.Model):
 
     class Meta:
         ordering = ["-changed_at"]
-        permissions = [
-            ("can_change_order_status", "Может изменить статус заказа"),
-        ]

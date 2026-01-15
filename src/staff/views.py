@@ -2,7 +2,7 @@ import datetime
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth.decorators import user_passes_test, permission_required
+from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.models import Group
 from django.core.paginator import Paginator
 from django.db.models import OuterRef, Subquery, Count, Avg
