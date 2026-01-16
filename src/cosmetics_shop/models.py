@@ -3,6 +3,7 @@ import random
 from django.conf import settings
 from django.db import models
 from django.utils.timezone import now
+from django.utils.translation import gettext_lazy as _
 
 from accounts.models import CustomUser
 from accounts.utils.validators import validate_phone_number
@@ -88,6 +89,10 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = _("Категория")
+        verbose_name_plural = _("Категории")
+
 
 class GroupProduct(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -95,6 +100,10 @@ class GroupProduct(models.Model):
 
     def __str__(self):
         return f"{self.name}"
+
+    class Meta:
+        verbose_name = _("Группа товаров")
+        verbose_name_plural = _("Группы товаров")
 
 
 class Brand(models.Model):
@@ -105,6 +114,8 @@ class Brand(models.Model):
 
     class Meta:
         ordering = ["name"]
+        verbose_name = _("Бренд")
+        verbose_name_plural = _("Бренды")
 
 
 class Tag(models.Model):
@@ -112,6 +123,10 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = _("Тег")
+        verbose_name_plural = _("Теги")
 
 
 class Product(models.Model):
@@ -142,6 +157,10 @@ class Product(models.Model):
 
     def __str__(self):
         return f"{self.group.name} - {self.name}"
+
+    class Meta:
+        verbose_name = _("Товар")
+        verbose_name_plural = _("Товары")
 
 
 class Favorite(models.Model):
@@ -205,6 +224,8 @@ class Order(models.Model):
 
     class Meta:
         ordering = ["-id"]
+        verbose_name = _("Заказ")
+        verbose_name_plural = _("Заказы")
 
 
 class OrderItem(models.Model):
@@ -219,6 +240,10 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.order} - {self.product}"
+
+    class Meta:
+        verbose_name = _("Товар в заказе")
+        verbose_name_plural = _("Товары в заказе")
 
 
 class OrderStatusLog(models.Model):
@@ -240,3 +265,5 @@ class OrderStatusLog(models.Model):
 
     class Meta:
         ordering = ["-changed_at"]
+        verbose_name = _("Статус заказа")
+        verbose_name_plural = _("Статусы заказов")

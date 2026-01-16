@@ -21,4 +21,6 @@ class Command(BaseCommand):
         for user in CustomUser.objects.filter(is_superuser=True):
             user.user_permissions.add(perm)
 
-        self.stdout.write(self.style.SUCCESS("Право manage_permissions выдано суперпользователям!"))
+        self.stdout.write(
+            self.style.SUCCESS("Право manage_permissions выдано суперпользователям!")
+        )

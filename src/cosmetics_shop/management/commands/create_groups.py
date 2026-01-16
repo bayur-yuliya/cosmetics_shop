@@ -7,7 +7,8 @@ from cosmetics_shop.models import (
     Category,
     Tag,
     GroupProduct,
-    OrderStatusLog, Brand,
+    OrderStatusLog,
+    Brand,
 )
 from staff.models import StaffPermission
 
@@ -30,9 +31,7 @@ class Command(BaseCommand):
 
         for order_content_type, perm_code in sales_permissions:
             content_type = ContentType.objects.get_for_model(order_content_type)
-            perm = Permission.objects.get(
-                content_type=content_type, codename=perm_code
-            )
+            perm = Permission.objects.get(content_type=content_type, codename=perm_code)
             sales_group.permissions.add(perm)
 
         # Контент-менеджеры
