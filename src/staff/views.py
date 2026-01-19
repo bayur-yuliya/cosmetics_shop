@@ -280,7 +280,7 @@ def products(request):
 
 @permission_required("cosmetics_shop.view_product", raise_exception=True)
 def product_card(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
+    product = get_object_or_404(Product, pk=product_id)
     title = product.name
     tags = product.tags.all()
     return render(
@@ -297,16 +297,11 @@ def product_card(request, product_id):
 @permission_required("cosmetics_shop.add_product", raise_exception=True)
 def create_products(request):
     title = "Создание карточки товара"
-
     if request.method == "POST":
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
-            saved_product = form.save(commit=False)
-            saved_product.price = form.cleaned_data["price"] * 100
-            saved_product.save()
-            form.save_m2m()
+            form.save()
             return redirect("products")
-
     form = ProductForm()
 
     return render(
@@ -322,16 +317,14 @@ def create_products(request):
 @permission_required("cosmetics_shop.change_product", raise_exception=True)
 def edit_products(request, product_id):
     title = "Изменение товара"
-    product = Product.objects.get(id=product_id)
+    product = get_object_or_404(Product, pk=product_id)
     if request.method == "POST":
-        form = ProductForm(request.POST, request.FILES, instance=product)
+        form = ProductForm(request.POST, request.FILES, instance=product, user=request.user)
         if form.is_valid():
-            saved_product = form.save(commit=False)
-            saved_product.price = form.cleaned_data["price"] * 100
-            saved_product.save()
-            form.save_m2m()
-            return redirect("product_card", product_id)
-    form = ProductForm(instance=product)
+            price = form.cleaned_data["price"]
+            form.save()
+            return redirect("product_card", product_id=product_id)
+    form = ProductForm(instance=product, user=request.user)
     return render(
         request,
         "staff/edit_product.html",

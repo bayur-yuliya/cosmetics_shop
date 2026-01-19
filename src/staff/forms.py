@@ -1,3 +1,5 @@
+from decimal import Decimal, InvalidOperation
+
 from django import forms
 from django.contrib.auth.models import Permission, Group
 
@@ -34,7 +36,7 @@ class ProductForm(forms.ModelForm):
     tags = forms.ModelMultipleChoiceField(
         widget=forms.CheckboxSelectMultiple, queryset=Tag.objects.all(), required=False
     )
-    price = forms.DecimalField(max_digits=15, decimal_places=2)
+    price = forms.CharField(max_length=20)
 
     class Meta:
         model = Product
@@ -48,6 +50,25 @@ class ProductForm(forms.ModelForm):
             "description",
             "stock",
         ]
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if user:
+            self.user = user
+
+            if not user.has_perm("staff.can_change_product_price"):
+                self.fields.pop("price")
+
+            if not user.has_perm("staff.can_manage_product_stock"):
+                self.fields.pop("stock")
+
+    def clean_price(self):
+        price = self.cleaned_data["price"]
+        if isinstance(price, str):
+            price = price.replace(" ", "").replace(",", ".")
+
+        price = Decimal(price)
+        return int(price * 100)
 
 
 class OrderStatusForm(forms.ModelForm):

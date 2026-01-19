@@ -203,7 +203,7 @@ class Order(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.code:
-            self.code = self.generate_unique_code()
+            self.code = self.generate_unique_code(self)
         super().save(*args, **kwargs)
 
     @staticmethod
