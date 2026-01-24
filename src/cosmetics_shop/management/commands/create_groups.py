@@ -17,6 +17,18 @@ class Command(BaseCommand):
     help = "Создает стандартные группы с разрешениями для сотрудников"
 
     def handle(self, *args, **kwargs):
+        # Гости
+        visitor, _ = Group.objects.get_or_create(name="Гости")
+        visitor_permissions = [
+            (StaffPermission, "view_dashboard"),
+            (Product, "view_product"),
+        ]
+
+        for app_label, perm_code in visitor_permissions:
+            content_type = ContentType.objects.get_for_model(app_label)
+            perm = Permission.objects.get(content_type=content_type, codename=perm_code)
+            visitor.permissions.add(perm)
+
         # Менеджеры по продажам
         sales_group, _ = Group.objects.get_or_create(name="Менеджеры магазина")
         sales_permissions = [
@@ -29,8 +41,8 @@ class Command(BaseCommand):
             (GroupProduct, "view_groupproduct"),
         ]
 
-        for order_content_type, perm_code in sales_permissions:
-            content_type = ContentType.objects.get_for_model(order_content_type)
+        for app_label, perm_code in sales_permissions:
+            content_type = ContentType.objects.get_for_model(app_label)
             perm = Permission.objects.get(content_type=content_type, codename=perm_code)
             sales_group.permissions.add(perm)
 

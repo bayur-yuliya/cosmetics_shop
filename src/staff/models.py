@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 class StaffPermission(models.Model):
@@ -10,3 +11,5 @@ class StaffPermission(models.Model):
             ("can_manage_product_stock", "Может управлять остатками товара"),
             ("can_change_order_status", "Может изменять статус заказа"),
         ]
+        verbose_name = _("Разрешения сотрудника")
+        verbose_name_plural = _("Разрешения сотрудников")

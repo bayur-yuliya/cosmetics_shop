@@ -71,6 +71,10 @@ class Client(models.Model):
     def __str__(self):
         return self.first_name
 
+    class Meta:
+        verbose_name = _("Клиент")
+        verbose_name_plural = _("Клиенты")
+
 
 class DeliveryAddress(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
@@ -81,6 +85,10 @@ class DeliveryAddress(models.Model):
 
     def __str__(self):
         return f"{self.city}, {self.street}"
+
+    class Meta:
+        verbose_name = _("Адрес доставки")
+        verbose_name_plural = _("Адреса доставки")
 
 
 class Category(models.Model):
