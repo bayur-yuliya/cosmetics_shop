@@ -1,6 +1,6 @@
-##Cosmetics shop web-site
+## Cosmetics shop web-site
 
-###Installation
+### Installation
 1. Install dependencies
 ```
 pip install -r requirements.txt
@@ -10,7 +10,7 @@ pip install -r requirements.txt
 python manage.py migrate
 ```
 
-###Permissions
+### Permissions
 3. Translation permissions
 ```
 python manage.py translation_perms
@@ -24,7 +24,7 @@ python manage.py create_groups
 python manage.py add_superuser_perm
 ```
 
-###Run project
+### Run project
 6. Run web server
 ```
 python manage.py runserver
