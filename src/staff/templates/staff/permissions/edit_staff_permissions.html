@@ -1,5 +1,7 @@
 {% extends 'staff/base.html' %}
 
+{%  block title  %}{{  title  }}{%  endblock  %}
+
 {% block content %}
 <div class="container mt-4">
     <h1 class="mb-4">Настройка прав для {{ user.email }}</h1>

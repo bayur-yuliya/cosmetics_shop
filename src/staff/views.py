@@ -40,6 +40,7 @@ from .services.dashboard_service import (
     summ_bill,
     average_bill,
 )
+from .services.permission_service import get_individually_assigned_permits
 
 
 @permission_required("staff.view_dashboard", raise_exception=False)
@@ -165,7 +166,7 @@ def staff_list(request):
     )
 
 
-@permission_required("auth.change_group", raise_exception=True)
+@permission_required("staff.manage_permission", raise_exception=True)
 def edit_staff_permissions(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
 
@@ -179,9 +180,6 @@ def edit_staff_permissions(request, user_id):
             group = Group.objects.get(id=group_id)
             user.groups.add(group)
 
-        # Получаем все доступные разрешения, сгруппированные по приложениям
-        from django.contrib.auth.models import Permission
-
         # Сохраняем также индивидуальные разрешения (если есть)
         selected_perm_ids = request.POST.getlist("permissions")
         user.user_permissions.set(selected_perm_ids)
@@ -192,20 +190,11 @@ def edit_staff_permissions(request, user_id):
     all_groups = Group.objects.all()
     user_groups = user.groups.all()
 
-    from django.contrib.auth.models import Permission
-    from django.db.models import Q
-
-    # Разрешения, которые можно назначать индивидуально
-    assignable_permissions = Permission.objects.exclude(
-        Q(codename__startswith="add_")
-        | Q(codename__startswith="change_")
-        | Q(codename__startswith="delete_")
-        | Q(codename__startswith="view_")
-    )
+    permissions = get_individually_assigned_permits()
 
     # Группируем разрешения по приложениям
     permissions_by_app = {}
-    for perm in assignable_permissions:
+    for perm in permissions:
         app_label = perm.content_type.app_label
         if app_label not in permissions_by_app:
             permissions_by_app[app_label] = []
@@ -216,6 +205,7 @@ def edit_staff_permissions(request, user_id):
         "staff/permissions/edit_staff_permissions.html",
         {
             "user": user,
+            "title": "Изменение разрешений",
             "all_groups": all_groups,
             "user_groups": user_groups,
             "permissions_by_app": permissions_by_app,
@@ -319,7 +309,9 @@ def edit_products(request, product_id):
     title = "Изменение товара"
     product = get_object_or_404(Product, pk=product_id)
     if request.method == "POST":
-        form = ProductForm(request.POST, request.FILES, instance=product, user=request.user)
+        form = ProductForm(
+            request.POST, request.FILES, instance=product, user=request.user
+        )
         if form.is_valid():
             price = form.cleaned_data["price"]
             form.save()

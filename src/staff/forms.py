@@ -1,7 +1,7 @@
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal
 
 from django import forms
-from django.contrib.auth.models import Permission, Group
+from django.contrib.auth.models import Group
 
 from cosmetics_shop.models import (
     Product,
@@ -11,6 +11,7 @@ from cosmetics_shop.models import (
     OrderStatusLog,
     Tag,
 )
+from staff.services.permission_service import get_individually_assigned_permits_names
 
 
 class CategoryForm(forms.ModelForm):
@@ -105,7 +106,7 @@ class TagForm(forms.ModelForm):
 class GroupForm(forms.ModelForm):
     name = forms.CharField(max_length=200)
     permissions = forms.ModelMultipleChoiceField(
-        queryset=Permission.objects.all(),
+        queryset=get_individually_assigned_permits_names(),
         widget=forms.CheckboxSelectMultiple,
         required=False,
     )
