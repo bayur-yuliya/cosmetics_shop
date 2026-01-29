@@ -310,7 +310,6 @@ def edit_products(request, product_id):
             request.POST, request.FILES, instance=product, user=request.user
         )
         if form.is_valid():
-            price = form.cleaned_data["price"]
             form.save()
             return redirect("product_card", product_id=product_id)
     form = ProductForm(instance=product, user=request.user)

@@ -120,3 +120,9 @@ class GroupForm(forms.ModelForm):
     class Meta:
         model = Group
         fields = ["name", "permissions"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["permissions"].label_from_instance = (
+            lambda perm: perm.name
+        )

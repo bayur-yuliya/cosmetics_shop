@@ -32,7 +32,7 @@ def get_individually_assigned_permits():
 
 def get_individually_assigned_permits_names():
     # Разрешения, которые можно назначать индивидуально
-    permissions = Permission.objects.exclude(
+    return Permission.objects.exclude(
         Q(
             content_type__app_label__in=[
                 "account",
@@ -54,5 +54,4 @@ def get_individually_assigned_permits_names():
                 "cart",
             ]
         )
-    ).values_list("name", flat=True)
-    return permissions
+    )
