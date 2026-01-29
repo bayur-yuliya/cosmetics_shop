@@ -5,10 +5,11 @@
 
 {% block content %}
 <div class="container my-4">
-
+    {%  if permissions.add  %}
     <div class="mb-3">
         <a href="{{ request.path }}create/" class="btn btn-success">Создать</a>
     </div>
+    {%  endif  %}
 
     {% if list %}
         <div class="table-responsive">
@@ -17,7 +18,9 @@
                     <tr>
                         <th style="width: 5%;">#</th>
                         <th>Название</th>
-                        <th style="width: 150px;">Действия</th>
+                        {%  if permissions.change or permissions.delete  %}
+                            <th style="width: 150px;">Действия</th>
+                        {%  endif  %}
                     </tr>
                 </thead>
                 <tbody>
@@ -25,10 +28,16 @@
                         <tr>
                             <td>{{ forloop.counter }}</td>
                             <td>{{ l }}</td>
+                            {%  if permissions.change or permissions.delete  %}
                             <td class="d-flex gap-2">
-                                <a href="{{ request.path }}edit/{{ l.id }}/" class="btn btn-primary btn-sm">Изменить</a>
-                                <button class="btn btn-danger btn-sm" onclick="openDeleteDialog({{ l.id }}, '{{ l }}')">Удалить</button>
+                                {%  if permissions.change  %}
+                                    <a href="{{ request.path }}edit/{{ l.id }}/" class="btn btn-primary btn-sm">Изменить</a>
+                                {%  endif  %}
+                                {%  if permissions.delete  %}
+                                    <button class="btn btn-danger btn-sm" onclick="openDeleteDialog({{ l.id }}, '{{ l }}')">Удалить</button>
+                                {%  endif  %}
                             </td>
+                            {%  endif  %}
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -41,17 +50,19 @@
     {% endif %}
 
     <!-- Диалог подтверждения удаления -->
-    <dialog id="deleteDialog">
-        <form method="POST" action="{{ request.path }}delete/">
-            {% csrf_token %}
-            <p id="deleteText"></p>
-            <input type="hidden" name="id" id="deleteId">
-            <div class="d-flex gap-2 mt-2">
-                <button type="reset" class="btn btn-secondary" onclick="document.getElementById('deleteDialog').close()">Назад</button>
-                <button type="submit" class="btn btn-danger">Удалить</button>
-            </div>
-        </form>
-    </dialog>
+    {%  if perms.delete  %}
+        <dialog id="deleteDialog">
+            <form method="POST" action="{{ request.path }}delete/">
+                {% csrf_token %}
+                <p id="deleteText"></p>
+                <input type="hidden" name="id" id="deleteId">
+                <div class="d-flex gap-2 mt-2">
+                    <button type="reset" class="btn btn-secondary" onclick="document.getElementById('deleteDialog').close()">Назад</button>
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                </div>
+            </form>
+        </dialog>
+    {%  endif  %}
 
 </div>
 

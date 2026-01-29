@@ -1,7 +1,8 @@
 import datetime
 
 from django.contrib import messages
-from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.models import Group
 from django.core.paginator import Paginator
 from django.db.models import OuterRef, Subquery, Count, Avg
 from django.db.models.functions import TruncMonth
@@ -10,6 +11,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
+from accounts.models import CustomUser
 from cosmetics_shop.models import (
     Product,
     Order,
@@ -30,6 +32,7 @@ from staff.forms import (
     TagForm,
     FilterStockForm,
     ProductStuffFilterForm,
+    GroupForm,
 )
 from .services.dashboard_service import (
     number_of_orders_today,
@@ -37,9 +40,11 @@ from .services.dashboard_service import (
     summ_bill,
     average_bill,
 )
+from .services.list_service import staff_list_view
+from .services.permission_service import get_individually_assigned_permits
 
 
-@staff_member_required
+@permission_required("staff.dashboard_view", raise_exception=False)
 def index(request):
     title = "Главная страница"
     today = datetime.date.today()
@@ -118,7 +123,95 @@ def sales_comparison_chart_for_the_year(request):
     )
 
 
-@staff_member_required
+@permission_required("staff.manage_permission", raise_exception=True)
+def staff_group_list(request):
+    groups = Group.objects.annotate(user_count=Count("user")).prefetch_related(
+        "permissions"
+    )
+
+    return render(
+        request,
+        "staff/permissions/groups_list.html",
+        {"title": "Список групп разрешений", "groups": groups},
+    )
+
+
+@permission_required("staff.manage_permission", raise_exception=True)
+def staff_group_edit(request, pk=None):
+    group = get_object_or_404(Group, pk=pk) if pk else None
+    form = GroupForm(request.POST or None, instance=group)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+
+        return redirect("staff_groups_list")
+    return render(
+        request,
+        "staff/permissions/edit_groups.html",
+        {
+            "title": "Страница управления разрешениями",
+            "group": group,
+            "form": form,
+        },
+    )
+
+
+@permission_required("staff.manage_permission", raise_exception=True)
+def staff_list(request):
+    staffs = CustomUser.objects.filter(is_staff=True).prefetch_related(
+        "groups", "user_permissions"
+    )
+    return render(
+        request,
+        "staff/permissions/staff_list.html",
+        {"title": "Страница сотрудников", "staffs": staffs},
+    )
+
+
+@permission_required("staff.manage_permission", raise_exception=True)
+def edit_staff_permissions(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+
+    if request.method == "POST":
+        selected_groups = request.POST.getlist("groups")
+
+        user.groups.clear()
+        for group_id in selected_groups:
+            group = Group.objects.get(id=group_id)
+            user.groups.add(group)
+
+        selected_perm_ids = request.POST.getlist("permissions")
+
+        user.user_permissions.set(selected_perm_ids)
+
+        return redirect("staff_list")
+
+    all_groups = Group.objects.all()
+    user_groups = user.groups.all()
+
+    permissions = get_individually_assigned_permits()
+
+    permissions_by_app = {}
+    for perm in permissions:
+        app_label = perm.content_type.app_label
+        if app_label not in permissions_by_app:
+            permissions_by_app[app_label] = []
+        permissions_by_app[app_label].append(perm)
+
+    return render(
+        request,
+        "staff/permissions/edit_staff_permissions.html",
+        {
+            "user": user,
+            "title": "Изменение разрешений",
+            "all_groups": all_groups,
+            "user_groups": user_groups,
+            "permissions_by_app": permissions_by_app,
+            "user_permissions": user.user_permissions.all(),
+        },
+    )
+
+
+@permission_required("cosmetics_shop.view_product", raise_exception=True)
 def products(request):
     title = "Товары"
     products = Product.objects.all().order_by("-id").filter(is_active=True)
@@ -172,9 +265,9 @@ def products(request):
     )
 
 
-@staff_member_required
+@permission_required("cosmetics_shop.view_product", raise_exception=True)
 def product_card(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
+    product = get_object_or_404(Product, pk=product_id)
     title = product.name
     tags = product.tags.all()
     return render(
@@ -188,19 +281,14 @@ def product_card(request, product_id):
     )
 
 
-@staff_member_required
+@permission_required("cosmetics_shop.add_product", raise_exception=True)
 def create_products(request):
     title = "Создание карточки товара"
-
     if request.method == "POST":
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
-            saved_product = form.save(commit=False)
-            saved_product.price = form.cleaned_data["price"] * 100
-            saved_product.save()
-            form.save_m2m()
+            form.save()
             return redirect("products")
-
     form = ProductForm()
 
     return render(
@@ -213,19 +301,18 @@ def create_products(request):
     )
 
 
-@staff_member_required
+@permission_required("cosmetics_shop.change_product", raise_exception=True)
 def edit_products(request, product_id):
     title = "Изменение товара"
-    product = Product.objects.get(id=product_id)
+    product = get_object_or_404(Product, pk=product_id)
     if request.method == "POST":
-        form = ProductForm(request.POST, request.FILES, instance=product)
+        form = ProductForm(
+            request.POST, request.FILES, instance=product, user=request.user
+        )
         if form.is_valid():
-            saved_product = form.save(commit=False)
-            saved_product.price = form.cleaned_data["price"] * 100
-            saved_product.save()
-            form.save_m2m()
-            return redirect("product_card", product_id)
-    form = ProductForm(instance=product)
+            form.save()
+            return redirect("product_card", product_id=product_id)
+    form = ProductForm(instance=product, user=request.user)
     return render(
         request,
         "staff/edit_product.html",
@@ -238,7 +325,7 @@ def edit_products(request, product_id):
 
 
 @require_POST
-@staff_member_required
+@permission_required("cosmetics_shop.delete_product", raise_exception=True)
 def delete_product(request):
     product_id = request.POST.get("product_id")
     product = Product.objects.get(id=product_id)
@@ -247,7 +334,7 @@ def delete_product(request):
     return redirect("products")
 
 
-@staff_member_required
+@permission_required("cosmetics_shop.view_order", raise_exception=True)
 def orders(request):
     title = "Список заказов"
     latest_status_subquery = OrderStatusLog.objects.filter(
@@ -301,13 +388,13 @@ def orders(request):
     )
 
 
-@staff_member_required
+@permission_required("cosmetics_shop.view_order", raise_exception=True)
 def order_info(request, order_code):
     title = f"Заказ {order_code}"
     order = Order.objects.get(code=order_code)
     order_items = OrderItem.objects.filter(order=order)
     if request.method == "POST":
-        form = OrderStatusForm(request.POST, instance=order)
+        form = OrderStatusForm(request.POST, instance=order, user=request.user)
         if form.is_valid():
             try:
                 last = OrderStatusLog.objects.filter(order=order).first()
@@ -331,7 +418,7 @@ def order_info(request, order_code):
                 messages.success(request, "Статус успешно изменен")
             return redirect("order_info", order_code=order.code)
     else:
-        form = OrderStatusForm(instance=order)
+        form = OrderStatusForm(instance=order, user=request.user)
         order_status_log = OrderStatusLog.objects.filter(order=order)
 
     return render(
@@ -347,25 +434,25 @@ def order_info(request, order_code):
     )
 
 
+@permission_required("cosmetics_shop.view_brand", raise_exception=True)
 def brands_list(request):
     title = "Список брендов"
     list = Brand.objects.all()
-    name = "brands"
-    return render(
+    return staff_list_view(
         request,
         "staff/lists_page.html",
         {
             "title": title,
             "list": list,
-            "name": name,
         },
     )
 
 
+@permission_required("cosmetics_shop.view_category", raise_exception=True)
 def categories_list(request):
     title = "Список категорий"
     list = Category.objects.all()
-    return render(
+    return staff_list_view(
         request,
         "staff/lists_page.html",
         {
@@ -375,10 +462,11 @@ def categories_list(request):
     )
 
 
+@permission_required("cosmetics_shop.view_tag", raise_exception=True)
 def tags_list(request):
     title = "Список тегов"
     list = Tag.objects.all()
-    return render(
+    return staff_list_view(
         request,
         "staff/lists_page.html",
         {
@@ -388,10 +476,11 @@ def tags_list(request):
     )
 
 
+@permission_required("cosmetics_shop.view_groupproduct", raise_exception=True)
 def groups_list(request):
     title = " Список групп"
     list = GroupProduct.objects.all()
-    return render(
+    return staff_list_view(
         request,
         "staff/lists_page.html",
         {
@@ -401,8 +490,9 @@ def groups_list(request):
     )
 
 
+@permission_required("cosmetics_shop.add_category", raise_exception=True)
 def create_categories(request):
-    name = "Категория"
+    title = "Создание категории"
     if request.method == "POST":
         form = CategoryForm(request.POST)
         if form.is_valid():
@@ -414,14 +504,15 @@ def create_categories(request):
         request,
         "staff/create_page.html",
         {
-            "name": name,
+            "title": title,
             "form": form,
         },
     )
 
 
+@permission_required("cosmetics_shop.add_groupproduct", raise_exception=True)
 def create_groups(request):
-    name = "Группа"
+    title = "Создание группы"
     if request.method == "POST":
         form = GroupProductForm(request.POST)
         if form.is_valid():
@@ -433,14 +524,15 @@ def create_groups(request):
         request,
         "staff/create_page.html",
         {
-            "name": name,
+            "title": title,
             "form": form,
         },
     )
 
 
+@permission_required("cosmetics_shop.add_brand", raise_exception=True)
 def create_brands(request):
-    name = "Бренд"
+    title = "Создание бренда"
     if request.method == "POST":
         form = BrandForm(request.POST)
         if form.is_valid():
@@ -452,14 +544,15 @@ def create_brands(request):
         request,
         "staff/create_page.html",
         {
-            "name": name,
+            "title": title,
             "form": form,
         },
     )
 
 
+@permission_required("cosmetics_shop.add_tag", raise_exception=True)
 def create_tags(request):
-    name = "Тег"
+    title = "Создание тега"
     if request.method == "POST":
         form = TagForm(request.POST)
         if form.is_valid():
@@ -471,13 +564,14 @@ def create_tags(request):
         request,
         "staff/create_page.html",
         {
-            "name": name,
+            "title": title,
             "form": form,
         },
     )
 
 
 @require_POST
+@permission_required("cosmetics_shop.delete_tag", raise_exception=True)
 def delete_tags(request):
     tag_id = request.POST.get("id")
     tag = get_object_or_404(Tag, id=tag_id)
@@ -486,6 +580,7 @@ def delete_tags(request):
 
 
 @require_POST
+@permission_required("cosmetics_shop.delete_category", raise_exception=True)
 def delete_categories(request):
     category_id = request.POST.get("id")
     category = get_object_or_404(Category, id=category_id)
@@ -494,6 +589,7 @@ def delete_categories(request):
 
 
 @require_POST
+@permission_required("cosmetics_shop.delete_groupproduct", raise_exception=True)
 def delete_groups(request):
     group_id = request.POST.get("id")
     group = get_object_or_404(GroupProduct, id=group_id)
@@ -502,6 +598,7 @@ def delete_groups(request):
 
 
 @require_POST
+@permission_required("cosmetics_shop.delete_brand", raise_exception=True)
 def delete_brands(request):
     brand_id = request.POST.get("id")
     brand = get_object_or_404(Brand, id=brand_id)
@@ -509,8 +606,10 @@ def delete_brands(request):
     return redirect("brands_list")
 
 
+@permission_required("cosmetics_shop.change_category", raise_exception=True)
 def edit_categories(request, pk):
     category = get_object_or_404(Category, id=pk)
+    title = f"Изменение категории: {category.name}"
 
     if request.method == "POST":
         form = CategoryForm(request.POST, instance=category)
@@ -524,12 +623,15 @@ def edit_categories(request, pk):
         "staff/edit_page.html",
         {
             "form": form,
+            "title": title,
         },
     )
 
 
+@permission_required("cosmetics_shop.change_groupproduct", raise_exception=True)
 def edit_groups(request, pk):
     group = get_object_or_404(GroupProduct, id=pk)
+    title = f"Изменение группы: {group.name}"
 
     if request.method == "POST":
         form = GroupProductForm(request.POST, instance=group)
@@ -543,13 +645,15 @@ def edit_groups(request, pk):
         "staff/edit_page.html",
         {
             "form": form,
+            "title": title,
         },
     )
 
 
+@permission_required("cosmetics_shop.change_brand", raise_exception=True)
 def edit_brands(request, pk):
     brand = get_object_or_404(Brand, id=pk)
-
+    title = f"Изменение бренда: {brand.name}"
     if request.method == "POST":
         form = BrandForm(request.POST, instance=brand)
         if form.is_valid():
@@ -562,12 +666,15 @@ def edit_brands(request, pk):
         "staff/edit_page.html",
         {
             "form": form,
+            "title": title,
         },
     )
 
 
+@permission_required("cosmetics_shop.change_tag", raise_exception=True)
 def edit_tags(request, pk):
     tag = get_object_or_404(Tag, id=pk)
+    title = f"Изменение тега: {tag.name}"
 
     if request.method == "POST":
         form = TagForm(request.POST, instance=tag)
@@ -581,5 +688,6 @@ def edit_tags(request, pk):
         "staff/edit_page.html",
         {
             "form": form,
+            "title": title,
         },
     )

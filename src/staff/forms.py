@@ -1,4 +1,7 @@
+from decimal import Decimal
+
 from django import forms
+from django.contrib.auth.models import Group
 
 from cosmetics_shop.models import (
     Product,
@@ -8,6 +11,7 @@ from cosmetics_shop.models import (
     OrderStatusLog,
     Tag,
 )
+from staff.services.permission_service import get_individually_assigned_permits_names
 
 
 class CategoryForm(forms.ModelForm):
@@ -33,7 +37,7 @@ class ProductForm(forms.ModelForm):
     tags = forms.ModelMultipleChoiceField(
         widget=forms.CheckboxSelectMultiple, queryset=Tag.objects.all(), required=False
     )
-    price = forms.DecimalField(max_digits=15, decimal_places=2)
+    price = forms.CharField(max_length=20)
 
     class Meta:
         model = Product
@@ -48,6 +52,24 @@ class ProductForm(forms.ModelForm):
             "stock",
         ]
 
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if user:
+            self.user = user
+            if not user.has_perm("cosmetics_shop.can_change_product_price"):
+                self.fields.pop("price")
+            if not user.has_perm("cosmetics_shop.can_manage_product_stock"):
+                self.fields.pop("stock")
+
+    def clean_price(self):
+        price = self.cleaned_data["price"]
+        if isinstance(price, str):
+            price = price.replace(" ", "").replace(",", ".")
+
+        price = Decimal(price)
+        return int(price * 100)
+
 
 class OrderStatusForm(forms.ModelForm):
     date_from = forms.DateField(
@@ -60,6 +82,13 @@ class OrderStatusForm(forms.ModelForm):
     class Meta:
         model = OrderStatusLog
         fields = ["status", "comment", "date_from", "date_to"]
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if user:
+            if not user.has_perm("cosmetics_shop.change_orderstatuslog"):
+                self.fields.pop("status")
 
 
 class ProductStuffFilterForm(forms.Form):
@@ -78,3 +107,22 @@ class TagForm(forms.ModelForm):
     class Meta:
         model = Tag
         fields = ["name"]
+
+
+class GroupForm(forms.ModelForm):
+    name = forms.CharField(max_length=200)
+    permissions = forms.ModelMultipleChoiceField(
+        queryset=get_individually_assigned_permits_names(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+    )
+
+    class Meta:
+        model = Group
+        fields = ["name", "permissions"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["permissions"].label_from_instance = (
+            lambda perm: perm.name
+        )

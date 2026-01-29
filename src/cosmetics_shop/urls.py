@@ -9,9 +9,7 @@ urlpatterns = [
         name="ajax_toggle_favorites",
     ),
     # ajax cart
-    path(
-        "ajax/cart/add/", ajax.add_to_cart, name="ajax_add_to_cart"
-    ),
+    path("ajax/cart/add/", ajax.add_to_cart, name="ajax_add_to_cart"),
     path(
         "ajax/cart/remove/",
         ajax.cart_remove,

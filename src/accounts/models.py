@@ -4,6 +4,7 @@ import secrets
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.base_user import BaseUserManager
 
 
@@ -37,6 +38,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+    class Meta:
+        verbose_name = _("пользователя")
+        verbose_name_plural = _("Пользователи")
+
 
 class ActivationToken(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
@@ -55,3 +60,7 @@ class ActivationToken(models.Model):
             token=token,
             expires_at=expires_at,
         )
+
+    class Meta:
+        verbose_name = _("токен активации")
+        verbose_name_plural = _("Токены активации")

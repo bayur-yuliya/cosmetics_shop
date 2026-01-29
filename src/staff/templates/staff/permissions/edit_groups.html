@@ -1,0 +1,14 @@
+{%  extends "staff/base.html"  %}
+
+{%  block title  %}{{  title  }}{%  endblock  %}
+
+{%  block content  %}
+<h1>{{  group  }}</h1><br>
+<form method="post">
+    {% csrf_token %}
+    <div class="d-flex"><h3>Изменить название группы: </h3> {{ form.name }}</div>
+    <h3>Разрешения</h3>
+    {{ form.permissions }}
+    <button type="submit" class="btn btn-success">Сохранить</button>
+</form>
+{%  endblock  %}

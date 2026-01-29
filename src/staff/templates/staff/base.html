@@ -15,20 +15,44 @@
     <h2 class="mb-4">Панель сотрудника</h2>
     <!-- Основные действия -->
     <div class="mb-2">
-        <a href="{% url 'products' %}" class="btn btn-outline-primary me-2 mb-2">Список товаров</a>
-        <a href="{% url 'create_products' %}" class="btn btn-success me-2 mb-2">Создать новый товар</a>
-        <a href="{% url 'orders' %}" class="btn btn-outline-secondary me-2 mb-2">Список заказов</a>
-        <a href="{% url 'index' %}" class="btn btn-outline-info me-2 mb-2">Дашборд</a>
+        {%  if perms.cosmetics_shop.view_product  %}
+            <a href="{% url 'products' %}" class="btn btn-outline-primary me-2 mb-2">Список товаров</a>
+        {% endif %}
+        {%  if perms.cosmetics_shop.add_product  %}
+            <a href="{% url 'create_products' %}" class="btn btn-success me-2 mb-2">Создать новый товар</a>
+        {%  endif  %}
+        {%  if perms.cosmetics_shop.view_order %}
+            <a href="{% url 'orders' %}" class="btn btn-outline-secondary me-2 mb-2">Список заказов</a>
+        {%  endif  %}
+        {%  if perms.staff.dashboard_view  %}
+            <a href="{% url 'index' %}" class="btn btn-outline-info me-2 mb-2">Дашборд</a>
+        {%  endif  %}
     </div>
 
     <!-- Справочные разделы -->
     <div class="mb-1">
-        <a href="{% url 'categories_list' %}" class="btn btn-outline-primary me-2 mb-2">Категории</a>
-        <a href="{% url 'tags_list' %}" class="btn btn-outline-primary me-2 mb-2">Теги</a>
-        <a href="{% url 'brands_list' %}" class="btn btn-outline-primary me-2 mb-2">Брэнд</a>
-        <a href="{% url 'groups_list' %}" class="btn btn-outline-primary me-2 mb-2">Группы</a>
+        {%  if perms.cosmetics_shop.view_category  %}
+            <a href="{% url 'categories_list' %}" class="btn btn-outline-primary me-2 mb-2">Категории</a>
+        {%  endif  %}
+        {%  if perms.cosmetics_shop.view_tag  %}
+            <a href="{% url 'tags_list' %}" class="btn btn-outline-primary me-2 mb-2">Теги</a>
+        {%  endif  %}
+        {%  if perms.cosmetics_shop.view_brand  %}
+            <a href="{% url 'brands_list' %}" class="btn btn-outline-primary me-2 mb-2">Брэнд</a>
+        {%  endif  %}
+        {%  if perms.cosmetics_shop.view_groupproduct  %}
+            <a href="{% url 'groups_list' %}" class="btn btn-outline-primary me-2 mb-2">Группы</a>
+        {%  endif  %}
     </div>
-
+    <div class="mb-1">
+        {%  if perms.staff.manage_permission  %}
+            <a href="{% url 'staff_groups_list' %}" class="btn btn-outline-primary me-2 mb-2">Список групп разрешений</a>
+            <a href="{% url 'staff_list' %}" class="btn btn-outline-primary me-2 mb-2">Страница сотрудников</a>
+        {%  endif %}
+        {%  if perms.staff.add_staff  %}
+            <a href="{%  url 'create_staff_user'  %}" class="btn btn-outline-primary me-2 mb-2">Отправка приглашения сотруднику</a>
+        {%  endif  %}
+    </div>
     <hr>
 
     <!-- Контент страниц -->

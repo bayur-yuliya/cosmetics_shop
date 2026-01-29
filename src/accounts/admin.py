@@ -21,7 +21,7 @@ class CustomUserAdmin(UserAdmin):
                     "is_staff",
                     "is_active",
                     "is_superuser",
-                    "groups",
+                    "permissions",
                     "user_permissions",
                 )
             },

@@ -12,6 +12,10 @@
 
         <div class="mb-3">
             <div class="mb-3">
+                {%  if form.category %}
+                    <label class="form-label">{{ form.category.label }}</label>
+                    {{  form.category  }}
+                {%  endif  %}<br>
                 <label class="form-label">{{ form.name.label }}</label>
                 {{ form.name }}
             </div>

@@ -64,7 +64,10 @@ def delete_cart(request):
 
 
 def calculate_cart_total(cart):
-    return sum(item.product.price * item.quantity for item in cart.cartitem_set.all()) / 100
+    return (
+        sum(item.product.price * item.quantity for item in cart.cartitem_set.all())
+        / 100
+    )
 
 
 def calculate_product_total_price(cart_items, product_code):
@@ -117,8 +120,7 @@ def clear_cart_after_order(request):
 def is_product_in_cart(request, product_id):
     cart = get_or_create_cart(request)
     cart_products = set(
-        CartItem.objects.filter(cart=cart)
-        .values_list("product_id", flat=True)
+        CartItem.objects.filter(cart=cart).values_list("product_id", flat=True)
     )
     return product_id in cart_products
 
@@ -126,7 +128,6 @@ def is_product_in_cart(request, product_id):
 def get_id_products_in_cart(request):
     cart = get_or_create_cart(request)
     cart_products = set(
-        CartItem.objects.filter(cart=cart)
-        .values_list("product_id", flat=True)
+        CartItem.objects.filter(cart=cart).values_list("product_id", flat=True)
     )
     return cart_products

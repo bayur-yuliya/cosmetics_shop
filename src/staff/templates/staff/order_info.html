@@ -58,22 +58,24 @@
 
 
     <!-- Форма изменения статуса / комментария -->
-    <div class="card p-3 mb-4">
-        <form method="POST" class="row g-3">
-            {% csrf_token %}
-            <div class="col-md-4">
-                {{ form.status.label_tag }}<br>
-                {{ form.status }}
-            </div>
-            <div class="col-md-6">
-                {{ form.comment.label_tag }}<br>
-                {{ form.comment }}
-            </div>
-            <div class="col-md-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-success">Изменить</button>
-            </div>
-        </form>
-    </div>
+    {%  if perms.cosmetics_shop.change_orderstatuslog  %}
+        <div class="card p-3 mb-4">
+            <form method="POST" class="row g-3">
+                {% csrf_token %}
+                <div class="col-md-4">
+                    {{ form.status.label_tag }}<br>
+                    {{ form.status }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.comment.label_tag }}<br>
+                    {{ form.comment }}
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-success">Изменить</button>
+                </div>
+            </form>
+        </div>
+    {% endif  %}
 
     <!-- Лог изменений статуса -->
     <h4>История изменений</h4>

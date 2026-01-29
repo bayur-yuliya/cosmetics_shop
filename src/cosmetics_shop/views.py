@@ -23,7 +23,9 @@ from .models import (
 from .services.cart_services import (
     get_or_create_cart,
     delete_product_from_cart,
-    get_or_create_session_client, delete_cart, is_product_in_cart,
+    get_or_create_session_client,
+    delete_cart,
+    is_product_in_cart,
 )
 from .services.categories_services import favorites_products
 from .services.order_service import create_order_from_cart, get_client

@@ -54,8 +54,12 @@
                             <td>{{ prod.description|truncatechars:50 }}</td>
                             <td>{{ prod.stock }}</td>
                             <td>
-                                <a href="{% url 'edit_products' prod.id %}" class="btn btn-sm btn-outline-primary mb-1">Редактировать</a>
-                                <a href="{% url 'delete_product' %}" class="btn btn-sm btn-outline-danger mb-1">Удалить</a>
+                                {%  if perms.cosmetics_shop.change_product  %}
+                                    <a href="{% url 'edit_products' prod.id %}" class="btn btn-sm btn-outline-primary mb-1">Редактировать</a>
+                                {%  endif  %}
+                                {%  if perms.cosmetics_shop.delete_product  %}
+                                    <a href="{% url 'delete_product' %}" class="btn btn-sm btn-outline-danger mb-1">Удалить</a>
+                                {% endif  %}
                             </td>
                         </tr>
                     {% endfor %}

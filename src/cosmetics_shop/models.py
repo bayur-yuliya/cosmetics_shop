@@ -3,6 +3,7 @@ import random
 from django.conf import settings
 from django.db import models
 from django.utils.timezone import now
+from django.utils.translation import gettext_lazy as _
 
 from accounts.models import CustomUser
 from accounts.utils.validators import validate_phone_number
@@ -19,13 +20,15 @@ class Status(models.IntegerChoices):
 
     @classmethod
     def badge_class(cls, status):
-        return {cls.NEW: "info",
-                cls.PAYMENT_RECEIVED: "primary",
-                cls.PAYMENT_FAILED: "warning",
-                cls.IN_PROGRESS: "info",
-                cls.COMPLETED: "success",
-                cls.CLOSED: "warning",
-                cls.CANCELED: "danger"}.get(status)
+        return {
+            cls.NEW: "info",
+            cls.PAYMENT_RECEIVED: "primary",
+            cls.PAYMENT_FAILED: "warning",
+            cls.IN_PROGRESS: "info",
+            cls.COMPLETED: "success",
+            cls.CLOSED: "warning",
+            cls.CANCELED: "danger",
+        }.get(status)
 
 
 class ProductQuerySet(models.QuerySet):
@@ -68,6 +71,10 @@ class Client(models.Model):
     def __str__(self):
         return self.first_name
 
+    class Meta:
+        verbose_name = _("клиента")
+        verbose_name_plural = _("Клиенты")
+
 
 class DeliveryAddress(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
@@ -79,12 +86,20 @@ class DeliveryAddress(models.Model):
     def __str__(self):
         return f"{self.city}, {self.street}"
 
+    class Meta:
+        verbose_name = _("адрес доставки")
+        verbose_name_plural = _("Адреса доставки")
+
 
 class Category(models.Model):
     name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = _("категорию")
+        verbose_name_plural = _("Категории")
 
 
 class GroupProduct(models.Model):
@@ -93,6 +108,10 @@ class GroupProduct(models.Model):
 
     def __str__(self):
         return f"{self.name}"
+
+    class Meta:
+        verbose_name = _("группу товаров")
+        verbose_name_plural = _("Группы товаров")
 
 
 class Brand(models.Model):
@@ -103,6 +122,8 @@ class Brand(models.Model):
 
     class Meta:
         ordering = ["name"]
+        verbose_name = _("бренд")
+        verbose_name_plural = _("Бренды")
 
 
 class Tag(models.Model):
@@ -110,6 +131,10 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = _("тег")
+        verbose_name_plural = _("Теги")
 
 
 class Product(models.Model):
@@ -128,9 +153,10 @@ class Product(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.code:
-            self.code = self._generate_unique_code()
+            self.code = self._generate_unique_code(self)
         super().save(*args, **kwargs)
 
+    @staticmethod
     def _generate_unique_code(self):
         while True:
             code = random.randint(10000, 99999)
@@ -139,6 +165,14 @@ class Product(models.Model):
 
     def __str__(self):
         return f"{self.group.name} - {self.name}"
+
+    class Meta:
+        verbose_name = _("товар")
+        verbose_name_plural = _("Товары")
+        permissions = [
+            ("can_change_product_price", "Может изменять цену товара"),
+            ("can_manage_product_stock", "Может управлять остатками товара"),
+        ]
 
 
 class Favorite(models.Model):
@@ -181,9 +215,10 @@ class Order(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.code:
-            self.code = self.generate_unique_code()
+            self.code = self.generate_unique_code(self)
         super().save(*args, **kwargs)
 
+    @staticmethod
     def generate_unique_code(self):
         """
         Code generation: ORD-20250715-XXXX (date + serial number)
@@ -201,6 +236,8 @@ class Order(models.Model):
 
     class Meta:
         ordering = ["-id"]
+        verbose_name = _("заказ")
+        verbose_name_plural = _("Заказы")
 
 
 class OrderItem(models.Model):
@@ -215,6 +252,10 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.order} - {self.product}"
+
+    class Meta:
+        verbose_name = _("товар в заказе")
+        verbose_name_plural = _("товары в заказе")
 
 
 class OrderStatusLog(models.Model):
@@ -236,3 +277,5 @@ class OrderStatusLog(models.Model):
 
     class Meta:
         ordering = ["-changed_at"]
+        verbose_name = _("статус заказа")
+        verbose_name_plural = _("Статусы заказов")
