@@ -398,7 +398,7 @@ def order_info(request, order_code):
     order = Order.objects.get(code=order_code)
     order_items = OrderItem.objects.filter(order=order)
     if request.method == "POST":
-        form = OrderStatusForm(request.POST, instance=order)
+        form = OrderStatusForm(request.POST, instance=order, user=request.user)
         if form.is_valid():
             try:
                 last = OrderStatusLog.objects.filter(order=order).first()
@@ -422,7 +422,7 @@ def order_info(request, order_code):
                 messages.success(request, "Статус успешно изменен")
             return redirect("order_info", order_code=order.code)
     else:
-        form = OrderStatusForm(instance=order)
+        form = OrderStatusForm(instance=order, user=request.user)
         order_status_log = OrderStatusLog.objects.filter(order=order)
 
     return render(

@@ -4,9 +4,8 @@ from allauth.account.models import EmailAddress
 from allauth.account.views import login
 from allauth.socialaccount.models import SocialAccount
 from django.contrib import messages
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.db import transaction
@@ -126,7 +125,7 @@ def order_history(request):
     )
 
 
-@staff_member_required
+@permission_required("staff.manage_permission", raise_exception=True)
 def create_staff_user(request):
     if request.method == "POST":
         form = AdminCreateUserForm(request.POST)

@@ -169,6 +169,10 @@ class Product(models.Model):
     class Meta:
         verbose_name = _("Товар")
         verbose_name_plural = _("Товары")
+        permissions = [
+            ("can_change_product_price", "Может изменять цену товара"),
+            ("can_manage_product_stock", "Может управлять остатками товара"),
+        ]
 
 
 class Favorite(models.Model):

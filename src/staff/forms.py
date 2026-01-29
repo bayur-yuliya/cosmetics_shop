@@ -54,13 +54,12 @@ class ProductForm(forms.ModelForm):
 
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
+
         if user:
             self.user = user
-
-            if not user.has_perm("staff.can_change_product_price"):
+            if not user.has_perm("cosmetics_shop.can_change_product_price"):
                 self.fields.pop("price")
-
-            if not user.has_perm("staff.can_manage_product_stock"):
+            if not user.has_perm("cosmetics_shop.can_manage_product_stock"):
                 self.fields.pop("stock")
 
     def clean_price(self):
@@ -83,6 +82,13 @@ class OrderStatusForm(forms.ModelForm):
     class Meta:
         model = OrderStatusLog
         fields = ["status", "comment", "date_from", "date_to"]
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if user:
+            if not user.has_perm("cosmetics_shop.can_change_order_status"):
+                self.fields.pop("status")
 
 
 class ProductStuffFilterForm(forms.Form):
