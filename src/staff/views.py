@@ -40,6 +40,7 @@ from .services.dashboard_service import (
     summ_bill,
     average_bill,
 )
+from .services.list_service import staff_list_view
 from .services.permission_service import get_individually_assigned_permits
 
 
@@ -442,14 +443,12 @@ def order_info(request, order_code):
 def brands_list(request):
     title = "Список брендов"
     list = Brand.objects.all()
-    name = "brands"
-    return render(
+    return staff_list_view(
         request,
         "staff/lists_page.html",
         {
             "title": title,
             "list": list,
-            "name": name,
         },
     )
 
@@ -458,7 +457,7 @@ def brands_list(request):
 def categories_list(request):
     title = "Список категорий"
     list = Category.objects.all()
-    return render(
+    return staff_list_view(
         request,
         "staff/lists_page.html",
         {
@@ -472,7 +471,7 @@ def categories_list(request):
 def tags_list(request):
     title = "Список тегов"
     list = Tag.objects.all()
-    return render(
+    return staff_list_view(
         request,
         "staff/lists_page.html",
         {
@@ -486,7 +485,7 @@ def tags_list(request):
 def groups_list(request):
     title = " Список групп"
     list = GroupProduct.objects.all()
-    return render(
+    return staff_list_view(
         request,
         "staff/lists_page.html",
         {
@@ -498,7 +497,7 @@ def groups_list(request):
 
 @permission_required("cosmetics_shop.add_category", raise_exception=True)
 def create_categories(request):
-    name = "Категория"
+    title = "Создание категории"
     if request.method == "POST":
         form = CategoryForm(request.POST)
         if form.is_valid():
@@ -510,7 +509,7 @@ def create_categories(request):
         request,
         "staff/create_page.html",
         {
-            "name": name,
+            "title": title,
             "form": form,
         },
     )
@@ -518,7 +517,7 @@ def create_categories(request):
 
 @permission_required("cosmetics_shop.add_groupproduct", raise_exception=True)
 def create_groups(request):
-    name = "Группа"
+    title = "Создание группы"
     if request.method == "POST":
         form = GroupProductForm(request.POST)
         if form.is_valid():
@@ -530,7 +529,7 @@ def create_groups(request):
         request,
         "staff/create_page.html",
         {
-            "name": name,
+            "title": title,
             "form": form,
         },
     )
@@ -538,7 +537,7 @@ def create_groups(request):
 
 @permission_required("cosmetics_shop.add_brand", raise_exception=True)
 def create_brands(request):
-    name = "Бренд"
+    title = "Создание бренда"
     if request.method == "POST":
         form = BrandForm(request.POST)
         if form.is_valid():
@@ -550,7 +549,7 @@ def create_brands(request):
         request,
         "staff/create_page.html",
         {
-            "name": name,
+            "title": title,
             "form": form,
         },
     )
@@ -558,7 +557,7 @@ def create_brands(request):
 
 @permission_required("cosmetics_shop.add_tag", raise_exception=True)
 def create_tags(request):
-    name = "Тег"
+    title = "Создание тега"
     if request.method == "POST":
         form = TagForm(request.POST)
         if form.is_valid():
@@ -570,7 +569,7 @@ def create_tags(request):
         request,
         "staff/create_page.html",
         {
-            "name": name,
+            "title": title,
             "form": form,
         },
     )
@@ -615,6 +614,7 @@ def delete_brands(request):
 @permission_required("cosmetics_shop.change_category", raise_exception=True)
 def edit_categories(request, pk):
     category = get_object_or_404(Category, id=pk)
+    title = f"Изменение категории: {category.name}"
 
     if request.method == "POST":
         form = CategoryForm(request.POST, instance=category)
@@ -628,6 +628,7 @@ def edit_categories(request, pk):
         "staff/edit_page.html",
         {
             "form": form,
+            "title": title,
         },
     )
 
@@ -635,6 +636,7 @@ def edit_categories(request, pk):
 @permission_required("cosmetics_shop.change_groupproduct", raise_exception=True)
 def edit_groups(request, pk):
     group = get_object_or_404(GroupProduct, id=pk)
+    title = f"Изменение группы: {group.name}"
 
     if request.method == "POST":
         form = GroupProductForm(request.POST, instance=group)
@@ -648,6 +650,7 @@ def edit_groups(request, pk):
         "staff/edit_page.html",
         {
             "form": form,
+            "title": title,
         },
     )
 
@@ -655,7 +658,7 @@ def edit_groups(request, pk):
 @permission_required("cosmetics_shop.change_brand", raise_exception=True)
 def edit_brands(request, pk):
     brand = get_object_or_404(Brand, id=pk)
-
+    title = f"Изменение бренда: {brand.name}"
     if request.method == "POST":
         form = BrandForm(request.POST, instance=brand)
         if form.is_valid():
@@ -668,6 +671,7 @@ def edit_brands(request, pk):
         "staff/edit_page.html",
         {
             "form": form,
+            "title": title,
         },
     )
 
@@ -675,6 +679,7 @@ def edit_brands(request, pk):
 @permission_required("cosmetics_shop.change_tag", raise_exception=True)
 def edit_tags(request, pk):
     tag = get_object_or_404(Tag, id=pk)
+    title = f"Изменение тега: {tag.name}"
 
     if request.method == "POST":
         form = TagForm(request.POST, instance=tag)
@@ -688,5 +693,6 @@ def edit_tags(request, pk):
         "staff/edit_page.html",
         {
             "form": form,
+            "title": title,
         },
     )

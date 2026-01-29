@@ -62,20 +62,24 @@
 
                     <!-- Цена и наличие -->
                     <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="{{ form.price.id_for_label }}" class="form-label">Цена</label>
-                            <input
-                                type="text"
-                                name="{{ form.price.name }}"
-                                id="{{ form.price.id_for_label }}"
-                                class="form-control"
-                                value="{{ form.price.value|number_format }}"
-                            >
-                        </div>
-                        <div class="col-md-6">
-                            <label for="{{ form.stock.id_for_label }}" class="form-label">Количество на складе</label>
-                            {{ form.stock|add_class:"form-control" }}
-                        </div>
+                        {%  if perms.cosmetics_shop.can_change_product_price  %}
+                            <div class="col-md-6">
+                                <label for="{{ form.price.id_for_label }}" class="form-label">Цена</label>
+                                <input
+                                    type="text"
+                                    name="{{ form.price.name }}"
+                                    id="{{ form.price.id_for_label }}"
+                                    class="form-control"
+                                    value="{{ form.price.value|number_format }}"
+                                >
+                            </div>
+                        {%  endif  %}
+                        {%  if perms.cosmetics_shop.can_manage_product_stock  %}
+                            <div class="col-md-6">
+                                <label for="{{ form.stock.id_for_label }}" class="form-label">Количество на складе</label>
+                                {{ form.stock|add_class:"form-control" }}
+                            </div>
+                        {%  endif  %}
                     </div>
 
                     <!-- Описание -->
