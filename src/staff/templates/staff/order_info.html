@@ -58,7 +58,7 @@
 
 
     <!-- Форма изменения статуса / комментария -->
-    {%  if perms.cosmetics_shop.can_change_order_status  %}
+    {%  if perms.cosmetics_shop.change_orderstatuslog  %}
         <div class="card p-3 mb-4">
             <form method="POST" class="row g-3">
                 {% csrf_token %}

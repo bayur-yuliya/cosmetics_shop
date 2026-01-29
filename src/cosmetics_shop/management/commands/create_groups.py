@@ -20,7 +20,7 @@ class Command(BaseCommand):
         # Гости
         visitor, _ = Group.objects.get_or_create(name="Гости")
         visitor_permissions = [
-            (StaffPermission, "view_dashboard"),
+            (StaffPermission, "dashboard_view"),
             (Product, "view_product"),
         ]
 
@@ -32,12 +32,13 @@ class Command(BaseCommand):
         # Менеджеры по продажам
         sales_group, _ = Group.objects.get_or_create(name="Менеджеры магазина")
         sales_permissions = [
-            (StaffPermission, "view_dashboard"),
+            (StaffPermission, "dashboard_view"),
             (Order, "view_order"),
             (OrderStatusLog, "view_orderstatuslog"),
             (Product, "view_product"),
             (Category, "view_category"),
             (Tag, "view_tag"),
+            (Brand, "view_brand"),
             (GroupProduct, "view_groupproduct"),
         ]
 
@@ -64,9 +65,9 @@ class Command(BaseCommand):
             (GroupProduct, "add_groupproduct"),
             (GroupProduct, "change_groupproduct"),
             (GroupProduct, "view_groupproduct"),
-            (StaffPermission, "can_manage_product_stock"),
-            (StaffPermission, "can_change_product_price"),
-            (StaffPermission, "view_dashboard"),
+            (Product, "can_manage_product_stock"),
+            (Product, "can_change_product_price"),
+            (StaffPermission, "dashboard_view"),
         ]
 
         for app_label, perm_code in content_permissions:
@@ -78,7 +79,9 @@ class Command(BaseCommand):
         operator_group, _ = Group.objects.get_or_create(name="Оператор заказов")
         operator_permissions = [
             (Order, "view_order"),
-            (StaffPermission, "can_change_order_status"),
+            (Product, "view_product"),
+            (StaffPermission, "dashboard_view"),
+            (OrderStatusLog, "change_orderstatuslog"),
             (OrderStatusLog, "add_orderstatuslog"),
             (OrderStatusLog, "view_orderstatuslog"),
         ]
@@ -89,7 +92,6 @@ class Command(BaseCommand):
             operator_group.permissions.add(perm)
 
         # Старшие менеджеры
-
         senior_group, _ = Group.objects.get_or_create(name="Администратор")
         all_order_perms = Permission.objects.filter(
             content_type__model__in=[
@@ -100,9 +102,7 @@ class Command(BaseCommand):
                 "groupproduct",
                 "brand",
                 "orderstatuslog",
-                "can_change_product_price",
-                "can_manage_product_stock",
-                "can_change_order_status",
+                "staffpermission",
             ]
         )
         senior_group.permissions.add(*all_order_perms)

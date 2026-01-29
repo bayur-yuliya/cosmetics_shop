@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="container my-4">
-    {%  if perms.add  %}
+    {%  if permissions.add  %}
     <div class="mb-3">
         <a href="{{ request.path }}create/" class="btn btn-success">Создать</a>
     </div>
@@ -18,7 +18,9 @@
                     <tr>
                         <th style="width: 5%;">#</th>
                         <th>Название</th>
-                        <th style="width: 150px;">Действия</th>
+                        {%  if permissions.change or permissions.delete  %}
+                            <th style="width: 150px;">Действия</th>
+                        {%  endif  %}
                     </tr>
                 </thead>
                 <tbody>
@@ -26,18 +28,16 @@
                         <tr>
                             <td>{{ forloop.counter }}</td>
                             <td>{{ l }}</td>
+                            {%  if permissions.change or permissions.delete  %}
                             <td class="d-flex gap-2">
-                                {%  if perms.change  %}
+                                {%  if permissions.change  %}
                                     <a href="{{ request.path }}edit/{{ l.id }}/" class="btn btn-primary btn-sm">Изменить</a>
-                                {%  else  %}
-                                Недостаточно прав для изменения <br>
                                 {%  endif  %}
-                                {%  if perms.delete  %}
+                                {%  if permissions.delete  %}
                                     <button class="btn btn-danger btn-sm" onclick="openDeleteDialog({{ l.id }}, '{{ l }}')">Удалить</button>
-                                {%  else  %}
-                                    Недостаточно прав для удаления <br>
                                 {%  endif  %}
                             </td>
+                            {%  endif  %}
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -50,7 +50,7 @@
     {% endif %}
 
     <!-- Диалог подтверждения удаления -->
-    {%  if perm.delete  %}
+    {%  if perms.delete  %}
         <dialog id="deleteDialog">
             <form method="POST" action="{{ request.path }}delete/">
                 {% csrf_token %}

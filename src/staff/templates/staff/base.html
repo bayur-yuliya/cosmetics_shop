@@ -24,7 +24,7 @@
         {%  if perms.cosmetics_shop.view_order %}
             <a href="{% url 'orders' %}" class="btn btn-outline-secondary me-2 mb-2">Список заказов</a>
         {%  endif  %}
-        {%  if perms.staff.view_dashboard  %}
+        {%  if perms.staff.dashboard_view  %}
             <a href="{% url 'index' %}" class="btn btn-outline-info me-2 mb-2">Дашборд</a>
         {%  endif  %}
     </div>

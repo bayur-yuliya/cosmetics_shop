@@ -87,7 +87,7 @@ class OrderStatusForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if user:
-            if not user.has_perm("cosmetics_shop.can_change_order_status"):
+            if not user.has_perm("cosmetics_shop.change_orderstatuslog"):
                 self.fields.pop("status")
 
 

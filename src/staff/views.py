@@ -44,7 +44,7 @@ from .services.list_service import staff_list_view
 from .services.permission_service import get_individually_assigned_permits
 
 
-@permission_required("staff.view_dashboard", raise_exception=False)
+@permission_required("staff.dashboard_view", raise_exception=False)
 def index(request):
     title = "Главная страница"
     today = datetime.date.today()
@@ -123,7 +123,7 @@ def sales_comparison_chart_for_the_year(request):
     )
 
 
-@permission_required("auth.view_group", raise_exception=True)
+@permission_required("staff.manage_permission", raise_exception=True)
 def staff_group_list(request):
     groups = Group.objects.annotate(user_count=Count("user")).prefetch_related(
         "permissions"
@@ -136,7 +136,7 @@ def staff_group_list(request):
     )
 
 
-@permission_required("auth.change_group", raise_exception=True)
+@permission_required("staff.manage_permission", raise_exception=True)
 def staff_group_edit(request, pk=None):
     group = get_object_or_404(Group, pk=pk) if pk else None
     form = GroupForm(request.POST or None, instance=group)
@@ -155,7 +155,7 @@ def staff_group_edit(request, pk=None):
     )
 
 
-@permission_required("auth.view_group", raise_exception=True)
+@permission_required("staff.manage_permission", raise_exception=True)
 def staff_list(request):
     staffs = CustomUser.objects.filter(is_staff=True).prefetch_related(
         "groups", "user_permissions"
@@ -172,28 +172,24 @@ def edit_staff_permissions(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
 
     if request.method == "POST":
-        # Получаем выбранные группы из формы
         selected_groups = request.POST.getlist("groups")
 
-        # Очищаем текущие группы и добавляем новые
         user.groups.clear()
         for group_id in selected_groups:
             group = Group.objects.get(id=group_id)
             user.groups.add(group)
 
-        # Сохраняем также индивидуальные разрешения (если есть)
         selected_perm_ids = request.POST.getlist("permissions")
+
         user.user_permissions.set(selected_perm_ids)
 
         return redirect("staff_list")
 
-    # Получаем все доступные группы и разрешения
     all_groups = Group.objects.all()
     user_groups = user.groups.all()
 
     permissions = get_individually_assigned_permits()
 
-    # Группируем разрешения по приложениям
     permissions_by_app = {}
     for perm in permissions:
         app_label = perm.content_type.app_label

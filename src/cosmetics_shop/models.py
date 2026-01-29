@@ -72,7 +72,7 @@ class Client(models.Model):
         return self.first_name
 
     class Meta:
-        verbose_name = _("Клиент")
+        verbose_name = _("клиента")
         verbose_name_plural = _("Клиенты")
 
 
@@ -87,7 +87,7 @@ class DeliveryAddress(models.Model):
         return f"{self.city}, {self.street}"
 
     class Meta:
-        verbose_name = _("Адрес доставки")
+        verbose_name = _("адрес доставки")
         verbose_name_plural = _("Адреса доставки")
 
 
@@ -98,7 +98,7 @@ class Category(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = _("Категория")
+        verbose_name = _("категорию")
         verbose_name_plural = _("Категории")
 
 
@@ -110,7 +110,7 @@ class GroupProduct(models.Model):
         return f"{self.name}"
 
     class Meta:
-        verbose_name = _("Группа товаров")
+        verbose_name = _("группу товаров")
         verbose_name_plural = _("Группы товаров")
 
 
@@ -122,7 +122,7 @@ class Brand(models.Model):
 
     class Meta:
         ordering = ["name"]
-        verbose_name = _("Бренд")
+        verbose_name = _("бренд")
         verbose_name_plural = _("Бренды")
 
 
@@ -133,7 +133,7 @@ class Tag(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = _("Тег")
+        verbose_name = _("тег")
         verbose_name_plural = _("Теги")
 
 
@@ -167,7 +167,7 @@ class Product(models.Model):
         return f"{self.group.name} - {self.name}"
 
     class Meta:
-        verbose_name = _("Товар")
+        verbose_name = _("товар")
         verbose_name_plural = _("Товары")
         permissions = [
             ("can_change_product_price", "Может изменять цену товара"),
@@ -236,7 +236,7 @@ class Order(models.Model):
 
     class Meta:
         ordering = ["-id"]
-        verbose_name = _("Заказ")
+        verbose_name = _("заказ")
         verbose_name_plural = _("Заказы")
 
 
@@ -254,8 +254,8 @@ class OrderItem(models.Model):
         return f"{self.order} - {self.product}"
 
     class Meta:
-        verbose_name = _("Товар в заказе")
-        verbose_name_plural = _("Товары в заказе")
+        verbose_name = _("товар в заказе")
+        verbose_name_plural = _("товары в заказе")
 
 
 class OrderStatusLog(models.Model):
@@ -277,5 +277,5 @@ class OrderStatusLog(models.Model):
 
     class Meta:
         ordering = ["-changed_at"]
-        verbose_name = _("Статус заказа")
+        verbose_name = _("статус заказа")
         verbose_name_plural = _("Статусы заказов")

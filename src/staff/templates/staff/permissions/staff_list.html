@@ -21,8 +21,8 @@
                     <td>{{  staff.id  }}</td>
                     <td>{{  staff  }}</td>
                     <td>
-                        {%  if user.groups.all  %}
-                            {%  for group in user.groups.all  %}
+                        {%  if staff.groups.all  %}
+                            {%  for group in staff.groups.all  %}
                                 {{  group  }}{%  if not forloop.last  %}, {%  endif  %}<br>
                             {%  endfor  %}
                         {% else %}

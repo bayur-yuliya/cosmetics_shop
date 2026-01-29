@@ -39,7 +39,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return self.email
 
     class Meta:
-        verbose_name = _("Пользователь")
+        verbose_name = _("пользователя")
         verbose_name_plural = _("Пользователи")
 
 
@@ -62,5 +62,5 @@ class ActivationToken(models.Model):
         )
 
     class Meta:
-        verbose_name = _("Токен активации")
+        verbose_name = _("токен активации")
         verbose_name_plural = _("Токены активации")
