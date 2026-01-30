@@ -35,7 +35,7 @@ from staff.forms import (
     GroupForm,
 )
 from .services.dashboard_service import (
-    number_of_orders_today,
+    number_of_completed_orders_today,
     number_of_orders_per_month,
     summ_bill,
     average_bill,
@@ -48,13 +48,14 @@ from .services.permission_service import get_individually_assigned_permits
 def index(request):
     title = "Главная страница"
     today = datetime.date.today()
-    orders_today = number_of_orders_today()
+    completed_orders_today = number_of_completed_orders_today()
     orders_per_month = number_of_orders_per_month(today)
     summ = summ_bill(today)
-    average = average_bill(today) / 100
+    average = "{:10.2f}".format(average_bill(today) / 100)
     max_favorite = (
         Favorite.objects.annotate(num_product=Count("product")).order_by("num_product")
     )[0:3]
+
     current_year = timezone.now().year
     years = range(current_year - 5, current_year + 1)
 
@@ -63,10 +64,10 @@ def index(request):
         "staff/dashboard.html",
         {
             "title": title,
-            "number_of_orders_today": orders_today,
+            "number_of_completed_orders_today": completed_orders_today,
             "number_of_orders_per_month": orders_per_month,
             "summ_bill": summ,
-            "average_bill": "{:10.2f}".format(average),
+            "average_bill": average,
             "max_favorite": max_favorite,
             "years": years,
             "current_year": current_year,

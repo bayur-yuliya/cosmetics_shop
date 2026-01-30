@@ -38,26 +38,26 @@
     <div class="row mb-4">
         <div class="col-md-3">
             <div class="card text-center p-3">
-                <h6>Заказы сегодня</h6>
-                <span class="fs-4">{{ number_of_orders_today }}</span>
+                <h6>Выполненные заказы сегодня</h6>
+                <span class="fs-4">{{ number_of_completed_orders_today }}</span>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card text-center p-3">
-                <h6>Заказы за месяц</h6>
+                <h6>Выполненные заказы за месяц</h6>
                 <span class="fs-4">{{ number_of_orders_per_month }}</span>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card text-center p-3">
-                <h6>Общая сумма</h6>
+                <h6>Общая сумма выполненных заказов</h6>
                 <span class="fs-5">{{ summ_bill|number_format }} грн</span>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card text-center p-3">
                 <h6>Средний чек</h6>
-                <span class="fs-5">{{ average_bill|number_format }} грн</span>
+                <span class="fs-5">{{ average_bill }} грн</span>
             </div>
         </div>
     </div>

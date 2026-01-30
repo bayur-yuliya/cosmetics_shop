@@ -49,7 +49,7 @@
             <a href="{% url 'staff_groups_list' %}" class="btn btn-outline-primary me-2 mb-2">Список групп разрешений</a>
             <a href="{% url 'staff_list' %}" class="btn btn-outline-primary me-2 mb-2">Страница сотрудников</a>
         {%  endif %}
-        {%  if perms.staff.add_staff  %}
+        {%  if perms.staff.staff_add  %}
             <a href="{%  url 'create_staff_user'  %}" class="btn btn-outline-primary me-2 mb-2">Отправка приглашения сотруднику</a>
         {%  endif  %}
     </div>
