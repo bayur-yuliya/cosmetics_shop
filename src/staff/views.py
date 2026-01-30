@@ -32,7 +32,7 @@ from staff.forms import (
     TagForm,
     FilterStockForm,
     ProductStuffFilterForm,
-    GroupForm,
+    GroupForm, AdminCreateUserForm,
 )
 from .services.dashboard_service import (
     number_of_completed_orders_today,
@@ -210,6 +210,18 @@ def edit_staff_permissions(request, user_id):
             "user_permissions": user.user_permissions.all(),
         },
     )
+
+
+@permission_required("staff.manage_permission", raise_exception=True)
+def create_staff_user(request):
+    title = "Отправка приглашения сотруднику"
+    if request.method == "POST":
+        form = AdminCreateUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("main_page")
+    form = AdminCreateUserForm()
+    return render(request, "staff/create_staff_user.html", {"form": form, "title": title})
 
 
 @permission_required("cosmetics_shop.view_product", raise_exception=True)

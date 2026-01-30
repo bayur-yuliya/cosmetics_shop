@@ -4,6 +4,7 @@ from staff import views
 
 
 urlpatterns = [
+    path("create/", views.create_staff_user, name="create_staff_user"),
     path("products/edit/<int:product_id>", views.edit_products, name="edit_products"),
     path("products/create/", views.create_products, name="create_products"),
     path("products/<int:product_id>", views.product_card, name="product_card"),

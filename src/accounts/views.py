@@ -5,7 +5,7 @@ from allauth.account.views import login
 from allauth.socialaccount.models import SocialAccount
 from django.contrib import messages
 from django.contrib.auth import logout
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.db import transaction
@@ -13,7 +13,6 @@ from django.shortcuts import render, redirect
 
 from accounts.forms import (
     ClientCreationForm,
-    AdminCreateUserForm,
     SetInitialPasswordForm,
 )
 from accounts.models import ActivationToken
@@ -125,17 +124,6 @@ def order_history(request):
     )
 
 
-@permission_required("staff.manage_permission", raise_exception=True)
-def create_staff_user(request):
-    if request.method == "POST":
-        form = AdminCreateUserForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("main_page")
-    form = AdminCreateUserForm()
-    return render(request, "accounts/create_staff_user.html", {"form": form})
-
-
 def activate_account(request):
     token_value = request.GET.get("token")
 
@@ -174,6 +162,7 @@ def activate_account(request):
         "accounts/activate_staff_password.html",
         {
             "form": form,
+            "title": "Активация приглашения",
         },
     )
 

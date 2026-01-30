@@ -3,6 +3,7 @@ from decimal import Decimal
 from django import forms
 from django.contrib.auth.models import Group
 
+from accounts.models import CustomUser
 from cosmetics_shop.models import (
     Product,
     Category,
@@ -126,3 +127,17 @@ class GroupForm(forms.ModelForm):
         self.fields["permissions"].label_from_instance = (
             lambda perm: perm.name
         )
+
+
+class AdminCreateUserForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ("email",)
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_unusable_password()
+        user.is_active = False
+        if commit:
+            user.save()
+        return user
