@@ -18,7 +18,6 @@ document.addEventListener("click", function (e) {
     if (!button) return;
 
     const productId = button.dataset.productId;
-    const isFavorite = button.dataset.inFavorites === "1";
     const formData = new FormData();
     formData.append('product_id', productId);
 
@@ -31,17 +30,15 @@ document.addEventListener("click", function (e) {
     })
     .then(res => res.json())
     .then(data => {
-        if (data.in_favorites !== undefined) {
-            // Обновляем иконку и состояние
-            if (data.in_favorites) {
-                button.innerHTML = "♥";
-                button.dataset.inFavorites = "1";
-            } else {
-                button.innerHTML = "♡";
-                button.dataset.inFavorites = "0";
-                showMessage(data.message);
-            }
+
+        // Обновляем иконку и состояние
+        if (data.in_favorites) {
+            button.classList.add("active");
+        } else {
+            button.classList.remove("active");
+            showMessage(data.message);
         }
+
     })
     .catch(error => {
         console.error("Ошибка:", error);

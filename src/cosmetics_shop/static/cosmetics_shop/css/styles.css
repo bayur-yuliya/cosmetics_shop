@@ -234,3 +234,36 @@ button.btn-success {
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
 }
+
+
+/* Кнопка избранного */
+.favorite-btn {
+    all: unset;
+    cursor: pointer;
+    font-size: 26px;
+    line-height: 1;
+    color: #999;
+    user-select: none;
+    transition: transform 0.15s ease, color 0.15s ease;
+}
+
+/* НАВЕДЕНИЕ */
+.favorite-btn:hover {
+    transform: scale(1.15);
+}
+
+/* НАЖАТИЕ */
+.favorite-btn:active {
+    transform: scale(1.3);
+}
+
+/* АКТИВНОЕ СОСТОЯНИЕ */
+.favorite-btn.active {
+    color: #e63946;
+}
+
+/* ФОКУС (доступность) */
+.favorite-btn:focus-visible {
+    outline: 2px solid #e63946;
+    outline-offset: 3px;
+}

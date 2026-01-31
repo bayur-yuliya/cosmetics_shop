@@ -9,15 +9,14 @@
 {%  if product.stock %}
 |   <p class="product-price">{{ product.price|number_format }} грн</p>
 {%  endif  %}
-| {{  product.description  }} |
 
 
 <button
-    class="favorite-btn"
+    type="button"
+    class="favorite-btn {% if product.is_favorite %}active{% endif %}"
     data-product-id="{{ product.id }}"
-    data-in-favorites="{{ product.is_favorite|yesno:'1,0' }}"
 >
-    {% if product.is_favorite %}♥{% else %}♡{% endif %}
+    ♥
 </button>
 
 
