@@ -32,7 +32,8 @@ from staff.forms import (
     TagForm,
     FilterStockForm,
     ProductStuffFilterForm,
-    GroupForm, AdminCreateUserForm,
+    GroupForm,
+    AdminCreateUserForm,
 )
 from .services.dashboard_service import (
     number_of_completed_orders_today,
@@ -40,7 +41,7 @@ from .services.dashboard_service import (
     summ_bill,
     average_bill,
 )
-from .services.list_service import staff_list_view
+from .services.list_service import get_permissions
 from .services.permission_service import get_individually_assigned_permits
 
 
@@ -221,7 +222,9 @@ def create_staff_user(request):
             form.save()
             return redirect("main_page")
     form = AdminCreateUserForm()
-    return render(request, "staff/create_staff_user.html", {"form": form, "title": title})
+    return render(
+        request, "staff/create_staff_user.html", {"form": form, "title": title}
+    )
 
 
 @permission_required("cosmetics_shop.view_product", raise_exception=True)
@@ -450,13 +453,21 @@ def order_info(request, order_code):
 @permission_required("cosmetics_shop.view_brand", raise_exception=True)
 def brands_list(request):
     title = "Список брендов"
-    list = Brand.objects.all()
-    return staff_list_view(
+    objects = Brand.objects.all()
+
+    permissions = get_permissions(request, objects)
+
+    paginator = Paginator(objects, 20)
+    page_number = request.GET.get("page")
+    objects = paginator.get_page(page_number)
+
+    return render(
         request,
         "staff/lists_page.html",
         {
             "title": title,
-            "list": list,
+            "objects": objects,
+            "permissions": permissions,
         },
     )
 
@@ -464,13 +475,21 @@ def brands_list(request):
 @permission_required("cosmetics_shop.view_category", raise_exception=True)
 def categories_list(request):
     title = "Список категорий"
-    list = Category.objects.all()
-    return staff_list_view(
+    objects = Category.objects.all()
+
+    permissions = get_permissions(request, objects)
+
+    paginator = Paginator(objects, 20)
+    page_number = request.GET.get("page")
+    objects = paginator.get_page(page_number)
+
+    return render(
         request,
         "staff/lists_page.html",
         {
-            "list": list,
+            "objects": objects,
             "title": title,
+            "permissions": permissions,
         },
     )
 
@@ -478,13 +497,21 @@ def categories_list(request):
 @permission_required("cosmetics_shop.view_tag", raise_exception=True)
 def tags_list(request):
     title = "Список тегов"
-    list = Tag.objects.all()
-    return staff_list_view(
+    objects = Tag.objects.all()
+
+    permissions = get_permissions(request, objects)
+
+    paginator = Paginator(objects, 20)
+    page_number = request.GET.get("page")
+    objects = paginator.get_page(page_number)
+
+    return render(
         request,
         "staff/lists_page.html",
         {
-            "list": list,
+            "objects": objects,
             "title": title,
+            "permissions": permissions,
         },
     )
 
@@ -492,13 +519,20 @@ def tags_list(request):
 @permission_required("cosmetics_shop.view_groupproduct", raise_exception=True)
 def groups_list(request):
     title = " Список групп"
-    list = GroupProduct.objects.all()
-    return staff_list_view(
+    objects = GroupProduct.objects.all()
+    permissions = get_permissions(request, objects)
+
+    paginator = Paginator(objects, 20)
+    page_number = request.GET.get("page")
+    objects = paginator.get_page(page_number)
+
+    return render(
         request,
         "staff/lists_page.html",
         {
-            "list": list,
+            "objects": objects,
             "title": title,
+            "permissions": permissions,
         },
     )
 

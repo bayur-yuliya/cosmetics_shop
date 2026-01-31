@@ -5,13 +5,16 @@
 
 {% block content %}
 <div class="container my-4">
+    <div class="d-flex align-center mb-3">
+        <h1>{{ title }}</h1>
+    </div>
     {%  if permissions.add  %}
-    <div class="mb-3">
+    <div class="d-flex justify-content-end mb-3">
         <a href="{{ request.path }}create/" class="btn btn-success">Создать</a>
     </div>
     {%  endif  %}
 
-    {% if list %}
+    {% if objects %}
         <div class="table-responsive">
             <table class="table align-middle table-bordered">
                 <thead class="table-light">
@@ -24,17 +27,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for l in list %}
+                    {% for object in objects %}
                         <tr>
                             <td>{{ forloop.counter }}</td>
-                            <td>{{ l }}</td>
+                            <td>{{ object }}</td>
                             {%  if permissions.change or permissions.delete  %}
                             <td class="d-flex gap-2">
                                 {%  if permissions.change  %}
-                                    <a href="{{ request.path }}edit/{{ l.id }}/" class="btn btn-primary btn-sm">Изменить</a>
+                                    <a href="{{ request.path }}edit/{{ object.id }}/" class="btn btn-primary btn-sm">Изменить</a>
                                 {%  endif  %}
                                 {%  if permissions.delete  %}
-                                    <button class="btn btn-danger btn-sm" onclick="openDeleteDialog({{ l.id }}, '{{ l }}')">Удалить</button>
+                                    <button class="btn btn-danger btn-sm" onclick="openDeleteDialog({{ object.id }}, '{{ object }}')">Удалить</button>
                                 {%  endif  %}
                             </td>
                             {%  endif  %}
@@ -43,6 +46,7 @@
                 </tbody>
             </table>
         </div>
+    {% include  'cosmetics_shop/includes/paginator.html' with page_elements=objects %}
     {% else %}
         <div class="alert alert-info">
             Пока пусто
@@ -50,7 +54,7 @@
     {% endif %}
 
     <!-- Диалог подтверждения удаления -->
-    {%  if perms.delete  %}
+    {%  if permissions.delete  %}
         <dialog id="deleteDialog">
             <form method="POST" action="{{ request.path }}delete/">
                 {% csrf_token %}

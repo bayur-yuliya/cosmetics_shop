@@ -1,14 +1,9 @@
 from django.contrib.contenttypes.models import ContentType
-from django.shortcuts import render
 
 
-def staff_list_view(request, template_name, context: dict):
-    qs = context.get("list")
+def get_permissions(request, objects):
 
-    if qs is None:
-        raise ValueError("Context must contain 'list' queryset")
-
-    model = qs.model
+    model = objects.model
 
     ct = ContentType.objects.get_for_model(model)
 
@@ -22,6 +17,4 @@ def staff_list_view(request, template_name, context: dict):
         "view": request.user.has_perm(f"{app_label}.view_{model_name}"),
     }
 
-    context["permissions"] = permissions
-
-    return render(request, template_name, context)
+    return permissions
