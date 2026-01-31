@@ -62,22 +62,7 @@
             </table>
         </div>
 
-        <!-- Пагинация -->
-        {% if status.paginator.num_pages > 1 %}
-        <div class="d-flex justify-content-center mt-3">
-            {% if status.has_previous %}
-                <a href="?page={{ status.previous_page_number }}" class="btn btn-outline-secondary btn-sm me-2">← Назад</a>
-            {% endif %}
-
-            <span class="align-self-center">
-                {{ status.number }} / {{ status.paginator.num_pages }}
-            </span>
-
-            {% if status.has_next %}
-                <a href="?page={{ status.next_page_number }}" class="btn btn-outline-secondary btn-sm ms-2">Вперёд →</a>
-            {% endif %}
-        </div>
-        {% endif %}
+    {% include  'cosmetics_shop/includes/paginator.html' with page_elements=status %}
     {% else %}
         <div class="alert alert-info">
             Нет заказов по выбранным условиям.

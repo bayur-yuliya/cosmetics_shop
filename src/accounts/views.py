@@ -114,6 +114,11 @@ def order_history(request):
         else:
             dictt["item"] = items
         order_items.append(dictt)
+
+    paginator = Paginator(order_items, 20)
+    page_number = request.GET.get("page")
+    order_items = paginator.get_page(page_number)
+
     return render(
         request,
         "accounts/order_history.html",

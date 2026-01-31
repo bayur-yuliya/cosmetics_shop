@@ -66,24 +66,7 @@
                 </tbody>
             </table>
         </div>
-
-        <!-- Пагинация -->
-        {% if products.paginator.num_pages > 1 %}
-        <div class="d-flex justify-content-center mt-3">
-            {% if products.has_previous %}
-                <a href="?page={{ products.previous_page_number }}" class="btn btn-outline-secondary btn-sm me-2">← Назад</a>
-            {% endif %}
-
-            <span class="align-self-center">
-                {{ products.number }} / {{ products.paginator.num_pages }}
-            </span>
-
-            {% if products.has_next %}
-                <a href="?page={{ products.next_page_number }}" class="btn btn-outline-secondary btn-sm ms-2">Вперёд →</a>
-            {% endif %}
-        </div>
-        {% endif %}
-
+    {% include  'cosmetics_shop/includes/paginator.html' with page_elements=products %}
     {% else %}
         <div class="alert alert-info">
             Нет товаров по заданным условиям.

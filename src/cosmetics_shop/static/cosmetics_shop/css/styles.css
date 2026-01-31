@@ -112,6 +112,13 @@ footer {
     padding: 0;
 }
 
+.pagination .btn-outline-secondary,
+.d-flex.justify-content-center .btn-outline-secondary {
+    width: auto;
+    height: auto;
+    padding: 0.25rem 0.5rem;
+}
+
 .card {
     background-color: #f8f9fa;
     border-radius: 8px;

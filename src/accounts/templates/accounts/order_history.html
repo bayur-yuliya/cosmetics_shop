@@ -64,6 +64,7 @@
                 </div>
             </div>
         {% endfor %}
+    {% include  'cosmetics_shop/includes/paginator.html' with page_elements=order_items %}
     {% else %}
         <div class="alert alert-info">
             У вас пока нет заказов
