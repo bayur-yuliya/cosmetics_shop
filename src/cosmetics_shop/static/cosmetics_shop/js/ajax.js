@@ -287,6 +287,12 @@ document.addEventListener("click", function (e) {
     .then(res => res.json())
     .then(data => {
         document.getElementById("products-container").innerHTML = data.html;
+        // ОБНОВЛЕНИЕ ПАНЕЛИ СОРТИРОВКИ
+        // Теперь кнопки получат новые ссылки (asc поменяется на desc)
+        const sortingPanel = document.getElementById("sorting-panel-container");
+        if (sortingPanel && data.sorting_html) {
+            sortingPanel.innerHTML = data.sorting_html;
+        }
         history.pushState(null, "", `?${currentParams.toString()}`);
     });
 });

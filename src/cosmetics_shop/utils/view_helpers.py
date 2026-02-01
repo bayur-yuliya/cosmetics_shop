@@ -4,9 +4,7 @@ from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 
 from cosmetics_shop.forms import ProductFilterForm
-from cosmetics_shop.models import CartItem
 from cosmetics_shop.services.cart_services import (
-    get_or_create_cart,
     get_id_products_in_cart,
 )
 from cosmetics_shop.services.categories_services import context_categories
@@ -70,10 +68,16 @@ def processing_product_page(
             context,
             request=request,
         )
+        html_sorting = render_to_string(
+            "cosmetics_shop/includes/sorting_panel.html",
+            context,
+            request=request,
+        )
         return JsonResponse(
             {
                 "html": html,
                 "url": clean_url,
+                "sorting_html": html_sorting,
             }
         )
 
