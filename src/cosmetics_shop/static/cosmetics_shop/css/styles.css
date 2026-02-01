@@ -13,6 +13,10 @@ footer {
     margin-top: auto;
 }
 
+button:focus-visible {
+    outline: none;
+}
+
 .product-card {
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -20,10 +24,16 @@ footer {
     text-align: center;
     transition: transform 0.2s, box-shadow 0.2s;
     background-color: #fff;
+    user-select: none; /* Запрещаем выделение всей карточки */
 }
 .product-card:hover {
+    z-index: 10;
     transform: translateY(-5px);
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+.product-title,
+.product-price {
+    user-select: text; /* Разрешаем выделять текст точечно */
 }
 .product-image {
     width: 100%;
@@ -34,6 +44,7 @@ footer {
 .product-title {
     font-size: 1.1rem;
     margin-top: 10px;
+    hyphens: auto;
 }
 .product-price {
     font-weight: bold;
@@ -242,14 +253,30 @@ button.btn-success {
     cursor: pointer;
     font-size: 26px;
     line-height: 1;
-    color: #999;
+    color: #d6d0d0;
     user-select: none;
     transition: transform 0.15s ease, color 0.15s ease;
+
+    position: absolute;
+    top: 8px;
+    right: 8px;
+
+    background: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 /* НАВЕДЕНИЕ */
 .favorite-btn:hover {
-    transform: scale(1.15);
+    transform: scale(1.25);
 }
 
 /* НАЖАТИЕ */
@@ -259,11 +286,14 @@ button.btn-success {
 
 /* АКТИВНОЕ СОСТОЯНИЕ */
 .favorite-btn.active {
-    color: #e63946;
+    color: #170c0d;
 }
 
 /* ФОКУС (доступность) */
 .favorite-btn:focus-visible {
     outline: 2px solid #e63946;
     outline-offset: 3px;
+}
+.product-image-wrapper {
+    position: relative;
 }
