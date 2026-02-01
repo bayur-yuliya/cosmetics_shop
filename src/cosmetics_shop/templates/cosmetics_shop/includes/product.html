@@ -16,12 +16,12 @@
              class="product-image">
     </div>
 
-    <a href="{% url 'product_page' product.code %}">
-        <h5 class="product-title">{{ product.name|truncatewords:10 }}</h5>
+    <a href="{% url 'product_page' product.code %}" class="product-title-link">
+        <h5 class="product-title">{{ product.name|truncatewords:6 }}</h5>
     </a>
 
-    {{ product.group.name }}<br>
-    {{ product.brand }}<br>
+    <a href="{%  url 'group_page' product.group.id  %}" class="product-group">{{ product.group.name }}</a><br>
+    <a href="{%  url 'brand_detail' product.brand.id  %}" class="product-brand">{{ product.brand }}</a><br>
 
     {% if product.stock %}
         <p class="product-price">{{ product.price|number_format }} грн</p>

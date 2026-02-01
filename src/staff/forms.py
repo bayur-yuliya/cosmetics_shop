@@ -93,10 +93,11 @@ class OrderStatusForm(forms.ModelForm):
 
 
 class ProductStuffFilterForm(forms.Form):
-    name = forms.CharField(required=False, label="Название содержит: ")
-    code = forms.IntegerField(required=False, label="Код товара: ")
-    min_price = forms.DecimalField(required=False, label="Минимальная цена: ")
-    max_price = forms.DecimalField(required=False, label="Максимальная цена: ")
+    name = forms.CharField(required=False, label="Название содержит")
+    code = forms.IntegerField(required=False, label="Код товара")
+    brand = forms.CharField(required=False, label="Бренд")
+    min_price = forms.DecimalField(required=False, label="Минимальная цена")
+    max_price = forms.DecimalField(required=False, label="Максимальная цена")
 
 
 class FilterStockForm(forms.Form):

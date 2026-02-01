@@ -230,7 +230,7 @@ def create_staff_user(request):
 @permission_required("cosmetics_shop.view_product", raise_exception=True)
 def products(request):
     title = "Товары"
-    products = Product.objects.all().order_by("-id").filter(is_active=True)
+    products = Product.objects.all().order_by("-id").filter(is_active=True).select_related("brand")
 
     query_params = request.GET.copy()
     for key in list(query_params.keys()):
@@ -245,11 +245,14 @@ def products(request):
     if form.is_valid():
         name = form.cleaned_data["name"]
         code = form.cleaned_data["code"]
+        brand = form.cleaned_data["brand"]
         min_price = form.cleaned_data["min_price"]
         max_price = form.cleaned_data["max_price"]
 
         if name:
             products = products.filter(name__icontains=name)
+        if brand:
+            products = products.filter(brand__name__icontains=brand)
         if min_price is not None:
             products = products.filter(price__gte=min_price * 100, stock__gte=1)
         if max_price is not None:
