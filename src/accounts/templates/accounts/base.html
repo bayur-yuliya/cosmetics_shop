@@ -44,6 +44,11 @@
         <!-- ЛЕВОЕ МЕНЮ -->
         <div class="col-md-3 mb-4">
             <div class="list-group account-menu">
+                {% if perms.staff.dashboard_view %}
+                <a href="{% url 'index' %}" class="list-group-item list-group-item-action link-primary fw-bold">
+                    Панель сотрудника
+                </a>
+                {% endif %}
                 <a href="{% url 'user_contact' %}" class="list-group-item list-group-item-action">
                     Контактная информация
                 </a>

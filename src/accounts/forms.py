@@ -18,7 +18,9 @@ class CustomAuthenticationForm(AuthenticationForm):
 
 
 class ClientCreationForm(forms.ModelForm):
-    phone = forms.CharField(max_length=10, validators=[validate_phone_number], required=False)
+    phone = forms.CharField(
+        max_length=10, validators=[validate_phone_number], required=False
+    )
     email = forms.EmailField(disabled=True)
 
     class Meta:

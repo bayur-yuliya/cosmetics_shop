@@ -125,9 +125,7 @@ class GroupForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["permissions"].label_from_instance = (
-            lambda perm: perm.name
-        )
+        self.fields["permissions"].label_from_instance = lambda perm: perm.name
 
 
 class AdminCreateUserForm(forms.ModelForm):

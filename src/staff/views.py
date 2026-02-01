@@ -4,9 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.models import Group
 from django.core.paginator import Paginator
-from django.db.models import OuterRef, Subquery, Count, Avg
-from django.db.models.functions import TruncMonth
-from django.http import JsonResponse
+from django.db.models import OuterRef, Subquery, Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -73,55 +71,6 @@ def index(request):
             "years": years,
             "current_year": current_year,
         },
-    )
-
-
-def sales_comparison_chart_for_the_year(request):
-    year = request.GET.get("year")
-    now = timezone.now()
-
-    try:
-        year = int(year)
-    except (TypeError, ValueError):
-        year = now.year
-
-    orders_by_month = (
-        Order.objects.filter(created_at__year=year)
-        .annotate(month=TruncMonth("created_at"))
-        .values("month")
-        .annotate(
-            count=Count("id"),
-            avg_price=Avg("total_price"),
-        )
-    )
-    sales_counts = [0] * 12
-    average_bill_counts = [0] * 12
-    for item in orders_by_month:
-        month = item["month"].month - 1
-        sales_counts[month] = item["count"]
-        price = item["avg_price"] / 100
-        average_bill_counts[month] = round(price or 0, 2)
-
-    return JsonResponse(
-        {
-            "labels": [
-                "Янв",
-                "Фев",
-                "Мар",
-                "Апр",
-                "Май",
-                "Июн",
-                "Июл",
-                "Авг",
-                "Сен",
-                "Окт",
-                "Ноя",
-                "Дек",
-            ],
-            "year": year,
-            "sales": sales_counts,
-            "average_bill": average_bill_counts,
-        }
     )
 
 
@@ -230,7 +179,12 @@ def create_staff_user(request):
 @permission_required("cosmetics_shop.view_product", raise_exception=True)
 def products(request):
     title = "Товары"
-    products = Product.objects.all().order_by("-id").filter(is_active=True).select_related("brand")
+    products = (
+        Product.objects.all()
+        .order_by("-id")
+        .filter(is_active=True)
+        .select_related("brand")
+    )
 
     query_params = request.GET.copy()
     for key in list(query_params.keys()):

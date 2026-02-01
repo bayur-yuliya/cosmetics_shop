@@ -1,7 +1,6 @@
 from django.urls import path
 
-from staff import views
-
+from staff import views, ajax
 
 urlpatterns = [
     path("create/", views.create_staff_user, name="create_staff_user"),
@@ -45,6 +44,7 @@ urlpatterns = [
     path("tags/delete/", views.delete_tags, name="delete_tags"),
     path("tags/", views.tags_list, name="tags_list"),
     # chart
-    path("sales_data/", views.sales_comparison_chart_for_the_year, name="sales_data"),
+    path("ajax/charts/sales/", ajax.sales_comparison_chart_for_the_year, name="sales_data"),
+    # main page
     path("", views.index, name="index"),
 ]
