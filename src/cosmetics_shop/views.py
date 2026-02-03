@@ -1,10 +1,14 @@
 import string
+from typing import Optional, Dict, List, reveal_type
 
 from django.contrib import messages
 from django.contrib.auth import login, authenticate
+from django.db.models import QuerySet
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 
+from accounts.models import CustomUser
 from .forms import (
     ClientForm,
     DeliveryAddressForm,
@@ -19,6 +23,7 @@ from .models import (
     Client,
     DeliveryAddress,
     Category,
+    Tag,
 )
 from .services.cart_services import (
     get_or_create_cart,
@@ -33,11 +38,13 @@ from .utils.decorators import cart_required, order_session_required
 from .utils.view_helpers import processing_product_page
 
 
-def login_view(request):
+def login_view(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         email = request.POST.get("email")
         password = request.POST.get("password")
-        user = authenticate(request, username=email, password=password)
+        user: Optional[CustomUser] = authenticate(
+            request, username=email, password=password
+        )
         if user is not None:
             login(request, user)
             messages.success(request, "Вы вошли")
@@ -48,7 +55,7 @@ def login_view(request):
     return redirect("main_page")
 
 
-def main_page(request):
+def main_page(request: HttpRequest) -> HttpResponse:
     if request.user.is_authenticated:
         products = favorites_products(request)
     else:
@@ -62,11 +69,11 @@ def main_page(request):
     )
 
 
-def category_page(request, category_id):
-    title = Category.objects.get(id=category_id)
-    group_products = GroupProduct.objects.filter(category=category_id).values_list(
-        "id", flat=True
-    )
+def category_page(request: HttpRequest, category_id: int) -> HttpResponse:
+    title: Category = Category.objects.get(pk=category_id)
+    group_products: List[int] = list(GroupProduct.objects.filter(
+        category=category_id
+    ).values_list("id", flat=True))
 
     if request.user.is_authenticated:
         products = favorites_products(request).filter(group__in=group_products)
@@ -82,8 +89,8 @@ def category_page(request, category_id):
     )
 
 
-def group_page(request, group_id):
-    title = GroupProduct.objects.get(id=group_id)
+def group_page(request: HttpRequest, group_id: int) -> HttpResponse:
+    title: GroupProduct = GroupProduct.objects.get(pk=group_id)
 
     if request.user.is_authenticated:
         products = favorites_products(request).filter(group=group_id)
@@ -99,9 +106,9 @@ def group_page(request, group_id):
     )
 
 
-def product_page(request, product_code):
-    product = Product.objects.get(code=product_code)
-    tags = product.tags.all()
+def product_page(request: HttpRequest, product_code: int) -> HttpResponse:
+    product: Product = Product.objects.get(code=product_code)
+    tags: QuerySet[Tag] = product.tags.all()
     is_it_in_cart = is_product_in_cart(request, product.id)
     return render(
         request,
@@ -115,14 +122,15 @@ def product_page(request, product_code):
     )
 
 
-def brand_page(request):
-    brands = Brand.objects.all()
-    grouped = {}
+def brand_page(request: HttpRequest) -> HttpResponse:
+    brands: QuerySet[Brand] = Brand.objects.all()
+    grouped: Dict[str, List[Brand]] = {}
+
     for brand in brands:
         letter = brand.name[0].upper()
         grouped.setdefault(letter, []).append(brand)
 
-    alphabet = list(string.ascii_uppercase) + [
+    alphabet: List[str] = list(string.ascii_uppercase) + [
         chr(code) for code in range(ord("А"), ord("Z") + 1)
     ]
 
@@ -138,8 +146,8 @@ def brand_page(request):
     )
 
 
-def brand_products(request, brand_id):
-    title = Brand.objects.get(id=brand_id)
+def brand_products(request: HttpRequest, brand_id: int) -> HttpResponse:
+    title: Brand = Brand.objects.get(id=brand_id)
 
     if request.user.is_authenticated:
         products = favorites_products(request).filter(brand=brand_id)
@@ -155,9 +163,9 @@ def brand_products(request, brand_id):
     )
 
 
-def cart(request):
+def cart(request: HttpRequest) -> HttpResponse:
     cart = get_or_create_cart(request)
-    cart_items = CartItem.objects.select_related("product").filter(cart=cart)
+    cart_items: QuerySet[CartItem] = CartItem.objects.select_related("product").filter(cart=cart)
     total_price = sum(item.product.price * item.quantity for item in cart_items)
 
     return render(
@@ -172,7 +180,7 @@ def cart(request):
 
 
 @cart_required
-def create_order(request, address_id):
+def create_order(request: HttpRequest, address_id: int) -> HttpResponse:
     order = create_order_from_cart(request, address_id)
     if order:
         request.session["order_id"] = order.id
@@ -181,42 +189,47 @@ def create_order(request, address_id):
 
 
 @order_session_required
-def order_success(request):
-    title = "Заказ"
-    order_id = request.session.get("order_id")
-    status = "Заказ успешно обработан"
+def order_success(request: HttpRequest) -> HttpResponse:
+    order_id: Optional[int] = request.session.get("order_id")
+
     if order_id:
-        order = Order.objects.get(id=order_id)
-        products = OrderItem.objects.filter(order=order)
+        order: Order = Order.objects.get(pk=order_id)
+        products: QuerySet[OrderItem] = OrderItem.objects.filter(order=order)
         del request.session["order_id"]
+    else:
+        messages.error(request, "Возникла проблема с сохранением заказа")
+        return redirect("main_page")
+
     return render(
         request,
         "cosmetics_shop/order_success.html",
         {
-            "title": title,
+            "title": "Заказ",
             "order": order,
             "products": products,
-            "status": status,
+            "status": "Заказ успешно обработан",
         },
     )
 
 
-def clean_cart(request):
+def clean_cart(request: HttpRequest) -> HttpResponse:
     delete_cart(request)
     return redirect("cart")
 
 
 @require_POST
-def cart_delete(request):
-    product_id = request.POST.get("product_id")
-    delete_product_from_cart(request, product_id)
+def cart_delete(request: HttpRequest) -> HttpResponse:
+    product_id_row: Optional[str] = request.POST.get("product_id")
+    if product_id_row is not None:
+        product_id = int(product_id_row)
+        delete_product_from_cart(request, product_id)
+    else:
+        messages.error(request, "Не удалось удалить товар")
     return redirect("cart")
 
 
 @cart_required
-def delivery(request):
-    title = "Оформление заказа"
-
+def delivery(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         form = ClientForm(request.POST)
         form_delivery = DeliveryAddressForm(request.POST)
@@ -241,7 +254,7 @@ def delivery(request):
     else:
         try:
             client = get_client(request)
-            last_address = (
+            last_address: Optional[DeliveryAddress] = (
                 DeliveryAddress.objects.filter(client=client).order_by("-id").first()
             )
             form = ClientForm(instance=client)
@@ -254,16 +267,16 @@ def delivery(request):
         request,
         "cosmetics_shop/delivery.html",
         {
-            "title": title,
+            "title": "Оформление заказа",
             "form": form,
             "form_delivery": form_delivery,
         },
     )
 
 
-def payment_and_delivery(request):
+def payment_and_delivery(request: HttpRequest) -> HttpResponse:
     return render(request, "cosmetics_shop/payment_and_delivery_page.html")
 
 
-def page_not_found(request, exception):
+def page_not_found(request: HttpRequest, exception: Exception) -> HttpResponse:
     return render(request, "cosmetics_shop/404_page_not_found.html", status=404)
