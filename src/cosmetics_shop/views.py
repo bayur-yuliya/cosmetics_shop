@@ -1,11 +1,12 @@
 import string
-from typing import Optional, Dict, List, reveal_type
+from typing import Optional, Dict, List
 
 from django.contrib import messages
 from django.contrib.auth import login, authenticate
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Sum, F
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from accounts.models import CustomUser
@@ -45,13 +46,22 @@ def login_view(request: HttpRequest) -> HttpResponse:
         user: Optional[CustomUser] = authenticate(
             request, username=email, password=password
         )
+
+        next_url = request.GET.get("next")
+        if next_url and url_has_allowed_host_and_scheme(
+            next_url, allowed_hosts={request.get_host()}
+        ):
+            next_url_path = next_url
+        else:
+            next_url_path = "main_page"
+
         if user is not None:
             login(request, user)
             messages.success(request, "Вы вошли")
-            return redirect(request.META.get("HTTP_REFERER", "main_page"))
         else:
             messages.error(request, "Неверный email или пароль")
-            return redirect(request.META.get("HTTP_REFERER", "main_page"))
+        return redirect(next_url_path)
+
     return redirect("main_page")
 
 
@@ -71,9 +81,9 @@ def main_page(request: HttpRequest) -> HttpResponse:
 
 def category_page(request: HttpRequest, category_id: int) -> HttpResponse:
     title: Category = Category.objects.get(pk=category_id)
-    group_products: List[int] = list(GroupProduct.objects.filter(
-        category=category_id
-    ).values_list("id", flat=True))
+    group_products: List[int] = list(
+        GroupProduct.objects.filter(category=category_id).values_list("id", flat=True)
+    )
 
     if request.user.is_authenticated:
         products = favorites_products(request).filter(group__in=group_products)
@@ -165,8 +175,15 @@ def brand_products(request: HttpRequest, brand_id: int) -> HttpResponse:
 
 def cart(request: HttpRequest) -> HttpResponse:
     cart = get_or_create_cart(request)
-    cart_items: QuerySet[CartItem] = CartItem.objects.select_related("product").filter(cart=cart)
-    total_price = sum(item.product.price * item.quantity for item in cart_items)
+    cart_items: QuerySet[CartItem] = CartItem.objects.select_related("product").filter(
+        cart=cart
+    )
+    total_price = (
+        cart_items.aggregate(total_price=Sum(F("product_price") * F("quantity")))[
+            "total_price"
+        ]
+        or 0
+    )
 
     return render(
         request,
