@@ -179,7 +179,7 @@ def cart(request: HttpRequest) -> HttpResponse:
         cart=cart
     )
     total_price = (
-        cart_items.aggregate(total_price=Sum(F("product_price") * F("quantity")))[
+        cart_items.aggregate(total_price=Sum(F("product__price") * F("quantity")))[
             "total_price"
         ]
         or 0
