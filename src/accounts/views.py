@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.core.paginator import Paginator, Page
+from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import QuerySet
 from django.http import HttpResponse, HttpRequest
@@ -68,11 +68,7 @@ def user_contact(request: HttpRequest) -> HttpResponse:
     return render(
         request,
         "accounts/user_contact.html",
-        {
-            "title": "Контактная информация",
-            "form": form,
-            "client": client
-         },
+        {"title": "Контактная информация", "form": form, "client": client},
     )
 
 
@@ -100,7 +96,9 @@ def favorites(request: HttpRequest) -> HttpResponse:
 def order_history(request: HttpRequest) -> HttpResponse:
     user = cast(CustomUser, request.user)
     client, _ = Client.objects.get_or_create(user=user)
-    orders: QuerySet[Order] = Order.objects.filter(client=client).prefetch_related("items", "status_log")
+    orders: QuerySet[Order] = Order.objects.filter(client=client).prefetch_related(
+        "items", "status_log"
+    )
     order_items: List[Dict] = []
 
     for order in orders:
@@ -112,9 +110,7 @@ def order_history(request: HttpRequest) -> HttpResponse:
                 "order": order,
                 "items": items,
                 "status": status,
-                "status_badge_class": (
-                    status.status_badge_class() if status else None
-                ),
+                "status_badge_class": (status.status_badge_class() if status else None),
             }
         )
 
@@ -154,7 +150,9 @@ def activate_account(request: HttpRequest) -> HttpResponse:
 
                 from django.contrib.auth import authenticate
 
-                authenticated_user: Optional[CustomUser] = authenticate(request, email=user.email, password=password)
+                authenticated_user: Optional[CustomUser] = authenticate(
+                    request, email=user.email, password=password
+                )
                 if user is not None:
                     login(request, authenticated_user)
                     messages.success(request, "Пользователь успешно залогинен")

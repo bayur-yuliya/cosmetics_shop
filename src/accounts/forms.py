@@ -40,6 +40,10 @@ class SetInitialPasswordForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
+
+        if cleaned_data is None:
+            return None
+
         password1 = cleaned_data.get("password1")
         password2 = cleaned_data.get("password2")
 
