@@ -57,8 +57,10 @@ def add_to_cart(request):
 
         product_count = cart_items.filter(product__code=product_code).first()
 
-        total_price = calculate_cart_total(cart)
+        if product_count is None:
+            return JsonResponse({"success": False, "error": "No product"})
 
+        total_price = calculate_cart_total(cart)
         product_total_price = product_count.quantity * product_count.product.price / 100
 
         message = None
@@ -101,8 +103,11 @@ def cart_remove(request):
     count = sum(item.quantity for item in cart_items)
 
     product_count = cart_items.filter(product__code=product_code).first()
-    total_price = calculate_cart_total(cart)
 
+    if product_count is None:
+        return JsonResponse({"success": False, "error": "No product"})
+
+    total_price = calculate_cart_total(cart)
     product_total_price = product_count.quantity * product_count.product.price / 100
 
     return JsonResponse(

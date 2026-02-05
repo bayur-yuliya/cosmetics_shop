@@ -15,6 +15,11 @@ from cosmetics_shop.models import (
 from staff.services.permission_service import get_individually_assigned_permits_names
 
 
+class PermissionMultipleChoiceField(forms.ModelMultipleChoiceField):
+    def label_from_instance(self, obj):
+        return str(obj.name)
+
+
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
@@ -113,7 +118,7 @@ class TagForm(forms.ModelForm):
 
 class GroupForm(forms.ModelForm):
     name = forms.CharField(max_length=200)
-    permissions = forms.ModelMultipleChoiceField(
+    permissions = PermissionMultipleChoiceField(
         queryset=get_individually_assigned_permits_names(),
         widget=forms.CheckboxSelectMultiple,
         required=False,
@@ -122,10 +127,6 @@ class GroupForm(forms.ModelForm):
     class Meta:
         model = Group
         fields = ["name", "permissions"]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["permissions"].label_from_instance = lambda perm: perm.name
 
 
 class AdminCreateUserForm(forms.ModelForm):

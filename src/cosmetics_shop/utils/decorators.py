@@ -34,7 +34,7 @@ def order_session_required(view_func):
 
         if not order_id:
             messages.warning(
-                request, "Заказ не найден. Пожалуйста, оформите заказ заново."
+                request, "Заказ не найден."
             )
             return redirect("cart")
 
@@ -42,7 +42,7 @@ def order_session_required(view_func):
 
         try:
             Order.objects.get(id=order_id)
-        except Order.DoesNotExists:
+        except Order.DoesNotExist:
             messages.error(request, "Заказ не найден")
             if "order_id" in request.session:
                 del request.session["order_id"]
