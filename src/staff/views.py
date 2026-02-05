@@ -1,5 +1,5 @@
 import datetime
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, cast
 
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
@@ -92,10 +92,11 @@ def staff_group_list(request: HttpRequest) -> HttpResponse:
 def staff_group_edit(request: HttpRequest, pk: Optional[int] = None) -> HttpResponse:
     group = get_object_or_404(Group, pk=pk) if pk else None
     form = GroupForm(request.POST or None, instance=group)
+
     if request.method == "POST" and form.is_valid():
         form.save()
-
         return redirect("staff_groups_list")
+
     return render(
         request,
         "staff/permissions/edit_groups.html",
@@ -109,9 +110,9 @@ def staff_group_edit(request: HttpRequest, pk: Optional[int] = None) -> HttpResp
 
 @permission_required("staff.manage_permission", raise_exception=True)
 def staff_list(request: HttpRequest) -> HttpResponse:
-    staffs: QuerySet[CustomUser] = CustomUser.objects.filter(is_staff=True).prefetch_related(
-        "groups", "user_permissions"
-    )
+    staffs: QuerySet[CustomUser] = CustomUser.objects.filter(
+        is_staff=True
+    ).prefetch_related("groups", "user_permissions")
     return render(
         request,
         "staff/permissions/staff_list.html",
@@ -124,18 +125,17 @@ def edit_staff_permissions(request: HttpRequest, user_id: int) -> HttpResponse:
     user = get_object_or_404(CustomUser, id=user_id)
 
     if request.method == "POST":
-        selected_groups = request.POST.getlist("groups")
+        selected_groups: Optional[List[str]] = request.POST.getlist("groups")
+        if selected_groups:
+            user.groups.clear()
+            for group_id in selected_groups:
+                group = Group.objects.get(id=group_id)
+                user.groups.add(group)
 
-        user.groups.clear()
-        for group_id in selected_groups:
-            group = Group.objects.get(id=group_id)
-            user.groups.add(group)
-
-        selected_perm_ids = request.POST.getlist("permissions")
-
-        user.user_permissions.set(selected_perm_ids)
-
-        return redirect("staff_list")
+            selected_permissions = request.POST.getlist("permissions")
+            perms_id = [int(pk) for pk in selected_permissions]
+            user.user_permissions.set(perms_id)
+            return redirect("staff_list")
 
     all_groups = Group.objects.all()
     user_groups = user.groups.all()
@@ -301,10 +301,13 @@ def edit_products(request: HttpRequest, product_id: int) -> HttpResponse:
 @require_POST
 @permission_required("cosmetics_shop.delete_product", raise_exception=True)
 def delete_product(request: HttpRequest) -> HttpResponse:
-    product_id = request.POST.get("product_id")
-    product: Product = Product.objects.get(id=product_id)
-    product.is_active = False
-    product.save()
+    product_id: Optional[str] = request.POST.get("product_id")
+    if product_id:
+        product: Product = get_object_or_404(Product, id=product_id)
+        product.is_active = False
+        product.save()
+    else:
+        messages.error(request, "Не удалось удалить товар")
     return redirect("products")
 
 
@@ -348,7 +351,7 @@ def orders(request: HttpRequest) -> HttpResponse:
 
     paginator = Paginator(latest_statuses, 20)
     page_number = request.GET.get("page")
-    latest_statuses = paginator.get_page(page_number)
+    page = paginator.get_page(page_number)
 
     return render(
         request,
@@ -356,7 +359,7 @@ def orders(request: HttpRequest) -> HttpResponse:
         {
             "title": "Список заказов",
             "form": form,
-            "status": latest_statuses,
+            "status": page,
         },
     )
 
@@ -364,31 +367,33 @@ def orders(request: HttpRequest) -> HttpResponse:
 @permission_required("cosmetics_shop.view_order", raise_exception=True)
 def order_info(request: HttpRequest, order_code: int) -> HttpResponse:
     title = f"Заказ {order_code}"
-    order: Order = Order.objects.get(code=order_code)
-    order_items = OrderItem.objects.filter(order=order)
+
+    order: Order = get_object_or_404(Order, code=order_code)
+    order_items: QuerySet[OrderItem] = OrderItem.objects.filter(order=order)
+    user = cast(CustomUser, request.user)
+
     if request.method == "POST":
-        form = OrderStatusForm(request.POST, instance=order, user=request.user)
+        form = OrderStatusForm(request.POST, instance=order, user=user)
         if form.is_valid():
-            try:
-                last = OrderStatusLog.objects.filter(order=order).first()
-                if last.status != form.cleaned_data["status"]:
-                    OrderStatusLog.objects.create(
-                        order=order,
-                        changed_by=request.user,
-                        status=form.cleaned_data["status"],
-                        comment=form.cleaned_data["comment"],
-                    )
-                    form.save()
-                    messages.success(request, "Статус успешно изменен")
-            except OrderStatusLog.DoesNotExists:
+            last: Optional[OrderStatusLog] = OrderStatusLog.objects.filter(
+                order=order
+            ).first()
+
+            if last and (
+                last.status != form.cleaned_data["status"]
+                or last.comment != form.cleaned_data["comment"]
+            ):
                 OrderStatusLog.objects.create(
                     order=order,
-                    changed_by=request.user,
+                    changed_by=user,
                     status=form.cleaned_data["status"],
                     comment=form.cleaned_data["comment"],
                 )
                 form.save()
                 messages.success(request, "Статус успешно изменен")
+            else:
+                messages.success(request, "Статус установлен")
+
             return redirect("order_info", order_code=order.code)
     else:
         form = OrderStatusForm(instance=order, user=request.user)
@@ -415,14 +420,14 @@ def brands_list(request: HttpRequest) -> HttpResponse:
 
     paginator = Paginator(objects, 20)
     page_number = request.GET.get("page")
-    objects = paginator.get_page(page_number)
+    page = paginator.get_page(page_number)
 
     return render(
         request,
         "staff/lists_page.html",
         {
             "title": "Список брендов",
-            "objects": objects,
+            "objects": page,
             "permissions": permissions,
         },
     )
