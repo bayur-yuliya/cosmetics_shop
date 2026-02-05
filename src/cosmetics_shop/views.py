@@ -1,5 +1,4 @@
 import string
-from typing import Optional, Dict, List
 
 from django.contrib import messages
 from django.contrib.auth import login, authenticate
@@ -43,7 +42,7 @@ def login_view(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         email = request.POST.get("email")
         password = request.POST.get("password")
-        user: Optional[CustomUser] = authenticate(
+        user: CustomUser | None = authenticate(
             request, username=email, password=password
         )
 
@@ -81,7 +80,7 @@ def main_page(request: HttpRequest) -> HttpResponse:
 
 def category_page(request: HttpRequest, category_id: int) -> HttpResponse:
     title: Category = Category.objects.get(pk=category_id)
-    group_products: List[int] = list(
+    group_products: list[int] = list(
         GroupProduct.objects.filter(category=category_id).values_list("id", flat=True)
     )
 
@@ -134,13 +133,13 @@ def product_page(request: HttpRequest, product_code: int) -> HttpResponse:
 
 def brand_page(request: HttpRequest) -> HttpResponse:
     brands: QuerySet[Brand] = Brand.objects.all()
-    grouped: Dict[str, List[Brand]] = {}
+    grouped: dict[str, list[Brand]] = {}
 
     for brand in brands:
         letter = brand.name[0].upper()
         grouped.setdefault(letter, []).append(brand)
 
-    alphabet: List[str] = list(string.ascii_uppercase) + [
+    alphabet: list[str] = list(string.ascii_uppercase) + [
         chr(code) for code in range(ord("А"), ord("Z") + 1)
     ]
 
@@ -207,7 +206,7 @@ def create_order(request: HttpRequest, address_id: int) -> HttpResponse:
 
 @order_session_required
 def order_success(request: HttpRequest) -> HttpResponse:
-    order_id: Optional[int] = request.session.get("order_id")
+    order_id: int | None = request.session.get("order_id")
 
     if order_id:
         order: Order = Order.objects.get(pk=order_id)
@@ -236,7 +235,7 @@ def clean_cart(request: HttpRequest) -> HttpResponse:
 
 @require_POST
 def cart_delete(request: HttpRequest) -> HttpResponse:
-    product_id_row: Optional[str] = request.POST.get("product_id")
+    product_id_row: str | None = request.POST.get("product_id")
     if product_id_row is not None:
         product_id = int(product_id_row)
         delete_product_from_cart(request, product_id)
@@ -271,7 +270,7 @@ def delivery(request: HttpRequest) -> HttpResponse:
     else:
         try:
             client = get_client(request)
-            last_address: Optional[DeliveryAddress] = (
+            last_address: DeliveryAddress | None = (
                 DeliveryAddress.objects.filter(client=client).order_by("-id").first()
             )
             form = ClientForm(instance=client)

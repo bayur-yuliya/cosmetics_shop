@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional, cast
+from typing import Optional, cast
 
 from allauth.account.models import EmailAddress
 from allauth.account.views import login
@@ -99,7 +99,7 @@ def order_history(request: HttpRequest) -> HttpResponse:
     orders: QuerySet[Order] = Order.objects.filter(client=client).prefetch_related(
         "items", "status_log"
     )
-    order_items: List[Dict] = []
+    order_items: list[dict] = []
 
     for order in orders:
         items = list(order.items.all())
@@ -129,7 +129,7 @@ def order_history(request: HttpRequest) -> HttpResponse:
 
 
 def activate_account(request: HttpRequest) -> HttpResponse:
-    token_value: Optional[str] = request.GET.get("token")
+    token_value: str | None = request.GET.get("token")
     if token_value:
         validate_activation_token(request, token_value)
         token_obj: ActivationToken = ActivationToken.objects.get(token=token_value)
@@ -150,7 +150,7 @@ def activate_account(request: HttpRequest) -> HttpResponse:
 
                 from django.contrib.auth import authenticate
 
-                authenticated_user: Optional[CustomUser] = authenticate(
+                authenticated_user: CustomUser | None = authenticate(
                     request, email=user.email, password=password
                 )
                 if user is not None:

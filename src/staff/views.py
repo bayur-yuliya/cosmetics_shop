@@ -1,5 +1,5 @@
 import datetime
-from typing import Optional, Dict, List, cast
+from typing import cast, Any
 
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
@@ -77,7 +77,7 @@ def index(request: HttpRequest) -> HttpResponse:
 
 @permission_required("staff.manage_permission", raise_exception=True)
 def staff_group_list(request: HttpRequest) -> HttpResponse:
-    groups = Group.objects.annotate(user_count=Count("user")).prefetch_related(
+    groups: QuerySet[Group] = Group.objects.annotate(user_count=Count("user")).prefetch_related(
         "permissions"
     )
 
@@ -89,8 +89,8 @@ def staff_group_list(request: HttpRequest) -> HttpResponse:
 
 
 @permission_required("staff.manage_permission", raise_exception=True)
-def staff_group_edit(request: HttpRequest, pk: Optional[int] = None) -> HttpResponse:
-    group = get_object_or_404(Group, pk=pk) if pk else None
+def staff_group_edit(request: HttpRequest, pk: int) -> HttpResponse:
+    group: Group | None = get_object_or_404(Group, pk=pk)
     form = GroupForm(request.POST or None, instance=group)
 
     if request.method == "POST" and form.is_valid():
@@ -122,10 +122,10 @@ def staff_list(request: HttpRequest) -> HttpResponse:
 
 @permission_required("staff.manage_permission", raise_exception=True)
 def edit_staff_permissions(request: HttpRequest, user_id: int) -> HttpResponse:
-    user = get_object_or_404(CustomUser, id=user_id)
+    user = get_object_or_404(CustomUser, pk=user_id)
 
     if request.method == "POST":
-        selected_groups: Optional[List[str]] = request.POST.getlist("groups")
+        selected_groups: list[str] | None = request.POST.getlist("groups")
         if selected_groups:
             user.groups.clear()
             for group_id in selected_groups:
@@ -142,7 +142,7 @@ def edit_staff_permissions(request: HttpRequest, user_id: int) -> HttpResponse:
 
     permissions = get_individually_assigned_permits()
 
-    permissions_by_app: Dict = {}
+    permissions_by_app: dict[str, Any] = {}
     for perm in permissions:
         app_label = perm.content_type.app_label
         if app_label not in permissions_by_app:
@@ -187,7 +187,7 @@ def products(request: HttpRequest) -> HttpResponse:
         .select_related("brand")
     )
 
-    query_params: Optional[QueryDict] = request.GET.copy()
+    query_params: QueryDict | None = request.GET.copy()
     if query_params:
         for key in list(query_params.keys()):
             value = query_params.get(key, "")
@@ -301,7 +301,7 @@ def edit_products(request: HttpRequest, product_id: int) -> HttpResponse:
 @require_POST
 @permission_required("cosmetics_shop.delete_product", raise_exception=True)
 def delete_product(request: HttpRequest) -> HttpResponse:
-    product_id: Optional[str] = request.POST.get("product_id")
+    product_id: str | None = request.POST.get("product_id")
     if product_id:
         product: Product = get_object_or_404(Product, id=product_id)
         product.is_active = False
@@ -375,7 +375,7 @@ def order_info(request: HttpRequest, order_code: int) -> HttpResponse:
     if request.method == "POST":
         form = OrderStatusForm(request.POST, instance=order, user=user)
         if form.is_valid():
-            last: Optional[OrderStatusLog] = OrderStatusLog.objects.filter(
+            last: OrderStatusLog | None = OrderStatusLog.objects.filter(
                 order=order
             ).first()
 
@@ -395,9 +395,9 @@ def order_info(request: HttpRequest, order_code: int) -> HttpResponse:
                 messages.success(request, "Статус установлен")
 
             return redirect("order_info", order_code=order.code)
-    else:
-        form = OrderStatusForm(instance=order, user=request.user)
-        order_status_log = OrderStatusLog.objects.filter(order=order)
+
+    form = OrderStatusForm(instance=order, user=request.user)
+    order_status_log: QuerySet[OrderStatusLog] = OrderStatusLog.objects.filter(order=order)
 
     return render(
         request,
@@ -414,7 +414,7 @@ def order_info(request: HttpRequest, order_code: int) -> HttpResponse:
 
 @permission_required("cosmetics_shop.view_brand", raise_exception=True)
 def brands_list(request: HttpRequest) -> HttpResponse:
-    objects = Brand.objects.all()
+    objects: QuerySet[Brand] = Brand.objects.all()
 
     permissions = get_permissions(request, objects)
 
