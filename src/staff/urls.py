@@ -44,7 +44,11 @@ urlpatterns = [
     path("tags/delete/", views.delete_tags, name="delete_tags"),
     path("tags/", views.tags_list, name="tags_list"),
     # chart
-    path("ajax/charts/sales/", ajax.sales_comparison_chart_for_the_year, name="sales_data"),
+    path(
+        "ajax/charts/sales/",
+        ajax.sales_comparison_chart_for_the_year,
+        name="sales_data",
+    ),
     # main page
     path("", views.index, name="index"),
 ]
