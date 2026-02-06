@@ -47,7 +47,7 @@ class SetInitialPasswordForm(forms.Form):
         password1 = cleaned_data.get("password1")
         password2 = cleaned_data.get("password2")
 
-        if password1 != password2:
+        if (password1 and password2) and (password1 != password2):
             raise ValidationError("Пароли не совпадают")
 
         return cleaned_data

@@ -1,7 +1,6 @@
-from typing import Optional, cast
+from typing import Any
 
 from allauth.account.models import EmailAddress
-from allauth.account.views import login
 from allauth.socialaccount.models import SocialAccount
 from django.contrib import messages
 from django.contrib.auth import logout
@@ -9,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.db import transaction
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Prefetch
 from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render, redirect
 
@@ -17,9 +16,12 @@ from accounts.forms import (
     ClientCreationForm,
     SetInitialPasswordForm,
 )
-from accounts.models import ActivationToken, CustomUser
-from accounts.utils.validators import validate_activation_token
-from cosmetics_shop.models import Client, Favorite, Order
+from accounts.utils.account_services import (
+    activate_user_service,
+    login_authenticated_user,
+)
+from cosmetics_shop.models import Client, Favorite, Order, OrderItem, OrderStatusLog
+from utils.custom_types import AuthenticatedRequest
 
 
 @login_required
@@ -30,8 +32,8 @@ def logout_view(request: HttpRequest) -> HttpResponse:
 
 @login_required
 @transaction.atomic
-def delete_account(request: HttpRequest) -> HttpResponse:
-    user = cast(CustomUser, request.user)
+def delete_account(request: AuthenticatedRequest) -> HttpResponse:
+    user = request.user
 
     SocialAccount.objects.filter(user=user).delete()
     EmailAddress.objects.filter(user=user).delete()
@@ -48,13 +50,12 @@ def delete_account(request: HttpRequest) -> HttpResponse:
 
 
 @login_required
-def user_contact(request: HttpRequest) -> HttpResponse:
-    user = cast(CustomUser, request.user)
-    client, created = Client.objects.get_or_create(user=user)
+def user_contact(request: AuthenticatedRequest) -> HttpResponse:
+    client, created = Client.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
         form = ClientCreationForm(
-            request.POST, instance=client, initial={"email": user.email}
+            request.POST, instance=client, initial={"email": request.user.email}
         )
         if form.is_valid():
             if form.has_changed():
@@ -64,7 +65,7 @@ def user_contact(request: HttpRequest) -> HttpResponse:
                 messages.info(request, "Изменений не обнаружено")
 
             return redirect("user_contact")
-    form = ClientCreationForm(instance=client, initial={"email": user.email})
+    form = ClientCreationForm(instance=client, initial={"email": request.user.email})
     return render(
         request,
         "accounts/user_contact.html",
@@ -73,9 +74,8 @@ def user_contact(request: HttpRequest) -> HttpResponse:
 
 
 @login_required
-def favorites(request: HttpRequest) -> HttpResponse:
-    user = cast(CustomUser, request.user)
-    products = Favorite.objects.filter(user=user)
+def favorites(request: AuthenticatedRequest) -> HttpResponse:
+    products = Favorite.objects.filter(user=request.user)
 
     paginator = Paginator(products, 20)
     page_number = request.GET.get("page")
@@ -93,28 +93,39 @@ def favorites(request: HttpRequest) -> HttpResponse:
 
 
 @login_required
-def order_history(request: HttpRequest) -> HttpResponse:
-    user = cast(CustomUser, request.user)
-    client, _ = Client.objects.get_or_create(user=user)
-    orders: QuerySet[Order] = Order.objects.filter(client=client).prefetch_related(
-        "items", "status_log"
+def order_history(request: AuthenticatedRequest) -> HttpResponse:
+    client, _ = Client.objects.get_or_create(user=request.user)
+    status_prefetch = Prefetch(
+        "status_log",
+        queryset=OrderStatusLog.objects.order_by("-changed_at"),
+        to_attr="order_statuses",
     )
-    order_items: list[dict] = []
+
+    orders = (
+        Order.objects.filter(client=client)
+        .prefetch_related("items__product", status_prefetch)
+        .order_by("-created_at")
+    )
+
+    order_items_data: list[dict[str, Any]] = []
 
     for order in orders:
-        items = list(order.items.all())
-        status = order.status_log.first()
+        latest_status: OrderStatusLog | None = (
+            order.order_statuses[0] if order.order_statuses else None
+        )
 
-        order_items.append(
+        order_items_data.append(
             {
                 "order": order,
-                "items": items,
-                "status": status,
-                "status_badge_class": (status.status_badge_class() if status else None),
+                "items": order.items.all(),
+                "latest_status": latest_status,
+                "status_badge_class": (
+                    latest_status.status_badge_class() if latest_status else "secondary"
+                ),
             }
         )
 
-    paginator = Paginator(order_items, 20)
+    paginator = Paginator(order_items_data, 20)
     page_number = request.GET.get("page")
     page = paginator.get_page(page_number)
 
@@ -130,37 +141,13 @@ def order_history(request: HttpRequest) -> HttpResponse:
 
 def activate_account(request: HttpRequest) -> HttpResponse:
     token_value: str | None = request.GET.get("token")
-    if token_value:
-        validate_activation_token(request, token_value)
-        token_obj: ActivationToken = ActivationToken.objects.get(token=token_value)
-
-        user: CustomUser = token_obj.user
+    if token_value is not None:
         if request.method == "POST":
             form = SetInitialPasswordForm(request.POST)
             if form.is_valid():
                 password = form.cleaned_data["password1"]
-
-                user.set_password(password)
-                user.is_active = True
-                user.is_staff = True
-                user.save()
-
-                token_obj.delete()
-                messages.success(request, "Аккаунт активирован!")
-
-                from django.contrib.auth import authenticate
-
-                authenticated_user: CustomUser | None = authenticate(
-                    request, email=user.email, password=password
-                )
-                if user is not None:
-                    login(request, authenticated_user)
-                    messages.success(request, "Пользователь успешно залогинен")
-                    return redirect("main_page")
-                else:
-                    messages.error(request, "Ошибка аутентификации")
-
-                return redirect("main_page")
+                user = activate_user_service(request, token_value, password)
+                login_authenticated_user(request, user, password)
     else:
         messages.error(request, "Не удалось получить токен")
     form = SetInitialPasswordForm()
@@ -168,14 +155,15 @@ def activate_account(request: HttpRequest) -> HttpResponse:
         request,
         "accounts/activate_staff_password.html",
         {
-            "form": form,
             "title": "Активация приглашения",
+            "form": form,
         },
     )
 
 
 @login_required
-def remove_from_favorites(request: HttpRequest, product_id: int) -> HttpResponse:
-    user = cast(CustomUser, request.user)
-    Favorite.objects.filter(user=user, product_id=product_id).delete()
+def remove_from_favorites(
+    request: AuthenticatedRequest, product_id: int
+) -> HttpResponse:
+    Favorite.objects.filter(user=request.user, product_id=product_id).delete()
     return redirect("favorites")
