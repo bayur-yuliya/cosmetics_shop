@@ -186,3 +186,7 @@ SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_AUTO_SIGNUP = True
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+
+SITE_URL = "http://127.0.0.1:8000"
+DEFAULT_FROM_EMAIL = "Cosmetics Shop <noreply@gmail.com>"

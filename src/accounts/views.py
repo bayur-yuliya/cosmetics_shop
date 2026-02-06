@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.db import transaction
-from django.db.models import QuerySet, Prefetch
+from django.db.models import Prefetch
 from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render, redirect
 
@@ -20,7 +20,7 @@ from accounts.utils.account_services import (
     activate_user_service,
     login_authenticated_user,
 )
-from cosmetics_shop.models import Client, Favorite, Order, OrderItem, OrderStatusLog
+from cosmetics_shop.models import Client, Favorite, Order, OrderStatusLog
 from utils.custom_types import AuthenticatedRequest
 
 

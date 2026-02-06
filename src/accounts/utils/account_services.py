@@ -8,13 +8,14 @@ from django.urls import reverse
 
 from accounts.models import CustomUser, ActivationToken
 from accounts.utils.validators import validate_activation_token
+from config import settings
 
 
 def send_activation_email(user: CustomUser, token_obj: ActivationToken) -> None:
     try:
-        activation_url = (
-            f"http://127.0.0.1:8000{reverse('activate')}?token={token_obj.token}"
-        )
+        path = reverse("activate")
+
+        activation_url = f"{settings.SITE_URL}{path}?token={token_obj.token}"
 
         subject = "Активация аккаунта"
 
@@ -29,7 +30,7 @@ def send_activation_email(user: CustomUser, token_obj: ActivationToken) -> None:
             send_mail(
                 subject,
                 message,
-                "noreply@gmail.com",
+                settings.DEFAULT_FROM_EMAIL,
                 [user.email],
                 fail_silently=False,
             )
@@ -37,7 +38,7 @@ def send_activation_email(user: CustomUser, token_obj: ActivationToken) -> None:
             raise ValueError("Не определен email пользователя")
 
     except Exception as e:
-        print(f"Exception: {e}")
+        print(f"Ошибка отправки письма: {e}")
 
 
 def activate_user_service(request, token_value: str, password: str) -> CustomUser:
