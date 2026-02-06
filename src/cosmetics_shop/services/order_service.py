@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.http import HttpRequest
 
 from cosmetics_shop.models import (
     Cart,
@@ -13,7 +14,7 @@ from cosmetics_shop.models import (
 from cosmetics_shop.services.cart_services import clear_cart_after_order
 
 
-def get_cart(request):
+def get_cart(request: HttpRequest) -> Cart:
     if request.user.is_authenticated:
         cart, _ = Cart.objects.get_or_create(user=request.user)
     else:
@@ -28,15 +29,21 @@ def get_cart(request):
     return cart
 
 
-def get_client(request):
+def get_client(request: HttpRequest) -> Client:
     if request.user.is_authenticated:
         return Client.objects.get(user=request.user)
-    else:
-        client_id = request.session.get("client_id")
-        return Client.objects.get(id=client_id)
+
+    client_id = request.session.get("client_id")
+    if client_id:
+        try:
+            return Client.objects.get(id=client_id)
+        except Client.DoesNotExist:
+            pass
+
+    raise Client.DoesNotExist("Клиент не найден в профиле или сессии")
 
 
-def change_stock_product(product_code, count):
+def change_stock_product(product_code: int, count: int) -> None:
     product = Product.objects.get(code=product_code)
     if product.stock >= count:
         product.stock -= count
@@ -45,7 +52,7 @@ def change_stock_product(product_code, count):
         raise ValueError("Товаров больше нет")
 
 
-def create_order_from_cart(request, address_id):
+def create_order_from_cart(request: HttpRequest, address_id: int) -> Order:
     cart = get_cart(request)
     cart_items = CartItem.objects.select_related("product").filter(cart=cart)
 
@@ -88,7 +95,8 @@ def create_order_from_cart(request, address_id):
         ]
 
         for item in cart_items:
-            change_stock_product(item.product.code, item.quantity)
+            if item.product.code and item.quantity:
+                change_stock_product(item.product.code, item.quantity)
 
         OrderStatusLog.objects.create(order=order)
         OrderItem.objects.bulk_create(order_items)

@@ -1,23 +1,24 @@
+from datetime import date
+
 from django.db.models import Count, Avg
 from django.db.models.functions import TruncMonth
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpRequest
 from django.utils import timezone
 
 from cosmetics_shop.models import Order
 
 
-def sales_comparison_chart_for_the_year(request):
-    year = request.GET.get("year")
+def sales_comparison_chart_for_the_year(request: HttpRequest) -> JsonResponse:
+    year: str | None = request.GET.get("year")
     now = timezone.now()
-
-    try:
-        year = int(year)
-
-    except (TypeError, ValueError):
-        year = now.year
+    if year is not None:
+        try:
+            current_year = date(int(year), 1, 1).year
+        except (TypeError, ValueError):
+            current_year = now.year
 
     orders_by_month = (
-        Order.objects.filter(created_at__year=year)
+        Order.objects.filter(created_at__year=current_year)
         .annotate(month=TruncMonth("created_at"))
         .values("month")
         .annotate(

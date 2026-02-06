@@ -33,9 +33,7 @@ def order_session_required(view_func):
         order_id = request.session.get("order_id")
 
         if not order_id:
-            messages.warning(
-                request, "Заказ не найден."
-            )
+            messages.warning(request, "Заказ не найден.")
             return redirect("cart")
 
         from ..models import Order

@@ -9,6 +9,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from accounts.models import CustomUser
+from utils.custom_types import AuthenticatedRequest
 from .forms import (
     ClientForm,
     DeliveryAddressForm,
@@ -32,7 +33,7 @@ from .services.cart_services import (
     delete_cart,
     is_product_in_cart,
 )
-from .services.categories_services import favorites_products
+from .services.product_service import favorites_products, get_ready_product_list
 from .services.order_service import create_order_from_cart, get_client
 from .utils.decorators import cart_required, order_session_required
 from .utils.view_helpers import processing_product_page
@@ -65,10 +66,7 @@ def login_view(request: HttpRequest) -> HttpResponse:
 
 
 def main_page(request: HttpRequest) -> HttpResponse:
-    if request.user.is_authenticated:
-        products = favorites_products(request)
-    else:
-        products = Product.objects.filter(is_active=True)
+    products = get_ready_product_list(request)
 
     return processing_product_page(
         request=request,
@@ -84,10 +82,7 @@ def category_page(request: HttpRequest, category_id: int) -> HttpResponse:
         GroupProduct.objects.filter(category=category_id).values_list("id", flat=True)
     )
 
-    if request.user.is_authenticated:
-        products = favorites_products(request).filter(group__in=group_products)
-    else:
-        products = Product.objects.filter(group__in=group_products)
+    products = get_ready_product_list(request).filter(group__in=group_products)
 
     return processing_product_page(
         request=request,
@@ -98,13 +93,12 @@ def category_page(request: HttpRequest, category_id: int) -> HttpResponse:
     )
 
 
-def group_page(request: HttpRequest, group_id: int) -> HttpResponse:
+def group_page(
+    request: HttpRequest | AuthenticatedRequest, group_id: int
+) -> HttpResponse:
     title: GroupProduct = GroupProduct.objects.get(pk=group_id)
 
-    if request.user.is_authenticated:
-        products = favorites_products(request).filter(group=group_id)
-    else:
-        products = Product.objects.filter(group=group_id)
+    products = get_ready_product_list(request).filter(group=group_id)
 
     return processing_product_page(
         request=request,
@@ -157,11 +151,7 @@ def brand_page(request: HttpRequest) -> HttpResponse:
 
 def brand_products(request: HttpRequest, brand_id: int) -> HttpResponse:
     title: Brand = Brand.objects.get(id=brand_id)
-
-    if request.user.is_authenticated:
-        products = favorites_products(request).filter(brand=brand_id)
-    else:
-        products = Product.objects.filter(brand=brand_id)
+    products = get_ready_product_list(request).filter(brand=brand_id)
 
     return processing_product_page(
         request=request,
@@ -246,38 +236,32 @@ def cart_delete(request: HttpRequest) -> HttpResponse:
 
 @cart_required
 def delivery(request: HttpRequest) -> HttpResponse:
+    try:
+        client = get_client(request)
+        last_address: DeliveryAddress | None = (
+            DeliveryAddress.objects.filter(client=client).order_by("-id").first()
+        )
+    except Client.DoesNotExist:
+        client = None
+        last_address = None
+
     if request.method == "POST":
-        form = ClientForm(request.POST)
-        form_delivery = DeliveryAddressForm(request.POST)
+        form = ClientForm(request.POST, instance=client)
+        form_delivery = DeliveryAddressForm(request.POST, instance=last_address)
 
         if form.is_valid() and form_delivery.is_valid():
+            new_client = form.save()
             if request.user.is_authenticated:
-                client, _ = Client.objects.get_or_create(user=request.user)
-                client.first_name = form.cleaned_data["first_name"]
-                client.last_name = form.cleaned_data["last_name"]
-                client.phone = form.cleaned_data["phone"]
-                client.is_active = True
-                client.save()
-            else:
-                client = get_or_create_session_client(request, form)
+                new_client.user = request.user
+                new_client.save()
 
             address = form_delivery.save(commit=False)
             address.client = client
             address.save()
-
             return redirect("order", address_id=address.id)
 
-    else:
-        try:
-            client = get_client(request)
-            last_address: DeliveryAddress | None = (
-                DeliveryAddress.objects.filter(client=client).order_by("-id").first()
-            )
-            form = ClientForm(instance=client)
-            form_delivery = DeliveryAddressForm(instance=last_address)
-        except Client.DoesNotExist:
-            form = ClientForm()
-            form_delivery = DeliveryAddressForm()
+    form = ClientForm(instance=client)
+    form_delivery = DeliveryAddressForm(instance=last_address)
 
     return render(
         request,

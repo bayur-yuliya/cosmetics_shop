@@ -12,7 +12,7 @@ from cosmetics_shop.models import (
     OrderStatusLog,
     Tag,
 )
-from staff.services.permission_service import get_individually_assigned_permits_names
+from staff.services.permission_service import get_individually_assigned_permits
 
 
 class PermissionMultipleChoiceField(forms.ModelMultipleChoiceField):
@@ -119,7 +119,7 @@ class TagForm(forms.ModelForm):
 class GroupForm(forms.ModelForm):
     name = forms.CharField(max_length=200)
     permissions = PermissionMultipleChoiceField(
-        queryset=get_individually_assigned_permits_names(),
+        queryset=get_individually_assigned_permits(),
         widget=forms.CheckboxSelectMultiple,
         required=False,
     )

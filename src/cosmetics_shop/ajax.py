@@ -1,4 +1,4 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 
@@ -13,12 +13,11 @@ from cosmetics_shop.services.cart_services import (
 
 
 @require_POST
-def toggle_favorite(request):
+def toggle_favorite(request: HttpRequest) -> HttpResponse:
     product_id = request.POST.get("product_id")
     product = get_object_or_404(Product, id=product_id)
     message = None
     if request.user.is_authenticated:
-
         favorite = Favorite.objects.filter(user=request.user, product=product)
 
         if favorite.exists():
@@ -38,7 +37,7 @@ def toggle_favorite(request):
 
 
 @require_POST
-def add_to_cart(request):
+def add_to_cart(request: HttpRequest) -> HttpResponse:
     try:
         product_code = request.POST.get("product_code")
 
@@ -50,7 +49,7 @@ def add_to_cart(request):
         else:
             cart = get_or_create_cart_for_session(request)
 
-        add_product_to_cart(cart, product_code=product_code)
+        add_product_to_cart(cart, product_code=int(product_code))
 
         cart_items = CartItem.objects.select_related("product").filter(cart=cart)
         count = sum(item.quantity for item in cart_items)
@@ -89,15 +88,20 @@ def add_to_cart(request):
 
 
 @require_POST
-def cart_remove(request):
+def cart_remove(request: HttpRequest) -> HttpResponse:
     product_code = request.POST.get("product_code")
+
+    if product_code is None:
+        return JsonResponse(
+            {"success": False, "error": "Missing product code"}, status=400
+        )
 
     if request.user.is_authenticated:
         cart = get_or_create_cart(request)
     else:
         cart = get_or_create_cart_for_session(request)
 
-    remove_product_from_cart(cart, product_code)
+    remove_product_from_cart(cart, int(product_code))
 
     cart_items = CartItem.objects.select_related("product").filter(cart=cart)
     count = sum(item.quantity for item in cart_items)

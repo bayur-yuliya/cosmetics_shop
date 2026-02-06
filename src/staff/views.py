@@ -35,6 +35,7 @@ from staff.forms import (
     GroupForm,
     AdminCreateUserForm,
 )
+from utils.custom_types import AuthenticatedRequest
 from .services.dashboard_service import (
     number_of_completed_orders_today,
     number_of_orders_per_month,
@@ -77,9 +78,9 @@ def index(request: HttpRequest) -> HttpResponse:
 
 @permission_required("staff.manage_permission", raise_exception=True)
 def staff_group_list(request: HttpRequest) -> HttpResponse:
-    groups: QuerySet[Group] = Group.objects.annotate(user_count=Count("user")).prefetch_related(
-        "permissions"
-    )
+    groups: QuerySet[Group] = Group.objects.annotate(
+        user_count=Count("user")
+    ).prefetch_related("permissions")
 
     return render(
         request,
@@ -365,15 +366,14 @@ def orders(request: HttpRequest) -> HttpResponse:
 
 
 @permission_required("cosmetics_shop.view_order", raise_exception=True)
-def order_info(request: HttpRequest, order_code: int) -> HttpResponse:
+def order_info(request: AuthenticatedRequest, order_code: int) -> HttpResponse:
     title = f"Заказ {order_code}"
 
     order: Order = get_object_or_404(Order, code=order_code)
     order_items: QuerySet[OrderItem] = OrderItem.objects.filter(order=order)
-    user = cast(CustomUser, request.user)
 
     if request.method == "POST":
-        form = OrderStatusForm(request.POST, instance=order, user=user)
+        form = OrderStatusForm(request.POST, instance=order, user=request.user)
         if form.is_valid():
             last: OrderStatusLog | None = OrderStatusLog.objects.filter(
                 order=order
@@ -385,7 +385,7 @@ def order_info(request: HttpRequest, order_code: int) -> HttpResponse:
             ):
                 OrderStatusLog.objects.create(
                     order=order,
-                    changed_by=user,
+                    changed_by=request.user,
                     status=form.cleaned_data["status"],
                     comment=form.cleaned_data["comment"],
                 )
@@ -397,7 +397,9 @@ def order_info(request: HttpRequest, order_code: int) -> HttpResponse:
             return redirect("order_info", order_code=order.code)
 
     form = OrderStatusForm(instance=order, user=request.user)
-    order_status_log: QuerySet[OrderStatusLog] = OrderStatusLog.objects.filter(order=order)
+    order_status_log: QuerySet[OrderStatusLog] = OrderStatusLog.objects.filter(
+        order=order
+    )
 
     return render(
         request,
