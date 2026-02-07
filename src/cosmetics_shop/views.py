@@ -29,11 +29,10 @@ from .models import (
 from .services.cart_services import (
     get_or_create_cart,
     delete_product_from_cart,
-    get_or_create_session_client,
     delete_cart,
     is_product_in_cart,
 )
-from .services.product_service import favorites_products, get_ready_product_list
+from .services.product_service import get_ready_product_list
 from .services.order_service import create_order_from_cart, get_client
 from .utils.decorators import cart_required, order_session_required
 from .utils.view_helpers import processing_product_page

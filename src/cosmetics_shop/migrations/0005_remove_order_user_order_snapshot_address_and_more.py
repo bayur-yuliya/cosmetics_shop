@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cosmetics_shop", "0004_rename_card_cart_rename_carditem_cartitem_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),

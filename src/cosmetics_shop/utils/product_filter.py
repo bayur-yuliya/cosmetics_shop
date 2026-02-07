@@ -1,5 +1,4 @@
 class ProductFilter:
-
     def __init__(self, request, queryset):
         self.request = request
         self.queryset = queryset

@@ -14,7 +14,6 @@ class ClientForm(forms.ModelForm):
 
 
 class DeliveryAddressForm(forms.ModelForm):
-
     class Meta:
         model = DeliveryAddress
         fields = ["city", "street", "post_office"]
