@@ -1,12 +1,13 @@
 import datetime
-from typing import cast, Any
+from typing import Any
 
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.models import Group
 from django.core.paginator import Paginator
+from django.db import transaction
 from django.db.models import OuterRef, Subquery, Count, QuerySet
-from django.http import HttpRequest, HttpResponse, QueryDict
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -128,15 +129,14 @@ def edit_staff_permissions(request: HttpRequest, user_id: int) -> HttpResponse:
     if request.method == "POST":
         selected_groups: list[str] | None = request.POST.getlist("groups")
         if selected_groups:
-            user.groups.clear()
-            for group_id in selected_groups:
-                group = Group.objects.get(id=group_id)
-                user.groups.add(group)
+            selected_groups_id = [int(pk) for pk in selected_groups]
+            user.groups.set(selected_groups_id)
 
-            selected_permissions = request.POST.getlist("permissions")
+        selected_permissions = request.POST.getlist("permissions")
+        if selected_permissions:
             perms_id = [int(pk) for pk in selected_permissions]
             user.user_permissions.set(perms_id)
-            return redirect("staff_list")
+        return redirect("staff_list")
 
     all_groups = Group.objects.all()
     user_groups = user.groups.all()
@@ -181,21 +181,12 @@ def create_staff_user(request: HttpRequest) -> HttpResponse:
 
 @permission_required("cosmetics_shop.view_product", raise_exception=True)
 def products(request: HttpRequest) -> HttpResponse:
-    products = (
+    products_list = (
         Product.objects.all()
         .order_by("-id")
         .filter(is_active=True)
         .select_related("brand")
     )
-
-    query_params: QueryDict | None = request.GET.copy()
-    if query_params:
-        for key in list(query_params.keys()):
-            value = query_params.get(key, "")
-            if not value or not value.strip():
-                query_params.pop(key)
-        if request.GET.urlencode() != query_params.urlencode():
-            return redirect(f"{request.path}?{query_params.urlencode()}")
 
     form = ProductStuffFilterForm(request.GET or None)
     form_stock = FilterStockForm(request.GET or None)
@@ -208,25 +199,25 @@ def products(request: HttpRequest) -> HttpResponse:
         max_price = form.cleaned_data["max_price"]
 
         if name:
-            products = products.filter(name__icontains=name)
+            products_list = products_list.filter(name__icontains=name)
         if brand:
-            products = products.filter(brand__name__icontains=brand)
+            products_list = products_list.filter(brand__name__icontains=brand)
         if min_price is not None:
-            products = products.filter(price__gte=min_price * 100, stock__gte=1)
+            products_list = products_list.filter(price__gte=min_price * 100, stock__gte=1)
         if max_price is not None:
-            products = products.filter(price__lte=max_price * 100)
+            products_list = products_list.filter(price__lte=max_price * 100)
         if code:
-            products = products.filter(code__icontains=code)
+            products_list = products_list.filter(code__icontains=code)
 
     if form_stock.is_valid():
         min_stock = form_stock.cleaned_data["min_stock"]
         max_stock = form_stock.cleaned_data["max_stock"]
         if min_stock:
-            products = products.filter(stock__gte=min_stock)
+            products_list = products_list.filter(stock__gte=min_stock)
         if max_stock:
-            products = products.filter(stock__lte=max_stock)
+            products_list = products_list.filter(stock__lte=max_stock)
 
-    paginator = Paginator(products, 20)
+    paginator = Paginator(products_list, 20)
     page_number = request.GET.get("page")
     page = paginator.get_page(page_number)
 
@@ -383,16 +374,17 @@ def order_info(request: AuthenticatedRequest, order_code: int) -> HttpResponse:
                 last.status != form.cleaned_data["status"]
                 or last.comment != form.cleaned_data["comment"]
             ):
-                OrderStatusLog.objects.create(
-                    order=order,
-                    changed_by=request.user,
-                    status=form.cleaned_data["status"],
-                    comment=form.cleaned_data["comment"],
-                )
-                form.save()
-                messages.success(request, "Статус успешно изменен")
+                with transaction.atomic():
+                    OrderStatusLog.objects.create(
+                        order=order,
+                        changed_by=request.user,
+                        status=form.cleaned_data["status"],
+                        comment=form.cleaned_data["comment"],
+                    )
+                    form.save()
+                    messages.success(request, "Статус успешно изменен")
             else:
-                messages.success(request, "Статус установлен")
+                messages.success(request, "Статус не изменен")
 
             return redirect("order_info", order_code=order.code)
 

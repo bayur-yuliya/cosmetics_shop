@@ -8,7 +8,7 @@
     <h2 class="mb-4">Список товаров</h2>
 
     <!-- Фильтры -->
-    <form method="get" class="mb-4">
+    <form id="filter-form" method="get" class="mb-4">
         <div class="row g-3">
             <div class="col-md-6">
                 {{ form.as_p }}
@@ -26,13 +26,12 @@
             <table class="table align-middle table-hover">
                 <thead class="table-light">
                     <tr>
+                        <th>Код</th>
                         <th>Фото</th>
                         <th>Название</th>
-                        <th>Код</th>
                         <th>Группа</th>
                         <th>Брэнд</th>
                         <th>Цена</th>
-                        <th>Описание</th>
                         <th>Количество</th>
                         <th>Действия</th>
                     </tr>
@@ -40,6 +39,7 @@
                 <tbody>
                     {% for prod in products %}
                         <tr>
+                            <td>{{ prod.code }}</td>
                             <td>
                                 <img src="/media/{{ prod.image }}" class="img-thumbnail"
                                      style="width:60px; height:60px; object-fit:cover;">
@@ -47,11 +47,9 @@
                             <td>
                                 <a href="{% url 'product_card' prod.id %}">{{ prod.name }}</a>
                             </td>
-                            <td>{{ prod.code }}</td>
                             <td>{{ prod.group.name }}</td>
                             <td>{{ prod.brand }}</td>
                             <td>{{ prod.price|number_format }} грн</td>
-                            <td>{{ prod.description|truncatechars:50 }}</td>
                             <td>{{ prod.stock }}</td>
                             <td>
                                 {%  if perms.cosmetics_shop.change_product  %}
