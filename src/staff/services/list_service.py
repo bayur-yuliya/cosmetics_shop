@@ -35,7 +35,7 @@ class BaseStaffDeleteView(
 ):
     http_method_names = ["post", "delete"]
 
-    def get_context_data(self, *args, **kwargs):
+    def form_valid(self, form):
         success_url = self.get_success_url()
         self.object.delete()
         messages.success(self.request, "Успешное удаление")
