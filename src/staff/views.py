@@ -3,12 +3,14 @@ from typing import Any
 
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import OuterRef, Subquery, Count, QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
@@ -18,11 +20,11 @@ from cosmetics_shop.models import (
     Order,
     OrderItem,
     OrderStatusLog,
-    Brand,
     Category,
     Tag,
-    GroupProduct,
     Favorite,
+    GroupProduct,
+    Brand,
 )
 from staff.forms import (
     ProductForm,
@@ -43,8 +45,17 @@ from .services.dashboard_service import (
     summ_bill,
     average_bill,
 )
-from .services.list_service import get_permissions
+from .services.list_service import (
+    BaseStaffCreateView,
+    BaseStaffListView,
+    BaseStaffChangeView,
+    BaseStaffDeleteView,
+)
 from .services.permission_service import get_individually_assigned_permits
+
+
+class StaffPermissionMixin(PermissionRequiredMixin):
+    raise_exception = True
 
 
 @permission_required("staff.dashboard_view", raise_exception=False)
@@ -203,7 +214,9 @@ def products(request: HttpRequest) -> HttpResponse:
         if brand:
             products_list = products_list.filter(brand__name__icontains=brand)
         if min_price is not None:
-            products_list = products_list.filter(price__gte=min_price * 100, stock__gte=1)
+            products_list = products_list.filter(
+                price__gte=min_price * 100, stock__gte=1
+            )
         if max_price is not None:
             products_list = products_list.filter(price__lte=max_price * 100)
         if code:
@@ -406,295 +419,109 @@ def order_info(request: AuthenticatedRequest, order_code: int) -> HttpResponse:
     )
 
 
-@permission_required("cosmetics_shop.view_brand", raise_exception=True)
-def brands_list(request: HttpRequest) -> HttpResponse:
-    objects: QuerySet[Brand] = Brand.objects.all()
-
-    permissions = get_permissions(request, objects)
-
-    paginator = Paginator(objects, 20)
-    page_number = request.GET.get("page")
-    page = paginator.get_page(page_number)
-
-    return render(
-        request,
-        "staff/lists_page.html",
-        {
-            "title": "Список брендов",
-            "objects": page,
-            "permissions": permissions,
-        },
-    )
+# Category
+class CategoryListView(BaseStaffListView):
+    model = Category
+    page_title = "Список категорий"
+    permission_required = "cosmetics_shop.view_category"
 
 
-@permission_required("cosmetics_shop.view_category", raise_exception=True)
-def categories_list(request: HttpRequest) -> HttpResponse:
-    objects: QuerySet[Category] = Category.objects.all()
-
-    permissions = get_permissions(request, objects)
-
-    paginator = Paginator(objects, 20)
-    page_number = request.GET.get("page")
-    page = paginator.get_page(page_number)
-
-    return render(
-        request,
-        "staff/lists_page.html",
-        {
-            "objects": page,
-            "title": "Список категорий",
-            "permissions": permissions,
-        },
-    )
+class CategoryCreateView(BaseStaffCreateView):
+    page_title = "Создание категории"
+    model = Category
+    form_class = CategoryForm
+    permission_required = "cosmetics_shop.add_category"
+    success_url = reverse_lazy("categories_list")
 
 
-@permission_required("cosmetics_shop.view_tag", raise_exception=True)
-def tags_list(request: HttpRequest) -> HttpResponse:
-    objects: QuerySet[Tag] = Tag.objects.all()
-
-    permissions = get_permissions(request, objects)
-
-    paginator = Paginator(objects, 20)
-    page_number = request.GET.get("page")
-    page = paginator.get_page(page_number)
-
-    return render(
-        request,
-        "staff/lists_page.html",
-        {
-            "title": "Список тегов",
-            "objects": page,
-            "permissions": permissions,
-        },
-    )
+class CategoryChangeView(BaseStaffChangeView):
+    page_title = "Изменение категории"
+    model = Category
+    form_class = CategoryForm
+    permission_required = "cosmetics_shop.change_category"
+    success_url = reverse_lazy("categories_list")
 
 
-@permission_required("cosmetics_shop.view_groupproduct", raise_exception=True)
-def groups_list(request: HttpRequest) -> HttpResponse:
-    objects: QuerySet[GroupProduct] = GroupProduct.objects.all()
-    permissions = get_permissions(request, objects)
-
-    paginator = Paginator(objects, 20)
-    page_number = request.GET.get("page")
-    page = paginator.get_page(page_number)
-
-    return render(
-        request,
-        "staff/lists_page.html",
-        {
-            "title": "Список групп",
-            "objects": page,
-            "permissions": permissions,
-        },
-    )
+class CategoryDeleteView(BaseStaffDeleteView):
+    pass
 
 
-@permission_required("cosmetics_shop.add_category", raise_exception=True)
-def create_categories(request: HttpRequest) -> HttpResponse:
-    if request.method == "POST":
-        form = CategoryForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("categories_list")
-
-    form = CategoryForm()
-    return render(
-        request,
-        "staff/create_page.html",
-        {
-            "title": "Создание категории",
-            "form": form,
-        },
-    )
+# GroupProduct
+class GroupProductListView(BaseStaffListView):
+    model = GroupProduct
+    page_title = "Список групп"
+    permission_required = "cosmetics_shop.view_groupproduct"
 
 
-@permission_required("cosmetics_shop.add_groupproduct", raise_exception=True)
-def create_groups(request: HttpRequest) -> HttpResponse:
-    if request.method == "POST":
-        form = GroupProductForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("groups_list")
-
-    form = GroupProductForm()
-    return render(
-        request,
-        "staff/create_page.html",
-        {
-            "title": "Создание группы",
-            "form": form,
-        },
-    )
+class GroupProductCreateView(BaseStaffCreateView):
+    page_title = "Создание группы"
+    model = GroupProduct
+    form_class = GroupProductForm
+    permission_required = "cosmetics_shop.add_groupproduct"
+    success_url = reverse_lazy("groups_list")
 
 
-@permission_required("cosmetics_shop.add_brand", raise_exception=True)
-def create_brands(request: HttpRequest) -> HttpResponse:
-    if request.method == "POST":
-        form = BrandForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("brands_list")
-
-    form = BrandForm()
-    return render(
-        request,
-        "staff/create_page.html",
-        {
-            "title": "Создание бренда",
-            "form": form,
-        },
-    )
+class GroupProductChangeView(BaseStaffChangeView):
+    page_title = "Изменение группы"
+    model = GroupProduct
+    form_class = GroupProductForm
+    permission_required = "cosmetics_shop.add_groupproduct"
+    success_url = reverse_lazy("groups_list")
 
 
-@permission_required("cosmetics_shop.add_tag", raise_exception=True)
-def create_tags(request: HttpRequest) -> HttpResponse:
-    if request.method == "POST":
-        form = TagForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("tags_list")
-
-    form = TagForm()
-    return render(
-        request,
-        "staff/create_page.html",
-        {
-            "title": "Создание тега",
-            "form": form,
-        },
-    )
+class GroupProductDeleteView(BaseStaffDeleteView):
+    pass
 
 
-@require_POST
-@permission_required("cosmetics_shop.delete_tag", raise_exception=True)
-def delete_tags(request: HttpRequest) -> HttpResponse:
-    tag_id = request.POST.get("id")
-    if tag_id is not None:
-        tag = get_object_or_404(Tag, id=tag_id)
-        tag.delete()
-    else:
-        messages.error(request, "Не удалось удалить тэг")
-    return redirect("tags_list")
+# Brand
+class BrandListView(BaseStaffListView):
+    model = Brand
+    page_title = "Список брендов"
+    permission_required = "cosmetics_shop.view_brand"
 
 
-@require_POST
-@permission_required("cosmetics_shop.delete_category", raise_exception=True)
-def delete_categories(request: HttpRequest) -> HttpResponse:
-    category_id = request.POST.get("id")
-    if category_id is not None:
-        category = get_object_or_404(Category, id=category_id)
-        category.delete()
-    else:
-        messages.error(request, "Не удалось удалить категорию")
-    return redirect("categories_list")
+class BrandCreateView(BaseStaffCreateView):
+    page_title = "Создание бренда"
+    model = Brand
+    form_class = BrandForm
+    permission_required = "cosmetics_shop.add_brand"
+    success_url = reverse_lazy("brands_list")
 
 
-@require_POST
-@permission_required("cosmetics_shop.delete_groupproduct", raise_exception=True)
-def delete_groups(request: HttpRequest) -> HttpResponse:
-    group_id = request.POST.get("id")
-    if group_id is not None:
-        group = get_object_or_404(GroupProduct, id=group_id)
-        group.delete()
-    else:
-        messages.error(request, "Не удалось удалить группу")
-    return redirect("groups_list")
+class BrandChangeView(BaseStaffChangeView):
+    page_title = "Изменение бренда"
+    model = Brand
+    form_class = BrandForm
+    permission_required = "cosmetics_shop.change_brand"
+    success_url = reverse_lazy("brands_list")
 
 
-@require_POST
-@permission_required("cosmetics_shop.delete_brand", raise_exception=True)
-def delete_brands(request: HttpRequest) -> HttpResponse:
-    brand_id = request.POST.get("id")
-    if brand_id is not None:
-        brand = get_object_or_404(Brand, id=brand_id)
-        brand.delete()
-    else:
-        messages.error(request, "Не удалось удалить бренд")
-    return redirect("brands_list")
+class BrandDeleteView(BaseStaffDeleteView):
+    pass
 
 
-@permission_required("cosmetics_shop.change_category", raise_exception=True)
-def edit_categories(request: HttpRequest, pk: int) -> HttpResponse:
-    category = get_object_or_404(Category, id=pk)
-    title = f"Изменение категории: {category.name}"
-
-    if request.method == "POST":
-        form = CategoryForm(request.POST, instance=category)
-        if form.is_valid():
-            form.save()
-            return redirect("categories_list")
-
-    form = CategoryForm(instance=category)
-    return render(
-        request,
-        "staff/edit_page.html",
-        {
-            "form": form,
-            "title": title,
-        },
-    )
+# Tag
+class TagListView(BaseStaffListView):
+    model = Tag
+    page_title = "Список тегов"
+    permission_required = "cosmetics_shop.view_tag"
 
 
-@permission_required("cosmetics_shop.change_groupproduct", raise_exception=True)
-def edit_groups(request: HttpRequest, pk: int) -> HttpResponse:
-    group = get_object_or_404(GroupProduct, id=pk)
-    title = f"Изменение группы: {group.name}"
-
-    if request.method == "POST":
-        form = GroupProductForm(request.POST, instance=group)
-        if form.is_valid():
-            form.save()
-            return redirect("groups_list")
-
-    form = GroupProductForm(instance=group)
-    return render(
-        request,
-        "staff/edit_page.html",
-        {
-            "form": form,
-            "title": title,
-        },
-    )
+class TagCreateView(BaseStaffCreateView):
+    page_title = "Создание тега"
+    model = Tag
+    form_class = TagForm
+    permission_required = "cosmetics_shop.add_tag"
+    success_url = reverse_lazy("tags_list")
 
 
-@permission_required("cosmetics_shop.change_brand", raise_exception=True)
-def edit_brands(request: HttpRequest, pk: int) -> HttpResponse:
-    brand = get_object_or_404(Brand, id=pk)
-    title = f"Изменение бренда: {brand.name}"
-    if request.method == "POST":
-        form = BrandForm(request.POST, instance=brand)
-        if form.is_valid():
-            form.save()
-            return redirect("brands_list")
-
-    form = BrandForm(instance=brand)
-    return render(
-        request,
-        "staff/edit_page.html",
-        {
-            "form": form,
-            "title": title,
-        },
-    )
+class TagChangeView(BaseStaffChangeView):
+    page_title = "Изменение тега"
+    model = Tag
+    form_class = TagForm
+    permission_required = "cosmetics_shop.change_tag"
+    success_url = reverse_lazy("tags_list")
 
 
-@permission_required("cosmetics_shop.change_tag", raise_exception=True)
-def edit_tags(request: HttpRequest, pk: int) -> HttpResponse:
-    tag = get_object_or_404(Tag, id=pk)
-    title = f"Изменение тега: {tag.name}"
-
-    if request.method == "POST":
-        form = TagForm(request.POST, instance=tag)
-        if form.is_valid():
-            form.save()
-            return redirect("tags_list")
-
-    form = TagForm(instance=tag)
-    return render(
-        request,
-        "staff/edit_page.html",
-        {
-            "form": form,
-            "title": title,
-        },
-    )
+class TagDeleteView(BaseStaffDeleteView):
+    pass

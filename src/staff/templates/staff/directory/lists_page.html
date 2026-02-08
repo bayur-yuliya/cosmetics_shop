@@ -46,7 +46,7 @@
                 </tbody>
             </table>
         </div>
-    {% include  'cosmetics_shop/includes/paginator.html' with page_elements=objects %}
+    {% include  'cosmetics_shop/includes/paginator.html' with page_elements=page_obj %}
     {% else %}
         <div class="alert alert-info">
             Пока пусто
@@ -56,10 +56,9 @@
     <!-- Диалог подтверждения удаления -->
     {%  if permissions.delete  %}
         <dialog id="deleteDialog">
-            <form method="POST" action="{{ request.path }}delete/">
+            <form method="POST" action="{{ request.path }}delete/{{deleteId}}/">
                 {% csrf_token %}
                 <p id="deleteText"></p>
-                <input type="hidden" name="id" id="deleteId">
                 <div class="d-flex gap-2 mt-2">
                     <button type="reset" class="btn btn-secondary" onclick="document.getElementById('deleteDialog').close()">Назад</button>
                     <button type="submit" class="btn btn-danger">Удалить</button>
@@ -67,7 +66,6 @@
             </form>
         </dialog>
     {%  endif  %}
-
 </div>
 
 <script src="{% static 'staff/js/delete_dialog_script.js' %}"></script>

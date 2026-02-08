@@ -1,20 +1,42 @@
-from django.contrib.contenttypes.models import ContentType
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.shortcuts import redirect
+from django.views.generic import ListView, CreateView, DeleteView, UpdateView
+
+from staff.mixins import PageTitleMixin, ModelPermissionMixin
 
 
-def get_permissions(request, objects):
+class BaseStaffListView(
+    PageTitleMixin,
+    ModelPermissionMixin,
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    ListView,
+):
+    template_name = "staff/directory/lists_page.html"
+    paginate_by = 20
+    context_object_name = "objects"
 
-    model = objects.model
 
-    ct = ContentType.objects.get_for_model(model)
+class BaseStaffCreateView(
+    PageTitleMixin, LoginRequiredMixin, PermissionRequiredMixin, CreateView
+):
+    template_name = "staff/directory/create_page.html"
 
-    app_label = ct.app_label
-    model_name = ct.model
 
-    permissions = {
-        "add": request.user.has_perm(f"{app_label}.add_{model_name}"),
-        "change": request.user.has_perm(f"{app_label}.change_{model_name}"),
-        "delete": request.user.has_perm(f"{app_label}.delete_{model_name}"),
-        "view": request.user.has_perm(f"{app_label}.view_{model_name}"),
-    }
+class BaseStaffChangeView(
+    PageTitleMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView
+):
+    template_name = "staff/directory/update_page.html"
 
-    return permissions
+
+class BaseStaffDeleteView(
+    PageTitleMixin, LoginRequiredMixin, PermissionRequiredMixin, DeleteView
+):
+    http_method_names = ["post", "delete"]
+
+    def get_context_data(self, *args, **kwargs):
+        success_url = self.get_success_url()
+        self.object.delete()
+        messages.success(self.request, "Успешное удаление")
+        return redirect(success_url)

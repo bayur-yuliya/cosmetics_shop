@@ -98,6 +98,7 @@ class Category(models.Model):
         return self.name
 
     class Meta:
+        ordering = ["name"]
         verbose_name = _("категорию")
         verbose_name_plural = _("Категории")
 
@@ -110,6 +111,7 @@ class GroupProduct(models.Model):
         return f"{self.name}"
 
     class Meta:
+        ordering = ["name"]
         verbose_name = _("группу товаров")
         verbose_name_plural = _("Группы товаров")
 
@@ -133,6 +135,7 @@ class Tag(models.Model):
         return self.name
 
     class Meta:
+        ordering = ["name"]
         verbose_name = _("тег")
         verbose_name_plural = _("Теги")
 
