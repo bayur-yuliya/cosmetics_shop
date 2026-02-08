@@ -443,7 +443,9 @@ class CategoryChangeView(BaseStaffChangeView):
 
 
 class CategoryDeleteView(BaseStaffDeleteView):
-    pass
+    model = Category
+    permission_required = "cosmetics_shop.delete_category"
+    success_url = reverse_lazy("categories_list")
 
 
 # GroupProduct
@@ -470,7 +472,9 @@ class GroupProductChangeView(BaseStaffChangeView):
 
 
 class GroupProductDeleteView(BaseStaffDeleteView):
-    pass
+    model = GroupProduct
+    permission_required = "cosmetics_shop.delete_groupproduct"
+    success_url = reverse_lazy("groups_list")
 
 
 # Brand
@@ -497,7 +501,9 @@ class BrandChangeView(BaseStaffChangeView):
 
 
 class BrandDeleteView(BaseStaffDeleteView):
-    pass
+    model = Brand
+    permission_required = "cosmetics_shop.delete_brand"
+    success_url = reverse_lazy("brands_list")
 
 
 # Tag
@@ -524,4 +530,6 @@ class TagChangeView(BaseStaffChangeView):
 
 
 class TagDeleteView(BaseStaffDeleteView):
-    pass
+    model = Tag
+    permission_required = "cosmetics_shop.delete_tag"
+    success_url = reverse_lazy("tags_list")

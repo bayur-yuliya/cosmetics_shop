@@ -1,5 +1,5 @@
 function openDeleteDialog(id, name) {
   document.getElementById("deleteText").textContent = `Удалить товар ${name}?`;
-  document.getElementById("deleteId").value = id;
+  document.getElementById("deleteForm").action = `${window.location.pathname}delete/${id}/`;
   document.getElementById("deleteDialog").showModal();
 }

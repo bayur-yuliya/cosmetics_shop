@@ -56,7 +56,7 @@
     <!-- Диалог подтверждения удаления -->
     {%  if permissions.delete  %}
         <dialog id="deleteDialog">
-            <form method="POST" action="{{ request.path }}delete/{{deleteId}}/">
+            <form id="deleteForm" method="POST" action="">
                 {% csrf_token %}
                 <p id="deleteText"></p>
                 <div class="d-flex gap-2 mt-2">
