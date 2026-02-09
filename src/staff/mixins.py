@@ -1,8 +1,13 @@
 from typing import Type
 
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db import models
 from django.http import HttpRequest
 from django.views.generic.base import ContextMixin
+
+
+class StaffPermissionExceptionMixin(PermissionRequiredMixin):
+    raise_exception = True
 
 
 class PageTitleMixin(ContextMixin):

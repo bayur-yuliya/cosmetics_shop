@@ -1,16 +1,16 @@
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView
 
-from staff.mixins import PageTitleMixin, ModelPermissionMixin
+from staff.mixins import PageTitleMixin, ModelPermissionMixin, StaffPermissionExceptionMixin
 
 
 class BaseStaffListView(
     PageTitleMixin,
     ModelPermissionMixin,
     LoginRequiredMixin,
-    PermissionRequiredMixin,
+    StaffPermissionExceptionMixin,
     ListView,
 ):
     template_name = "staff/directory/lists_page.html"
@@ -19,19 +19,19 @@ class BaseStaffListView(
 
 
 class BaseStaffCreateView(
-    PageTitleMixin, LoginRequiredMixin, PermissionRequiredMixin, CreateView
+    PageTitleMixin, LoginRequiredMixin, StaffPermissionExceptionMixin, CreateView
 ):
     template_name = "staff/directory/create_page.html"
 
 
 class BaseStaffChangeView(
-    PageTitleMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView
+    PageTitleMixin, LoginRequiredMixin, StaffPermissionExceptionMixin, UpdateView
 ):
     template_name = "staff/directory/update_page.html"
 
 
 class BaseStaffDeleteView(
-    PageTitleMixin, LoginRequiredMixin, PermissionRequiredMixin, DeleteView
+    PageTitleMixin, LoginRequiredMixin, StaffPermissionExceptionMixin, DeleteView
 ):
     http_method_names = ["post", "delete"]
 
