@@ -1,7 +1,7 @@
 from django.urls import path
 
 from staff import ajax
-from staff.views import dashboard, directories, permissions, products, orders
+from staff.views import dashboard, catalog, permissions, products, orders
 
 urlpatterns = [
     # product
@@ -32,57 +32,55 @@ urlpatterns = [
     # categories
     path(
         "categories/create/",
-        directories.CategoryCreateView.as_view(),
+        catalog.CategoryCreateView.as_view(),
         name="create_categories",
     ),
     path(
         "categories/edit/<int:pk>/",
-        directories.CategoryChangeView.as_view(),
+        catalog.CategoryChangeView.as_view(),
         name="edit_categories",
     ),
     path(
         "categories/delete/<int:pk>/",
-        directories.CategoryDeleteView.as_view(),
+        catalog.CategoryDeleteView.as_view(),
         name="delete_categories",
     ),
-    path("categories/", directories.CategoryListView.as_view(), name="categories_list"),
+    path("categories/", catalog.CategoryListView.as_view(), name="categories_list"),
     # groups
     path(
         "groups/create/",
-        directories.GroupProductCreateView.as_view(),
+        catalog.GroupProductCreateView.as_view(),
         name="create_groups",
     ),
     path(
         "groups/edit/<int:pk>/",
-        directories.GroupProductChangeView.as_view(),
+        catalog.GroupProductChangeView.as_view(),
         name="edit_groups",
     ),
     path(
         "groups/delete/<int:pk>/",
-        directories.GroupProductDeleteView.as_view(),
+        catalog.GroupProductDeleteView.as_view(),
         name="delete_groups",
     ),
-    path("groups/", directories.GroupProductListView.as_view(), name="groups_list"),
+    path("groups/", catalog.GroupProductListView.as_view(), name="groups_list"),
     # brands
-    path("brands/create/", directories.BrandCreateView.as_view(), name="create_brands"),
+    path("brands/create/", catalog.BrandCreateView.as_view(), name="create_brands"),
     path(
         "brands/edit/<int:pk>/",
-        directories.BrandChangeView.as_view(),
+        catalog.BrandChangeView.as_view(),
         name="edit_brands",
     ),
     path(
         "brands/delete/<int:pk>/",
-        directories.BrandDeleteView.as_view(),
+        catalog.BrandDeleteView.as_view(),
         name="delete_brands",
     ),
-    path("brands/", directories.BrandListView.as_view(), name="brands_list"),
+    path("brands/", catalog.BrandListView.as_view(), name="brands_list"),
     # tags
-    path("tags/create/", directories.TagCreateView.as_view(), name="create_tags"),
-    path("tags/edit/<int:pk>/", directories.TagChangeView.as_view(), name="edit_tags"),
-    path(
-        "tags/delete/<int:pk>/", directories.TagDeleteView.as_view(), name="delete_tags"
-    ),
-    path("tags/", directories.TagListView.as_view(), name="tags_list"),
+    path("tags/create/", catalog.TagCreateView.as_view(), name="create_tags"),
+    path("tags/edit/<int:pk>/", catalog.TagChangeView.as_view(), name="edit_tags"),
+    path("tags/delete/<int:pk>/", catalog.TagDeleteView.as_view(), name="delete_tags"),
+    path("tags/", catalog.TagListView.as_view(), name="tags_list"),
     # chart
     path(
         "ajax/charts/sales/",

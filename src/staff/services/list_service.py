@@ -17,7 +17,7 @@ class BaseStaffListView(
     StaffPermissionExceptionMixin,
     ListView,
 ):
-    template_name = "staff/directory/lists_page.html"
+    template_name = "staff/catalog/lists_page.html"
     paginate_by = 20
     context_object_name = "objects"
 
@@ -25,13 +25,13 @@ class BaseStaffListView(
 class BaseStaffCreateView(
     PageTitleMixin, LoginRequiredMixin, StaffPermissionExceptionMixin, CreateView
 ):
-    template_name = "staff/directory/create_page.html"
+    template_name = "staff/catalog/create_page.html"
 
 
 class BaseStaffChangeView(
     PageTitleMixin, LoginRequiredMixin, StaffPermissionExceptionMixin, UpdateView
 ):
-    template_name = "staff/directory/update_page.html"
+    template_name = "staff/catalog/update_page.html"
 
 
 class BaseStaffDeleteView(
