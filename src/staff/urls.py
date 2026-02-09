@@ -5,16 +5,19 @@ from staff.views import dashboard, directories, permissions, products, orders
 
 urlpatterns = [
     # product
-    path("products/edit/<int:product_id>", products.edit_products, name="edit_products"),
+    path(
+        "products/edit/<int:product_id>", products.edit_products, name="edit_products"
+    ),
     path("products/create/", products.create_products, name="create_products"),
     path("products/<int:product_id>", products.product_card, name="product_card"),
     path("products/delete", products.delete_product, name="delete_product"),
     path("products/", products.products, name="products"),
-
     # staff permissions
     path("create/", permissions.create_staff_user, name="create_staff_user"),
     path(
-        "staff_groups/edit/<int:pk>/", permissions.staff_group_edit, name="edit_staff_groups"
+        "staff_groups/edit/<int:pk>/",
+        permissions.staff_group_edit,
+        name="edit_staff_groups",
     ),
     path("staff_groups/", permissions.staff_group_list, name="staff_groups_list"),
     path(
@@ -45,7 +48,9 @@ urlpatterns = [
     path("categories/", directories.CategoryListView.as_view(), name="categories_list"),
     # groups
     path(
-        "groups/create/", directories.GroupProductCreateView.as_view(), name="create_groups"
+        "groups/create/",
+        directories.GroupProductCreateView.as_view(),
+        name="create_groups",
     ),
     path(
         "groups/edit/<int:pk>/",
@@ -60,15 +65,23 @@ urlpatterns = [
     path("groups/", directories.GroupProductListView.as_view(), name="groups_list"),
     # brands
     path("brands/create/", directories.BrandCreateView.as_view(), name="create_brands"),
-    path("brands/edit/<int:pk>/", directories.BrandChangeView.as_view(), name="edit_brands"),
     path(
-        "brands/delete/<int:pk>/", directories.BrandDeleteView.as_view(), name="delete_brands"
+        "brands/edit/<int:pk>/",
+        directories.BrandChangeView.as_view(),
+        name="edit_brands",
+    ),
+    path(
+        "brands/delete/<int:pk>/",
+        directories.BrandDeleteView.as_view(),
+        name="delete_brands",
     ),
     path("brands/", directories.BrandListView.as_view(), name="brands_list"),
     # tags
     path("tags/create/", directories.TagCreateView.as_view(), name="create_tags"),
     path("tags/edit/<int:pk>/", directories.TagChangeView.as_view(), name="edit_tags"),
-    path("tags/delete/<int:pk>/", directories.TagDeleteView.as_view(), name="delete_tags"),
+    path(
+        "tags/delete/<int:pk>/", directories.TagDeleteView.as_view(), name="delete_tags"
+    ),
     path("tags/", directories.TagListView.as_view(), name="tags_list"),
     # chart
     path(
