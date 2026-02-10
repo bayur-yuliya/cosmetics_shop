@@ -25,7 +25,7 @@
             {% for brand in items %}
                 <div>
                     <div>
-                        <a href="{% url 'brand_detail' brand.id %}" class="text-decoration-none fw-bold">
+                        <a href="{% url 'brand_detail' brand.slug %}" class="text-decoration-none fw-bold">
                             {{ brand.name }}
                         </a>
                     </div>

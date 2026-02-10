@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db import models
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
+from slugify import slugify
 
 from accounts.models import CustomUser
 from accounts.utils.validators import validate_phone_number
@@ -93,6 +94,12 @@ class DeliveryAddress(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(max_length=200, unique=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -106,6 +113,12 @@ class Category(models.Model):
 class GroupProduct(models.Model):
     name = models.CharField(max_length=100, unique=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    slug = models.SlugField(max_length=200, unique=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.name}"
@@ -118,6 +131,12 @@ class GroupProduct(models.Model):
 
 class Brand(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=200, unique=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -162,7 +181,7 @@ class Product(models.Model):
     @staticmethod
     def _generate_unique_code(self):
         while True:
-            code = random.randint(10000, 99999)
+            code = random.randint(0000000, 9999999)
             if not Product.objects.filter(code=code).exists():
                 return code
 
@@ -212,8 +231,9 @@ class Order(models.Model):
     created_at = models.DateField(auto_now_add=True)
     total_price = models.PositiveIntegerField(default=0)
 
-    snapshot_name = models.CharField(max_length=100)
+    snapshot_name = models.CharField(max_length=200)
     snapshot_phone = models.CharField(max_length=20)
+    snapshot_email = models.EmailField()
     snapshot_address = models.TextField()
 
     def save(self, *args, **kwargs):
@@ -228,8 +248,9 @@ class Order(models.Model):
         """
         date_str = now().strftime("%Y%m%d")
         prefix = f"ORD-{date_str}-"
+        code = random.randint(00000, 99999)
         for i in range(1, 10000):
-            code_candidate = f"{prefix}{str(i).zfill(4)}"
+            code_candidate = f"{prefix}{str(code)}"
             if not Order.objects.filter(code=code_candidate).exists():
                 return code_candidate
         raise ValueError("Failed to generate unique order code")

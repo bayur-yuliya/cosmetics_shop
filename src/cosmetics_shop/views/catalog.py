@@ -1,5 +1,3 @@
-import string
-
 from django.db.models import QuerySet
 from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render
@@ -22,10 +20,10 @@ def main_page(request: HttpRequest) -> HttpResponse:
     )
 
 
-def category_page(request: HttpRequest, category_id: int) -> HttpResponse:
-    title: Category = Category.objects.get(pk=category_id)
+def category_page(request: HttpRequest, category_slug: str) -> HttpResponse:
+    title: Category = Category.objects.get(slug=category_slug)
     group_products: list[int] = list(
-        GroupProduct.objects.filter(category=category_id).values_list("id", flat=True)
+        GroupProduct.objects.filter(category=title).values_list("id", flat=True)
     )
 
     products = get_ready_product_list(request).filter(group__in=group_products)
@@ -40,11 +38,11 @@ def category_page(request: HttpRequest, category_id: int) -> HttpResponse:
 
 
 def group_page(
-    request: HttpRequest | AuthenticatedRequest, group_id: int
+    request: HttpRequest | AuthenticatedRequest, group_slug: str
 ) -> HttpResponse:
-    title: GroupProduct = GroupProduct.objects.get(pk=group_id)
+    title: GroupProduct = GroupProduct.objects.get(slug=group_slug)
 
-    products = get_ready_product_list(request).filter(group=group_id)
+    products = get_ready_product_list(request).filter(group=title)
 
     return processing_product_page(
         request=request,
@@ -93,9 +91,9 @@ def brand_page(request: HttpRequest) -> HttpResponse:
     )
 
 
-def brand_products(request: HttpRequest, brand_id: int) -> HttpResponse:
-    title: Brand = Brand.objects.get(id=brand_id)
-    products = get_ready_product_list(request).filter(brand=brand_id)
+def brand_products(request: HttpRequest, brand_slug: str) -> HttpResponse:
+    title: Brand = Brand.objects.get(slug=brand_slug)
+    products = get_ready_product_list(request).filter(brand=title)
 
     return processing_product_page(
         request=request,

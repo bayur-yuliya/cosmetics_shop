@@ -5,7 +5,7 @@
         {% for item in context_categories %}
             <li class="category-item"
                 data-category="{{ item.category.id }}">
-                <a href="{% url 'category_page' item.category.id %}"
+                <a href="{% url 'category_page' item.category.slug %}"
                    class="category-link">
                     {{ item.category.name }}
                 </a>
@@ -22,7 +22,7 @@
                     <ul class="subcategories">
                         {% for group in item.groups %}
                             <li>
-                                <a href="{% url 'group_page' group.id %}">
+                                <a href="{% url 'group_page' group.slug %}">
                                     {{ group.name }}
                                 </a>
                             </li>
