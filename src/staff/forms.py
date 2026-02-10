@@ -25,26 +25,44 @@ class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
         fields = ["name"]
+        labels = {"name": "Введите название категории: "}
 
 
 class GroupProductForm(forms.ModelForm):
     class Meta:
         model = GroupProduct
         fields = ["name", "category"]
+        labels = {
+            "name": "Введите название группы: ",
+            "category": "Выберите категорию: ",
+        }
 
 
 class BrandForm(forms.ModelForm):
     class Meta:
         model = Brand
         fields = ["name"]
+        labels = {"name": "Введите название бренда: "}
+
+
+class TagForm(forms.ModelForm):
+    class Meta:
+        model = Tag
+        fields = ["name"]
+        labels = {"name": "Введите название тега: "}
 
 
 class ProductForm(forms.ModelForm):
-    brand = forms.ModelChoiceField(queryset=Brand.objects.all(), initial=0)
-    tags = forms.ModelMultipleChoiceField(
-        widget=forms.CheckboxSelectMultiple, queryset=Tag.objects.all(), required=False
+    brand = forms.ModelChoiceField(
+        label="Бренд", queryset=Brand.objects.all(), initial=0
     )
-    price = forms.CharField(max_length=20)
+    tags = forms.ModelMultipleChoiceField(
+        label="Теги",
+        widget=forms.CheckboxSelectMultiple,
+        queryset=Tag.objects.all(),
+        required=False,
+    )
+    price = forms.CharField(label="Цена", max_length=20)
 
     class Meta:
         model = Product
@@ -58,6 +76,13 @@ class ProductForm(forms.ModelForm):
             "description",
             "stock",
         ]
+        labels = {
+            "name": "Название",
+            "image": "Изображение ",
+            "group": "Группа",
+            "description": "Описание",
+            "stock": "Количество товара на складе",
+        }
 
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -92,6 +117,10 @@ class OrderStatusForm(forms.ModelForm):
     class Meta:
         model = OrderStatusLog
         fields = ["status", "comment", "date_from", "date_to"]
+        labels = {
+            "status": "Текущий статус заказа",
+            "comment": "Добавить комментарий",
+        }
 
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -114,15 +143,10 @@ class FilterStockForm(forms.Form):
     max_stock = forms.IntegerField(required=False, label="Макс. остаток")
 
 
-class TagForm(forms.ModelForm):
-    class Meta:
-        model = Tag
-        fields = ["name"]
-
-
 class GroupForm(forms.ModelForm):
-    name = forms.CharField(max_length=200)
+    name = forms.CharField(label="Группы", max_length=200)
     permissions = PermissionMultipleChoiceField(
+        label="Разрешения",
         queryset=get_individually_assigned_permits(),
         widget=forms.CheckboxSelectMultiple,
         required=False,

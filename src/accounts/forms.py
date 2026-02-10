@@ -19,13 +19,20 @@ class CustomAuthenticationForm(AuthenticationForm):
 
 class ClientCreationForm(forms.ModelForm):
     phone = forms.CharField(
-        max_length=10, validators=[validate_phone_number], required=False
+        label="Номер телефона",
+        max_length=10,
+        validators=[validate_phone_number],
+        required=False,
     )
-    email = forms.EmailField(disabled=True)
+    email = forms.EmailField(label="Email", disabled=True)
 
     class Meta:
         model = Client
         fields = ["first_name", "last_name", "email", "phone"]
+        labels = {
+            "first_name": "Имя",
+            "last_name": "Фамилия",
+        }
 
 
 class SetInitialPasswordForm(forms.Form):

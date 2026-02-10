@@ -9,14 +9,15 @@ urlpatterns = [
     path("products/create/", products.create_products, name="create_products"),
     path("products/<int:product_code>/", products.product_card, name="product_card"),
     path(
-        "products/<int:product_code>/edit/", products.edit_products, name="edit_products"
+        "products/<int:product_code>/edit/",
+        products.edit_products,
+        name="edit_products",
     ),
     path(
         "products/<int:product_id>/delete/",
         products.delete_product,
         name="delete_product",
     ),
-
     # staff permissions
     path(
         "staff_groups/<int:pk>/edit/",
@@ -31,11 +32,9 @@ urlpatterns = [
     ),
     path("staff_list/", permissions.staff_list, name="staff_list"),
     path("create/", permissions.create_staff_user, name="create_staff_user"),
-
     # orders
     path("orders/", orders.orders, name="orders"),
     path("orders/<str:order_code>/", orders.order_info, name="order_info"),
-
     # categories
     path("categories/", catalog.CategoryListView.as_view(), name="categories_list"),
     path(
@@ -53,7 +52,6 @@ urlpatterns = [
         catalog.CategoryDeleteView.as_view(),
         name="delete_categories",
     ),
-
     # groups
     path("groups/", catalog.GroupProductListView.as_view(), name="groups_list"),
     path(
@@ -71,7 +69,6 @@ urlpatterns = [
         catalog.GroupProductDeleteView.as_view(),
         name="delete_groups",
     ),
-
     # brands
     path("brands/", catalog.BrandListView.as_view(), name="brands_list"),
     path("brands/create/", catalog.BrandCreateView.as_view(), name="create_brands"),
@@ -85,7 +82,6 @@ urlpatterns = [
         catalog.BrandDeleteView.as_view(),
         name="delete_brands",
     ),
-
     # tags
     path("tags/", catalog.TagListView.as_view(), name="tags_list"),
     path("tags/create/", catalog.TagCreateView.as_view(), name="create_tags"),
