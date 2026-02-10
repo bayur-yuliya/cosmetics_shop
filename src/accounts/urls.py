@@ -8,12 +8,12 @@ urlpatterns = [
     path("activate/", auth.activate_account, name="activate"),
     path("logout/", auth.logout_view, name="logout"),
     # favorites
-    path("favorites/", favorites.favorites, name="favorites"),
     path(
         "favorites/remove/<int:product_id>/",
         favorites.remove_from_favorites,
         name="remove_from_favorites",
     ),
+    path("favorites/", favorites.favorites, name="favorites"),
     # user_section
     path("order_history/", user_section.order_history, name="order_history"),
     path("delete_account/", user_section.delete_account, name="delete_account"),

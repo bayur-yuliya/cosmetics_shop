@@ -18,11 +18,11 @@ urlpatterns = [
         name="ajax_cart_remove",
     ),
     # catalog
-    path("group/<int:group_id>/", catalog.group_page, name="group_page"),
-    path("category/<int:category_id>/", catalog.category_page, name="category_page"),
-    path("product/<int:product_code>/", catalog.product_page, name="product_page"),
-    path("brand/<int:brand_id>/", catalog.brand_products, name="brand_detail"),
-    path("brand/", catalog.brand_page, name="brand_page"),
+    path("groups/<int:group_id>/", catalog.group_page, name="group_page"),
+    path("categories/<int:category_id>/", catalog.category_page, name="category_page"),
+    path("products/<int:product_code>/", catalog.product_page, name="product_page"),
+    path("brands/<int:brand_id>/", catalog.brand_products, name="brand_detail"),
+    path("brands/", catalog.brand_page, name="brand_page"),
     # cart
     path("cart/delete/", cart.cart_delete, name="cart_delete"),
     path("cart/clean/", cart.clean_cart, name="clean_cart"),
