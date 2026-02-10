@@ -79,11 +79,7 @@ def brand_page(request: HttpRequest) -> HttpResponse:
         letter = brand.name[0].upper()
         grouped.setdefault(letter, []).append(brand)
 
-    alphabet: list[str] = (
-        list(string.ascii_uppercase)
-        + [chr(code) for code in range(ord("А"), ord("Я") + 1)]
-        + [chr(code) for code in range(ord("A"), ord("Z") + 1)]
-    )
+    alphabet: list[str] = list(grouped.keys())
 
     return render(
         request,

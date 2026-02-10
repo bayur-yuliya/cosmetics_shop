@@ -34,7 +34,7 @@
                             {%  if permissions.change or permissions.delete  %}
                             <td class="d-flex gap-2">
                                 {%  if permissions.change  %}
-                                    <a href="{{ request.path }}edit/{{ object.id }}/" class="btn btn-primary btn-sm">Изменить</a>
+                                    <a href="{{ request.path }}{{ object.id }}/edit/" class="btn btn-primary btn-sm">Изменить</a>
                                 {%  endif  %}
                                 {%  if permissions.delete  %}
                                     <button class="btn btn-danger btn-sm" onclick="openDeleteDialog({{ object.id }}, '{{ object }}')">Удалить</button>
