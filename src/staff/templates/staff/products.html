@@ -45,7 +45,7 @@
                                      style="width:60px; height:60px; object-fit:cover;">
                             </td>
                             <td>
-                                <a href="{% url 'product_card' prod.id %}">{{ prod.name }}</a>
+                                <a href="{% url 'product_card' prod.code %}">{{ prod.name }}</a>
                             </td>
                             <td>{{ prod.group.name }}</td>
                             <td>{{ prod.brand }}</td>
@@ -53,7 +53,7 @@
                             <td>{{ prod.stock }}</td>
                             <td>
                                 {%  if perms.cosmetics_shop.change_product  %}
-                                    <a href="{% url 'edit_products' prod.id %}" class="btn btn-sm btn-outline-primary mb-1">Редактировать</a>
+                                    <a href="{% url 'edit_products' prod.code %}" class="btn btn-sm btn-outline-primary mb-1">Редактировать</a>
                                 {%  endif  %}
                                 {%  if perms.cosmetics_shop.delete_product  %}
                                     <form method="POST" action="{% url 'delete_product' prod.id  %}" >

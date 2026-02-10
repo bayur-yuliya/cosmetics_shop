@@ -77,6 +77,7 @@ def create_order_from_cart(request: HttpRequest, address_id: int) -> Order:
             client=client,
             snapshot_name=full_name,
             snapshot_phone=client.phone,
+            snapshot_email=client.user.email,
             snapshot_address=str(address),
             total_price=total_price,
         )

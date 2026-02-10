@@ -27,6 +27,7 @@
                     </tr>
                 </thead>
                 <tbody>
+
                     {% for object in objects %}
                         <tr>
                             <td>{{ forloop.counter }}</td>
@@ -34,7 +35,11 @@
                             {%  if permissions.change or permissions.delete  %}
                             <td class="d-flex gap-2">
                                 {%  if permissions.change  %}
-                                    <a href="{{ request.path }}{{ object.id }}/edit/" class="btn btn-primary btn-sm">Изменить</a>
+                                    {%  if object.slug  %}
+                                        <a href="{{ request.path }}{{ object.slug }}/edit/" class="btn btn-primary btn-sm">Изменить</a>
+                                    {%  else  %}
+                                        <a href="{{ request.path }}{{ object.id }}/edit/" class="btn btn-primary btn-sm">Изменить</a>
+                                    {%  endif  %}
                                 {%  endif  %}
                                 {%  if permissions.delete  %}
                                     <button class="btn btn-danger btn-sm" onclick="openDeleteDialog({{ object.id }}, '{{ object }}')">Удалить</button>

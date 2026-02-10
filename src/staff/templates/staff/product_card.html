@@ -37,7 +37,7 @@
 
     <div class="d-flex gap-2">
         {%  if perms.cosmetics_shop.change_product  %}
-            <form method="POST" action="{% url 'edit_products' product.id %}">
+            <form method="POST" action="{% url 'edit_products' product.code %}">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-primary">Изменить</button>
             </form>

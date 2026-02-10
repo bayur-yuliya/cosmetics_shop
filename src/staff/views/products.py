@@ -75,8 +75,8 @@ def products(request: HttpRequest) -> HttpResponse:
 
 
 @permission_required("cosmetics_shop.view_product", raise_exception=True)
-def product_card(request: HttpRequest, product_id: int) -> HttpResponse:
-    product = get_object_or_404(Product, pk=product_id)
+def product_card(request: HttpRequest, product_code: int) -> HttpResponse:
+    product = get_object_or_404(Product, code=product_code)
     title = product.name
     tags: QuerySet[Tag] = product.tags.all()
     return render(
@@ -101,7 +101,7 @@ def create_products(request: HttpRequest) -> HttpResponse:
 
     return render(
         request,
-        "staff/create_product.html",
+        "staff/product_management.html",
         {
             "title": "Создание карточки товара",
             "form": form,
@@ -110,19 +110,19 @@ def create_products(request: HttpRequest) -> HttpResponse:
 
 
 @permission_required("cosmetics_shop.change_product", raise_exception=True)
-def edit_products(request: HttpRequest, product_id: int) -> HttpResponse:
-    product = get_object_or_404(Product, pk=product_id)
+def edit_products(request: HttpRequest, product_code: int) -> HttpResponse:
+    product = get_object_or_404(Product, code=product_code)
     if request.method == "POST":
         form = ProductForm(
             request.POST, request.FILES, instance=product, user=request.user
         )
         if form.is_valid():
             form.save()
-            return redirect("product_card", product_id=product_id)
+            return redirect("product_card", product_code=product_code)
     form = ProductForm(instance=product, user=request.user)
     return render(
         request,
-        "staff/edit_product.html",
+        "staff/product_management.html",
         {
             "title": "Изменение товара",
             "form": form,
