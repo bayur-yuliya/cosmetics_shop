@@ -1,12 +1,6 @@
-import datetime
-from typing import Any
-
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
-from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.contrib.auth.models import Group
 from django.core.paginator import Paginator
-from django.db import transaction
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -139,8 +133,7 @@ def edit_products(request: HttpRequest, product_id: int) -> HttpResponse:
 
 @require_POST
 @permission_required("cosmetics_shop.delete_product", raise_exception=True)
-def delete_product(request: HttpRequest) -> HttpResponse:
-    product_id: str | None = request.POST.get("product_id")
+def delete_product(request: HttpRequest, product_id: int) -> HttpResponse:
     if product_id:
         product: Product = get_object_or_404(Product, id=product_id)
         product.is_active = False

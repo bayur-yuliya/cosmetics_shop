@@ -67,14 +67,16 @@ def edit_staff_permissions(request: HttpRequest, user_id: int) -> HttpResponse:
 
     if request.method == "POST":
         selected_groups: list[str] | None = request.POST.getlist("groups")
-        if selected_groups:
-            selected_groups_id = [int(pk) for pk in selected_groups]
-            user.groups.set(selected_groups_id)
+        selected_groups_id = (
+            [int(pk) for pk in selected_groups] if selected_groups else []
+        )
+        user.groups.set(selected_groups_id)
 
         selected_permissions = request.POST.getlist("permissions")
-        if selected_permissions:
-            perms_id = [int(pk) for pk in selected_permissions]
-            user.user_permissions.set(perms_id)
+        perms_id = (
+            [int(pk) for pk in selected_permissions] if selected_permissions else []
+        )
+        user.user_permissions.set(perms_id)
         return redirect("staff_list")
 
     all_groups = Group.objects.all()

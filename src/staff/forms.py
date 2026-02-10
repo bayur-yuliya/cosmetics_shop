@@ -1,7 +1,8 @@
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 from django import forms
 from django.contrib.auth.models import Group
+from django.core.exceptions import ValidationError
 
 from accounts.models import CustomUser
 from cosmetics_shop.models import (
@@ -72,9 +73,12 @@ class ProductForm(forms.ModelForm):
         price = self.cleaned_data["price"]
         if isinstance(price, str):
             price = price.replace(" ", "").replace(",", ".")
-
-        price = Decimal(price)
-        return int(price * 100)
+        try:
+            price = Decimal(price)
+            ready_price = int(price * 100)
+            return ready_price
+        except (InvalidOperation, ValueError):
+            raise ValidationError("Некорректная цена")
 
 
 class OrderStatusForm(forms.ModelForm):

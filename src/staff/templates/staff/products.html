@@ -56,7 +56,11 @@
                                     <a href="{% url 'edit_products' prod.id %}" class="btn btn-sm btn-outline-primary mb-1">Редактировать</a>
                                 {%  endif  %}
                                 {%  if perms.cosmetics_shop.delete_product  %}
-                                    <a href="{% url 'delete_product' %}" class="btn btn-sm btn-outline-danger mb-1">Удалить</a>
+                                    <form method="POST" action="{% url 'delete_product' prod.id  %}" >
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-danger"
+                                                onclick="return confirm('Вы уверены, что хотите удалить {{ product.name }}?')">Удалить</button>
+                                    </form>
                                 {% endif  %}
                             </td>
                         </tr>

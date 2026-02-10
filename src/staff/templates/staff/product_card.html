@@ -39,14 +39,12 @@
         {%  if perms.cosmetics_shop.change_product  %}
             <form method="POST" action="{% url 'edit_products' product.id %}">
                 {% csrf_token %}
-                <input type="hidden" name="product_id" value="{{ product.id }}">
                 <button type="submit" class="btn btn-primary">Изменить</button>
             </form>
         {%  endif  %}
         {%  if perms.cosmetics_shop.delete_product  %}
-            <form method="POST" action="{% url 'delete_product' %}">
+            <form method="POST" action="{% url 'delete_product' product.id  %}" >
                 {% csrf_token %}
-                <input type="hidden" name="product_id" value="{{ product.id }}">
                 <button type="submit" class="btn btn-danger"
                         onclick="return confirm('Вы уверены, что хотите удалить {{ product.name }}?')">Удалить</button>
             </form>

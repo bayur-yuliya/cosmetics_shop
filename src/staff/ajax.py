@@ -16,6 +16,8 @@ def sales_comparison_chart_for_the_year(request: HttpRequest) -> JsonResponse:
             current_year = date(int(year), 1, 1).year
         except (TypeError, ValueError):
             current_year = now.year
+    else:
+        current_year = now.year
 
     orders_by_month = (
         Order.objects.filter(created_at__year=current_year)
