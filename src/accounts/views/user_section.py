@@ -1,5 +1,3 @@
-from typing import Any
-
 from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount
 from django.contrib import messages
@@ -8,13 +6,13 @@ from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.db import transaction
-from django.db.models import Prefetch
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
 from accounts.forms import ClientCreationForm
 
-from cosmetics_shop.models import Client, Order, OrderStatusLog
+from cosmetics_shop.models import Client
+from cosmetics_shop.services.order_service import get_order_items_by_client
 from utils.custom_types import AuthenticatedRequest
 
 
@@ -64,35 +62,7 @@ def user_contact(request: AuthenticatedRequest) -> HttpResponse:
 @login_required
 def order_history(request: AuthenticatedRequest) -> HttpResponse:
     client, _ = Client.objects.get_or_create(user=request.user)
-    status_prefetch = Prefetch(
-        "status_log",
-        queryset=OrderStatusLog.objects.order_by("-changed_at"),
-        to_attr="order_statuses",
-    )
-
-    orders = (
-        Order.objects.filter(client=client)
-        .prefetch_related("items__product", status_prefetch)
-        .order_by("-created_at")
-    )
-
-    order_items_data: list[dict[str, Any]] = []
-
-    for order in orders:
-        latest_status: OrderStatusLog | None = (
-            order.order_statuses[0] if order.order_statuses else None
-        )
-
-        order_items_data.append(
-            {
-                "order": order,
-                "items": order.items.all(),
-                "latest_status": latest_status,
-                "status_badge_class": (
-                    latest_status.status_badge_class() if latest_status else "secondary"
-                ),
-            }
-        )
+    order_items_data = get_order_items_by_client(client)
 
     paginator = Paginator(order_items_data, 20)
     page_number = request.GET.get("page")

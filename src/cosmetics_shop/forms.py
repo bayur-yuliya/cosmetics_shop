@@ -6,7 +6,9 @@ from accounts.utils.validators import validate_phone_number
 
 
 class ClientForm(forms.ModelForm):
-    phone = forms.CharField(label="Номер телефона: ", max_length=10, validators=[validate_phone_number])
+    phone = forms.CharField(
+        label="Номер телефона: ", max_length=10, validators=[validate_phone_number]
+    )
 
     class Meta:
         model = Client
@@ -21,6 +23,11 @@ class DeliveryAddressForm(forms.ModelForm):
     class Meta:
         model = DeliveryAddress
         fields = ["city", "street", "post_office"]
+        labels = {
+            "city": "Город",
+            "street": "Улица",
+            "post_office": "Почтовое отделение",
+        }
 
 
 class ProductFilterForm(forms.Form):

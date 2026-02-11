@@ -1,4 +1,7 @@
+from typing import Any
+
 from django.db import transaction
+from django.db.models import Prefetch
 from django.http import HttpRequest
 
 from cosmetics_shop.models import (
@@ -12,6 +15,8 @@ from cosmetics_shop.models import (
     OrderStatusLog,
 )
 from cosmetics_shop.services.cart_services import clear_cart_after_order
+from cosmetics_shop.services.client_service import get_client
+from utils.custom_types import AuthenticatedRequest
 
 
 def get_cart(request: HttpRequest) -> Cart:
@@ -29,20 +34,6 @@ def get_cart(request: HttpRequest) -> Cart:
     return cart
 
 
-def get_client(request: HttpRequest) -> Client:
-    if request.user.is_authenticated:
-        return Client.objects.get(user=request.user)
-
-    client_id = request.session.get("client_id")
-    if client_id:
-        try:
-            return Client.objects.get(id=client_id)
-        except Client.DoesNotExist:
-            pass
-
-    raise Client.DoesNotExist("Клиент не найден в профиле или сессии")
-
-
 def change_stock_product(product_code: int, count: int) -> None:
     product = Product.objects.get(code=product_code)
     if product.stock >= count:
@@ -52,7 +43,7 @@ def change_stock_product(product_code: int, count: int) -> None:
         raise ValueError("Товаров больше нет")
 
 
-def create_order_from_cart(request: HttpRequest, address_id: int) -> Order:
+def create_order_from_cart(request: AuthenticatedRequest, address_id: int) -> Order:
     cart = get_cart(request)
     cart_items = CartItem.objects.select_related("product").filter(cart=cart)
 
@@ -73,11 +64,13 @@ def create_order_from_cart(request: HttpRequest, address_id: int) -> Order:
 
     with transaction.atomic():
         full_name = f"{client.last_name} {client.first_name}"
+        user_email = client.user.email if client.user and client.user.email else ""
+
         order = Order.objects.create(
             client=client,
             snapshot_name=full_name,
             snapshot_phone=client.phone,
-            snapshot_email=client.user.email,
+            snapshot_email=user_email,
             snapshot_address=str(address),
             total_price=total_price,
         )
@@ -108,3 +101,36 @@ def create_order_from_cart(request: HttpRequest, address_id: int) -> Order:
             request.session.pop("cart_id", None)
 
     return order
+
+
+def get_order_items_by_client(client: Client) -> list[dict[str, Any]]:
+    status_prefetch = Prefetch(
+        "status_log",
+        queryset=OrderStatusLog.objects.order_by("-changed_at"),
+        to_attr="order_statuses",
+    )
+
+    orders = (
+        Order.objects.filter(client=client)
+        .prefetch_related("items__product", status_prefetch)
+        .order_by("-created_at")
+    )
+    order_items_data: list[dict[str, Any]] = []
+
+    for order in orders:
+        latest_status: OrderStatusLog | None = (
+            order.order_statuses[0] if order.order_statuses else None
+        )
+
+        order_items_data.append(
+            {
+                "order": order,
+                "items": order.items.all(),
+                "latest_status": latest_status,
+                "status_badge_class": (
+                    latest_status.status_badge_class() if latest_status else "secondary"
+                ),
+            }
+        )
+
+    return order_items_data

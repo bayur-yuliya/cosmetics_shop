@@ -7,6 +7,8 @@ from cosmetics_shop.forms import ClientForm, DeliveryAddressForm
 from cosmetics_shop.models import DeliveryAddress, Client, Order, OrderItem
 from cosmetics_shop.services.order_service import get_client, create_order_from_cart
 from cosmetics_shop.utils.decorators import cart_required, order_session_required
+from cosmetics_shop.services.client_service import process_delivery_data
+from utils.custom_types import AuthenticatedRequest
 
 
 @cart_required
@@ -14,25 +16,15 @@ def delivery(request: HttpRequest) -> HttpResponse:
     try:
         client = get_client(request)
         last_address: DeliveryAddress | None = (
-            DeliveryAddress.objects.filter(client=client).order_by("-id").first()
+            DeliveryAddress.objects.filter(client=client).order_by("id").last()
         )
     except Client.DoesNotExist:
         client = None
         last_address = None
 
     if request.method == "POST":
-        form = ClientForm(request.POST, instance=client)
-        form_delivery = DeliveryAddressForm(request.POST, instance=last_address)
-
-        if form.is_valid() and form_delivery.is_valid():
-            new_client = form.save()
-            if request.user.is_authenticated:
-                new_client.user = request.user
-                new_client.save()
-
-            address = form_delivery.save(commit=False)
-            address.client = client
-            address.save()
+        address = process_delivery_data(request, client, last_address)
+        if address is not None:
             return redirect("order", address_id=address.id)
 
     form = ClientForm(instance=client)
@@ -50,7 +42,7 @@ def delivery(request: HttpRequest) -> HttpResponse:
 
 
 @cart_required
-def create_order(request: HttpRequest, address_id: int) -> HttpResponse:
+def create_order(request: AuthenticatedRequest, address_id: int) -> HttpResponse:
     order = create_order_from_cart(request, address_id)
     if order:
         request.session["order_id"] = order.id

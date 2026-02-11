@@ -16,6 +16,7 @@ from staff.forms import (
     FilterStockForm,
     ProductStuffFilterForm,
 )
+from staff.services.products_service import filter_staff_form, filter_staff_stock_form
 
 
 @permission_required("cosmetics_shop.view_product", raise_exception=True)
@@ -30,35 +31,12 @@ def products(request: HttpRequest) -> HttpResponse:
     form = ProductStuffFilterForm(request.GET or None)
     form_stock = FilterStockForm(request.GET or None)
 
-    if form.is_valid():
-        name = form.cleaned_data["name"]
-        code = form.cleaned_data["code"]
-        brand = form.cleaned_data["brand"]
-        min_price = form.cleaned_data["min_price"]
-        max_price = form.cleaned_data["max_price"]
+    filtered_product: QuerySet[Product] = filter_staff_form(products_list, form)
+    stock_filtered_product: QuerySet[Product] = filter_staff_stock_form(
+        filtered_product, form_stock
+    )
 
-        if name:
-            products_list = products_list.filter(name__icontains=name)
-        if brand:
-            products_list = products_list.filter(brand__name__icontains=brand)
-        if min_price is not None:
-            products_list = products_list.filter(
-                price__gte=min_price * 100, stock__gte=1
-            )
-        if max_price is not None:
-            products_list = products_list.filter(price__lte=max_price * 100)
-        if code:
-            products_list = products_list.filter(code__icontains=code)
-
-    if form_stock.is_valid():
-        min_stock = form_stock.cleaned_data["min_stock"]
-        max_stock = form_stock.cleaned_data["max_stock"]
-        if min_stock:
-            products_list = products_list.filter(stock__gte=min_stock)
-        if max_stock:
-            products_list = products_list.filter(stock__lte=max_stock)
-
-    paginator = Paginator(products_list, 20)
+    paginator = Paginator(stock_filtered_product, 20)
     page_number = request.GET.get("page")
     page = paginator.get_page(page_number)
 
