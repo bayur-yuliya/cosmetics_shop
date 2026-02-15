@@ -1,8 +1,12 @@
 import random
+import uuid
+from itertools import count
 
 from django.conf import settings
+from django.contrib.redirects.models import Redirect
+from django.contrib.sites.models import Site
 from django.db import models
-from django.utils.timezone import now
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from slugify import slugify
 
@@ -43,20 +47,58 @@ class ProductQuerySet(models.QuerySet):
         ).order_by("stock_zero")
 
 
-class ProductManager(models.Manager):
-    def get_queryset(self):
-        return (
-            super()
-            .get_queryset()
-            .annotate(
-                stock_zero=models.Case(
-                    models.When(stock=0, then=models.Value(1)),
-                    default=models.Value(0),
-                    output_field=models.IntegerField(),
+class SlugRedirectModel(models.Model):
+    """
+    An abstract model that handles:
+    1. The slug field
+    2. Generating a unique slug upon saving
+    3. Creating a redirect when the slug changes
+    """
+
+    slug = models.SlugField(max_length=200, unique=True, blank=True)
+
+    url_name_for_edit = None
+
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            name_val = getattr(self, "name", "")
+            self.slug = slugify(name_val)
+
+        orig_slug = self.slug
+        for i in count(1):
+            qs = self.__class__.objects.filter(slug=self.slug)
+            if self.pk:
+                qs = qs.exclude(pk=self.pk)
+
+            if not qs.exists():
+                break
+            self.slug = f"{orig_slug}-{i}"
+
+        super().save(*args, **kwargs)
+
+        if self.pk and self.url_name_for_edit:
+            self._handle_redirects()
+
+    def _handle_redirects(self):
+        old_obj = self.__class__.objects.filter(pk=self.pk).first()
+
+        if old_obj and old_obj.slug != self.slug:
+            old_path = reverse(self.url_name_for_edit, kwargs={"slug": old_obj.slug})
+            new_path = reverse(self.url_name_for_edit, kwargs={"slug": self.slug})
+
+            if old_path != new_path:
+                site = Site.objects.get_current()
+                Redirect.objects.update_or_create(
+                    site=site, old_path=old_path, defaults={"new_path": new_path}
                 )
-            )
-            .order_by("stock_zero")
-        )
+
+    def get_absolute_edit_url(self):
+        if self.url_name_for_edit:
+            return reverse(self.url_name_for_edit, kwargs={"slug": self.slug})
+        return ""
 
 
 class Client(models.Model):
@@ -82,7 +124,6 @@ class DeliveryAddress(models.Model):
     city = models.CharField(max_length=100)
     street = models.CharField(max_length=100)
     post_office = models.CharField(max_length=100)
-    is_primary = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.city}, {self.street}"
@@ -92,14 +133,10 @@ class DeliveryAddress(models.Model):
         verbose_name_plural = _("Адреса доставки")
 
 
-class Category(models.Model):
+class Category(SlugRedirectModel):
     name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(max_length=200, unique=True)
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
+    url_name_for_edit = "edit_categories"
 
     def __str__(self):
         return self.name
@@ -110,15 +147,11 @@ class Category(models.Model):
         verbose_name_plural = _("Категории")
 
 
-class GroupProduct(models.Model):
+class GroupProduct(SlugRedirectModel):
     name = models.CharField(max_length=100, unique=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    slug = models.SlugField(max_length=200, unique=True)
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
+    url_name_for_edit = "edit_groups"
 
     def __str__(self):
         return f"{self.name}"
@@ -129,14 +162,10 @@ class GroupProduct(models.Model):
         verbose_name_plural = _("Группы товаров")
 
 
-class Brand(models.Model):
+class Brand(SlugRedirectModel):
     name = models.CharField(max_length=100, unique=True)
-    slug = models.SlugField(max_length=200, unique=True)
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
+    url_name_for_edit = "edit_brands"
 
     def __str__(self):
         return self.name
@@ -163,7 +192,7 @@ class Product(models.Model):
     name = models.CharField(max_length=100, unique=True)
     group = models.ForeignKey(GroupProduct, on_delete=models.CASCADE)
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
-    price = models.PositiveIntegerField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField()
     stock = models.PositiveIntegerField(default=0)
     code = models.PositiveIntegerField(unique=True, blank=True, null=True)
@@ -171,22 +200,22 @@ class Product(models.Model):
     tags = models.ManyToManyField(Tag, blank=True, related_name="products")
     is_active = models.BooleanField(default=True)
 
-    objects = ProductManager.from_queryset(ProductQuerySet)()
+    objects = ProductQuerySet.as_manager()
 
     def save(self, *args, **kwargs):
         if not self.code:
-            self.code = self._generate_unique_code(self)
+            self.code = self._generate_unique_code()
         super().save(*args, **kwargs)
 
     @staticmethod
-    def _generate_unique_code(self):
+    def _generate_unique_code():
         while True:
             code = random.randint(0000000, 9999999)
             if not Product.objects.filter(code=code).exists():
                 return code
 
     def __str__(self):
-        return f"{self.group.name} - {self.name}"
+        return f"{self.group} - {self.name}"
 
     class Meta:
         verbose_name = _("товар")
@@ -207,7 +236,7 @@ class Favorite(models.Model):
 
 class Cart(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, null=True)
-    created_at = models.DateField(auto_now=True)
+    created_at = models.DateField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.created_at} - {self.user}"
@@ -224,36 +253,15 @@ class CartItem(models.Model):
 
 class Order(models.Model):
     client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True)
-    delivery_address = models.ForeignKey(
-        DeliveryAddress, on_delete=models.SET_NULL, null=True
-    )
-    code = models.CharField(max_length=100, unique=True, blank=True)
-    created_at = models.DateField(auto_now_add=True)
-    total_price = models.PositiveIntegerField(default=0)
+    code = models.UUIDField(default=uuid.uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    status = models.IntegerField(choices=Status.choices, default=Status.NEW)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     snapshot_name = models.CharField(max_length=200)
     snapshot_phone = models.CharField(max_length=20)
     snapshot_email = models.EmailField()
     snapshot_address = models.TextField()
-
-    def save(self, *args, **kwargs):
-        if not self.code:
-            self.code = self.generate_unique_code(self)
-        super().save(*args, **kwargs)
-
-    @staticmethod
-    def generate_unique_code(self):
-        """
-        Code generation: ORD-20250715-XXXX (date + serial number)
-        """
-        date_str = now().strftime("%Y%m%d")
-        prefix = f"ORD-{date_str}-"
-        code = random.randint(00000, 99999)
-        for i in range(1, 10000):
-            code_candidate = f"{prefix}{str(code)}"
-            if not Order.objects.filter(code=code_candidate).exists():
-                return code_candidate
-        raise ValueError("Failed to generate unique order code")
 
     def __str__(self):
         return f"{self.created_at} - {self.code}"
@@ -267,15 +275,19 @@ class Order(models.Model):
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
-    price = models.PositiveIntegerField()
+    price = models.DecimalField(
+        max_digits=10, decimal_places=2, help_text="Цена на момент покупки"
+    )
     quantity = models.PositiveIntegerField()
-
     snapshot_product = models.CharField(max_length=100)
-    snapshot_price = models.IntegerField()
-    snapshot_quantity = models.IntegerField()
 
     def __str__(self):
         return f"{self.order} - {self.product}"
+
+    def save(self, *args, **kwargs):
+        if not self.pk and self.product:
+            self.snapshot_product = self.product.name
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = _("товар в заказе")
