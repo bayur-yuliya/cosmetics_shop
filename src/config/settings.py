@@ -62,6 +62,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "django.middleware.locale.LocaleMiddleware",
+    "django.contrib.redirects.middleware.RedirectFallbackMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"

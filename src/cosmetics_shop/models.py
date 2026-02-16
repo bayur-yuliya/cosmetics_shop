@@ -56,7 +56,7 @@ class SlugRedirectModel(models.Model):
 
     slug = models.SlugField(max_length=200, unique=True, blank=True)
 
-    url_name_for_edit = None
+    redirect_url_configs = []
 
     class Meta:
         abstract = True
@@ -90,34 +90,34 @@ class SlugRedirectModel(models.Model):
                     raise
                 continue
 
-        if old_slug and old_slug != self.slug and self.url_name_for_edit:
+        if old_slug and old_slug != self.slug and self.redirect_url_configs:
             self._handle_redirects(old_slug)
 
     def _handle_redirects(self, old_slug):
-        try:
-            old_path = reverse(self.url_name_for_edit, kwargs={"slug": old_slug})
-            new_path = reverse(self.url_name_for_edit, kwargs={"slug": self.slug})
+        site = Site.objects.get_current()
+        for url_name, slug_param in self.redirect_url_configs:
+            try:
+                old_path = reverse(url_name, kwargs={slug_param: old_slug})
+                new_path = reverse(url_name, kwargs={slug_param: self.slug})
 
-            if old_path != new_path:
-                site = Site.objects.get_current()
-                Redirect.objects.update_or_create(
-                    site=site, old_path=old_path, defaults={"new_path": new_path}
+                if old_path != new_path:
+                    Redirect.objects.update_or_create(
+                        site=site,
+                        old_path=old_path,
+                        defaults={"new_path": new_path}
+                    )
+            except NoReverseMatch:
+                print(
+                    f"Redirect failed: URL name '{url_name}' not found. "
+                    f"Check your urls.py for model {self.__class__.__name__}."
                 )
-        except NoReverseMatch:
-            print(
-                f"Redirect failed: URL name '{self.url_name_for_edit}' not found. "
-                f"Check your urls.py for model {self.__class__.__name__}."
-            )
-        except Site.DoesNotExist:
-            print(
-                "Redirect failed: No Site object found. Ensure 'django.contrib.sites' is configured."
-            )
-        except IntegrityError as e:
-            print(f"Database error while creating redirect for {self.slug}: {e}")
+            except IntegrityError as e:
+                print(f"Database error while creating redirect for {self.slug}: {e}")
 
-    def get_absolute_edit_url(self):
-        if self.url_name_for_edit:
-            return reverse(self.url_name_for_edit, kwargs={"slug": self.slug})
+    def get_absolute_url(self):
+        if self.redirect_url_configs:
+            url_name, slug_param = self.redirect_url_configs[0]
+            return reverse(url_name, kwargs={slug_param: self.slug})
         return ""
 
 
@@ -156,7 +156,10 @@ class DeliveryAddress(models.Model):
 class Category(SlugRedirectModel):
     name = models.CharField(max_length=50, unique=True)
 
-    url_name_for_edit = "edit_categories"
+    redirect_url_configs = [
+        ('category_page', 'category_slug'),
+        ('edit_categories', 'slug'),
+    ]
 
     def __str__(self):
         return self.name
@@ -171,7 +174,10 @@ class GroupProduct(SlugRedirectModel):
     name = models.CharField(max_length=100, unique=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
-    url_name_for_edit = "edit_groups"
+    redirect_url_configs = [
+        ('group_page', 'group_slug'),
+        ('edit_groups', 'slug'),
+    ]
 
     def __str__(self):
         return f"{self.name}"
@@ -185,7 +191,10 @@ class GroupProduct(SlugRedirectModel):
 class Brand(SlugRedirectModel):
     name = models.CharField(max_length=100, unique=True)
 
-    url_name_for_edit = "edit_brands"
+    redirect_url_configs = [
+        ('brand_detail', 'brand_slug'),
+        ('edit_brands', 'slug'),
+    ]
 
     def __str__(self):
         return self.name
