@@ -1,12 +1,11 @@
-import random
 import uuid
 from itertools import count
 
 from django.conf import settings
 from django.contrib.redirects.models import Redirect
 from django.contrib.sites.models import Site
-from django.db import models
-from django.urls import reverse
+from django.db import models, transaction, IntegrityError
+from django.urls import reverse, NoReverseMatch
 from django.utils.translation import gettext_lazy as _
 from slugify import slugify
 
@@ -63,30 +62,40 @@ class SlugRedirectModel(models.Model):
         abstract = True
 
     def save(self, *args, **kwargs):
+        old_slug = None
+
+        if self.pk:
+            old_slug = (
+                self.__class__.objects.filter(pk=self.pk)
+                .values_list("slug", flat=True)
+                .first()
+            )
+
         if not self.slug:
             name_val = getattr(self, "name", "")
             self.slug = slugify(name_val)
 
-        orig_slug = self.slug
-        for i in count(1):
-            qs = self.__class__.objects.filter(slug=self.slug)
-            if self.pk:
-                qs = qs.exclude(pk=self.pk)
+        base_slug = self.slug
 
-            if not qs.exists():
-                break
-            self.slug = f"{orig_slug}-{i}"
+        for i in count(0):
+            try:
+                with transaction.atomic():
+                    if i > 0:
+                        self.slug = f"{base_slug}-{i}"
 
-        super().save(*args, **kwargs)
+                    super().save(*args, **kwargs)
+                    break
+            except IntegrityError:
+                if i > 100:
+                    raise
+                continue
 
-        if self.pk and self.url_name_for_edit:
-            self._handle_redirects()
+        if old_slug and old_slug != self.slug and self.url_name_for_edit:
+            self._handle_redirects(old_slug)
 
-    def _handle_redirects(self):
-        old_obj = self.__class__.objects.filter(pk=self.pk).first()
-
-        if old_obj and old_obj.slug != self.slug:
-            old_path = reverse(self.url_name_for_edit, kwargs={"slug": old_obj.slug})
+    def _handle_redirects(self, old_slug):
+        try:
+            old_path = reverse(self.url_name_for_edit, kwargs={"slug": old_slug})
             new_path = reverse(self.url_name_for_edit, kwargs={"slug": self.slug})
 
             if old_path != new_path:
@@ -94,6 +103,17 @@ class SlugRedirectModel(models.Model):
                 Redirect.objects.update_or_create(
                     site=site, old_path=old_path, defaults={"new_path": new_path}
                 )
+        except NoReverseMatch:
+            print(
+                f"Redirect failed: URL name '{self.url_name_for_edit}' not found. "
+                f"Check your urls.py for model {self.__class__.__name__}."
+            )
+        except Site.DoesNotExist:
+            print(
+                "Redirect failed: No Site object found. Ensure 'django.contrib.sites' is configured."
+            )
+        except IntegrityError as e:
+            print(f"Database error while creating redirect for {self.slug}: {e}")
 
     def get_absolute_edit_url(self):
         if self.url_name_for_edit:
@@ -195,7 +215,7 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField()
     stock = models.PositiveIntegerField(default=0)
-    code = models.PositiveIntegerField(unique=True, blank=True, null=True)
+    code = models.PositiveIntegerField(unique=True, editable=False, db_index=True)
     image = models.ImageField(upload_to="product_images/", default="default/image.jpg")
     tags = models.ManyToManyField(Tag, blank=True, related_name="products")
     is_active = models.BooleanField(default=True)
@@ -203,16 +223,18 @@ class Product(models.Model):
     objects = ProductQuerySet.as_manager()
 
     def save(self, *args, **kwargs):
-        if not self.code:
-            self.code = self._generate_unique_code()
-        super().save(*args, **kwargs)
+        if not self.pk:
+            with transaction.atomic():
+                super().save(*args, **kwargs)
 
-    @staticmethod
-    def _generate_unique_code():
-        while True:
-            code = random.randint(0000000, 9999999)
-            if not Product.objects.filter(code=code).exists():
-                return code
+                A = 4_827_137
+                B = 1_234_567
+                MOD = 10_000_000
+
+                self.code = (A * self.pk + B) % MOD
+                Product.objects.filter(pk=self.pk).update(code=self.code)
+        else:
+            super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.group} - {self.name}"
