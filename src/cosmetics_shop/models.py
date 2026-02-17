@@ -2,9 +2,8 @@ import uuid
 from itertools import count
 
 from django.conf import settings
-from django.contrib.redirects.models import Redirect
-from django.contrib.sites.models import Site
 from django.db import models, transaction, IntegrityError
+from django.db.models import Sum, F
 from django.urls import reverse, NoReverseMatch
 from django.utils.translation import gettext_lazy as _
 from slugify import slugify
@@ -44,6 +43,13 @@ class ProductQuerySet(models.QuerySet):
                 output_field=models.IntegerField(),
             )
         ).order_by("stock_zero")
+
+    def for_catalog(self):
+        return (
+            self.select_related("group", "brand")
+            .prefetch_related("tags")
+            .with_stock_order()
+        )
 
 
 class SlugRedirectModel(models.Model):
@@ -94,6 +100,9 @@ class SlugRedirectModel(models.Model):
             self._handle_redirects(old_slug)
 
     def _handle_redirects(self, old_slug):
+        from django.contrib.redirects.models import Redirect
+        from django.contrib.sites.models import Site
+
         site = Site.objects.get_current()
         for url_name, slug_param in self.redirect_url_configs:
             try:
@@ -102,9 +111,7 @@ class SlugRedirectModel(models.Model):
 
                 if old_path != new_path:
                     Redirect.objects.update_or_create(
-                        site=site,
-                        old_path=old_path,
-                        defaults={"new_path": new_path}
+                        site=site, old_path=old_path, defaults={"new_path": new_path}
                     )
             except NoReverseMatch:
                 print(
@@ -128,11 +135,17 @@ class Client(models.Model):
     first_name = models.CharField(max_length=50, blank=True)
     last_name = models.CharField(max_length=50, blank=True)
     phone = models.CharField(max_length=10, validators=[validate_phone_number])
+    email = models.EmailField(unique=True)
     is_active = models.BooleanField(default=True)
     was_registered = models.BooleanField(default=False)
 
     def __str__(self):
         return self.first_name
+
+    def save(self, *args, **kwargs):
+        if self.user and not self.email:
+            self.email = self.user.email if self.user.email else ""
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = _("клиента")
@@ -140,13 +153,24 @@ class Client(models.Model):
 
 
 class DeliveryAddress(models.Model):
-    client = models.ForeignKey(Client, on_delete=models.CASCADE)
+    client = models.ForeignKey(
+        Client, related_name="addresses", on_delete=models.CASCADE
+    )
     city = models.CharField(max_length=100)
     street = models.CharField(max_length=100)
     post_office = models.CharField(max_length=100)
+    is_main = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"{self.city}, {self.street}"
+        return f"{self.city}, {self.post_office}"
+
+    def save(self, *args, **kwargs):
+        if self.is_main:
+            with transaction.atomic():
+                DeliveryAddress.objects.filter(
+                    client=self.client, is_main=True
+                ).exclude(pk=self.pk).update(is_main=False)
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = _("адрес доставки")
@@ -157,8 +181,8 @@ class Category(SlugRedirectModel):
     name = models.CharField(max_length=50, unique=True)
 
     redirect_url_configs = [
-        ('category_page', 'category_slug'),
-        ('edit_categories', 'slug'),
+        ("category_page", "category_slug"),
+        ("edit_categories", "slug"),
     ]
 
     def __str__(self):
@@ -175,8 +199,8 @@ class GroupProduct(SlugRedirectModel):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
     redirect_url_configs = [
-        ('group_page', 'group_slug'),
-        ('edit_groups', 'slug'),
+        ("group_page", "group_slug"),
+        ("edit_groups", "slug"),
     ]
 
     def __str__(self):
@@ -192,8 +216,8 @@ class Brand(SlugRedirectModel):
     name = models.CharField(max_length=100, unique=True)
 
     redirect_url_configs = [
-        ('brand_detail', 'brand_slug'),
-        ('edit_brands', 'slug'),
+        ("brand_detail", "brand_slug"),
+        ("edit_brands", "slug"),
     ]
 
     def __str__(self):
@@ -227,13 +251,14 @@ class Product(models.Model):
     code = models.PositiveIntegerField(unique=True, editable=False, db_index=True)
     image = models.ImageField(upload_to="product_images/", default="default/image.jpg")
     tags = models.ManyToManyField(Tag, blank=True, related_name="products")
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, db_index=True)
 
     objects = ProductQuerySet.as_manager()
 
     def save(self, *args, **kwargs):
         if not self.pk:
             with transaction.atomic():
+                self.code = 0
                 super().save(*args, **kwargs)
 
                 A = 4_827_137
@@ -267,6 +292,7 @@ class Favorite(models.Model):
 
 class Cart(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, null=True)
+    session_key = models.CharField(max_length=40, null=True, blank=True)
     created_at = models.DateField(auto_now_add=True)
 
     def __str__(self):
@@ -281,12 +307,17 @@ class CartItem(models.Model):
     def __str__(self):
         return f"{self.product} - {self.quantity}"
 
+    class Meta:
+        unique_together = ("cart", "product")
+
 
 class Order(models.Model):
     client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True)
     code = models.UUIDField(default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    status = models.IntegerField(choices=Status.choices, default=Status.NEW)
+    status = models.IntegerField(
+        choices=Status.choices, default=Status.NEW, db_index=True
+    )
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     snapshot_name = models.CharField(max_length=200)
@@ -297,6 +328,33 @@ class Order(models.Model):
     def __str__(self):
         return f"{self.created_at} - {self.code}"
 
+    def save(self, *args, **kwargs):
+        if not self.pk and self.client:
+            self.snapshot_name = (
+                f"{self.client.first_name} {self.client.last_name}".strip()
+            )
+            self.snapshot_phone = self.client.phone if self.client.phone else ""
+            self.snapshot_email = self.client.email if self.client.email else ""
+
+            address = self.client.addresses.filter(is_main=True)
+            if address:
+                self.snapshot_address = str(address)
+
+        super().save(*args, **kwargs)
+
+    def update_total_price(self):
+        total = (
+            self.order_items.aggregate(
+                total=Sum(
+                    F("price") * F("quantity"), output_field=models.DecimalField()
+                )
+            )["total"]
+            or 0
+        )
+
+        self.total_price = total
+        self.save(update_fields=["total_price"])
+
     class Meta:
         ordering = ["-id"]
         verbose_name = _("заказ")
@@ -304,7 +362,9 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
+    order = models.ForeignKey(
+        Order, on_delete=models.CASCADE, related_name="order_items"
+    )
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     price = models.DecimalField(
         max_digits=10, decimal_places=2, help_text="Цена на момент покупки"
@@ -316,8 +376,12 @@ class OrderItem(models.Model):
         return f"{self.order} - {self.product}"
 
     def save(self, *args, **kwargs):
+        if not self.pk and self.product and not self.price:
+            self.price = self.product.price
+
         if not self.pk and self.product:
             self.snapshot_product = self.product.name
+
         super().save(*args, **kwargs)
 
     class Meta:
