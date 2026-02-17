@@ -19,12 +19,12 @@ class ProductFilter:
 
         if form.cleaned_data["min_price"] is not None:
             self.queryset = self.queryset.filter(
-                price__gte=form.cleaned_data["min_price"] * 100
+                price__gte=form.cleaned_data["min_price"]
             )
 
         if form.cleaned_data["max_price"] is not None:
             self.queryset = self.queryset.filter(
-                price__lte=form.cleaned_data["max_price"] * 100
+                price__lte=form.cleaned_data["max_price"]
             )
 
         if form.cleaned_data["brand"]:

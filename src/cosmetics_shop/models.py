@@ -3,7 +3,7 @@ from itertools import count
 
 from django.conf import settings
 from django.db import models, transaction, IntegrityError
-from django.db.models import Sum, F
+from django.db.models import Sum, F, Q
 from django.urls import reverse, NoReverseMatch
 from django.utils.translation import gettext_lazy as _
 from slugify import slugify
@@ -135,21 +135,28 @@ class Client(models.Model):
     first_name = models.CharField(max_length=50, blank=True)
     last_name = models.CharField(max_length=50, blank=True)
     phone = models.CharField(max_length=10, validators=[validate_phone_number])
-    email = models.EmailField(unique=True)
+    email = models.EmailField()
     is_active = models.BooleanField(default=True)
-    was_registered = models.BooleanField(default=False)
 
     def __str__(self):
         return self.first_name
 
     def save(self, *args, **kwargs):
         if self.user and not self.email:
-            self.email = self.user.email if self.user.email else ""
+            with transaction.atomic():
+                self.email = self.user.email
         super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = _("клиента")
         verbose_name_plural = _("Клиенты")
+        constraints = [
+            models.UniqueConstraint(
+                fields=['email'],
+                condition=Q(user__isnull=False),
+                name='unique_registered_email'
+            )
+        ]
 
 
 class DeliveryAddress(models.Model):

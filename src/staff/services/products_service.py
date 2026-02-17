@@ -17,10 +17,10 @@ def filter_staff_form(products_list: QuerySet[Product], form) -> QuerySet[Produc
             products_list = products_list.filter(brand__name__icontains=brand)
         if min_price is not None:
             products_list = products_list.filter(
-                price__gte=min_price * 100, stock__gte=1
+                price__gte=min_price, stock__gte=1
             )
         if max_price is not None:
-            products_list = products_list.filter(price__lte=max_price * 100)
+            products_list = products_list.filter(price__lte=max_price)
         if code:
             products_list = products_list.filter(code__icontains=code)
     return products_list

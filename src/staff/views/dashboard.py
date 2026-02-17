@@ -19,7 +19,7 @@ def index(request: HttpRequest) -> HttpResponse:
     completed_orders_today = number_of_completed_orders_today()
     orders_per_month = number_of_orders_per_month(today)
     summ = summ_bill(today)
-    average = round(average_bill(today) / 100, 2)
+    average = round(average_bill(today), 2)
     max_favorite = (
         Favorite.objects.annotate(num_product=Count("product")).order_by("num_product")
     )[0:3]

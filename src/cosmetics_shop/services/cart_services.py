@@ -65,10 +65,7 @@ def delete_cart(request: HttpRequest) -> None:
 
 
 def calculate_cart_total(cart: Cart) -> float:
-    return (
-        sum(item.product.price * item.quantity for item in cart.cartitem_set.all())
-        / 100
-    )
+    return sum(item.product.price * item.quantity for item in cart.cartitem_set.all())
 
 
 def calculate_product_total_price(
@@ -78,7 +75,7 @@ def calculate_product_total_price(
         product__code=product_code
     ).first()
     if product_count is not None:
-        return product_count.quantity * product_count.product.price / 100
+        return product_count.quantity * product_count.product.price
     return 0.0
 
 

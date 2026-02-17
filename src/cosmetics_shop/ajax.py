@@ -60,7 +60,7 @@ def add_to_cart(request: HttpRequest) -> HttpResponse:
             return JsonResponse({"success": False, "error": "No product"})
 
         total_price = calculate_cart_total(cart)
-        product_total_price = product_count.quantity * product_count.product.price / 100
+        product_total_price = product_count.quantity * product_count.product.price
 
         message = None
         if product_count.quantity == product_count.product.stock:
@@ -112,7 +112,7 @@ def cart_remove(request: HttpRequest) -> HttpResponse:
         return JsonResponse({"success": False, "error": "No product"})
 
     total_price = calculate_cart_total(cart)
-    product_total_price = product_count.quantity * product_count.product.price / 100
+    product_total_price = product_count.quantity * product_count.product.price
 
     return JsonResponse(
         {

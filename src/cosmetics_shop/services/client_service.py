@@ -31,7 +31,7 @@ def process_delivery_data(
             new_client.save()
 
         address = form_delivery.save(commit=False)
-        address.client = client
+        address.client = new_client
         address.save()
         return address
     return None
