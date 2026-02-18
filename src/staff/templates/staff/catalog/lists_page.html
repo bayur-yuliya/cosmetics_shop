@@ -42,7 +42,13 @@
                                     {%  endif  %}
                                 {%  endif  %}
                                 {%  if permissions.delete  %}
-                                    <button class="btn btn-danger btn-sm" onclick="openDeleteDialog({{ object.id }}, '{{ object }}')">Удалить</button>
+                                    <button
+                                        data-id="{{ object.id }}"
+                                        data-name="{{ object }}"
+                                        onclick="openDeleteDialog(this)"
+                                        class="btn btn-sm btn-danger">
+                                        Удалить
+                                    </button>
                                 {%  endif  %}
                             </td>
                             {%  endif  %}

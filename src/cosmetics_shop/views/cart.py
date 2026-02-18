@@ -43,12 +43,11 @@ def clean_cart(request: HttpRequest) -> HttpResponse:
 
 
 @require_POST
-def cart_delete(request: HttpRequest) -> HttpResponse:
-    product_id_row: str | None = request.POST.get("product_id")
+def cart_delete(request: HttpRequest, product_id: int) -> HttpResponse:
     cart_obj = get_or_create_cart(request)
-    if product_id_row is not None:
-        product_id = int(product_id_row)
-        delete_product_from_cart(cart_obj, product_id)
+    if product_id is not None:
+        product_id_row = int(product_id)
+        delete_product_from_cart(cart_obj, product_id_row)
         messages.success(request, "Товар успешно удален")
     else:
         messages.error(request, "Не удалось удалить товар")

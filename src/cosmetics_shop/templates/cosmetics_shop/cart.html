@@ -76,11 +76,12 @@
                             </td>
                             <td>
                             <button
-                                    onclick="openDeleteDialog({{ item.product.id }}, '{{ item.product.name }}')"
-                                    class="btn btn-sm btn-danger">
+                                data-id="{{ item.product.id }}"
+                                data-name="{{ item.product.name }}"
+                                onclick="openDeleteDialog(this)"
+                                class="btn btn-sm btn-danger">
                                 Удалить
                             </button>
-
                             </td>
                         </tr>
                     {% endfor %}
@@ -109,15 +110,16 @@
 
 <dialog id="deleteDialog">
     <form
-        action="{%  url 'cart_delete' %}"
-        method="POST">
+        id="deleteForm"
+        method="POST"
+        action=""
+            >
         {%  csrf_token  %}
             <p id="deleteText"></p>
-            <input type="hidden" name="product_id" id="deleteId">
             <button type="reset" onclick="document.getElementById('deleteDialog').close()" class="btn btn-secondary">Назад</button>
             <button type="submit" class="btn btn-danger">Удалить</button>
     </form>
 </dialog>
 
-<script src="{%  static 'cosmetics_shop/js/cart_delete_dialog.js'  %}"></script>
+<script src="{% static 'staff/js/delete_dialog_script.js' %}"></script>
 {% endblock %}
