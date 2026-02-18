@@ -62,7 +62,7 @@ class SlugRedirectModel(models.Model):
 
     slug = models.SlugField(max_length=200, unique=True, blank=True)
 
-    redirect_url_configs = []
+    redirect_url_configs: list[tuple[str, str]] = []
 
     class Meta:
         abstract = True
@@ -72,7 +72,7 @@ class SlugRedirectModel(models.Model):
 
         if self.pk:
             old_slug = (
-                self.__class__.objects.filter(pk=self.pk)
+                self.__class__._default_manager.filter(pk=self.pk)
                 .values_list("slug", flat=True)
                 .first()
             )
@@ -139,12 +139,17 @@ class Client(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.first_name
+        return f"{self.first_name} {self.last_name}"
+
+    @property
+    def is_registered(self):
+        return self.user is not None
 
     def save(self, *args, **kwargs):
         if self.user and not self.email:
             with transaction.atomic():
-                self.email = self.user.email
+                user_email = getattr(self.user, 'email', "")
+                self.email = user_email or ""
         super().save(*args, **kwargs)
 
     class Meta:
@@ -166,7 +171,7 @@ class DeliveryAddress(models.Model):
     city = models.CharField(max_length=100)
     street = models.CharField(max_length=100)
     post_office = models.CharField(max_length=100)
-    is_main = models.BooleanField(default=True)
+    is_primary = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.city}, {self.post_office}"
@@ -175,8 +180,8 @@ class DeliveryAddress(models.Model):
         if self.is_main:
             with transaction.atomic():
                 DeliveryAddress.objects.filter(
-                    client=self.client, is_main=True
-                ).exclude(pk=self.pk).update(is_main=False)
+                    client=self.client, is_primary=True
+                ).exclude(pk=self.pk).update(is_primary=False)
         super().save(*args, **kwargs)
 
     class Meta:
@@ -343,7 +348,7 @@ class Order(models.Model):
             self.snapshot_phone = self.client.phone if self.client.phone else ""
             self.snapshot_email = self.client.email if self.client.email else ""
 
-            address = self.client.addresses.filter(is_main=True)
+            address = self.client.addresses.filter(is_primary=True)
             if address:
                 self.snapshot_address = str(address)
 

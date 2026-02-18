@@ -89,8 +89,13 @@ class ProductForm(forms.ModelForm):
 
         if user:
             self.user = user
+
             if not user.has_perm("cosmetics_shop.can_change_product_price"):
                 self.fields.pop("price")
+            else:
+                self.fields['price'].localize = True
+                self.fields['price'].widget.is_localized = True
+
             if not user.has_perm("cosmetics_shop.can_manage_product_stock"):
                 self.fields.pop("stock")
 
@@ -99,9 +104,7 @@ class ProductForm(forms.ModelForm):
         if isinstance(price, str):
             price = price.replace(" ", "").replace(",", ".")
         try:
-            price = Decimal(price)
-            ready_price = int(price * 100)
-            return ready_price
+            return Decimal(price)
         except (InvalidOperation, ValueError):
             raise ValidationError("Некорректная цена")
 
