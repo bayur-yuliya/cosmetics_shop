@@ -32,33 +32,18 @@ def clear_cart_after_order(cart: Cart) -> None:
 def create_order_from_cart(request: AuthenticatedRequest, address_id: int) -> Order:
     cart = get_or_create_cart(request)
     cart_items = CartItem.objects.select_related("product").filter(cart=cart)
-    #
-    # if not cart_items.exists():
-    #     raise ValueError("Корзина пуста")
-    #
-    # try:
-    #     client = get_client(request)
-    # except Client.DoesNotExist:
-    #     raise ValueError("Клиент не найден")
-    #
-    # try:
-    #     address = DeliveryAddress.objects.get(id=address_id, client=client)
-    # except DeliveryAddress.DoesNotExist:
-    #     raise ValueError("Адрес не найден или не принадлежит клиенту")
-
-    total_price = sum(item.product.price * item.quantity for item in cart_items)
 
     with transaction.atomic():
         # full_name = f"{client.last_name} {client.first_name}"
         # user_email = client.user.email if client.user and client.user.email else ""
         #
         order = Order.objects.create(
-        #     client=client,
-        #     snapshot_name=full_name,
-        #     snapshot_phone=client.phone,
-        #     snapshot_email=user_email,
-        #     snapshot_address=str(address),
-        #     total_price=total_price,
+            #     client=client,
+            #     snapshot_name=full_name,
+            #     snapshot_phone=client.phone,
+            #     snapshot_email=user_email,
+            #     snapshot_address=str(address),
+            #     total_price=total_price,
         )
 
         order_items = [
@@ -77,6 +62,7 @@ def create_order_from_cart(request: AuthenticatedRequest, address_id: int) -> Or
 
         OrderStatusLog.objects.create(order=order)
         OrderItem.objects.bulk_create(order_items)
+        order.update_total_price()
 
         clear_cart_after_order(cart)
 

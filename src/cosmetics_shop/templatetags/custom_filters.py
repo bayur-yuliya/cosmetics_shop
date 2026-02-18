@@ -7,7 +7,8 @@ register = template.Library()
 @register.filter
 def multiply(value, arg):
     try:
-        return int(value) * int(arg)
+        result = value * arg
+        return f"{result:.2f}"
     except (ValueError, TypeError):
         return ""
 

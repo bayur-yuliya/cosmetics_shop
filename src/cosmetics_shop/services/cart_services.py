@@ -45,7 +45,7 @@ def calculate_cart_total(cart: Cart) -> float:
 
 
 def calculate_product_total_price(
-        cart_items: QuerySet[CartItem], product_code: int
+    cart_items: QuerySet[CartItem], product_code: int
 ) -> float:
     product_count: CartItem | None = cart_items.filter(
         product__code=product_code
@@ -60,4 +60,3 @@ def is_product_in_cart(cart: Cart, product_id: int) -> bool:
         CartItem.objects.filter(cart=cart).values_list("product_id", flat=True)
     )
     return product_id in cart_products
-

@@ -22,5 +22,7 @@ class Command(BaseCommand):
                 user.user_permissions.add(perm)
 
         self.stdout.write(
-            self.style.SUCCESS("Successfully! Superusers have been assigned manage_permissions.")
+            self.style.SUCCESS(
+                "Successfully! Superusers have been assigned manage_permissions."
+            )
         )

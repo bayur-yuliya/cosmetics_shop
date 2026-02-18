@@ -148,7 +148,7 @@ class Client(models.Model):
     def save(self, *args, **kwargs):
         if self.user and not self.email:
             with transaction.atomic():
-                user_email = getattr(self.user, 'email', "")
+                user_email = getattr(self.user, "email", "")
                 self.email = user_email or ""
         super().save(*args, **kwargs)
 
@@ -157,9 +157,9 @@ class Client(models.Model):
         verbose_name_plural = _("Клиенты")
         constraints = [
             models.UniqueConstraint(
-                fields=['email'],
+                fields=["email"],
                 condition=Q(user__isnull=False),
-                name='unique_registered_email'
+                name="unique_registered_email",
             )
         ]
 

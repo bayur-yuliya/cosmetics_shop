@@ -5,7 +5,8 @@ from django.views.decorators.http import require_POST
 from cosmetics_shop.models import Product, Favorite, CartItem
 from cosmetics_shop.services.cart_services import (
     add_product_to_cart,
-    remove_product_from_cart, calculate_cart_total,
+    remove_product_from_cart,
+    calculate_cart_total,
 )
 from cosmetics_shop.utils.cart_utils import get_or_create_cart
 

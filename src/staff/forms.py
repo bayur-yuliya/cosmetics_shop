@@ -93,8 +93,8 @@ class ProductForm(forms.ModelForm):
             if not user.has_perm("cosmetics_shop.can_change_product_price"):
                 self.fields.pop("price")
             else:
-                self.fields['price'].localize = True
-                self.fields['price'].widget.is_localized = True
+                self.fields["price"].localize = True
+                self.fields["price"].widget.is_localized = True
 
             if not user.has_perm("cosmetics_shop.can_manage_product_stock"):
                 self.fields.pop("stock")
