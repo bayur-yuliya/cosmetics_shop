@@ -5,9 +5,9 @@ from django.shortcuts import redirect, render
 
 from cosmetics_shop.forms import ClientForm, DeliveryAddressForm
 from cosmetics_shop.models import DeliveryAddress, Client, Order, OrderItem
-from cosmetics_shop.services.order_service import get_client, create_order_from_cart
+from cosmetics_shop.services.order_service import create_order_from_cart
 from cosmetics_shop.utils.decorators import cart_required, order_session_required
-from cosmetics_shop.services.client_service import process_delivery_data
+from cosmetics_shop.services.client_service import process_delivery_data, get_client
 from utils.custom_types import AuthenticatedRequest
 
 
@@ -21,9 +21,10 @@ def delivery(request: HttpRequest) -> HttpResponse:
     except Client.DoesNotExist:
         client = None
         last_address = None
+    initial = request.session.get("checkout_data")
 
     if request.method == "POST":
-        address = process_delivery_data(request, client, last_address)
+        address = process_delivery_data(request, client, initial, last_address)
         if address is not None:
             return redirect("order", address_id=address.id)
 

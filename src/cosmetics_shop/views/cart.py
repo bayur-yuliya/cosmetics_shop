@@ -6,10 +6,10 @@ from django.views.decorators.http import require_POST
 
 from cosmetics_shop.models import CartItem
 from cosmetics_shop.services.cart_services import (
-    get_or_create_cart,
     delete_cart,
     delete_product_from_cart,
 )
+from cosmetics_shop.utils.cart_utils import get_or_create_cart
 
 
 def cart(request: HttpRequest) -> HttpResponse:
@@ -36,16 +36,20 @@ def cart(request: HttpRequest) -> HttpResponse:
 
 
 def clean_cart(request: HttpRequest) -> HttpResponse:
-    delete_cart(request)
+    cart_obj = get_or_create_cart(request)
+    delete_cart(cart_obj)
+    messages.success(request, "Корзина очищена")
     return redirect("cart")
 
 
 @require_POST
 def cart_delete(request: HttpRequest) -> HttpResponse:
     product_id_row: str | None = request.POST.get("product_id")
+    cart_obj = get_or_create_cart(request)
     if product_id_row is not None:
         product_id = int(product_id_row)
-        delete_product_from_cart(request, product_id)
+        delete_product_from_cart(cart_obj, product_id)
+        messages.success(request, "Товар успешно удален")
     else:
         messages.error(request, "Не удалось удалить товар")
     return redirect("cart")

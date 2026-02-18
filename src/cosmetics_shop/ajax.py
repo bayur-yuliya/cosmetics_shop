@@ -5,11 +5,9 @@ from django.views.decorators.http import require_POST
 from cosmetics_shop.models import Product, Favorite, CartItem
 from cosmetics_shop.services.cart_services import (
     add_product_to_cart,
-    get_or_create_cart_for_session,
-    get_or_create_cart,
-    remove_product_from_cart,
-    calculate_cart_total,
+    remove_product_from_cart, calculate_cart_total,
 )
+from cosmetics_shop.utils.cart_utils import get_or_create_cart
 
 
 @require_POST
@@ -44,11 +42,7 @@ def add_to_cart(request: HttpRequest) -> HttpResponse:
         if not product_code:
             return JsonResponse({"success": False, "error": "No product code"})
 
-        if request.user.is_authenticated:
-            cart = get_or_create_cart(request)
-        else:
-            cart = get_or_create_cart_for_session(request)
-
+        cart = get_or_create_cart(request)
         add_product_to_cart(cart, product_code=int(product_code))
 
         cart_items = CartItem.objects.select_related("product").filter(cart=cart)
@@ -96,10 +90,7 @@ def cart_remove(request: HttpRequest) -> HttpResponse:
             {"success": False, "error": "Missing product code"}, status=400
         )
 
-    if request.user.is_authenticated:
-        cart = get_or_create_cart(request)
-    else:
-        cart = get_or_create_cart_for_session(request)
+    cart = get_or_create_cart(request)
 
     remove_product_from_cart(cart, int(product_code))
 

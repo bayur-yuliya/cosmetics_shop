@@ -177,7 +177,7 @@ class DeliveryAddress(models.Model):
         return f"{self.city}, {self.post_office}"
 
     def save(self, *args, **kwargs):
-        if self.is_main:
+        if self.is_primary:
             with transaction.atomic():
                 DeliveryAddress.objects.filter(
                     client=self.client, is_primary=True

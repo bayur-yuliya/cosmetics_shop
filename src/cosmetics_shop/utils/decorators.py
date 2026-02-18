@@ -3,7 +3,7 @@ from functools import wraps
 from django.contrib import messages
 from django.shortcuts import redirect
 
-from cosmetics_shop.services.cart_services import get_or_create_cart
+from cosmetics_shop.utils.cart_utils import get_or_create_cart
 
 
 def cart_required(view_func):
