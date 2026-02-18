@@ -107,4 +107,4 @@ class Command(BaseCommand):
         )
         senior_group.permissions.add(*all_order_perms)
 
-        self.stdout.write(self.style.SUCCESS("Группы успешно созданы!"))
+        self.stdout.write(self.style.SUCCESS("Successfully! Groups created."))
