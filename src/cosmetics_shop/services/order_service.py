@@ -10,7 +10,7 @@ from cosmetics_shop.models import (
     OrderItem,
     Client,
     Product,
-    OrderStatusLog,
+    OrderStatusLog, DeliveryAddress,
 )
 from cosmetics_shop.utils.cart_utils import get_or_create_cart
 from utils.custom_types import AuthenticatedRequest
@@ -29,21 +29,32 @@ def clear_cart_after_order(cart: Cart) -> None:
     cart.cartitem_set.all().delete()
 
 
-def create_order_from_cart(request: AuthenticatedRequest, address_id: int) -> Order:
+def create_order_from_cart(request: AuthenticatedRequest) -> Order:
     cart = get_or_create_cart(request)
     cart_items = CartItem.objects.select_related("product").filter(cart=cart)
+    client_data = request.session["client_data"]
+    address_data = request.session["address_data"]
+
+    if cart.user:
+        client = Client.objects.get(user=cart.user)
+        full_name = f"{client.last_name} {client.first_name}"
+        user_email = client.email
+        phone = client.phone
+        address = DeliveryAddress.objects.filter(client=client, is_primary=True)
+    else:
+        client = None
+        full_name = f"{client_data['last_name']} {client_data['first_name']}"
+        user_email = client_data["email"]
+        phone = client_data["phone"]
+        address = f"{address_data['city']}, {address_data['street']}, {address_data['post_office']}"
 
     with transaction.atomic():
-        # full_name = f"{client.last_name} {client.first_name}"
-        # user_email = client.user.email if client.user and client.user.email else ""
-        #
         order = Order.objects.create(
-            #     client=client,
-            #     snapshot_name=full_name,
-            #     snapshot_phone=client.phone,
-            #     snapshot_email=user_email,
-            #     snapshot_address=str(address),
-            #     total_price=total_price,
+                client=client,
+                snapshot_name=full_name,
+                snapshot_phone=phone,
+                snapshot_email=user_email,
+                snapshot_address=address,
         )
 
         order_items = [
@@ -81,7 +92,7 @@ def get_order_items_by_client(client: Client) -> list[dict[str, Any]]:
 
     orders = (
         Order.objects.filter(client=client)
-        .prefetch_related("items__product", status_prefetch)
+        .prefetch_related("order_items__product", status_prefetch)
         .order_by("-created_at")
     )
     order_items_data: list[dict[str, Any]] = []

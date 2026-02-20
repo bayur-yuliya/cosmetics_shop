@@ -13,23 +13,23 @@ from utils.custom_types import AuthenticatedRequest
 
 @cart_required
 def delivery(request: HttpRequest) -> HttpResponse:
-    try:
-        client = get_client(request)
-        last_address: DeliveryAddress | None = (
-            DeliveryAddress.objects.filter(client=client).order_by("id").last()
-        )
-    except Client.DoesNotExist:
-        client = None
-        last_address = None
-    initial = request.session.get("checkout_data")
+    client = get_client(request)
+
+    last_address: DeliveryAddress | None = (
+        DeliveryAddress.objects.filter(client=client).order_by("id").last()
+    )
+
+    client_data = request.session.get("client_data", {})
+    address_data = request.session.get("address_data", {})
 
     if request.method == "POST":
-        address = process_delivery_data(request, client, initial, last_address)
-        if address is not None:
-            return redirect("order", address_id=address.id)
+        address = process_delivery_data(request, client=client, last_address=last_address)
 
-    form = ClientForm(instance=client)
-    form_delivery = DeliveryAddressForm(instance=last_address)
+        if address is not None:
+            return redirect("order")
+
+    form = ClientForm(instance=client, initial=client_data)
+    form_delivery = DeliveryAddressForm(instance=last_address, initial=address_data)
 
     return render(
         request,
@@ -43,8 +43,8 @@ def delivery(request: HttpRequest) -> HttpResponse:
 
 
 @cart_required
-def create_order(request: AuthenticatedRequest, address_id: int) -> HttpResponse:
-    order = create_order_from_cart(request, address_id)
+def create_order(request: AuthenticatedRequest) -> HttpResponse:
+    order = create_order_from_cart(request)
     if order:
         request.session["order_id"] = order.id
         return redirect("order_success")

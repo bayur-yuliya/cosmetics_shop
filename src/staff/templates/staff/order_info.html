@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="container my-4">
-    <h2 class="mb-4">Заказ № {{ order.code }}</h2>
+    <h2 class="mb-4">Заказ №{{ order.code }}</h2>
     <!-- Товары заказа -->
     <h4>Товары</h4>
     {% if order_items %}
@@ -31,9 +31,9 @@
                                 {% endif %}
                             </td>
                             <td>{{ item.snapshot_product }}</td>
-                            <td>{{ item.snapshot_price|number_format }} грн</td>
-                            <td>{{ item.snapshot_quantity }}</td>
-                            <td>{{ item.snapshot_price|multiply:item.snapshot_quantity|number_format }} грн</td>
+                            <td>{{ item.price|number_format }} грн</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.price|multiply:item.quantity|number_format }} грн</td>
                         </tr>
                     {% endfor %}
                 </tbody>

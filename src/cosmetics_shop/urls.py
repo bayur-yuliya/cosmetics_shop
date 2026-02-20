@@ -31,7 +31,7 @@ urlpatterns = [
     path("cart/", cart.cart, name="cart"),
     # order
     path("order/success/", orders.order_success, name="order_success"),
-    path("order/<int:address_id>", orders.create_order, name="order"),
+    path("order/", orders.create_order, name="order"),
     path("delivery/", orders.delivery, name="delivery"),
     # static_pages
     path(
