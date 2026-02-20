@@ -4,10 +4,11 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 
 from cosmetics_shop.forms import ClientForm, DeliveryAddressForm
-from cosmetics_shop.models import DeliveryAddress, Client, Order, OrderItem
+from cosmetics_shop.models import DeliveryAddress, Order, OrderItem
 from cosmetics_shop.services.order_service import create_order_from_cart
 from cosmetics_shop.utils.decorators import cart_required, order_session_required
 from cosmetics_shop.services.client_service import process_delivery_data, get_client
+from utils.custom_exceptions import OutOfStockError
 from utils.custom_types import AuthenticatedRequest
 
 
@@ -23,7 +24,9 @@ def delivery(request: HttpRequest) -> HttpResponse:
     address_data = request.session.get("address_data", {})
 
     if request.method == "POST":
-        address = process_delivery_data(request, client=client, last_address=last_address)
+        address = process_delivery_data(
+            request, client=client, last_address=last_address
+        )
 
         if address is not None:
             return redirect("order")
@@ -44,11 +47,18 @@ def delivery(request: HttpRequest) -> HttpResponse:
 
 @cart_required
 def create_order(request: AuthenticatedRequest) -> HttpResponse:
-    order = create_order_from_cart(request)
-    if order:
+    try:
+        order = create_order_from_cart(request)
         request.session["order_id"] = order.id
         return redirect("order_success")
-    return redirect("delivery")
+
+    except OutOfStockError as e:
+        messages.warning(request, str(e))
+        return redirect("cart")
+
+    except ValueError as e:
+        messages.error(request, str(e))
+        return redirect("delivery")
 
 
 @order_session_required

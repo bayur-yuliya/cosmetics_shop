@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db.models import QuerySet
 
 from cosmetics_shop.models import Cart, Product, CartItem
@@ -40,19 +42,19 @@ def delete_cart(cart: Cart) -> None:
     CartItem.objects.filter(cart=cart).delete()
 
 
-def calculate_cart_total(cart: Cart) -> float:
+def calculate_cart_total(cart: Cart) -> Decimal | int:
     return sum(item.product.price * item.quantity for item in cart.cartitem_set.all())
 
 
 def calculate_product_total_price(
     cart_items: QuerySet[CartItem], product_code: int
-) -> float:
+) -> Decimal:
     product_count: CartItem | None = cart_items.filter(
         product__code=product_code
     ).first()
     if product_count is not None:
         return product_count.quantity * product_count.product.price
-    return 0.0
+    return Decimal(0.0)
 
 
 def is_product_in_cart(cart: Cart, product_id: int) -> bool:

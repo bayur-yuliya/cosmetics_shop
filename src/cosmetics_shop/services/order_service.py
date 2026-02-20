@@ -1,7 +1,7 @@
 from typing import Any
 
 from django.db import transaction
-from django.db.models import Prefetch
+from django.db.models import Prefetch, F
 
 from cosmetics_shop.models import (
     Cart,
@@ -10,19 +10,20 @@ from cosmetics_shop.models import (
     OrderItem,
     Client,
     Product,
-    OrderStatusLog, DeliveryAddress,
+    OrderStatusLog,
+    DeliveryAddress,
 )
 from cosmetics_shop.utils.cart_utils import get_or_create_cart
+from utils.custom_exceptions import OutOfStockError
 from utils.custom_types import AuthenticatedRequest
 
 
 def change_stock_product(product_code: int, count: int) -> None:
-    product = Product.objects.get(code=product_code)
-    if product.stock >= count:
-        product.stock -= count
-        product.save()
-    else:
-        raise ValueError("Товаров больше нет")
+    updated = Product.objects.filter(code=product_code, stock__gte=count).update(
+        stock=F("stock") - count
+    )
+    if not updated:
+        raise ValueError("Товара недостаточно на складе")
 
 
 def clear_cart_after_order(cart: Cart) -> None:
@@ -32,16 +33,20 @@ def clear_cart_after_order(cart: Cart) -> None:
 def create_order_from_cart(request: AuthenticatedRequest) -> Order:
     cart = get_or_create_cart(request)
     cart_items = CartItem.objects.select_related("product").filter(cart=cart)
-    client_data = request.session["client_data"]
-    address_data = request.session["address_data"]
+    client_data = request.session.get("client_data", {})
+    address_data = request.session.get("address_data", {})
 
     if cart.user:
         client = Client.objects.get(user=cart.user)
         full_name = f"{client.last_name} {client.first_name}"
         user_email = client.email
         phone = client.phone
-        address = DeliveryAddress.objects.filter(client=client, is_primary=True)
+        primary_address = DeliveryAddress.objects.filter(client=client, is_primary=True)
+        address = str(primary_address) if primary_address else "Адрес не указан"
     else:
+        if not client_data or not address_data:
+            raise ValueError("Данные для доставки отсутствуют")
+
         client = None
         full_name = f"{client_data['last_name']} {client_data['first_name']}"
         user_email = client_data["email"]
@@ -50,11 +55,11 @@ def create_order_from_cart(request: AuthenticatedRequest) -> Order:
 
     with transaction.atomic():
         order = Order.objects.create(
-                client=client,
-                snapshot_name=full_name,
-                snapshot_phone=phone,
-                snapshot_email=user_email,
-                snapshot_address=address,
+            client=client,
+            snapshot_name=full_name,
+            snapshot_phone=phone,
+            snapshot_email=user_email,
+            snapshot_address=address,
         )
 
         order_items = [
@@ -69,7 +74,10 @@ def create_order_from_cart(request: AuthenticatedRequest) -> Order:
 
         for item in cart_items:
             if item.product.code and item.quantity:
-                change_stock_product(item.product.code, item.quantity)
+                try:
+                    change_stock_product(item.product.code, item.quantity)
+                except ValueError:
+                    raise OutOfStockError(f"Товара {item.product.name} недостаточно")
 
         OrderStatusLog.objects.create(order=order)
         OrderItem.objects.bulk_create(order_items)
@@ -105,7 +113,7 @@ def get_order_items_by_client(client: Client) -> list[dict[str, Any]]:
         order_items_data.append(
             {
                 "order": order,
-                "items": order.items.all(),
+                "items": order.order_items.all(),
                 "latest_status": latest_status,
                 "status_badge_class": (
                     latest_status.status_badge_class() if latest_status else "secondary"

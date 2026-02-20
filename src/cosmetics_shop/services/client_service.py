@@ -9,7 +9,7 @@ def get_client(request: HttpRequest) -> Client | None:
         try:
             return Client.objects.get(user=request.user)
         except Client.DoesNotExist:
-            pass
+            return None
     else:
         return None
 
@@ -18,9 +18,7 @@ def process_delivery_data(
     request: HttpRequest, client=None, last_address=None
 ) -> DeliveryAddress | None:
     form = ClientForm(request.POST, instance=client)
-    form_delivery = DeliveryAddressForm(
-        request.POST, instance=last_address
-    )
+    form_delivery = DeliveryAddressForm(request.POST, instance=last_address)
 
     if form.is_valid() and form_delivery.is_valid():
         new_client = form.save()
