@@ -1,6 +1,6 @@
 from django.db.models import QuerySet
 from django.http import HttpResponse, HttpRequest
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
 from cosmetics_shop.models import Brand, Tag, Product, GroupProduct, Category
 from cosmetics_shop.services.cart_services import is_product_in_cart
@@ -22,11 +22,10 @@ def main_page(request: HttpRequest) -> HttpResponse:
 
 
 def category_page(request: HttpRequest, category_slug: str) -> HttpResponse:
-    title: Category = Category.objects.get(slug=category_slug)
+    title: Category = get_object_or_404(Category, slug=category_slug)
     group_products: list[int] = list(
         GroupProduct.objects.filter(category=title).values_list("id", flat=True)
     )
-
     products = get_ready_product_list(request).filter(group__in=group_products)
 
     return processing_product_page(
@@ -41,8 +40,7 @@ def category_page(request: HttpRequest, category_slug: str) -> HttpResponse:
 def group_page(
     request: HttpRequest | AuthenticatedRequest, group_slug: str
 ) -> HttpResponse:
-    title: GroupProduct = GroupProduct.objects.get(slug=group_slug)
-
+    title: GroupProduct = get_object_or_404(GroupProduct, slug=group_slug)
     products = get_ready_product_list(request).filter(group=title)
 
     return processing_product_page(
@@ -55,7 +53,7 @@ def group_page(
 
 
 def product_page(request: HttpRequest, product_code: int) -> HttpResponse:
-    product: Product = Product.objects.get(code=product_code)
+    product: Product = get_object_or_404(Product, code=product_code)
     tags: QuerySet[Tag] = product.tags.all()
     cart = get_or_create_cart(request)
     is_it_in_cart = is_product_in_cart(cart, product.pk)
@@ -94,7 +92,7 @@ def brand_page(request: HttpRequest) -> HttpResponse:
 
 
 def brand_products(request: HttpRequest, brand_slug: str) -> HttpResponse:
-    title: Brand = Brand.objects.get(slug=brand_slug)
+    title: Brand = get_object_or_404(Brand, slug=brand_slug)
     products = get_ready_product_list(request).filter(brand=title)
 
     return processing_product_page(

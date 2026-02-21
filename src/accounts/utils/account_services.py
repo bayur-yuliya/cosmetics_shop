@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 
 from accounts.models import CustomUser, ActivationToken
@@ -56,7 +56,7 @@ def activate_user_service(request, token_value: str, password: str) -> CustomUse
     user.is_active = True
     user.is_staff = True
 
-    groups = Group.objects.get(name="Гости")
+    groups = get_object_or_404(Group, name="Гости")
     user.groups.add(groups)
 
     user.save()

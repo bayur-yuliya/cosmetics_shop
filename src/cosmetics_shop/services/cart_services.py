@@ -1,6 +1,8 @@
 from decimal import Decimal
 
-from django.db.models import QuerySet
+from django.db import transaction
+from django.db.models import QuerySet, F
+from django.shortcuts import get_object_or_404
 
 from cosmetics_shop.models import Cart, Product, CartItem
 
@@ -13,28 +15,25 @@ def get_id_products_in_cart(cart: Cart) -> set[int]:
 
 
 def add_product_to_cart(cart: Cart, product_code: int) -> None:
-    product = Product.objects.get(code=product_code)
-
-    item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-    if item.quantity < item.product.stock:
-        item.quantity += 1
-    item.save()
+    with (transaction.atomic()):
+        CartItem.objects.filter(
+            cart=cart,
+            product__code=product_code,
+            quantity__gt=1
+        ).update(quantity=F("quantity") + 1)
 
 
 def remove_product_from_cart(cart: Cart, product_code: int) -> None:
-    product = Product.objects.get(code=product_code)
-
-    try:
-        item = CartItem.objects.get(cart=cart, product=product)
-        if item.quantity > 1:
-            item.quantity -= 1
-            item.save()
-    except CartItem.DoesNotExist:
-        pass
+    with transaction.atomic():
+        CartItem.objects.filter(
+            cart=cart,
+            product__code=product_code,
+            quantity__gt=1
+        ).update(quantity=F("quantity") - 1)
 
 
 def delete_product_from_cart(cart: Cart, product_id: int) -> None:
-    product = Product.objects.get(pk=product_id)
+    product = get_object_or_404(Product, pk=product_id)
     CartItem.objects.filter(cart=cart, product=product).delete()
 
 
@@ -43,7 +42,7 @@ def delete_cart(cart: Cart) -> None:
 
 
 def calculate_cart_total(cart: Cart) -> Decimal | int:
-    return sum(item.product.price * item.quantity for item in cart.cartitem_set.all())
+    return sum(item.product.price * item.quantity for item in cart.cartitem_set.select_related('product').all())
 
 
 def calculate_product_total_price(
@@ -58,7 +57,4 @@ def calculate_product_total_price(
 
 
 def is_product_in_cart(cart: Cart, product_id: int) -> bool:
-    cart_products = set(
-        CartItem.objects.filter(cart=cart).values_list("product_id", flat=True)
-    )
-    return product_id in cart_products
+    return CartItem.objects.filter(cart=cart).exists(product__id=product_id)

@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 
 from cosmetics_shop.forms import ClientForm, DeliveryAddressForm
 from cosmetics_shop.models import DeliveryAddress, Order, OrderItem
@@ -66,8 +66,8 @@ def order_success(request: HttpRequest) -> HttpResponse:
     order_id: int | None = request.session.get("order_id")
 
     if order_id:
-        order: Order = Order.objects.get(pk=order_id)
-        products: QuerySet[OrderItem] = OrderItem.objects.filter(order=order)
+        order: Order = get_object_or_404(Order, pk=order_id)
+        products: QuerySet[OrderItem] = OrderItem.objects.filter(order=order).select_related("product")
         del request.session["order_id"]
     else:
         messages.error(request, "Возникла проблема с сохранением заказа")

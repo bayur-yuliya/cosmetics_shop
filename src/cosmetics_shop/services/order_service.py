@@ -2,6 +2,7 @@ from typing import Any
 
 from django.db import transaction
 from django.db.models import Prefetch, F
+from django.shortcuts import get_object_or_404
 
 from cosmetics_shop.models import (
     Cart,
@@ -37,7 +38,7 @@ def create_order_from_cart(request: AuthenticatedRequest) -> Order:
     address_data = request.session.get("address_data", {})
 
     if cart.user:
-        client = Client.objects.get(user=cart.user)
+        client = get_object_or_404(Client, user=cart.user)
         full_name = f"{client.last_name} {client.first_name}"
         user_email = client.email
         phone = client.phone
