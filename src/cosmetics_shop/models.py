@@ -1,5 +1,5 @@
+import re
 import uuid
-from itertools import count
 
 from django.conf import settings
 from django.db import models, transaction, IntegrityError
@@ -73,31 +73,44 @@ class SlugRedirectModel(models.Model):
         if self.pk:
             old_slug = (
                 self.__class__._default_manager.filter(pk=self.pk)
-                .values_list("slug", flat=True)
+                .only('slug')
                 .first()
             )
 
-        if not self.slug:
-            name_val = getattr(self, "name", "")
-            self.slug = slugify(name_val)
+        self.generate_slug()
 
-        base_slug = self.slug
-
-        for i in count(0):
-            try:
-                with transaction.atomic():
-                    if i > 0:
-                        self.slug = f"{base_slug}-{i}"
-
-                    super().save(*args, **kwargs)
-                    break
-            except IntegrityError:
-                if i > 100:
-                    raise
-                continue
+        try:
+            with transaction.atomic():
+                super().save(*args, **kwargs)
+        except IntegrityError:
+            import uuid
+            self.slug = f"{self.slug}-{uuid.uuid4().hex[:4]}"
+            super().save(*args, **kwargs)
 
         if old_slug and old_slug != self.slug and self.redirect_url_configs:
             self._handle_redirects(old_slug)
+
+    def generate_slug(self):
+        if not self.slug:
+            self.slug = slugify(getattr(self, "name", "object"))
+
+        exists = self.__class__._default_manager.filter(slug=self.slug).exclude(pk=self.pk).exists()
+
+        if exists:
+            base_slug = self.slug
+            all_slugs = self.__class__._default_manager.filter(
+                slug__startswith=f"{base_slug}-"
+            ).values_list("slug", flat=True)
+
+            pattern = re.compile(rf"^{re.escape(base_slug)}-(\d+)$")
+            nums = []
+            for s in all_slugs:
+                match = pattern.match(s)
+                if match:
+                    nums.append(int(match.group(1)))
+
+            next_num = max(nums) + 1 if nums else 1
+            self.slug = f"{base_slug}-{next_num}"
 
     def _handle_redirects(self, old_slug):
         # print replace to logging
