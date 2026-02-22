@@ -6,6 +6,7 @@ from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
+from config.settings import PRODUCTS_PER_PAGE
 from cosmetics_shop.models import (
     Order,
     OrderItem,
@@ -41,7 +42,7 @@ def orders(request: HttpRequest) -> HttpResponse:
     else:
         form = OrderStatusForm()
 
-    paginator = Paginator(latest_statuses, 20)
+    paginator = Paginator(latest_statuses, PRODUCTS_PER_PAGE)
     page_number = request.GET.get("page")
     page = paginator.get_page(page_number)
 

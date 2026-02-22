@@ -192,3 +192,6 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 SITE_URL = "http://127.0.0.1:8000"
 DEFAULT_FROM_EMAIL = "Cosmetics Shop <noreply@gmail.com>"
+
+
+PRODUCTS_PER_PAGE = 20

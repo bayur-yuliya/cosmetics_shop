@@ -10,6 +10,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
 from accounts.forms import ClientCreationForm
+from config.settings import PRODUCTS_PER_PAGE
 
 from cosmetics_shop.models import Client
 from cosmetics_shop.services.order_service import get_order_items_by_client
@@ -64,7 +65,7 @@ def order_history(request: AuthenticatedRequest) -> HttpResponse:
     client, _ = Client.objects.get_or_create(user=request.user)
     order_items_data = get_order_items_by_client(client)
 
-    paginator = Paginator(order_items_data, 20)
+    paginator = Paginator(order_items_data, PRODUCTS_PER_PAGE)
     page_number = request.GET.get("page")
     page = paginator.get_page(page_number)
 

@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 
+from config.settings import PRODUCTS_PER_PAGE
 from cosmetics_shop.forms import ProductFilterForm
 from cosmetics_shop.services.cart_services import (
     get_id_products_in_cart,
@@ -43,7 +44,7 @@ def processing_product_page(
     cart_products = get_id_products_in_cart(cart)
     products = product_filter.apply_sorting()
 
-    paginator = Paginator(products, 20)
+    paginator = Paginator(products, PRODUCTS_PER_PAGE)
     page_number = request.GET.get("page")
     products = paginator.get_page(page_number)
     categories = context_categories()

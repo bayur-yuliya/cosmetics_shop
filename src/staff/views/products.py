@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 
 from django.views.decorators.http import require_POST
 
+from config.settings import PRODUCTS_PER_PAGE
 from cosmetics_shop.models import (
     Product,
     Tag,
@@ -36,7 +37,7 @@ def products(request: HttpRequest) -> HttpResponse:
         filtered_product, form_stock
     )
 
-    paginator = Paginator(stock_filtered_product, 20)
+    paginator = Paginator(stock_filtered_product, PRODUCTS_PER_PAGE)
     page_number = request.GET.get("page")
     page = paginator.get_page(page_number)
 

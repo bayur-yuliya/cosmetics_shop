@@ -3,6 +3,7 @@ from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
+from config.settings import PRODUCTS_PER_PAGE
 from cosmetics_shop.models import Favorite
 from utils.custom_types import AuthenticatedRequest
 
@@ -11,7 +12,7 @@ from utils.custom_types import AuthenticatedRequest
 def favorites(request: AuthenticatedRequest) -> HttpResponse:
     products = Favorite.objects.filter(user=request.user)
 
-    paginator = Paginator(products, 20)
+    paginator = Paginator(products, PRODUCTS_PER_PAGE)
     page_number = request.GET.get("page")
     page = paginator.get_page(page_number)
 
