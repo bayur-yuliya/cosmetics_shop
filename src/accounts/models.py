@@ -1,5 +1,6 @@
 import datetime
 import secrets
+from typing import cast
 
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
@@ -13,7 +14,7 @@ class CustomUserManager(BaseUserManager):
         if not email:
             raise ValueError("Email is required")
         email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
+        user = cast(CustomUser, self.model(email=email, **extra_fields))
         user.set_password(password)
         user.save(using=self._db)
         return user

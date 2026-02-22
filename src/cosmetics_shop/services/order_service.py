@@ -1,101 +1,125 @@
+from typing import Any
+
 from django.db import transaction
+from django.db.models import Prefetch, F
+from django.shortcuts import get_object_or_404
 
 from cosmetics_shop.models import (
     Cart,
     CartItem,
     Order,
     OrderItem,
-    DeliveryAddress,
     Client,
     Product,
     OrderStatusLog,
+    DeliveryAddress,
 )
-from cosmetics_shop.services.cart_services import clear_cart_after_order
+from cosmetics_shop.utils.cart_utils import get_or_create_cart
+from utils.custom_exceptions import OutOfStockError
+from utils.custom_types import AuthenticatedRequest
 
 
-def get_cart(request):
-    if request.user.is_authenticated:
-        cart, _ = Cart.objects.get_or_create(user=request.user)
-    else:
-        cart_id = request.session.get("cart_id")
-        if cart_id:
-            try:
-                return Cart.objects.get(id=cart_id)
-            except Cart.DoesNotExist:
-                pass
-        cart = Cart.objects.create()
-        request.session["cart_id"] = cart.id
-    return cart
+def change_stock_product(product_code: int, count: int) -> None:
+    updated = Product.objects.filter(code=product_code, stock__gte=count).update(
+        stock=F("stock") - count
+    )
+    if not updated:
+        raise ValueError("Товара недостаточно на складе")
 
 
-def get_client(request):
-    if request.user.is_authenticated:
-        return Client.objects.get(user=request.user)
-    else:
-        client_id = request.session.get("client_id")
-        return Client.objects.get(id=client_id)
+def clear_cart_after_order(cart: Cart) -> None:
+    cart.cartitem_set.all().delete()
 
 
-def change_stock_product(product_code, count):
-    product = Product.objects.get(code=product_code)
-    if product.stock >= count:
-        product.stock -= count
-        product.save()
-    else:
-        raise ValueError("Товаров больше нет")
-
-
-def create_order_from_cart(request, address_id):
-    cart = get_cart(request)
+def create_order_from_cart(request: AuthenticatedRequest) -> Order:
+    cart = get_or_create_cart(request)
     cart_items = CartItem.objects.select_related("product").filter(cart=cart)
+    client_data = request.session.get("client_data", {})
+    address_data = request.session.get("address_data", {})
 
-    if not cart_items.exists():
-        raise ValueError("Корзина пуста")
+    if cart.user:
+        client = get_object_or_404(Client, user=cart.user)
+        full_name = f"{client.last_name} {client.first_name}"
+        user_email = client.email
+        phone = client.phone
+        primary_address = DeliveryAddress.objects.filter(client=client, is_primary=True)
+        address = str(primary_address) if primary_address else "Адрес не указан"
+    else:
+        if not client_data or not address_data:
+            raise ValueError("Данные для доставки отсутствуют")
 
-    try:
-        client = get_client(request)
-    except Client.DoesNotExist:
-        raise ValueError("Клиент не найден")
-
-    try:
-        address = DeliveryAddress.objects.get(id=address_id, client=client)
-    except DeliveryAddress.DoesNotExist:
-        raise ValueError("Адрес не найден или не принадлежит клиенту")
-
-    total_price = sum(item.product.price * item.quantity for item in cart_items)
+        client = None
+        full_name = f"{client_data['last_name']} {client_data['first_name']}"
+        user_email = client_data["email"]
+        phone = client_data["phone"]
+        address = f"{address_data['city']}, {address_data['street']}, {address_data['post_office']}"
 
     with transaction.atomic():
-        full_name = f"{client.last_name} {client.first_name}"
         order = Order.objects.create(
             client=client,
             snapshot_name=full_name,
-            snapshot_phone=client.phone,
-            snapshot_address=str(address),
-            total_price=total_price,
+            snapshot_phone=phone,
+            snapshot_email=user_email,
+            snapshot_address=address,
         )
 
         order_items = [
             OrderItem(
                 order=order,
                 product=item.product,
-                price=item.product.price,
                 quantity=item.quantity,
-                snapshot_product=item.product.name,
-                snapshot_price=item.product.price,
-                snapshot_quantity=item.quantity,
+                price=item.product.price,
             )
             for item in cart_items
         ]
 
         for item in cart_items:
-            change_stock_product(item.product.code, item.quantity)
+            if item.product.code and item.quantity:
+                try:
+                    change_stock_product(item.product.code, item.quantity)
+                except ValueError:
+                    raise OutOfStockError(f"Товара {item.product.name} недостаточно")
 
         OrderStatusLog.objects.create(order=order)
         OrderItem.objects.bulk_create(order_items)
+        order.update_total_price()
 
-        clear_cart_after_order(request)
+        clear_cart_after_order(cart)
 
         if not request.user.is_authenticated:
             request.session.pop("cart_id", None)
 
     return order
+
+
+def get_order_items_by_client(client: Client) -> list[dict[str, Any]]:
+    status_prefetch = Prefetch(
+        "status_log",
+        queryset=OrderStatusLog.objects.order_by("-changed_at"),
+        to_attr="order_statuses",
+    )
+
+    orders = (
+        Order.objects.filter(client=client)
+        .prefetch_related("order_items__product", status_prefetch)
+        .order_by("-created_at")
+    )
+    order_items_data: list[dict[str, Any]] = []
+
+    for order in orders:
+        latest_status: OrderStatusLog | None = (
+            order.order_statuses[0] if order.order_statuses else None
+        )
+
+        order_items_data.append(
+            {
+                "order": order,
+                "items": order.order_items.all(),
+                "latest_status": latest_status,
+                "status_badge_class": (
+                    latest_status.status_badge_class() if latest_status else "secondary"
+                ),
+            }
+        )
+
+    return order_items_data

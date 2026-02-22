@@ -5,13 +5,16 @@
 
 {% block content %}
 <div class="container my-4">
+    <div class="d-flex align-center mb-3">
+        <h1>{{ title }}</h1>
+    </div>
     {%  if permissions.add  %}
-    <div class="mb-3">
+    <div class="d-flex justify-content-end mb-3">
         <a href="{{ request.path }}create/" class="btn btn-success">Создать</a>
     </div>
     {%  endif  %}
 
-    {% if list %}
+    {% if objects %}
         <div class="table-responsive">
             <table class="table align-middle table-bordered">
                 <thead class="table-light">
@@ -24,17 +27,28 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for l in list %}
+
+                    {% for object in objects %}
                         <tr>
                             <td>{{ forloop.counter }}</td>
-                            <td>{{ l }}</td>
+                            <td>{{ object }}</td>
                             {%  if permissions.change or permissions.delete  %}
                             <td class="d-flex gap-2">
                                 {%  if permissions.change  %}
-                                    <a href="{{ request.path }}edit/{{ l.id }}/" class="btn btn-primary btn-sm">Изменить</a>
+                                    {%  if object.slug  %}
+                                        <a href="{{ request.path }}{{ object.slug }}/edit/" class="btn btn-primary btn-sm">Изменить</a>
+                                    {%  else  %}
+                                        <a href="{{ request.path }}{{ object.id }}/edit/" class="btn btn-primary btn-sm">Изменить</a>
+                                    {%  endif  %}
                                 {%  endif  %}
                                 {%  if permissions.delete  %}
-                                    <button class="btn btn-danger btn-sm" onclick="openDeleteDialog({{ l.id }}, '{{ l }}')">Удалить</button>
+                                    <button
+                                        data-id="{{ object.id }}"
+                                        data-name="{{ object }}"
+                                        onclick="openDeleteDialog(this)"
+                                        class="btn btn-sm btn-danger">
+                                        Удалить
+                                    </button>
                                 {%  endif  %}
                             </td>
                             {%  endif  %}
@@ -43,6 +57,7 @@
                 </tbody>
             </table>
         </div>
+    {% include  'cosmetics_shop/includes/paginator.html' with page_elements=page_obj %}
     {% else %}
         <div class="alert alert-info">
             Пока пусто
@@ -50,12 +65,11 @@
     {% endif %}
 
     <!-- Диалог подтверждения удаления -->
-    {%  if perms.delete  %}
+    {%  if permissions.delete  %}
         <dialog id="deleteDialog">
-            <form method="POST" action="{{ request.path }}delete/">
+            <form id="deleteForm" method="POST" action="">
                 {% csrf_token %}
                 <p id="deleteText"></p>
-                <input type="hidden" name="id" id="deleteId">
                 <div class="d-flex gap-2 mt-2">
                     <button type="reset" class="btn btn-secondary" onclick="document.getElementById('deleteDialog').close()">Назад</button>
                     <button type="submit" class="btn btn-danger">Удалить</button>
@@ -63,7 +77,6 @@
             </form>
         </dialog>
     {%  endif  %}
-
 </div>
 
 <script src="{% static 'staff/js/delete_dialog_script.js' %}"></script>

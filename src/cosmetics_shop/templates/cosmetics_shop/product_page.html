@@ -11,10 +11,10 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'main_page' %}">Главная</a></li>
             <li class="breadcrumb-item">
-                <a href="{% url 'category_page' product.group.category.id %}">{{ product.group.category }}</a>
+                <a href="{% url 'category_page' product.group.category.slug %}">{{ product.group.category }}</a>
             </li>
             <li class="breadcrumb-item">
-                <a href="{% url 'group_page' product.group.id %}">{{ product.group }}</a>
+                <a href="{% url 'group_page' product.group.slug %}">{{ product.group }}</a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
         </ol>
@@ -30,15 +30,18 @@
         <div class="col-md-8">
             <h2>{{ product.name }}</h2>
             <p class="text-muted">
-                Группа: <a href="{% url 'group_page' product.group.id %}">{{ product.group.name }}</a> |
-                Бренд: {{ product.brand }}
+                Бренд: <a href="{%  url 'brand_detail' product.brand.slug  %}">{{ product.brand }}</a>
             </p>
             {%  if product.stock %}
+            <div class="justify-content-end">
                 <h4 class="text-primary">{{ product.price|number_format }} грн</h4>
+            </div>
             {%  endif  %}
+
             <!-- Теги -->
             {% if tags %}
                 <p>Теги:
+                <hr>
                 {% for tag in tags %}
                     <span class="badge bg-secondary">{{ tag.name }}</span>
                 {% endfor %}

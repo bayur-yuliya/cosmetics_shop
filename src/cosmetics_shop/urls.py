@@ -1,5 +1,7 @@
 from django.urls import path
-from . import views, ajax
+
+from . import ajax
+from .views import catalog, static_pages, orders, cart
 
 urlpatterns = [
     # ajax
@@ -15,25 +17,28 @@ urlpatterns = [
         ajax.cart_remove,
         name="ajax_cart_remove",
     ),
-    # login
-    path("account/login/", views.login_view, name="account_login"),
-    # main pages
-    path("group/<int:group_id>/", views.group_page, name="group_page"),
-    path("category/<int:category_id>/", views.category_page, name="category_page"),
-    path("product/<int:product_code>/", views.product_page, name="product_page"),
-    # brand
-    path("brand/<int:brand_id>/", views.brand_products, name="brand_detail"),
-    path("brand/", views.brand_page, name="brand_page"),
-    # cart
-    path("cart/delete/", views.cart_delete, name="cart_delete"),
-    path("cart/clean/", views.clean_cart, name="clean_cart"),
-    path("cart/", views.cart, name="cart"),
-    # order
-    path("order/success/", views.order_success, name="order_success"),
-    path("order/<int:address_id>", views.create_order, name="order"),
-    path("delivery/", views.delivery, name="delivery"),
+    # catalog
+    path("groups/<slug:group_slug>/", catalog.group_page, name="group_page"),
     path(
-        "payment_and_delivery/", views.payment_and_delivery, name="payment_and_delivery"
+        "categories/<slug:category_slug>/", catalog.category_page, name="category_page"
     ),
-    path("", views.main_page, name="main_page"),
+    path("products/<int:product_code>/", catalog.product_page, name="product_page"),
+    path("brands/<slug:brand_slug>/", catalog.brand_products, name="brand_detail"),
+    path("brands/", catalog.brand_page, name="brand_page"),
+    # cart
+    path("cart/<int:product_id>/delete/", cart.cart_delete, name="cart_delete"),
+    path("cart/clean/", cart.clean_cart, name="clean_cart"),
+    path("cart/", cart.cart, name="cart"),
+    # order
+    path("order/success/", orders.order_success, name="order_success"),
+    path("order/", orders.create_order, name="order"),
+    path("delivery/", orders.delivery, name="delivery"),
+    # static_pages
+    path(
+        "payment_and_delivery/",
+        static_pages.payment_and_delivery,
+        name="payment_and_delivery",
+    ),
+    # main page
+    path("", catalog.main_page, name="main_page"),
 ]

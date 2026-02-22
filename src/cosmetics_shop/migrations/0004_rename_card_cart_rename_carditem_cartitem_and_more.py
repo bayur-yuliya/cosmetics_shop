@@ -5,7 +5,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cosmetics_shop", "0003_rename_name_brand_brand_name_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),

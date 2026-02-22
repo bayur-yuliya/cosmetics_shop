@@ -1,26 +1,12 @@
-from django.db.models import OuterRef, Exists
+from typing import Any
 
-from cosmetics_shop.models import Category, Favorite, Product
+from cosmetics_shop.models import Category
 
 
-def context_categories():
+def context_categories() -> list[dict[str, Any]]:
     categories = Category.objects.all().prefetch_related("groupproduct_set")
-    context_categories = []
+    context_values: list[dict[str, Any]] = []
     for category in categories:
         groups = category.groupproduct_set.all()
-        context_categories.append({"category": category, "permissions": groups})
-    return context_categories
-
-
-def favorites_products(request):
-    favorites_subquery = Favorite.objects.filter(
-        user=request.user, product_id=OuterRef("pk")
-    )
-
-    products = (
-        Product.objects.filter(is_active=True).annotate(
-            is_favorite=Exists(favorites_subquery)
-        )
-    ).order_by("-stock")
-
-    return products
+        context_values.append({"category": category, "groups": groups})
+    return context_values

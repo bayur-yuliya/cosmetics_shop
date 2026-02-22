@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.redirects",
     # django-allauth
     "django.contrib.sites",
     "allauth",
@@ -62,6 +63,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "django.middleware.locale.LocaleMiddleware",
+    "django.contrib.redirects.middleware.RedirectFallbackMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -167,7 +169,7 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_LOGOUT_ON_GET = True
 
 AUTHENTICATION_BACKENDS = [
-    "cosmetics_shop.authentication.EmailAuthBackend",
+    "accounts.authentication.EmailAuthBackend",
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
@@ -186,3 +188,7 @@ SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_AUTO_SIGNUP = True
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+
+SITE_URL = "http://127.0.0.1:8000"
+DEFAULT_FROM_EMAIL = "Cosmetics Shop <noreply@gmail.com>"

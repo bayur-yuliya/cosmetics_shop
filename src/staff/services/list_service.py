@@ -1,27 +1,46 @@
-from django.contrib.contenttypes.models import ContentType
-from django.shortcuts import render
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import redirect
+from django.views.generic import ListView, CreateView, DeleteView, UpdateView
+
+from staff.mixins import (
+    PageTitleMixin,
+    ModelPermissionMixin,
+    StaffPermissionExceptionMixin,
+)
 
 
-def staff_list_view(request, template_name, context: dict):
-    qs = context.get("list")
+class BaseStaffListView(
+    PageTitleMixin,
+    ModelPermissionMixin,
+    LoginRequiredMixin,
+    StaffPermissionExceptionMixin,
+    ListView,
+):
+    template_name = "staff/catalog/lists_page.html"
+    paginate_by = 20
+    context_object_name = "objects"
 
-    if qs is None:
-        raise ValueError("Context must contain 'list' queryset")
 
-    model = qs.model
+class BaseStaffCreateView(
+    PageTitleMixin, LoginRequiredMixin, StaffPermissionExceptionMixin, CreateView
+):
+    template_name = "staff/catalog/create_page.html"
 
-    ct = ContentType.objects.get_for_model(model)
 
-    app_label = ct.app_label
-    model_name = ct.model
+class BaseStaffChangeView(
+    PageTitleMixin, LoginRequiredMixin, StaffPermissionExceptionMixin, UpdateView
+):
+    template_name = "staff/catalog/update_page.html"
 
-    permissions = {
-        "add": request.user.has_perm(f"{app_label}.add_{model_name}"),
-        "change": request.user.has_perm(f"{app_label}.change_{model_name}"),
-        "delete": request.user.has_perm(f"{app_label}.delete_{model_name}"),
-        "view": request.user.has_perm(f"{app_label}.view_{model_name}"),
-    }
 
-    context["permissions"] = permissions
+class BaseStaffDeleteView(
+    PageTitleMixin, LoginRequiredMixin, StaffPermissionExceptionMixin, DeleteView
+):
+    http_method_names = ["post", "delete"]
 
-    return render(request, template_name, context)
+    def form_valid(self, form):
+        success_url = self.get_success_url()
+        self.object.delete()
+        messages.success(self.request, "Успешное удаление")
+        return redirect(success_url)

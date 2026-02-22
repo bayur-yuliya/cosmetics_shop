@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cosmetics_shop", "0019_alter_client_options_alter_deliveryaddress_options"),
     ]

@@ -39,5 +39,5 @@ class Command(BaseCommand):
                 updated_count += 1
 
         self.stdout.write(
-            self.style.SUCCESS(f"Successfully updated {updated_count} permissions")
+            self.style.SUCCESS(f"Successfully! Updated {updated_count} permissions.")
         )

@@ -1,18 +1,21 @@
 from django.urls import path
 
-from accounts import views
+from accounts.views import auth, favorites, user_section
 
 urlpatterns = [
-    path("staff/create/", views.create_staff_user, name="create_staff_user"),
-    path("activate/", views.activate_account, name="activate"),
-    path("order_history/", views.order_history, name="order_history"),
-    path("logout/", views.logout_view, name="logout"),
-    path("favorites/", views.favorites, name="favorites"),
-    path("delete_account/", views.delete_account, name="delete_account"),
+    # auth
+    path("login/", auth.login_view, name="account_login"),
+    path("activate/", auth.activate_account, name="activate"),
+    path("logout/", auth.logout_view, name="logout"),
+    # favorites
     path(
         "favorites/remove/<int:product_id>/",
-        views.remove_from_favorites,
+        favorites.remove_from_favorites,
         name="remove_from_favorites",
     ),
-    path("", views.user_contact, name="user_contact"),
+    path("favorites/", favorites.favorites, name="favorites"),
+    # user_section
+    path("order_history/", user_section.order_history, name="order_history"),
+    path("delete_account/", user_section.delete_account, name="delete_account"),
+    path("", user_section.user_contact, name="user_contact"),
 ]

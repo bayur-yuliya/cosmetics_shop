@@ -18,7 +18,6 @@ document.addEventListener("click", function (e) {
     if (!button) return;
 
     const productId = button.dataset.productId;
-    const isFavorite = button.dataset.inFavorites === "1";
     const formData = new FormData();
     formData.append('product_id', productId);
 
@@ -31,17 +30,15 @@ document.addEventListener("click", function (e) {
     })
     .then(res => res.json())
     .then(data => {
-        if (data.in_favorites !== undefined) {
-            // Обновляем иконку и состояние
-            if (data.in_favorites) {
-                button.innerHTML = "♥";
-                button.dataset.inFavorites = "1";
-            } else {
-                button.innerHTML = "♡";
-                button.dataset.inFavorites = "0";
-                showMessage(data.message);
-            }
+
+        // Обновляем иконку и состояние
+        if (data.in_favorites) {
+            button.classList.add("active");
+        } else {
+            button.classList.remove("active");
+            showMessage(data.message);
         }
+
     })
     .catch(error => {
         console.error("Ошибка:", error);
@@ -258,81 +255,95 @@ function updateItemTotal(productCode, totalPrice) {
     }).format(price) + " грн";
 }
 
-// Sorting panel
-document.addEventListener("click", function (e) {
-    const link = e.target.closest(".sorting-panel a");
-    if (!link) return;
-
-    e.preventDefault();
-
-    const currentParams = new URLSearchParams(window.location.search);
-
-    if (link.classList.contains("reset")) {
-        currentParams.delete("sort");
-        currentParams.delete("direction");
-    } else {
-        // обычная сортировка
-        // перезаписываем только sort и direction
-        const linkParams = new URLSearchParams(link.search);
-        linkParams.forEach((value, key) => {
-            if (key === "sort" || key === "direction") {
-                currentParams.delete(key); // удаляем старое
-                currentParams.append(key, value); // добавляем новое
-            }
-        });
-    };
-
-    fetch(`?${currentParams.toString()}`, {
+function updateContent(url) {
+    fetch(url, {
         headers: {
             "X-Requested-With": "XMLHttpRequest",
         },
     })
     .then(res => res.json())
     .then(data => {
+        // 1. Обновляем товары
         document.getElementById("products-container").innerHTML = data.html;
-        history.pushState(null, "", `?${currentParams.toString()}`);
-    });
+
+        // 2. Обновляем панель сортировки
+        const sortingPanel = document.getElementById("sorting-panel-container");
+        if (sortingPanel && data.sorting_html) {
+            sortingPanel.innerHTML = data.sorting_html;
+        }
+
+        // 3. Обновляем URL
+        history.pushState(null, "", data.url);
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// === ЛОГИКА СОРТИРОВКИ ===
+document.addEventListener("click", function (e) {
+    // Ищем клик внутри контейнера сортировки
+    const link = e.target.closest("#sorting-panel-container a");
+    if (!link) return;
+
+    e.preventDefault();
+
+    // 1. Берем текущие параметры страницы (чтобы сохранить фильтры: бренд, цена и т.д.)
+    const currentParams = new URLSearchParams(window.location.search);
+
+    // 2. Узнаем, что мы хотим изменить (сортировку) из ссылки, на которую нажали
+    const linkUrl = new URL(link.href);
+    const linkParams = linkUrl.searchParams;
+
+    if (link.classList.contains("reset")) {
+        // Если нажали "Сбросить" - удаляем сортировку, но оставляем фильтры
+        currentParams.delete("sort");
+        currentParams.delete("direction");
+    } else {
+        // Обновляем параметры сортировки
+        if (linkParams.has("sort")) {
+            currentParams.set("sort", linkParams.get("sort"));
+        }
+        if (linkParams.has("direction")) {
+            currentParams.set("direction", linkParams.get("direction"));
+        }
+    }
+
+    // Сбрасываем пагинацию при смене сортировки
+    currentParams.delete("page");
+
+    updateContent(`?${currentParams.toString()}`);
 });
 
-// Filter panel
+// === ЛОГИКА ФИЛЬТРАЦИИ ===
 document.addEventListener("submit", function (e) {
     if (e.target && e.target.id === "product-filter-form") {
-
         e.preventDefault();
         const form = e.target;
-
-        // 1. текущие параметры из URL (там уже есть sort/direction)
-        const params = new URLSearchParams(window.location.search);
-
-        // 2. данные формы ПЕРЕЗАПИСЫВАЮТ фильтры
         const formData = new FormData(form);
 
-        //удалить старые значения полей формы
-        for (const key of new Set([...formData.keys()])) {
-            params.delete(key);
-        }
-        formData.forEach((value, key) => {
-            if (value === "") {
-                params.delete(key);
-            } else {
-                params.append(key, value);
+        // 1. Берем текущие параметры URL, чтобы сохранить СОРТИРОВКУ
+        const currentParams = new URLSearchParams(window.location.search);
+        const currentSort = currentParams.get("sort");
+        const currentDirection = currentParams.get("direction");
+
+        // 2. Создаем новые параметры чисто из формы
+        const newParams = new URLSearchParams(formData);
+
+        // 3. Возвращаем сортировку обратно (если она была)
+        if (currentSort) newParams.set("sort", currentSort);
+        if (currentDirection) newParams.set("direction", currentDirection);
+
+        // 4. Очищаем пустые параметры (красоты ради)
+        const keysToDelete = [];
+        newParams.forEach((value, key) => {
+            if (value === "" || value === null) {
+                keysToDelete.push(key);
             }
         });
+        keysToDelete.forEach(key => newParams.delete(key));
 
-        // 3. сбрасываем страницу (важно)
-        params.delete("page");
+        // Сбрасываем пагинацию при фильтрации
+        newParams.delete("page");
 
-        fetch(`?${params.toString()}`, {
-            headers: {
-                "X-Requested-With": "XMLHttpRequest",
-            },
-        })
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById("products-container").innerHTML = data.html;
-            if (data.url) {
-                history.pushState(null, "", data.url);
-            }
-        });
+        updateContent(`?${newParams.toString()}`);
     }
 });

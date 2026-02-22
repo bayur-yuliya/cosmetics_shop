@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cosmetics_shop", "0011_tag_alter_order_options_product_tags_favorite"),
     ]

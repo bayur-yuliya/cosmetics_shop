@@ -1,6 +1,7 @@
 from cosmetics_shop.models import CartItem
-from cosmetics_shop.services.cart_services import get_or_create_cart
 from django.contrib.auth.forms import UserCreationForm
+
+from cosmetics_shop.utils.cart_utils import get_or_create_cart
 
 
 def cart_item_count(request):

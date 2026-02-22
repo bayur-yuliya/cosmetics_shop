@@ -18,7 +18,7 @@
         <div class="col-md-8">
             <h3>{{ product.name }}</h3>
             <p>
-                <strong>Группа:</strong> {{ product.group.name }} |
+                {{ product.group.name }} |
                 <strong>Брэнд:</strong> {{ product.brand }} |
                 <strong>Цена:</strong> {{ product.price|number_format }} грн
             </p>
@@ -37,16 +37,14 @@
 
     <div class="d-flex gap-2">
         {%  if perms.cosmetics_shop.change_product  %}
-            <form method="POST" action="{% url 'edit_products' product.id %}">
+            <form method="POST" action="{% url 'edit_products' product.code %}">
                 {% csrf_token %}
-                <input type="hidden" name="product_id" value="{{ product.id }}">
                 <button type="submit" class="btn btn-primary">Изменить</button>
             </form>
         {%  endif  %}
         {%  if perms.cosmetics_shop.delete_product  %}
-            <form method="POST" action="{% url 'delete_product' %}">
+            <form method="POST" action="{% url 'delete_product' product.id  %}" >
                 {% csrf_token %}
-                <input type="hidden" name="product_id" value="{{ product.id }}">
                 <button type="submit" class="btn btn-danger"
                         onclick="return confirm('Вы уверены, что хотите удалить {{ product.name }}?')">Удалить</button>
             </form>

@@ -35,12 +35,13 @@
         </div>
         <div class="col-md-9">
             <div class="sorting-panel mb-3">
-                <div class="sorting-panel">
+                <div id="sorting-panel-container" class="sorting-panel">
                     {% include 'cosmetics_shop/includes/sorting_panel.html' %}
                 </div>
             </div>
             <div id="products-container">
                 {% include 'cosmetics_shop/includes/product_list.html' %}
+                {% include  'cosmetics_shop/includes/paginator.html' with page_elements=products %}
             </div>
         </div>
     </div>

@@ -1,24 +1,22 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 
 from cosmetics_shop.models import Product, Favorite, CartItem
 from cosmetics_shop.services.cart_services import (
     add_product_to_cart,
-    get_or_create_cart_for_session,
-    get_or_create_cart,
     remove_product_from_cart,
     calculate_cart_total,
 )
+from cosmetics_shop.utils.cart_utils import get_or_create_cart
 
 
 @require_POST
-def toggle_favorite(request):
+def toggle_favorite(request: HttpRequest) -> HttpResponse:
     product_id = request.POST.get("product_id")
     product = get_object_or_404(Product, id=product_id)
     message = None
     if request.user.is_authenticated:
-
         favorite = Favorite.objects.filter(user=request.user, product=product)
 
         if favorite.exists():
@@ -38,28 +36,26 @@ def toggle_favorite(request):
 
 
 @require_POST
-def add_to_cart(request):
+def add_to_cart(request: HttpRequest) -> HttpResponse:
     try:
         product_code = request.POST.get("product_code")
 
         if not product_code:
             return JsonResponse({"success": False, "error": "No product code"})
 
-        if request.user.is_authenticated:
-            cart = get_or_create_cart(request)
-        else:
-            cart = get_or_create_cart_for_session(request)
-
-        add_product_to_cart(cart, product_code=product_code)
+        cart = get_or_create_cart(request)
+        add_product_to_cart(cart, product_code=int(product_code))
 
         cart_items = CartItem.objects.select_related("product").filter(cart=cart)
         count = sum(item.quantity for item in cart_items)
 
         product_count = cart_items.filter(product__code=product_code).first()
 
-        total_price = calculate_cart_total(cart)
+        if product_count is None:
+            return JsonResponse({"success": False, "error": "No product"})
 
-        product_total_price = product_count.quantity * product_count.product.price / 100
+        total_price = calculate_cart_total(cart)
+        product_total_price = product_count.quantity * product_count.product.price
 
         message = None
         if product_count.quantity == product_count.product.stock:
@@ -87,23 +83,28 @@ def add_to_cart(request):
 
 
 @require_POST
-def cart_remove(request):
+def cart_remove(request: HttpRequest) -> HttpResponse:
     product_code = request.POST.get("product_code")
 
-    if request.user.is_authenticated:
-        cart = get_or_create_cart(request)
-    else:
-        cart = get_or_create_cart_for_session(request)
+    if product_code is None:
+        return JsonResponse(
+            {"success": False, "error": "Missing product code"}, status=400
+        )
 
-    remove_product_from_cart(cart, product_code)
+    cart = get_or_create_cart(request)
+
+    remove_product_from_cart(cart, int(product_code))
 
     cart_items = CartItem.objects.select_related("product").filter(cart=cart)
     count = sum(item.quantity for item in cart_items)
 
     product_count = cart_items.filter(product__code=product_code).first()
-    total_price = calculate_cart_total(cart)
 
-    product_total_price = product_count.quantity * product_count.product.price / 100
+    if product_count is None:
+        return JsonResponse({"success": False, "error": "No product"})
+
+    total_price = calculate_cart_total(cart)
+    product_total_price = product_count.quantity * product_count.product.price
 
     return JsonResponse(
         {

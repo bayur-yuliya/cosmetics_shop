@@ -19,7 +19,7 @@
                         </small>
                     </div>
                     <span class="badge bg-{{  order.status_badge_class  }}">
-                        {{ order.status }}
+                        {{ order.latest_status }}
                     </span>
                 </div>
 
@@ -36,7 +36,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for item in order.item %}
+                                {% for item in order.items %}
                                 <tr>
                                     <td class="d-flex align-items-center">
                                         <img src="{{ item.product.image.url }}"
@@ -64,6 +64,7 @@
                 </div>
             </div>
         {% endfor %}
+    {% include  'cosmetics_shop/includes/paginator.html' with page_elements=order_items %}
     {% else %}
         <div class="alert alert-info">
             У вас пока нет заказов

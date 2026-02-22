@@ -6,29 +6,29 @@ from django.db.models import Avg, Sum
 from cosmetics_shop.models import Order, Status
 
 
-def number_of_orders_today():
-    number_of_orders_today = (
+def number_of_completed_orders_today():
+    completed_orders_today = (
         Order.objects.filter(
-            created_at__gte=datetime.date.today(), status_log__status=Status.CLOSED
+            created_at__gte=datetime.date.today(), status_log__status=Status.COMPLETED
         )
         .distinct()
         .count()
     )
 
-    return number_of_orders_today
+    return completed_orders_today
 
 
 def orders_per_month(month):
     one_month_ago = month - relativedelta(months=1)
     orders_per_month = Order.objects.filter(
-        created_at__gte=one_month_ago, status_log__status=Status.CLOSED
+        created_at__gte=one_month_ago, status_log__status=Status.COMPLETED
     ).distinct()
     return orders_per_month
 
 
 def number_of_orders_per_month(month):
-    number_of_orders_per_month = orders_per_month(month).count()
-    return number_of_orders_per_month
+    num_of_orders_per_month = orders_per_month(month).count()
+    return num_of_orders_per_month
 
 
 def summ_bill(month):

@@ -1,38 +1,41 @@
 {%  load custom_filters  %}
 
 <div class="product-card">
-<img src={{ product.image.url }} alt="{{ product.name }}" class="product-image">
 
-<a href="{%  url 'product_page' product.code  %}"><h5 class="product-title">{{ product.name }}</h5></a>
-| {{  product.group.name  }}
-| {{  product.brand  }}
-{%  if product.stock %}
-|   <p class="product-price">{{ product.price|number_format }} грн</p>
-{%  endif  %}
-| {{  product.description  }} |
+    <div class="product-image-wrapper">
+        <button
+            type="button"
+            class="favorite-btn {% if product.is_favorite %}active{% endif %}"
+            data-product-id="{{ product.id }}"
+        >
+            ♥
+        </button>
 
+        <img src="{{ product.image.url }}"
+             alt="{{ product.name }}"
+             class="product-image">
+    </div>
 
-<button
-    class="favorite-btn"
-    data-product-id="{{ product.id }}"
-    data-in-favorites="{{ product.is_favorite|yesno:'1,0' }}"
->
-    {% if product.is_favorite %}♥{% else %}♡{% endif %}
-</button>
+    <a href="{% url 'product_page' product.code %}" class="product-title-link">
+        <h5 class="product-title">{{ product.name|truncatewords:6 }}</h5>
+    </a>
 
+    <a href="{%  url 'group_page' product.group.id  %}" class="product-group">{{ product.group.name }}</a><br>
+    <a href="{%  url 'brand_detail' product.brand.id  %}" class="product-brand">{{ product.brand }}</a><br>
 
-{%  if product.id in cart_products %}
-<button class="btn btn-sm mt-2  btn-primary disabled"
-        data-product-code="{{  product.code  }}">В корзинe
-</button>
-<br>
-{%  elif product.stock %}
-<button class="btn btn-success btn-sm mt-2 js-cart-btn-list"
-        data-product-code="{{  product.code  }}">В корзину
-</button>
-<br>
-{%  else  %}
-    Товара нет в наличии
-{%  endif  %}
+    {% if product.stock %}
+        <p class="product-price">{{ product.price|number_format }} грн</p>
+    {% endif %}
+
+    {% if product.id in cart_products %}
+        <button type="button" class="btn btn-sm mt-2 btn-primary disabled">В корзине</button>
+    {% elif product.stock %}
+        <button type="button" class="btn btn-success btn-sm mt-2 js-cart-btn-list"
+                data-product-code="{{ product.code }}">
+            В корзину
+        </button>
+    {% else %}
+        Товара нет в наличии
+    {% endif %}
 
 </div>

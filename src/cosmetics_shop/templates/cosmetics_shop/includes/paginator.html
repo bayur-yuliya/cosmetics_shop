@@ -1,0 +1,15 @@
+{% if page_elements.paginator.num_pages > 1 %}
+    <div class="d-flex justify-content-center mt-3">
+        {% if page_elements.has_previous %}
+            <a href="?page={{ page_elements.previous_page_number }}" class="btn btn-outline-secondary btn-sm me-2">← Назад</a>
+        {% endif %}
+
+        <span class="align-self-center">
+            {{ page_elements.number }} / {{ page_elements.paginator.num_pages }}
+        </span>
+
+        {% if page_elements.has_next %}
+            <a href="?page={{ page_elements.next_page_number }}" class="btn btn-outline-secondary btn-sm ms-2">Вперёд →</a>
+        {% endif %}
+    </div>
+{% endif %}
