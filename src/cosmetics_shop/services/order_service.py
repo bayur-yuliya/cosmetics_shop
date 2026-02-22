@@ -1,7 +1,7 @@
 from typing import Any
 
 from django.db import transaction
-from django.db.models import Prefetch, F
+from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
 
 from cosmetics_shop.models import (
@@ -10,21 +10,13 @@ from cosmetics_shop.models import (
     Order,
     OrderItem,
     Client,
-    Product,
     OrderStatusLog,
     DeliveryAddress,
 )
+from cosmetics_shop.services.product_service import change_stock_product
 from cosmetics_shop.utils.cart_utils import get_or_create_cart
 from utils.custom_exceptions import OutOfStockError
 from utils.custom_types import AuthenticatedRequest
-
-
-def change_stock_product(product_code: int, count: int) -> None:
-    updated = Product.objects.filter(code=product_code, stock__gte=count).update(
-        stock=F("stock") - count
-    )
-    if not updated:
-        raise ValueError("Товара недостаточно на складе")
 
 
 def clear_cart_after_order(cart: Cart) -> None:
@@ -80,7 +72,6 @@ def create_order_from_cart(request: AuthenticatedRequest) -> Order:
                 except ValueError:
                     raise OutOfStockError(f"Товара {item.product.name} недостаточно")
 
-        OrderStatusLog.objects.create(order=order)
         OrderItem.objects.bulk_create(order_items)
         order.update_total_price()
 

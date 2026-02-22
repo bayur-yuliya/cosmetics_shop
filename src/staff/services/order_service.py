@@ -29,11 +29,5 @@ def change_order_status(order: Order, user, status: str, comment: str) -> bool:
     if last_log and last_log.status == status and last_log.comment == comment:
         return False
 
-    with transaction.atomic():
-        OrderStatusLog.objects.create(
-            order=order,
-            changed_by=user,
-            status=status,
-            comment=comment,
-        )
+    order.set_status(status, user=user, comment=comment)
     return True

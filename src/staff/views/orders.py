@@ -13,7 +13,7 @@ from cosmetics_shop.models import (
     OrderStatusLog,
 )
 from staff.forms import OrderStatusForm
-from staff.services.orders_service import (
+from staff.services.order_service import (
     get_latest_order_statuses,
     filter_orders_status,
     change_order_status,

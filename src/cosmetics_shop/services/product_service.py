@@ -1,8 +1,16 @@
-from django.db.models import QuerySet, Exists, OuterRef
+from django.db.models import QuerySet, Exists, OuterRef, F
 from django.http import HttpRequest
 
 from accounts.models import CustomUser
 from cosmetics_shop.models import Product, Favorite
+
+
+def change_stock_product(product_code: int, count: int) -> None:
+    updated = Product.objects.filter(code=product_code, stock__gte=count).update(
+        stock=F("stock") - count
+    )
+    if not updated:
+        raise ValueError("Товара недостаточно на складе")
 
 
 def favorites_products(user: CustomUser) -> QuerySet[Product]:

@@ -44,10 +44,10 @@
                                              style="width:60px; height:60px; object-fit:cover;">
                                         {{ item.snapshot_product }}
                                     </td>
-                                    <td>{{ item.snapshot_price|number_format }} грн</td>
-                                    <td>{{ item.snapshot_quantity }}</td>
+                                    <td>{{ item.price|number_format }} грн</td>
+                                    <td>{{ item.quantity }}</td>
                                     <td>
-                                        {{ item.snapshot_price|multiply:item.snapshot_quantity|number_format }} грн
+                                        {{ item.price|multiply:item.quantity|number_format }} грн
                                     </td>
                                 </tr>
                                 {% endfor %}

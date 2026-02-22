@@ -17,7 +17,7 @@ from staff.forms import (
     FilterStockForm,
     ProductStuffFilterForm,
 )
-from staff.services.products_service import filter_staff_form, filter_staff_stock_form
+from staff.services.product_service import filter_staff_form, filter_staff_stock_form
 
 
 @permission_required("cosmetics_shop.view_product", raise_exception=True)
