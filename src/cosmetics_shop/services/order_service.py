@@ -14,7 +14,7 @@ from cosmetics_shop.models import (
     DeliveryAddress,
 )
 from cosmetics_shop.services.product_service import change_stock_product
-from cosmetics_shop.utils.cart_utils import get_or_create_cart
+from cosmetics_shop.utils.cart_utils import get_cart
 from utils.custom_exceptions import OutOfStockError
 from utils.custom_types import AuthenticatedRequest
 
@@ -24,7 +24,7 @@ def clear_cart_after_order(cart: Cart) -> None:
 
 
 def create_order_from_cart(request: AuthenticatedRequest) -> Order:
-    cart = get_or_create_cart(request)
+    cart = get_cart(request)
     cart_items = CartItem.objects.select_related("product").filter(cart=cart)
     client_data = request.session.get("client_data", {})
     address_data = request.session.get("address_data", {})
@@ -61,7 +61,7 @@ def create_order_from_cart(request: AuthenticatedRequest) -> Order:
                 product=item.product,
                 quantity=item.quantity,
                 price=item.product.price,
-                snapshot_product=item.product.name
+                snapshot_product=item.product.name,
             )
             for item in cart_items
         ]

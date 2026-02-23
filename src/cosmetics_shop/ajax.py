@@ -47,7 +47,9 @@ def add_to_cart(request: HttpRequest) -> HttpResponse:
         return get_cart_status_response(cart, product_code)
 
     except Product.DoesNotExist:
-        return JsonResponse({"success": False, "error": "Product not found"}, status=404)
+        return JsonResponse(
+            {"success": False, "error": "Product not found"}, status=404
+        )
 
 
 @require_POST

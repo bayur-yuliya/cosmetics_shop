@@ -81,7 +81,9 @@ class SlugRedirectModel(models.Model):
                 pass
 
         current_source_value = getattr(self, self.slug_source_field, "object")
-        if not self.slug or (old_source_value is not None and current_source_value != old_source_value):
+        if not self.slug or (
+            old_source_value is not None and current_source_value != old_source_value
+        ):
             self.slug = slugify(current_source_value)
 
         self.generate_slug()
@@ -91,6 +93,7 @@ class SlugRedirectModel(models.Model):
                 super().save(*args, **kwargs)
         except IntegrityError:
             import uuid
+
             self.slug = f"{self.slug}-{uuid.uuid4().hex[:4]}"
             super().save(*args, **kwargs)
 
@@ -101,7 +104,11 @@ class SlugRedirectModel(models.Model):
         if not self.slug:
             self.slug = slugify(getattr(self, "name", "object"))
 
-        exists = self.__class__._default_manager.filter(slug=self.slug).exclude(pk=self.pk).exists()
+        exists = (
+            self.__class__._default_manager.filter(slug=self.slug)
+            .exclude(pk=self.pk)
+            .exists()
+        )
 
         if exists:
             base_slug = self.slug
@@ -370,8 +377,8 @@ class Order(models.Model):
             self.snapshot_name = (
                 f"{self.client.first_name} {self.client.last_name}".strip()
             )
-            self.snapshot_phone = getattr(self.client, 'phone', "")
-            self.snapshot_email = getattr(self.client, 'email', "")
+            self.snapshot_phone = getattr(self.client, "phone", "")
+            self.snapshot_email = getattr(self.client, "email", "")
 
             address = self.client.addresses.filter(is_primary=True)
             if address:
@@ -400,12 +407,9 @@ class Order(models.Model):
     def set_status(self, new_status, user=None, comment=""):
         with transaction.atomic():
             self.status = new_status
-            self.save(update_fields=['status'])
+            self.save(update_fields=["status"])
             OrderStatusLog.objects.create(
-                order=self,
-                status=new_status,
-                changed_by=user,
-                comment=comment
+                order=self, status=new_status, changed_by=user, comment=comment
             )
 
     class Meta:

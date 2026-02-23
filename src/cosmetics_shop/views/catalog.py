@@ -5,7 +5,7 @@ from django.shortcuts import render, get_object_or_404
 from cosmetics_shop.models import Brand, Tag, Product, GroupProduct, Category
 from cosmetics_shop.services.cart_services import is_product_in_cart
 from cosmetics_shop.services.product_service import get_ready_product_list
-from cosmetics_shop.utils.cart_utils import get_or_create_cart
+from cosmetics_shop.utils.cart_utils import get_cart
 from cosmetics_shop.utils.view_helpers import processing_product_page
 from utils.custom_types import AuthenticatedRequest
 
@@ -55,7 +55,7 @@ def group_page(
 def product_page(request: HttpRequest, product_code: int) -> HttpResponse:
     product: Product = get_object_or_404(Product, code=product_code)
     tags: QuerySet[Tag] = product.tags.all()
-    cart = get_or_create_cart(request)
+    cart = get_cart(request)
     is_it_in_cart = is_product_in_cart(cart, product.pk)
     return render(
         request,

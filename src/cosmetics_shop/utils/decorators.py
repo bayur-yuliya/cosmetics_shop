@@ -3,7 +3,7 @@ from functools import wraps
 from django.contrib import messages
 from django.shortcuts import redirect
 
-from cosmetics_shop.utils.cart_utils import get_or_create_cart
+from cosmetics_shop.utils.cart_utils import get_cart
 
 
 def cart_required(view_func):
@@ -11,7 +11,7 @@ def cart_required(view_func):
 
     @wraps(view_func)
     def wrapped_view(request, *args, **kwargs):
-        cart = get_or_create_cart(request)
+        cart = get_cart(request)
         cart_items = cart.cartitem_set.all()
 
         if not cart_items.exists():
