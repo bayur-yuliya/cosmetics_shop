@@ -16,7 +16,7 @@ from staff.forms import OrderStatusForm
 from staff.services.order_service import (
     get_latest_order_statuses,
     filter_orders_status,
-    change_order_status,
+    change_order_status_log,
 )
 from utils.custom_types import AuthenticatedRequest
 
@@ -70,7 +70,7 @@ def order_info(request: AuthenticatedRequest, order_code: int) -> HttpResponse:
             status = form.cleaned_data["status"]
             comment = form.cleaned_data["comment"]
 
-            if change_order_status(order, request.user, status, comment):
+            if change_order_status_log(order, request.user, status, comment):
                 messages.success(request, "Статус успешно изменен")
             else:
                 messages.success(request, "Статус не изменен")

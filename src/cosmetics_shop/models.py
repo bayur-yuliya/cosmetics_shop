@@ -310,8 +310,11 @@ class Product(models.Model):
 class Favorite(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    # created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        ordering = ["product"]
+        # ordering = ["created_at"]
         unique_together = ("user", "product")
 
 
@@ -419,12 +422,6 @@ class OrderItem(models.Model):
         return f"{self.product} - {self.quantity}"
 
     def save(self, *args, **kwargs):
-        if not self.pk and self.product and not self.price:
-            self.price = self.product.price
-
-        if not self.pk and self.product:
-            self.snapshot_product = self.product.name
-
         super().save(*args, **kwargs)
 
     class Meta:

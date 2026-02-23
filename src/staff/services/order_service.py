@@ -23,11 +23,13 @@ def filter_orders_status(queryset: QuerySet, filters: dict) -> QuerySet:
     return queryset.order_by("status")
 
 
-def change_order_status(order: Order, user, status: str, comment: str) -> bool:
+def change_order_status_log(order: Order, user, status: str, comment: str) -> bool:
     last_log = OrderStatusLog.objects.filter(order=order).first()
 
     if last_log and last_log.status == status and last_log.comment == comment:
         return False
-
-    order.set_status(status, user=user, comment=comment)
+    with transaction.atomic():
+        order.status = status
+        order.save()
+        order.set_status(status, user=user, comment=comment)
     return True

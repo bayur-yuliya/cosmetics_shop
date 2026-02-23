@@ -61,6 +61,7 @@ def create_order_from_cart(request: AuthenticatedRequest) -> Order:
                 product=item.product,
                 quantity=item.quantity,
                 price=item.product.price,
+                snapshot_product=item.product.name
             )
             for item in cart_items
         ]
