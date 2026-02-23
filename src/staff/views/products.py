@@ -26,7 +26,7 @@ def products(request: HttpRequest) -> HttpResponse:
         Product.objects.all()
         .order_by("-id")
         .filter(is_active=True)
-        .select_related("brand")
+        .for_catalog()
     )
 
     form = ProductStuffFilterForm(request.GET or None)

@@ -28,8 +28,9 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["127.0.0.1"]
 
+INTERNAL_IPS = ["127.0.0.1"]
 
 # Application definition
 
@@ -41,6 +42,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.redirects",
+    # debug_toolbar
+    "debug_toolbar",
     # django-allauth
     "django.contrib.sites",
     "allauth",
@@ -64,6 +67,7 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.contrib.redirects.middleware.RedirectFallbackMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"

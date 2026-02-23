@@ -62,7 +62,7 @@ def order_info(request: AuthenticatedRequest, order_code: int) -> HttpResponse:
     title = f"Заказ {order_code}"
 
     order: Order = get_object_or_404(Order, code=order_code)
-    order_items: QuerySet[OrderItem] = OrderItem.objects.filter(order=order)
+    order_items: QuerySet[OrderItem] = OrderItem.objects.filter(order=order).select_related("product")
 
     if request.method == "POST":
         form = OrderStatusForm(request.POST, instance=order, user=request.user)
@@ -77,9 +77,12 @@ def order_info(request: AuthenticatedRequest, order_code: int) -> HttpResponse:
             return redirect("order_info", order_code=order.code)
 
     form = OrderStatusForm(instance=order, user=request.user)
-    order_status_log: QuerySet[OrderStatusLog] = OrderStatusLog.objects.filter(
-        order=order
-    )
+    order_status_log: QuerySet[OrderStatusLog] = (
+            OrderStatusLog.objects
+            .filter(order=order)
+            .select_related("changed_by")
+            .order_by("-changed_at")
+        )
 
     return render(
         request,

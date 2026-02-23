@@ -20,7 +20,7 @@ def favorites_products(user: CustomUser) -> QuerySet[Product]:
         Product.objects.filter(is_active=True).annotate(
             is_favorite=Exists(favorites_subquery)
         )
-    ).order_by("-stock")
+    ).order_by("-stock").for_catalog()
 
     return products
 
@@ -29,6 +29,6 @@ def get_ready_product_list(request: HttpRequest) -> QuerySet[Product]:
     if request.user.is_authenticated:
         products = favorites_products(request.user)
     else:
-        products = Product.objects.filter(is_active=True)
+        products = Product.objects.filter(is_active=True).for_catalog()
 
     return products

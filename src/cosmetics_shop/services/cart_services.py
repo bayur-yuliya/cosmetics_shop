@@ -8,13 +8,11 @@ from django.shortcuts import get_object_or_404
 from cosmetics_shop.models import Cart, Product, CartItem
 
 
-def get_id_products_in_cart(cart: Cart) -> set[int]:
+def get_id_products_in_cart(cart: Cart) -> list[int]:
     if not cart:
-        return set()
+        return []
 
-    cart_products = set(
-        CartItem.objects.filter(cart=cart).values_list("product_id", flat=True)
-    )
+    cart_products = CartItem.objects.filter(cart=cart).values_list("product_id", flat=True).distinct()
     return cart_products
 
 
@@ -53,17 +51,14 @@ def is_product_in_cart(cart: Cart, product_pk: int) -> bool:
     return CartItem.objects.filter(cart=cart, product__pk=product_pk).exists()
 
 
-def calculate_cart_total(cart: Cart) -> Decimal | int:
-    result = CartItem.objects.filter(cart=cart).aggregate(
-        total=Sum(F("quantity") * F("product__price"))
-    )
-    return result["total"] or Decimal("0.00")
-
-
 def get_cart_status_response(cart, product_code):
     cart_items = cart.cartitem_set.select_related("product")
+
     total_count = cart_items.aggregate(total=Sum("quantity"))["total"] or 0
-    total_price = calculate_cart_total(cart)
+
+    total_price = cart_items.aggregate(
+        total=Sum(F("quantity") * F("product__price"))
+    )["total"] or Decimal("0.00")
 
     current_item = cart_items.filter(product__code=product_code).first()
 

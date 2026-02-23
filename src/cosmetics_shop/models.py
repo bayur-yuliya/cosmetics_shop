@@ -200,8 +200,8 @@ class DeliveryAddress(models.Model):
         return f"{self.city}, {self.post_office}"
 
     def save(self, *args, **kwargs):
-        self.update_other_client_addresses_as_non_primary()
         super().save(*args, **kwargs)
+        self.update_other_client_addresses_as_non_primary()
 
     def update_other_client_addresses_as_non_primary(self):
         if self.is_primary:
@@ -297,7 +297,7 @@ class Product(models.Model):
         # 10,000,000 records should be enough
         if not self.pk:
             with transaction.atomic():
-                self.code = uuid.uuid4
+                self.code = uuid.uuid4()
                 super().save(*args, **kwargs)
 
                 A = 4_827_137
