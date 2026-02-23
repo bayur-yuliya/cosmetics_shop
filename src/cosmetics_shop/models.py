@@ -63,19 +63,26 @@ class SlugRedirectModel(models.Model):
     slug = models.SlugField(max_length=200, unique=True, blank=True)
 
     redirect_url_configs: list[tuple[str, str]] = []
+    slug_source_field = "name"
 
     class Meta:
         abstract = True
 
     def save(self, *args, **kwargs):
         old_slug = None
+        old_source_value = None
 
         if self.pk:
-            old_slug = (
-                self.__class__._default_manager.filter(pk=self.pk)
-                .only('slug')
-                .first()
-            )
+            try:
+                old_instance = self.__class__.objects.get(pk=self.pk)
+                old_slug = old_instance.slug
+                old_source_value = getattr(old_instance, self.slug_source_field, None)
+            except self.__class__.DoesNotExist:
+                pass
+
+        current_source_value = getattr(self, self.slug_source_field, "object")
+        if not self.slug or (old_source_value is not None and current_source_value != old_source_value):
+            self.slug = slugify(current_source_value)
 
         self.generate_slug()
 
