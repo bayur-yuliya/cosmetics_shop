@@ -8,8 +8,7 @@
     <h2 class="mb-4">Список заказов</h2>
 
     <!-- Фильтры -->
-    <form method="POST" class="row g-3 mb-4">
-        {% csrf_token %}
+    <form method="GET" class="row g-3 mb-4">
         <div class="col-md-3">
             {{ form.status.label_tag }}<br>
             {{ form.status }}

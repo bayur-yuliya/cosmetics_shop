@@ -12,12 +12,7 @@ from cosmetics_shop.models import (
     Product,
     Tag,
 )
-from staff.forms import (
-    ProductForm,
-    FilterStockForm,
-    ProductStuffFilterForm,
-)
-from staff.services.product_service import filter_staff_form, filter_staff_stock_form
+from staff.forms import ProductForm, ProductFilterForm
 
 
 @permission_required("cosmetics_shop.view_product", raise_exception=True)
@@ -29,15 +24,12 @@ def products(request: HttpRequest) -> HttpResponse:
         .for_catalog()
     )
 
-    form = ProductStuffFilterForm(request.GET or None)
-    form_stock = FilterStockForm(request.GET or None)
+    form = ProductFilterForm(request.GET)
 
-    filtered_product: QuerySet[Product] = filter_staff_form(products_list, form)
-    stock_filtered_product: QuerySet[Product] = filter_staff_stock_form(
-        filtered_product, form_stock
-    )
+    if form.is_valid():
+        products_list = form.apply_filters(products_list)
 
-    paginator = Paginator(stock_filtered_product, PRODUCTS_PER_PAGE)
+    paginator = Paginator(products_list, PRODUCTS_PER_PAGE)
     page_number = request.GET.get("page")
     page = paginator.get_page(page_number)
 
@@ -48,7 +40,6 @@ def products(request: HttpRequest) -> HttpResponse:
             "title": "Товары",
             "products": page,
             "form": form,
-            "form_stock": form_stock,
         },
     )
 
@@ -115,8 +106,7 @@ def edit_products(request: HttpRequest, product_code: int) -> HttpResponse:
 def delete_product(request: HttpRequest, product_id: int) -> HttpResponse:
     if product_id:
         product: Product = get_object_or_404(Product, id=product_id)
-        product.is_active = False
-        product.save()
+        product.soft_delete()
     else:
         messages.error(request, "Не удалось удалить товар")
     return redirect("products")

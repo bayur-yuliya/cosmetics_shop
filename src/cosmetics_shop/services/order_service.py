@@ -75,6 +75,7 @@ def create_order_from_cart(request: AuthenticatedRequest) -> Order:
 
         OrderItem.objects.bulk_create(order_items)
         order.update_total_price()
+        order.save()
 
         clear_cart_after_order(cart)
 

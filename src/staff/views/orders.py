@@ -9,14 +9,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from config.settings import PRODUCTS_PER_PAGE
 from cosmetics_shop.models import (
     Order,
-    OrderItem,
-    OrderStatusLog,
+    OrderStatusLog, OrderItem,
 )
-from staff.forms import OrderStatusForm
+from staff.forms import OrderStatusUpdateForm, OrderFilterForm
 from staff.services.order_service import (
     get_latest_order_statuses,
     filter_orders_status,
-    change_order_status_log,
 )
 from utils.custom_types import AuthenticatedRequest
 
@@ -25,22 +23,9 @@ from utils.custom_types import AuthenticatedRequest
 def orders(request: HttpRequest) -> HttpResponse:
     latest_statuses = get_latest_order_statuses()
 
-    if request.method == "POST":
-        form = OrderStatusForm(request.POST)
-        if form.is_valid():
-            latest_statuses = filter_orders_status(latest_statuses, form.cleaned_data)
-
-            return render(
-                request,
-                "staff/orders.html",
-                {
-                    "title": "Список заказов",
-                    "form": form,
-                    "status": latest_statuses,
-                },
-            )
-    else:
-        form = OrderStatusForm()
+    form = OrderFilterForm(request.GET)
+    if form.is_valid():
+        latest_statuses = filter_orders_status(latest_statuses, form.cleaned_data)
 
     paginator = Paginator(latest_statuses, PRODUCTS_PER_PAGE)
     page_number = request.GET.get("page")
@@ -61,22 +46,17 @@ def orders(request: HttpRequest) -> HttpResponse:
 def order_info(request: AuthenticatedRequest, order_code: int) -> HttpResponse:
     title = f"Заказ {order_code}"
 
-    order: Order = get_object_or_404(Order, code=order_code)
-    order_items: QuerySet[OrderItem] = OrderItem.objects.filter(order=order).select_related("product")
+    order = get_object_or_404(Order, code=order_code)
+    order_items = OrderItem.objects.filter(order=order).select_related("product")
 
     if request.method == "POST":
-        form = OrderStatusForm(request.POST, instance=order, user=request.user)
+        form = OrderStatusUpdateForm(request.POST, user=request.user, order=order)
         if form.is_valid():
-            status = form.cleaned_data["status"]
-            comment = form.cleaned_data["comment"]
-
-            if change_order_status_log(order, request.user, status, comment):
-                messages.success(request, "Статус успешно изменен")
-            else:
-                messages.success(request, "Статус не изменен")
+            form.save()
+            messages.success(request, "Статус успешно изменен")
             return redirect("order_info", order_code=order.code)
-
-    form = OrderStatusForm(instance=order, user=request.user)
+    else:
+        form = OrderStatusUpdateForm(user=request.user, order=order)
     order_status_log: QuerySet[OrderStatusLog] = (
             OrderStatusLog.objects
             .filter(order=order)

@@ -1,5 +1,6 @@
 import re
 import uuid
+from random import randint
 
 from django.conf import settings
 from django.db import models, transaction, IntegrityError
@@ -303,7 +304,7 @@ class Product(models.Model):
         # 10,000,000 records should be enough
         if not self.pk:
             with transaction.atomic():
-                self.code = uuid.uuid4()
+                self.code = randint(0000, 9999)
                 super().save(*args, **kwargs)
 
                 A = 4_827_137
@@ -314,6 +315,10 @@ class Product(models.Model):
                 Product.objects.filter(pk=self.pk).update(code=self.code)
         else:
             super().save(*args, **kwargs)
+
+    def soft_delete(self):
+        self.is_active = False
+        self.save()
 
     def __str__(self):
         return f"{self.group} - {self.name}"

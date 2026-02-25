@@ -1,5 +1,6 @@
 from typing import Any
 
+from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.models import Group
 from django.db.models import Count, QuerySet
@@ -13,7 +14,8 @@ from staff.forms import (
     AdminCreateUserForm,
 )
 
-from ..services.permission_service import get_individually_assigned_permits
+from ..services.permission_service import get_individually_assigned_permits, get_permissions_by_app, \
+    set_user_permissions
 
 
 @permission_required("staff.manage_permission", raise_exception=True)
@@ -66,30 +68,17 @@ def edit_staff_permissions(request: HttpRequest, user_id: int) -> HttpResponse:
     user = get_object_or_404(CustomUser, pk=user_id)
 
     if request.method == "POST":
-        selected_groups: list[str] | None = request.POST.getlist("groups")
-        selected_groups_id = (
-            [int(pk) for pk in selected_groups] if selected_groups else []
-        )
-        user.groups.set(selected_groups_id)
+        groups = request.POST.getlist("groups")
+        perms = request.POST.getlist("permissions")
 
-        selected_permissions = request.POST.getlist("permissions")
-        perms_id = (
-            [int(pk) for pk in selected_permissions] if selected_permissions else []
-        )
-        user.user_permissions.set(perms_id)
-        return redirect("staff_list")
+        if set_user_permissions(user, groups, perms):
+            messages.success(request, "Права успешно обновлены")
+            return redirect("staff_list")
+        else:
+            messages.error(request, "Ошибка при обновлении прав")
 
     all_groups = Group.objects.all()
     user_groups = user.groups.all()
-
-    permissions = get_individually_assigned_permits()
-
-    permissions_by_app: dict[str, Any] = {}
-    for perm in permissions:
-        app_label = perm.content_type.app_label
-        if app_label not in permissions_by_app:
-            permissions_by_app[app_label] = []
-        permissions_by_app[app_label].append(perm)
 
     return render(
         request,
@@ -99,7 +88,7 @@ def edit_staff_permissions(request: HttpRequest, user_id: int) -> HttpResponse:
             "title": "Изменение разрешений",
             "all_groups": all_groups,
             "user_groups": user_groups,
-            "permissions_by_app": permissions_by_app,
+            "permissions_by_app": get_permissions_by_app(),
             "user_permissions": user.user_permissions.all(),
         },
     )

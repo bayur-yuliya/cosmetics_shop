@@ -11,8 +11,9 @@ from cosmetics_shop.models import (
     GroupProduct,
     Brand,
     OrderStatusLog,
-    Tag,
+    Tag, Status,
 )
+from staff.services.order_service import change_order_status_log
 from staff.services.permission_service import get_individually_assigned_permits
 
 
@@ -109,41 +110,66 @@ class ProductForm(forms.ModelForm):
             raise ValidationError("Некорректная цена")
 
 
-class OrderStatusForm(forms.ModelForm):
-    date_from = forms.DateField(
-        required=False, label="Дата с", widget=forms.DateInput(attrs={"type": "date"})
-    )
-    date_to = forms.DateField(
-        required=False, label="Дата по", widget=forms.DateInput(attrs={"type": "date"})
-    )
+class OrderFilterForm(forms.Form):
+    status = forms.ChoiceField(choices=Status.choices, required=False)
+    date_from = forms.DateField(required=False, widget=forms.DateInput(attrs={"type": "date"}))
+    date_to = forms.DateField(required=False, widget=forms.DateInput(attrs={"type": "date"}))
+
+
+class OrderStatusUpdateForm(forms.ModelForm):
+    comment = forms.CharField(widget=forms.Textarea, required=False)
 
     class Meta:
         model = OrderStatusLog
-        fields = ["status", "comment", "date_from", "date_to"]
-        labels = {
-            "status": "Текущий статус заказа",
-            "comment": "Добавить комментарий",
-        }
+        fields = ["status", "comment"]
 
-    def __init__(self, *args, user=None, **kwargs):
+    def __init__(self, *args, user=None, order=None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.user = user
+        self.order = order
 
-        if user:
-            if not user.has_perm("cosmetics_shop.change_orderstatuslog"):
-                self.fields.pop("status")
+        if self.user and not self.user.has_perm("cosmetics_shop.change_orderstatuslog"):
+            self.fields.pop("status")
+
+    def save(self, commit=True):
+        status = self.cleaned_data["status"]
+        comment = self.cleaned_data["comment"]
+
+        return change_order_status_log(self.order, self.user, status, comment)
 
 
-class ProductStuffFilterForm(forms.Form):
+class ProductFilterForm(forms.Form):
     name = forms.CharField(required=False, label="Название содержит")
     code = forms.IntegerField(required=False, label="Код товара")
     brand = forms.CharField(required=False, label="Бренд")
-    min_price = forms.DecimalField(required=False, label="Минимальная цена")
-    max_price = forms.DecimalField(required=False, label="Максимальная цена")
+    min_price = forms.DecimalField(required=False, label="Мин. цена")
+    max_price = forms.DecimalField(required=False, label="Макс. цена")
 
-
-class FilterStockForm(forms.Form):
     min_stock = forms.IntegerField(required=False, label="Мин. остаток")
     max_stock = forms.IntegerField(required=False, label="Макс. остаток")
+
+    def apply_filters(self, queryset):
+        if not self.is_valid():
+            return queryset
+
+        data = self.cleaned_data
+
+        if data.get("name"):
+            queryset = queryset.filter(name__icontains=data["name"])
+        if data.get("brand"):
+            queryset = queryset.filter(brand__name__icontains=data["brand"])
+        if data.get("min_price"):
+            queryset = queryset.filter(price__gte=data["min_price"], stock__gte=1)
+        if data.get("max_price"):
+            queryset = queryset.filter(price__lte=data["max_price"])
+        if data.get("code"):
+            queryset = queryset.filter(code=data["code"])
+        if data.get("min_stock"):
+            queryset = queryset.filter(stock__gte=data["min_stock"])
+        if data.get("max_stock"):
+            queryset = queryset.filter(stock__lte=data["max_stock"])
+
+        return queryset
 
 
 class GroupForm(forms.ModelForm):
