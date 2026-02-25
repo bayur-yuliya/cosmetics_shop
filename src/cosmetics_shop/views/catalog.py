@@ -4,6 +4,7 @@ from django.shortcuts import render, get_object_or_404
 
 from cosmetics_shop.models import Brand, Tag, Product, GroupProduct, Category
 from cosmetics_shop.services.cart_services import is_product_in_cart
+from cosmetics_shop.services.category_services import get_grouped_for_alphabet_brands
 from cosmetics_shop.services.product_service import get_ready_product_list
 from cosmetics_shop.utils.cart_utils import get_cart
 from cosmetics_shop.utils.view_helpers import processing_product_page
@@ -23,10 +24,7 @@ def main_page(request: HttpRequest) -> HttpResponse:
 
 def category_page(request: HttpRequest, category_slug: str) -> HttpResponse:
     title: Category = get_object_or_404(Category, slug=category_slug)
-    group_products: list[int] = list(
-        GroupProduct.objects.filter(category=title).values_list("id", flat=True)
-    )
-    products = get_ready_product_list(request).filter(group__in=group_products)
+    products = get_ready_product_list(request).product_group_by_category(category_slug=category_slug)
 
     return processing_product_page(
         request=request,
@@ -71,12 +69,7 @@ def product_page(request: HttpRequest, product_code: int) -> HttpResponse:
 
 def brand_page(request: HttpRequest) -> HttpResponse:
     brands: QuerySet[Brand] = Brand.objects.all()
-    grouped: dict[str, list[Brand]] = {}
-
-    for brand in brands:
-        letter = brand.name[0].upper()
-        grouped.setdefault(letter, []).append(brand)
-
+    grouped = get_grouped_for_alphabet_brands(brands)
     alphabet: list[str] = list(grouped.keys())
 
     return render(

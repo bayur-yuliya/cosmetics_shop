@@ -51,6 +51,12 @@ class ProductQuerySet(models.QuerySet):
             .with_stock_order()
         )
 
+    def product_group_by_category(self, category_slug):
+        group_products: list[int] = list(
+            GroupProduct.objects.filter(category__slug=category_slug).values_list("id", flat=True)
+        )
+        return self.filter(group__in=group_products)
+
 
 class SlugRedirectModel(models.Model):
     """

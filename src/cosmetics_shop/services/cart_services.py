@@ -51,6 +51,15 @@ def is_product_in_cart(cart: Cart, product_pk: int) -> bool:
     return CartItem.objects.filter(cart=cart, product__pk=product_pk).exists()
 
 
+def get_cart_total_price(cart_items):
+    return (
+        cart_items.aggregate(total_price=Sum(F("product__price") * F("quantity")))[
+            "total_price"
+        ]
+        or 0
+    )
+
+
 def get_cart_status_response(cart, product_code):
     cart_items = cart.cartitem_set.select_related("product")
 

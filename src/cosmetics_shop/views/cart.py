@@ -7,7 +7,7 @@ from django.views.decorators.http import require_POST
 from cosmetics_shop.models import CartItem
 from cosmetics_shop.services.cart_services import (
     delete_cart,
-    delete_product_from_cart,
+    delete_product_from_cart, get_cart_total_price,
 )
 from cosmetics_shop.utils.cart_utils import get_cart
 
@@ -17,12 +17,7 @@ def cart(request: HttpRequest) -> HttpResponse:
     cart_items: QuerySet[CartItem] = CartItem.objects.select_related("product").filter(
         cart=cart_object
     )
-    total_price = (
-        cart_items.aggregate(total_price=Sum(F("product__price") * F("quantity")))[
-            "total_price"
-        ]
-        or 0
-    )
+    total_price = get_cart_total_price(cart_items)
 
     return render(
         request,

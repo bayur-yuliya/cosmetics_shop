@@ -1,6 +1,8 @@
 from typing import Any
 
-from cosmetics_shop.models import Category
+from django.db.models import QuerySet
+
+from cosmetics_shop.models import Category, Brand
 
 
 def context_categories() -> list[dict[str, Any]]:
@@ -10,3 +12,13 @@ def context_categories() -> list[dict[str, Any]]:
         groups = category.groupproduct_set.all()
         context_values.append({"category": category, "groups": groups})
     return context_values
+
+
+def get_grouped_for_alphabet_brands(brands: QuerySet[Brand]):
+    grouped: dict[str, list[Brand]] = {}
+
+    for brand in brands:
+        letter = brand.name[0].upper()
+        grouped.setdefault(letter, []).append(brand)
+
+    return grouped
