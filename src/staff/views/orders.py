@@ -1,12 +1,10 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 
-from django.core.paginator import Paginator
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
-from config.settings import PRODUCTS_PER_PAGE
 from cosmetics_shop.models import (
     Order,
     OrderStatusLog, OrderItem,
@@ -17,6 +15,7 @@ from staff.services.order_service import (
     filter_orders_status,
 )
 from utils.custom_types import AuthenticatedRequest
+from utils.helper_function import get_paginator_page
 
 
 @permission_required("cosmetics_shop.view_order", raise_exception=True)
@@ -27,9 +26,7 @@ def orders(request: HttpRequest) -> HttpResponse:
     if form.is_valid():
         latest_statuses = filter_orders_status(latest_statuses, form.cleaned_data)
 
-    paginator = Paginator(latest_statuses, PRODUCTS_PER_PAGE)
-    page_number = request.GET.get("page")
-    page = paginator.get_page(page_number)
+    page = get_paginator_page(request, latest_statuses)
 
     return render(
         request,

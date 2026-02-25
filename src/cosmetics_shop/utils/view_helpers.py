@@ -1,9 +1,7 @@
-from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 
-from config.settings import PRODUCTS_PER_PAGE
 from cosmetics_shop.forms import ProductFilterForm
 from cosmetics_shop.services.cart_services import (
     get_id_products_in_cart,
@@ -11,6 +9,7 @@ from cosmetics_shop.services.cart_services import (
 from cosmetics_shop.services.category_services import context_categories
 from cosmetics_shop.utils.cart_utils import get_cart
 from cosmetics_shop.utils.product_filter import ProductFilter
+from utils.helper_function import get_paginator_page
 
 
 def processing_product_page(
@@ -44,13 +43,11 @@ def processing_product_page(
     cart_products = get_id_products_in_cart(cart)
     products = product_filter.apply_sorting()
 
-    paginator = Paginator(products, PRODUCTS_PER_PAGE)
-    page_number = request.GET.get("page")
-    products = paginator.get_page(page_number)
+    page = get_paginator_page(request, products)
     categories = context_categories()
     context = {
         "title": title,
-        "products": products,
+        "products": page,
         "form": form,
         "product_filter": product_filter,
         "context_categories": categories,

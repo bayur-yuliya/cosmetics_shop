@@ -15,6 +15,7 @@ from config.settings import PRODUCTS_PER_PAGE
 from cosmetics_shop.models import Client
 from cosmetics_shop.services.order_service import get_order_items_by_client
 from utils.custom_types import AuthenticatedRequest
+from utils.helper_function import get_paginator_page
 
 
 @login_required
@@ -64,10 +65,7 @@ def user_contact(request: AuthenticatedRequest) -> HttpResponse:
 def order_history(request: AuthenticatedRequest) -> HttpResponse:
     client, _ = Client.objects.get_or_create(user=request.user)
     order_items_data = get_order_items_by_client(client)
-
-    paginator = Paginator(order_items_data, PRODUCTS_PER_PAGE)
-    page_number = request.GET.get("page")
-    page = paginator.get_page(page_number)
+    page = get_paginator_page(request, order_items_data)
 
     return render(
         request,

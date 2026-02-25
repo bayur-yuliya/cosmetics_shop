@@ -1,18 +1,16 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
-from django.core.paginator import Paginator
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from django.views.decorators.http import require_POST
-
-from config.settings import PRODUCTS_PER_PAGE
 from cosmetics_shop.models import (
     Product,
     Tag,
 )
 from staff.forms import ProductForm, ProductFilterForm
+from utils.helper_function import get_paginator_page
 
 
 @permission_required("cosmetics_shop.view_product", raise_exception=True)
@@ -29,9 +27,7 @@ def products(request: HttpRequest) -> HttpResponse:
     if form.is_valid():
         products_list = form.apply_filters(products_list)
 
-    paginator = Paginator(products_list, PRODUCTS_PER_PAGE)
-    page_number = request.GET.get("page")
-    page = paginator.get_page(page_number)
+    page = get_paginator_page(request, products_list)
 
     return render(
         request,
