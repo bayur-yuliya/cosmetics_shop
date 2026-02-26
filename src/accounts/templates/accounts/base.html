@@ -87,7 +87,7 @@
 </dialog>
 <!--Диалог подтверждения выхода из аккаунта -->
 <dialog id="logoutDialog">
-    <form action="{%  url 'logout'  %}" method="POST">
+    <form action="{%  url 'account_logout'  %}" method="POST">
         {%  csrf_token  %}
         <p id="logoutText"></p>
         <div class="d-flex gap-2 mt-2">

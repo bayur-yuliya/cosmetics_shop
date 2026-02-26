@@ -4,9 +4,7 @@ from accounts.views import auth, favorites, user_section
 
 urlpatterns = [
     # auth
-    path("login/", auth.login_view, name="account_login"),
     path("activate/", auth.activate_account, name="activate"),
-    path("logout/", auth.logout_view, name="logout"),
     # favorites
     path(
         "favorites/remove/<int:product_id>/",

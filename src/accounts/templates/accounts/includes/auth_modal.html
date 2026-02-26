@@ -8,16 +8,22 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <form method="post" action="{% url 'account_login' %}?next={{  request.get_full_path|urlencode  }}">
+
+        <form id="loginForm" method="post" action="{% url 'account_login' %}?next={{  request.get_full_path|urlencode  }}">
           {% csrf_token %}
           <div class="mb-3">
-            <input type="text" name="email" class="form-control" placeholder="Email" required>
+            <input type="text" name="login" class="form-control" placeholder="Email" required>
           </div>
           <div class="mb-3">
             <input type="password" name="password" class="form-control" placeholder="Пароль" required>
           </div>
-          <button type="submit" class="btn btn-primary w-100">Войти</button>
+          <div id="loginErrors" class="alert alert-danger d-none" style="margin-bottom: 15px;"></div>
+          <button type="submit" class="btn btn-primary w-100" id="loginButton">
+            <span class="btn-text">Войти</span>
+            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+          </button>
         </form>
+
         <div class="text-center mt-3">
           <div style="margin-top: 20px;">
             <a href="{% provider_login_url 'google' %}" class="btn btn-google">
