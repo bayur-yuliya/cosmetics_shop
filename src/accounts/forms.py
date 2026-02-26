@@ -1,4 +1,6 @@
+from allauth.account.forms import SignupForm
 from django import forms
+from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.exceptions import ValidationError
 
@@ -13,8 +15,18 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ("email",)
 
 
-class CustomAuthenticationForm(AuthenticationForm):
-    username = forms.EmailField(label="Email")
+class CustomSignupForm(SignupForm):
+    def clean_email(self):
+        email = super().clean_email()
+
+        User = get_user_model()
+        if User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError(
+                "Пользователь с таким email уже существует.",
+                code='email_taken'
+            )
+
+        return email
 
 
 class ClientCreationForm(forms.ModelForm):

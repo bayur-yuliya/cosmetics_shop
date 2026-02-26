@@ -173,6 +173,8 @@ ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_LOGOUT_ON_GET = True
+ACCOUNT_ADAPTER = 'accounts.adapters.AjaxFriendlyAccountAdapter'
+ACCOUNT_PREVENT_ENUMERATION = False
 
 AUTHENTICATION_BACKENDS = [
     "accounts.authentication.EmailAuthBackend",
