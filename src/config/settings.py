@@ -28,8 +28,9 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["127.0.0.1"]
 
+INTERNAL_IPS = ["127.0.0.1"]
 
 # Application definition
 
@@ -41,6 +42,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.redirects",
+    # debug_toolbar
+    "debug_toolbar",
     # django-allauth
     "django.contrib.sites",
     "allauth",
@@ -64,6 +67,7 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.contrib.redirects.middleware.RedirectFallbackMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -159,6 +163,8 @@ MESSAGE_STORAGE = "django.contrib.messages.storage.cookie.CookieStorage"
 
 AUTH_USER_MODEL = "accounts.CustomUser"
 
+DEFAULT_STAFF_GROUP_NAME = "Гости"
+
 SITE_ID = 1
 
 ACCOUNT_LOGIN_METHODS = {"email"}
@@ -167,6 +173,8 @@ ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_LOGOUT_ON_GET = True
+ACCOUNT_ADAPTER = 'accounts.adapters.AjaxFriendlyAccountAdapter'
+ACCOUNT_PREVENT_ENUMERATION = False
 
 AUTHENTICATION_BACKENDS = [
     "accounts.authentication.EmailAuthBackend",
@@ -192,3 +200,6 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 SITE_URL = "http://127.0.0.1:8000"
 DEFAULT_FROM_EMAIL = "Cosmetics Shop <noreply@gmail.com>"
+
+
+PRODUCTS_PER_PAGE = 20

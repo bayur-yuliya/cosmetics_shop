@@ -1,4 +1,6 @@
+from allauth.account.forms import SignupForm
 from django import forms
+from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.exceptions import ValidationError
 
@@ -13,8 +15,18 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ("email",)
 
 
-class CustomAuthenticationForm(AuthenticationForm):
-    username = forms.EmailField(label="Email")
+class CustomSignupForm(SignupForm):
+    def clean_email(self):
+        email = super().clean_email()
+
+        User = get_user_model()
+        if User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError(
+                "Пользователь с таким email уже существует.",
+                code='email_taken'
+            )
+
+        return email
 
 
 class ClientCreationForm(forms.ModelForm):
@@ -33,6 +45,12 @@ class ClientCreationForm(forms.ModelForm):
             "first_name": "Имя",
             "last_name": "Фамилия",
         }
+
+    def save(self, *args, **kwargs):
+        instance = super().save(commit=False)
+        if self.has_changed():
+            instance.save()
+        return instance
 
 
 class SetInitialPasswordForm(forms.Form):
@@ -58,3 +76,18 @@ class SetInitialPasswordForm(forms.Form):
             raise ValidationError("Пароли не совпадают")
 
         return cleaned_data
+
+    def __init__(self, *args, token=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.token = token
+
+    def get_user_and_password(self):
+        from .utils.account_services import activate_user_service
+
+        if not self.token:
+            return None
+
+        password = self.cleaned_data["password1"]
+        user = activate_user_service(self.token, password)
+
+        return user, password

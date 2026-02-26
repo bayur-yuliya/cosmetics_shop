@@ -1,8 +1,9 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
-from django.views.generic import ListView, CreateView, DeleteView, UpdateView
+from django.views.generic import ListView, DeleteView
 
+from config.settings import PRODUCTS_PER_PAGE
 from staff.mixins import (
     PageTitleMixin,
     ModelPermissionMixin,
@@ -18,20 +19,14 @@ class BaseStaffListView(
     ListView,
 ):
     template_name = "staff/catalog/lists_page.html"
-    paginate_by = 20
+    paginate_by = PRODUCTS_PER_PAGE
     context_object_name = "objects"
 
 
-class BaseStaffCreateView(
-    PageTitleMixin, LoginRequiredMixin, StaffPermissionExceptionMixin, CreateView
+class BaseStaffManageView(
+    PageTitleMixin, LoginRequiredMixin, StaffPermissionExceptionMixin
 ):
-    template_name = "staff/catalog/create_page.html"
-
-
-class BaseStaffChangeView(
-    PageTitleMixin, LoginRequiredMixin, StaffPermissionExceptionMixin, UpdateView
-):
-    template_name = "staff/catalog/update_page.html"
+    template_name = "staff/catalog/manage_page.html"
 
 
 class BaseStaffDeleteView(

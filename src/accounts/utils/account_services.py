@@ -1,14 +1,14 @@
-from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import redirect, get_object_or_404
+from django.db import transaction
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
 from accounts.models import CustomUser, ActivationToken
 from accounts.utils.validators import validate_activation_token
 from config import settings
+from config.settings import DEFAULT_STAFF_GROUP_NAME
 
 
 def send_activation_email(user: CustomUser, token_obj: ActivationToken) -> None:
@@ -41,46 +41,25 @@ def send_activation_email(user: CustomUser, token_obj: ActivationToken) -> None:
         print(f"Ошибка отправки письма: {e}")
 
 
-def activate_user_service(request, token_value: str, password: str) -> CustomUser:
+def activate_user_service(token_value: str, password: str) -> CustomUser | None:
     try:
         validate_activation_token(token_value)
-    except ValidationError as e:
-        messages.error(request, e.message)
+    except ValidationError:
+        return None
 
-    token_obj: ActivationToken = ActivationToken.objects.select_related("user").get(
-        token=token_value
-    )
+    with transaction.atomic():
+        token_obj: ActivationToken = ActivationToken.objects.select_for_update().select_related("user").get(
+            token=token_value
+        )
 
-    user: CustomUser = token_obj.user
-    user.set_password(password)
-    user.is_active = True
-    user.is_staff = True
+        user: CustomUser = token_obj.user
+        user.set_password(password)
+        user.is_active = True
+        user.is_staff = True
 
-    groups = get_object_or_404(Group, name="Гости")
-    user.groups.add(groups)
+        groups = get_object_or_404(Group, name=DEFAULT_STAFF_GROUP_NAME)
+        user.groups.add(groups)
 
-    user.save()
-    token_obj.delete()
-
-    messages.success(request, "Аккаунт активирован!")
+        user.save()
+        token_obj.delete()
     return user
-
-
-def login_authenticated_user(
-    request: HttpRequest, user: CustomUser, password: str
-) -> HttpResponse:
-    from django.contrib.auth import authenticate
-
-    authenticated_user: CustomUser | None = authenticate(
-        request, email=user.email, password=password
-    )
-
-    if user is not None:
-        from django.contrib.auth import login
-
-        login(request, authenticated_user)
-        messages.success(request, "Пользователь успешно залогинен")
-        return redirect("main_page")
-    else:
-        messages.error(request, "Ошибка аутентификации")
-    return redirect("main_page")

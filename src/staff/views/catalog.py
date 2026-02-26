@@ -1,11 +1,11 @@
 from django.urls import reverse_lazy
+from django.views.generic import CreateView, UpdateView
 
 from cosmetics_shop.models import Tag, Brand, GroupProduct, Category
 from staff.forms import TagForm, BrandForm, GroupProductForm, CategoryForm
 from staff.services.list_service import (
     BaseStaffDeleteView,
-    BaseStaffChangeView,
-    BaseStaffCreateView,
+    BaseStaffManageView,
     BaseStaffListView,
 )
 
@@ -17,7 +17,7 @@ class CategoryListView(BaseStaffListView):
     permission_required = "cosmetics_shop.view_category"
 
 
-class CategoryCreateView(BaseStaffCreateView):
+class CategoryCreateView(BaseStaffManageView, CreateView):
     page_title = "Создание категории"
     model = Category
     form_class = CategoryForm
@@ -25,7 +25,7 @@ class CategoryCreateView(BaseStaffCreateView):
     success_url = reverse_lazy("categories_list")
 
 
-class CategoryChangeView(BaseStaffChangeView):
+class CategoryChangeView(BaseStaffManageView, UpdateView):
     page_title = "Изменение категории"
     model = Category
     form_class = CategoryForm
@@ -46,7 +46,7 @@ class GroupProductListView(BaseStaffListView):
     permission_required = "cosmetics_shop.view_groupproduct"
 
 
-class GroupProductCreateView(BaseStaffCreateView):
+class GroupProductCreateView(BaseStaffManageView, CreateView):
     page_title = "Создание группы"
     model = GroupProduct
     form_class = GroupProductForm
@@ -54,7 +54,7 @@ class GroupProductCreateView(BaseStaffCreateView):
     success_url = reverse_lazy("groups_list")
 
 
-class GroupProductChangeView(BaseStaffChangeView):
+class GroupProductChangeView(BaseStaffManageView, UpdateView):
     page_title = "Изменение группы"
     model = GroupProduct
     form_class = GroupProductForm
@@ -75,7 +75,7 @@ class BrandListView(BaseStaffListView):
     permission_required = "cosmetics_shop.view_brand"
 
 
-class BrandCreateView(BaseStaffCreateView):
+class BrandCreateView(BaseStaffManageView, CreateView):
     page_title = "Создание бренда"
     model = Brand
     form_class = BrandForm
@@ -83,7 +83,7 @@ class BrandCreateView(BaseStaffCreateView):
     success_url = reverse_lazy("brands_list")
 
 
-class BrandChangeView(BaseStaffChangeView):
+class BrandChangeView(BaseStaffManageView, UpdateView):
     page_title = "Изменение бренда"
     model = Brand
     form_class = BrandForm
@@ -104,7 +104,7 @@ class TagListView(BaseStaffListView):
     permission_required = "cosmetics_shop.view_tag"
 
 
-class TagCreateView(BaseStaffCreateView):
+class TagCreateView(BaseStaffManageView, CreateView):
     page_title = "Создание тега"
     model = Tag
     form_class = TagForm
@@ -112,7 +112,7 @@ class TagCreateView(BaseStaffCreateView):
     success_url = reverse_lazy("tags_list")
 
 
-class TagChangeView(BaseStaffChangeView):
+class TagChangeView(BaseStaffManageView, UpdateView):
     page_title = "Изменение тега"
     model = Tag
     form_class = TagForm

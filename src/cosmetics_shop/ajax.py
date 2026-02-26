@@ -2,11 +2,11 @@ from django.http import JsonResponse, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 
-from cosmetics_shop.models import Product, Favorite, CartItem
+from cosmetics_shop.models import Product, Favorite
 from cosmetics_shop.services.cart_services import (
     add_product_to_cart,
     remove_product_from_cart,
-    calculate_cart_total,
+    get_cart_status_response,
 )
 from cosmetics_shop.utils.cart_utils import get_or_create_cart
 
@@ -37,82 +37,31 @@ def toggle_favorite(request: HttpRequest) -> HttpResponse:
 
 @require_POST
 def add_to_cart(request: HttpRequest) -> HttpResponse:
+    product_code = request.POST.get("product_code")
+    if not product_code:
+        return JsonResponse({"success": False, "error": "No product code"}, status=400)
+
     try:
-        product_code = request.POST.get("product_code")
-
-        if not product_code:
-            return JsonResponse({"success": False, "error": "No product code"})
-
         cart = get_or_create_cart(request)
         add_product_to_cart(cart, product_code=int(product_code))
-
-        cart_items = CartItem.objects.select_related("product").filter(cart=cart)
-        count = sum(item.quantity for item in cart_items)
-
-        product_count = cart_items.filter(product__code=product_code).first()
-
-        if product_count is None:
-            return JsonResponse({"success": False, "error": "No product"})
-
-        total_price = calculate_cart_total(cart)
-        product_total_price = product_count.quantity * product_count.product.price
-
-        message = None
-        if product_count.quantity == product_count.product.stock:
-            message = {
-                "level": "error",
-                "text": "Это последний товар",
-            }
-
-        return JsonResponse(
-            {
-                "success": True,
-                "count": count,
-                "product_count": product_count.quantity,
-                "total_price": float(total_price),
-                "product_total_price": product_total_price,
-                "product_code": product_code,
-                "message": message,
-            }
-        )
+        return get_cart_status_response(cart, product_code)
 
     except Product.DoesNotExist:
-        return JsonResponse({"success": False, "error": "Product not found"})
-    except Exception as e:
-        return JsonResponse({"success": False, "error": str(e)})
+        return JsonResponse(
+            {"success": False, "error": "Product not found"}, status=404
+        )
 
 
 @require_POST
 def cart_remove(request: HttpRequest) -> HttpResponse:
     product_code = request.POST.get("product_code")
+    if not product_code:
+        return JsonResponse({"success": False, "error": "No product code"}, status=400)
 
-    if product_code is None:
-        return JsonResponse(
-            {"success": False, "error": "Missing product code"}, status=400
-        )
+    try:
+        cart = get_or_create_cart(request)
+        remove_product_from_cart(cart, int(product_code))
+        return get_cart_status_response(cart, product_code)
 
-    cart = get_or_create_cart(request)
-
-    remove_product_from_cart(cart, int(product_code))
-
-    cart_items = CartItem.objects.select_related("product").filter(cart=cart)
-    count = sum(item.quantity for item in cart_items)
-
-    product_count = cart_items.filter(product__code=product_code).first()
-
-    if product_count is None:
-        return JsonResponse({"success": False, "error": "No product"})
-
-    total_price = calculate_cart_total(cart)
-    product_total_price = product_count.quantity * product_count.product.price
-
-    return JsonResponse(
-        {
-            "success": True,
-            "count": count,
-            "product_count": product_count.quantity,
-            "product_total_price": product_total_price,
-            "total_price": float(total_price),
-            "product_code": product_code,
-        }
-    )
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)

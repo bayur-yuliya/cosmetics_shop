@@ -44,7 +44,7 @@
                                 {%  if permissions.delete  %}
                                     <button
                                         data-id="{{ object.id }}"
-                                        data-name="{{ object }}"
+                                        data-name="{{ object|escape }}"
                                         onclick="openDeleteDialog(this)"
                                         class="btn btn-sm btn-danger">
                                         Удалить

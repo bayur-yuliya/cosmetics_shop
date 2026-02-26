@@ -1,5 +1,6 @@
+import re
 import uuid
-from itertools import count
+from random import randint
 
 from django.conf import settings
 from django.db import models, transaction, IntegrityError
@@ -51,6 +52,12 @@ class ProductQuerySet(models.QuerySet):
             .with_stock_order()
         )
 
+    def product_group_by_category(self, category_slug):
+        group_products: list[int] = list(
+            GroupProduct.objects.filter(category__slug=category_slug).values_list("id", flat=True)
+        )
+        return self.filter(group__in=group_products)
+
 
 class SlugRedirectModel(models.Model):
     """
@@ -63,43 +70,71 @@ class SlugRedirectModel(models.Model):
     slug = models.SlugField(max_length=200, unique=True, blank=True)
 
     redirect_url_configs: list[tuple[str, str]] = []
+    slug_source_field = "name"
 
     class Meta:
         abstract = True
 
     def save(self, *args, **kwargs):
         old_slug = None
+        old_source_value = None
 
         if self.pk:
-            old_slug = (
-                self.__class__._default_manager.filter(pk=self.pk)
-                .values_list("slug", flat=True)
-                .first()
-            )
-
-        if not self.slug:
-            name_val = getattr(self, "name", "")
-            self.slug = slugify(name_val)
-
-        base_slug = self.slug
-
-        for i in count(0):
             try:
-                with transaction.atomic():
-                    if i > 0:
-                        self.slug = f"{base_slug}-{i}"
+                old_instance = self.__class__.objects.get(pk=self.pk)
+                old_slug = old_instance.slug
+                old_source_value = getattr(old_instance, self.slug_source_field, None)
+            except self.__class__.DoesNotExist:
+                pass
 
-                    super().save(*args, **kwargs)
-                    break
-            except IntegrityError:
-                if i > 100:
-                    raise
-                continue
+        current_source_value = getattr(self, self.slug_source_field, "object")
+        if not self.slug or (
+            old_source_value is not None and current_source_value != old_source_value
+        ):
+            self.slug = slugify(current_source_value)
+
+        self.generate_slug()
+
+        try:
+            with transaction.atomic():
+                super().save(*args, **kwargs)
+        except IntegrityError:
+            import uuid
+
+            self.slug = f"{self.slug}-{uuid.uuid4().hex[:4]}"
+            super().save(*args, **kwargs)
 
         if old_slug and old_slug != self.slug and self.redirect_url_configs:
             self._handle_redirects(old_slug)
 
+    def generate_slug(self):
+        if not self.slug:
+            self.slug = slugify(getattr(self, "name", "object"))
+
+        exists = (
+            self.__class__._default_manager.filter(slug=self.slug)
+            .exclude(pk=self.pk)
+            .exists()
+        )
+
+        if exists:
+            base_slug = self.slug
+            all_slugs = self.__class__._default_manager.filter(
+                slug__startswith=f"{base_slug}-"
+            ).values_list("slug", flat=True)
+
+            pattern = re.compile(rf"^{re.escape(base_slug)}-(\d+)$")
+            nums = []
+            for s in all_slugs:
+                match = pattern.match(s)
+                if match:
+                    nums.append(int(match.group(1)))
+
+            next_num = max(nums) + 1 if nums else 1
+            self.slug = f"{base_slug}-{next_num}"
+
     def _handle_redirects(self, old_slug):
+        # print replace to logging
         from django.contrib.redirects.models import Redirect
         from django.contrib.sites.models import Site
 
@@ -141,15 +176,10 @@ class Client(models.Model):
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
-    @property
-    def is_registered(self):
-        return self.user is not None
-
     def save(self, *args, **kwargs):
         if self.user and not self.email:
             with transaction.atomic():
-                user_email = getattr(self.user, "email", "")
-                self.email = user_email or ""
+                self.email = getattr(self.user, "email", None)
         super().save(*args, **kwargs)
 
     class Meta:
@@ -177,12 +207,15 @@ class DeliveryAddress(models.Model):
         return f"{self.city}, {self.post_office}"
 
     def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.update_other_client_addresses_as_non_primary()
+
+    def update_other_client_addresses_as_non_primary(self):
         if self.is_primary:
             with transaction.atomic():
                 DeliveryAddress.objects.filter(
                     client=self.client, is_primary=True
                 ).exclude(pk=self.pk).update(is_primary=False)
-        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = _("адрес доставки")
@@ -268,9 +301,10 @@ class Product(models.Model):
     objects = ProductQuerySet.as_manager()
 
     def save(self, *args, **kwargs):
+        # 10,000,000 records should be enough
         if not self.pk:
             with transaction.atomic():
-                self.code = 0
+                self.code = randint(0000, 9999)
                 super().save(*args, **kwargs)
 
                 A = 4_827_137
@@ -281,6 +315,10 @@ class Product(models.Model):
                 Product.objects.filter(pk=self.pk).update(code=self.code)
         else:
             super().save(*args, **kwargs)
+
+    def soft_delete(self):
+        self.is_active = False
+        self.save()
 
     def __str__(self):
         return f"{self.group} - {self.name}"
@@ -297,8 +335,11 @@ class Product(models.Model):
 class Favorite(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    # created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        ordering = ["product"]
+        # ordering = ["created_at"]
         unique_together = ("user", "product")
 
 
@@ -306,6 +347,7 @@ class Cart(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, null=True)
     session_key = models.CharField(max_length=40, null=True, blank=True)
     created_at = models.DateField(auto_now_add=True)
+    # created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.created_at} - {self.user}"
@@ -341,20 +383,27 @@ class Order(models.Model):
         return f"{self.created_at} - {self.code}"
 
     def save(self, *args, **kwargs):
-        if not self.pk and self.client:
+        is_new = not self.pk
+        if is_new and self.client:
             self.snapshot_name = (
                 f"{self.client.first_name} {self.client.last_name}".strip()
             )
-            self.snapshot_phone = self.client.phone if self.client.phone else ""
-            self.snapshot_email = self.client.email if self.client.email else ""
+            self.snapshot_phone = getattr(self.client, "phone", "")
+            self.snapshot_email = getattr(self.client, "email", "")
 
             address = self.client.addresses.filter(is_primary=True)
             if address:
-                self.snapshot_address = str(address)
+                self.snapshot_address = str(address.first())
 
         super().save(*args, **kwargs)
 
+        if is_new:
+            self.set_status(self.status)
+
     def update_total_price(self):
+        # NOTE: Automatic recalculation of the order total is intentionally moved out of the save method.
+        # This avoids the N+1 problem during bulk operations.
+        # Don't forget to call order.update_total_price() at the end of View or Service function.
         total = (
             self.order_items.aggregate(
                 total=Sum(
@@ -365,7 +414,14 @@ class Order(models.Model):
         )
 
         self.total_price = total
-        self.save(update_fields=["total_price"])
+
+    def set_status(self, new_status, user=None, comment=""):
+        with transaction.atomic():
+            self.status = new_status
+            self.save(update_fields=["status"])
+            OrderStatusLog.objects.create(
+                order=self, status=new_status, changed_by=user, comment=comment
+            )
 
     class Meta:
         ordering = ["-id"]
@@ -385,15 +441,9 @@ class OrderItem(models.Model):
     snapshot_product = models.CharField(max_length=100)
 
     def __str__(self):
-        return f"{self.order} - {self.product}"
+        return f"{self.product} - {self.quantity}"
 
     def save(self, *args, **kwargs):
-        if not self.pk and self.product and not self.price:
-            self.price = self.product.price
-
-        if not self.pk and self.product:
-            self.snapshot_product = self.product.name
-
         super().save(*args, **kwargs)
 
     class Meta:

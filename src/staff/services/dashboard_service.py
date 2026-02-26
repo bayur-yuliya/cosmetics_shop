@@ -1,49 +1,70 @@
-import datetime
-
 from dateutil.relativedelta import relativedelta
-from django.db.models import Avg, Sum
+from django.db.models import Avg, Sum, Count
+from django.utils import timezone
 
-from cosmetics_shop.models import Order, Status
+from cosmetics_shop.models import Order, Status, Favorite
 
 
-def number_of_completed_orders_today():
-    completed_orders_today = (
+def get_completed_orders_queryset(start_date):
+    return (
         Order.objects.filter(
-            created_at__gte=datetime.date.today(), status_log__status=Status.COMPLETED
+            created_at__gte=start_date,
+            status=Status.COMPLETED,
         )
         .distinct()
-        .count()
     )
 
-    return completed_orders_today
+
+def get_today_stats():
+    today = timezone.now().date()
+
+    qs = get_completed_orders_queryset(today)
+
+    return {
+        "total_orders": qs.count(),
+    }
 
 
-def orders_per_month(month):
-    one_month_ago = month - relativedelta(months=1)
-    orders_per_month = Order.objects.filter(
-        created_at__gte=one_month_ago, status_log__status=Status.COMPLETED
-    ).distinct()
-    return orders_per_month
+def get_month_stats(current_date):
+    one_month_ago = current_date - relativedelta(months=1)
+
+    qs = get_completed_orders_queryset(one_month_ago)
+
+    stats = qs.aggregate(
+        total_orders=Count("id"),
+        total_revenue=Sum("total_price"),
+        avg_check=Avg("total_price"),
+    )
+
+    return {
+        "total_orders": stats["total_orders"] or 0,
+        "total_revenue": int(stats["total_revenue"] or 0),
+        "avg_check": round(stats["avg_check"] or 0, 2),
+    }
 
 
-def number_of_orders_per_month(month):
-    num_of_orders_per_month = orders_per_month(month).count()
-    return num_of_orders_per_month
+def get_dashboard_context():
+    today = timezone.now().date()
 
+    today_stats = get_today_stats()
+    month_stats = get_month_stats(today)
 
-def summ_bill(month):
-    orders = orders_per_month(month)
-    if orders.aggregate(avg_bill=Sum("total_price"))["avg_bill"]:
-        summ_bill = int(orders.aggregate(avg_bill=Sum("total_price"))["avg_bill"])
-    else:
-        summ_bill = 0
-    return summ_bill
+    max_favorite = (
+        Favorite.objects
+        .annotate(num_product=Count("product"))
+        .order_by("-num_product")
+        .select_related("product__group")[:3]
+    )
 
+    current_year = timezone.now().year
+    years = range(current_year - 5, current_year + 1)
 
-def average_bill(month):
-    orders = orders_per_month(month)
-    if orders.aggregate(avg_bill=Avg("total_price"))["avg_bill"]:
-        average_bill = orders.aggregate(avg_bill=Avg("total_price"))["avg_bill"]
-    else:
-        average_bill = 0
-    return average_bill
+    return {
+        "number_of_completed_orders_today": today_stats["total_orders"],
+        "number_of_orders_per_month": month_stats["total_orders"],
+        "summ_bill": month_stats["total_revenue"],
+        "average_bill": month_stats["avg_check"],
+        "max_favorite": max_favorite,
+        "years": years,
+        "current_year": current_year,
+        }

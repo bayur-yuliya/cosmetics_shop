@@ -33,8 +33,7 @@ def sales_comparison_chart_for_the_year(request: HttpRequest) -> JsonResponse:
     for item in orders_by_month:
         month = item["month"].month - 1
         sales_counts[month] = item["count"]
-        price = item["avg_price"] / 100
-        average_bill_counts[month] = round(price or 0, 2)
+        average_bill_counts[month] = round(item["avg_price"] or 0, 2)
 
     return JsonResponse(
         {

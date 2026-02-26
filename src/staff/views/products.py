@@ -1,22 +1,16 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
-from django.core.paginator import Paginator
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from django.views.decorators.http import require_POST
-
 from cosmetics_shop.models import (
     Product,
     Tag,
 )
-from staff.forms import (
-    ProductForm,
-    FilterStockForm,
-    ProductStuffFilterForm,
-)
-from staff.services.products_service import filter_staff_form, filter_staff_stock_form
+from staff.forms import ProductForm, ProductFilterForm
+from utils.helper_function import get_paginator_page
 
 
 @permission_required("cosmetics_shop.view_product", raise_exception=True)
@@ -25,20 +19,15 @@ def products(request: HttpRequest) -> HttpResponse:
         Product.objects.all()
         .order_by("-id")
         .filter(is_active=True)
-        .select_related("brand")
+        .for_catalog()
     )
 
-    form = ProductStuffFilterForm(request.GET or None)
-    form_stock = FilterStockForm(request.GET or None)
+    form = ProductFilterForm(request.GET)
 
-    filtered_product: QuerySet[Product] = filter_staff_form(products_list, form)
-    stock_filtered_product: QuerySet[Product] = filter_staff_stock_form(
-        filtered_product, form_stock
-    )
+    if form.is_valid():
+        products_list = form.apply_filters(products_list)
 
-    paginator = Paginator(stock_filtered_product, 20)
-    page_number = request.GET.get("page")
-    page = paginator.get_page(page_number)
+    page = get_paginator_page(request, products_list)
 
     return render(
         request,
@@ -47,7 +36,6 @@ def products(request: HttpRequest) -> HttpResponse:
             "title": "Товары",
             "products": page,
             "form": form,
-            "form_stock": form_stock,
         },
     )
 
@@ -114,8 +102,7 @@ def edit_products(request: HttpRequest, product_code: int) -> HttpResponse:
 def delete_product(request: HttpRequest, product_id: int) -> HttpResponse:
     if product_id:
         product: Product = get_object_or_404(Product, id=product_id)
-        product.is_active = False
-        product.save()
+        product.soft_delete()
     else:
         messages.error(request, "Не удалось удалить товар")
     return redirect("products")

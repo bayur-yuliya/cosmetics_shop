@@ -67,7 +67,9 @@ def order_success(request: HttpRequest) -> HttpResponse:
 
     if order_id:
         order: Order = get_object_or_404(Order, pk=order_id)
-        products: QuerySet[OrderItem] = OrderItem.objects.filter(order=order).select_related("product")
+        products: QuerySet[OrderItem] = OrderItem.objects.filter(
+            order=order
+        ).select_related("product")
         del request.session["order_id"]
     else:
         messages.error(request, "Возникла проблема с сохранением заказа")
