@@ -163,6 +163,8 @@ MESSAGE_STORAGE = "django.contrib.messages.storage.cookie.CookieStorage"
 
 AUTH_USER_MODEL = "accounts.CustomUser"
 
+DEFAULT_STAFF_GROUP_NAME = "Гости"
+
 SITE_ID = 1
 
 ACCOUNT_LOGIN_METHODS = {"email"}

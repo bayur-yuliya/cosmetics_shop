@@ -1,16 +1,13 @@
 from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render, redirect
 from django.utils.http import url_has_allowed_host_and_scheme
 
 from accounts.forms import SetInitialPasswordForm
 from accounts.models import CustomUser
-from accounts.utils.account_services import (
-    activate_user_service,
-    login_authenticated_user,
-)
 
 
 def login_view(request: HttpRequest) -> HttpResponse:
@@ -35,7 +32,6 @@ def login_view(request: HttpRequest) -> HttpResponse:
         else:
             messages.error(request, "Неверный email или пароль")
         return redirect(next_url_path)
-
     return redirect("main_page")
 
 
@@ -49,13 +45,17 @@ def activate_account(request: HttpRequest) -> HttpResponse:
     token_value: str | None = request.GET.get("token")
     if token_value is not None:
         if request.method == "POST":
-            form = SetInitialPasswordForm(request.POST)
+            form = SetInitialPasswordForm(request.POST, token=token_value)
             if form.is_valid():
-                password = form.cleaned_data["password1"]
-                user = activate_user_service(request, token_value, password)
-                login_authenticated_user(request, user, password)
+                user, password = form.get_user_and_password()
+                if user is not None:
+                    login(request, user)
+                    messages.success(request, "Аккаунт активирован!")
+                    return redirect("main_page")
     else:
         messages.error(request, "Не удалось получить токен")
+        return redirect("main_page")
+
     form = SetInitialPasswordForm()
     return render(
         request,

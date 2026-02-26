@@ -34,6 +34,12 @@ class ClientCreationForm(forms.ModelForm):
             "last_name": "Фамилия",
         }
 
+    def save(self, *args, **kwargs):
+        instance = super().save(commit=False)
+        if self.has_changed():
+            instance.save()
+        return instance
+
 
 class SetInitialPasswordForm(forms.Form):
     password1 = forms.CharField(
@@ -58,3 +64,18 @@ class SetInitialPasswordForm(forms.Form):
             raise ValidationError("Пароли не совпадают")
 
         return cleaned_data
+
+    def __init__(self, *args, token=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.token = token
+
+    def get_user_and_password(self):
+        from .utils.account_services import activate_user_service
+
+        if not self.token:
+            return None
+
+        password = self.cleaned_data["password1"]
+        user = activate_user_service(self.token, password)
+
+        return user, password

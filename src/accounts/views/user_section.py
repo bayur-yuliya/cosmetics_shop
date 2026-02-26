@@ -3,14 +3,11 @@ from allauth.socialaccount.models import SocialAccount
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
-from django.core.cache import cache
-from django.core.paginator import Paginator
 from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
 from accounts.forms import ClientCreationForm
-from config.settings import PRODUCTS_PER_PAGE
 
 from cosmetics_shop.models import Client
 from cosmetics_shop.services.order_service import get_order_items_by_client
@@ -27,13 +24,11 @@ def delete_account(request: AuthenticatedRequest) -> HttpResponse:
     EmailAddress.objects.filter(user=user).delete()
 
     user.email = None
-
+    user.set_unusable_password()
     user.is_active = False
     user.save()
-    user.set_unusable_password()
 
     logout(request)
-    cache.clear()
     return redirect("main_page")
 
 
@@ -46,13 +41,12 @@ def user_contact(request: AuthenticatedRequest) -> HttpResponse:
             request.POST, instance=client, initial={"email": request.user.email}
         )
         if form.is_valid():
-            if form.has_changed():
-                form.save()
-                messages.success(request, "Данные успешно обновлены")
-            else:
-                messages.info(request, "Изменений не обнаружено")
-
+            form.save()
+            messages.success(request, "Данные успешно обновлены")
+        else:
+            messages.info(request, "Изменений не обнаружено")
             return redirect("user_contact")
+
     form = ClientCreationForm(instance=client, initial={"email": request.user.email})
     return render(
         request,
