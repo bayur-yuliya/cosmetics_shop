@@ -1,10 +1,12 @@
 import re
 import uuid
+from decimal import Decimal
 from random import randint
 
 from django.conf import settings
+from django.core.validators import MinValueValidator
 from django.db import models, transaction, IntegrityError
-from django.db.models import Sum, F, Q
+from django.db.models import Sum, F
 from django.urls import reverse, NoReverseMatch
 from django.utils.translation import gettext_lazy as _
 from slugify import slugify
@@ -30,7 +32,6 @@ class Status(models.IntegerChoices):
             cls.PAYMENT_FAILED: "warning",
             cls.IN_PROGRESS: "info",
             cls.COMPLETED: "success",
-            cls.CLOSED: "warning",
             cls.CANCELED: "danger",
         }.get(status)
 
@@ -163,24 +164,36 @@ class SlugRedirectModel(models.Model):
         return ""
 
 
+class TimestampedModel(models.Model):
+    created_at = models.DateTimeField(
+        _("дата создания"),
+        auto_now_add=True,
+        db_index=True,
+        editable=False,
+    )
+
+    class Meta:
+        abstract = True
+        get_latest_by = "created_at"
+        ordering = ["-created_at"]
+
+
 class Client(models.Model):
     user = models.OneToOneField(
         CustomUser, on_delete=models.SET_NULL, null=True, blank=True
     )
     first_name = models.CharField(max_length=50, blank=True)
     last_name = models.CharField(max_length=50, blank=True)
-    phone = models.CharField(max_length=10, validators=[validate_phone_number])
-    email = models.EmailField()
-    # email = models.EmailField(null=True)
+    phone = models.CharField(max_length=13, validators=[validate_phone_number])
+    email = models.EmailField(verbose_name="Контактный email клиента")
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
     def save(self, *args, **kwargs):
-        if self.user and not self.email:
-            with transaction.atomic():
-                self.email = getattr(self.user, "email", None)
+        if self.user:
+            self.email = self.user.email
         super().save(*args, **kwargs)
 
     class Meta:
@@ -190,7 +203,7 @@ class Client(models.Model):
 
 class DeliveryAddress(models.Model):
     client = models.ForeignKey(
-        Client, related_name="addresses", on_delete=models.CASCADE
+        Client, on_delete=models.CASCADE, related_name="addresses"
     )
     city = models.CharField(max_length=100)
     street = models.CharField(max_length=100)
@@ -280,11 +293,11 @@ class Tag(models.Model):
         verbose_name_plural = _("Теги")
 
 
-class Product(models.Model):
+class Product(TimestampedModel):
     name = models.CharField(max_length=100, unique=True)
-    group = models.ForeignKey(GroupProduct, on_delete=models.CASCADE)
-    brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    group = models.ForeignKey(GroupProduct, on_delete=models.CASCADE, related_name="products")
+    brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name="products")
+    price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.00'))])
     description = models.TextField()
     stock = models.PositiveIntegerField(default=0)
     code = models.PositiveIntegerField(unique=True, editable=False, db_index=True)
@@ -298,7 +311,7 @@ class Product(models.Model):
         # 10,000,000 records should be enough
         if not self.pk:
             with transaction.atomic():
-                self.code = randint(0000, 9999)
+                self.code = randint(0, 9999)
                 super().save(*args, **kwargs)
 
                 A = 4_827_137
@@ -326,31 +339,27 @@ class Product(models.Model):
         ]
 
 
-class Favorite(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    # created_at = models.DateTimeField(auto_now_add=True)
+class Favorite(TimestampedModel):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="favorites")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="favorites")
 
     class Meta:
-        ordering = ["product"]
-        # ordering = ["created_at"]
+        ordering = ["-created_at"]
         unique_together = ("user", "product")
 
 
-class Cart(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, null=True)
+class Cart(TimestampedModel):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, null=True, related_name="cart")
     session_key = models.CharField(max_length=40, null=True, blank=True)
-    created_at = models.DateField(auto_now_add=True)
-    # created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.created_at} - {self.user}"
 
 
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="cart_items")
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=0)
+    quantity = models.PositiveIntegerField(default=1)
 
     def __str__(self):
         return f"{self.product} - {self.quantity}"
@@ -359,14 +368,20 @@ class CartItem(models.Model):
         unique_together = ("cart", "product")
 
 
-class Order(models.Model):
-    client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True)
+class Order(TimestampedModel):
+    client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, related_name="orders")
     code = models.UUIDField(default=uuid.uuid4, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True)
     status = models.IntegerField(
         choices=Status.choices, default=Status.NEW, db_index=True
     )
-    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    total_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0.00,
+        validators=[MinValueValidator(Decimal('0.00'))]
+    )
+
+    comment = models.TextField(max_length=300, null=True, blank=True)
 
     snapshot_name = models.CharField(max_length=200)
     snapshot_phone = models.CharField(max_length=20)
@@ -378,6 +393,9 @@ class Order(models.Model):
 
     def save(self, *args, **kwargs):
         is_new = not self.pk
+
+        super().save(*args, **kwargs)
+
         if is_new and self.client:
             self.snapshot_name = (
                 f"{self.client.first_name} {self.client.last_name}".strip()
@@ -385,11 +403,9 @@ class Order(models.Model):
             self.snapshot_phone = getattr(self.client, "phone", "")
             self.snapshot_email = getattr(self.client, "email", "")
 
-            address = self.client.addresses.filter(is_primary=True)
+            address = self.client.addresses.filter(is_primary=True).first()
             if address:
-                self.snapshot_address = str(address.first())
-
-        super().save(*args, **kwargs)
+                self.snapshot_address = str(address)
 
         if is_new:
             self.set_status(self.status)
@@ -438,6 +454,8 @@ class OrderItem(models.Model):
         return f"{self.product} - {self.quantity}"
 
     def save(self, *args, **kwargs):
+        if not self.pk and not self.snapshot_product and self.product:
+            self.snapshot_product = self.product.name
         super().save(*args, **kwargs)
 
     class Meta:
@@ -447,12 +465,12 @@ class OrderItem(models.Model):
 
 class OrderStatusLog(models.Model):
     order = models.ForeignKey(
-        "Order", on_delete=models.CASCADE, related_name="status_log"
+        "Order", on_delete=models.CASCADE, related_name="order_status_log"
     )
     status = models.IntegerField(choices=Status.choices, default=Status.NEW)
     changed_at = models.DateTimeField(auto_now_add=True)
     changed_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="order_status_logs"
     )
     comment = models.TextField(null=True, blank=True)
 
