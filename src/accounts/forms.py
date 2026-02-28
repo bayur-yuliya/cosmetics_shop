@@ -5,28 +5,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.exceptions import ValidationError
 
 from cosmetics_shop.models import Client
-from .models import CustomUser
 from accounts.utils.validators import validate_phone_number
-
-
-class CustomUserCreationForm(UserCreationForm):
-    class Meta:
-        model = CustomUser
-        fields = ("email",)
-
-
-class CustomSignupForm(SignupForm):
-    def clean_email(self):
-        email = super().clean_email()
-
-        User = get_user_model()
-        if User.objects.filter(email__iexact=email).exists():
-            raise forms.ValidationError(
-                "Пользователь с таким email уже существует.",
-                code='email_taken'
-            )
-
-        return email
 
 
 class ClientCreationForm(forms.ModelForm):
