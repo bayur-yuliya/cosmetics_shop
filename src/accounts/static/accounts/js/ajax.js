@@ -14,166 +14,109 @@ function getCookie(name) {
 }
 
 function setupAjaxForm({
-  formId,
-  buttonId,
-  errorId,
-  errorMessage,
-  loadingText = "Загрузка...",
-  defaultText
+    formId,
+    apiUrl,
+    buttonId,
+    errorId,
+    errorMessage,
+    loadingText,
+    defaultText
 }) {
-  const form = document.querySelector(`#${formId}`);
-  if (!form) return;
+    const form = document.querySelector(`#${formId}`);
+    if (!form) return;
 
-  const button = document.querySelector(`#${buttonId}`);
-  if (!button) return;
+    const button = document.querySelector(`#${buttonId}`);
+    const errorDiv = document.querySelector(`#${errorId}`);
 
-  const btnText = button.querySelector(".btn-text");
-  const spinner = button.querySelector(".spinner-border");
-  const errorDiv = document.querySelector(`#${errorId}`);
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-  // ─── Очистка ошибки при любом изменении в форме ───
-  const inputs = form.querySelectorAll('input');
-  inputs.forEach(input => {
-    input.addEventListener('input', () => {
-      if (!errorDiv.classList.contains('d-none')) {
-        errorDiv.classList.add('d-none');
-        errorDiv.innerText = '';
-      }
-    });
-  });
+        // Сброс состояния
+        button.disabled = true;
+        errorDiv.classList.add("d-none");
+        errorDiv.innerText = "";
 
-  // ─── Проверка email на blur (только для регистрации) ───
-  if (formId === "registerForm") {
-    const emailInput = form.querySelector('input[name="email"]');
-    if (emailInput) {
-      emailInput.addEventListener("blur", async function () {
-        const email = this.value.trim();
-        if (!email) return;
+        const formData = new FormData(form);
+        const jsonData = Object.fromEntries(formData.entries());
 
         try {
-          const res = await fetch(form.action, {   // ← важно: правильный адрес!
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Requested-With": "XMLHttpRequest",
-              "X-CSRFToken": getCookie("csrftoken"),
-            },
-            body: JSON.stringify({ email }),
-          });
+            const response = await fetch(apiUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCookie("csrftoken"),
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+                body: JSON.stringify(jsonData),
+            });
 
-          const data = await res.json();
+            const data = await response.json();
 
-          if (data.exists) {
-            errorDiv.innerText = "Пользователь с таким email уже существует.";
-            errorDiv.classList.remove("d-none");
-          } else {
-            errorDiv.classList.add("d-none");
-            errorDiv.innerText = "";
-          }
-        } catch (err) {
-          console.error("Ошибка проверки email:", err);
-        }
-      });
-    }
-  }
-
-  // ─── Обработка отправки формы ───
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    if (button.disabled) return;
-    // Уже есть видимая ошибка → не отправляем
-    if (!errorDiv.classList.contains("d-none")) {
-      return;
-    }
-
-    // Блокировка интерфейса
-    button.disabled = true;
-    if (spinner) spinner.classList.remove("d-none");
-    if (btnText) btnText.innerText = loadingText;
-    errorDiv.classList.add("d-none");
-
-    try {
-    const response = await fetch(form.action, {
-        method: "POST",
-        body: new FormData(form),
-        credentials: "same-origin",
-        headers: {
-            "X-Requested-With": "XMLHttpRequest",
-            "X-CSRFToken": getCookie("csrftoken"),
-        },
-    });
-
-    button.disabled = true;
-    let data;
-
-    try {
-        data = await response.json();  // ← один раз здесь
-    } catch (jsonErr) {
-        console.error("Не удалось распарсить JSON:", jsonErr);
-        const text = await response.text();
-        console.log("Сырой ответ:", text.substring(0, 500));
-        errorDiv.innerText = "Сервер вернул неожиданный ответ. Попробуйте позже.";
-        errorDiv.classList.remove("d-none");
-        return;
-    }
-
-    if (response.ok) {
-        window.location.href = data.redirect || response.url || window.location.href;
-        return;
-    }
-
-    // ─── Теперь обрабатываем 400 ───
-    if (response.status === 400) {
-        let msg = errorMessage;
-
-        // Текущий формат allauth: data.form.fields.<field>.errors
-        if (data.form && data.form.fields) {
-            const fields = data.form.fields;
-
-            if (fields.email && fields.email.errors && fields.email.errors.length) {
-                msg = fields.email.errors.join(" • ");
-            } else if (fields.password1 && fields.password1.errors) {
-                msg = fields.password1.errors.join(" • ");
-            } else if (fields.password2 && fields.password2.errors) {
-                msg = fields.password2.errors.join(" • ");
-            } else {
-                msg = "Ошибка в данных. Проверьте поля.";
+            if (response.ok) {
+                // Успех -> Редирект
+                window.location.href = data.meta?.redirect_url || '/';
+                return;
             }
-        } else if (data.non_field_errors) {
-            msg = data.non_field_errors.join(" • ");
+
+            const errorTranslations = {
+                "password_too_short": "Пароль слишком короткий (минимум 8 символов).",
+                "email_taken": "Этот email уже занят.",
+                "required": "Это поле обязательно для заполнения.",
+                "password_entirely_numeric": "Пароль не может состоять только из цифр.",
+                "This password is too short. It must contain at least 8 characters.": "Пароль слишком короткий (минимум 8 знаков)."
+            };
+
+            // ОБРАБОТКА ОШИБОК
+            if (data.errors) {
+                let errorMsgs = data.errors.map(err => {
+                    if (err.param === 'email' && err.code === 'email_taken') {
+                        return "Этот email уже зарегистрирован.";
+                    }
+                    // 1. Пытаемся найти перевод по коду (code)
+                    if (errorTranslations[err.code]) {
+                        return errorTranslations[err.code];
+                    }
+                    // 2. Если по коду не нашли, пытаемся найти по тексту сообщения
+                    if (errorTranslations[err.message]) {
+                        return errorTranslations[err.message];
+                    }
+                    // 3. Если перевода нет, оставляем как есть
+                    return err.message;
+                });
+                // Показываем первую ошибку
+                errorDiv.innerText = errorMsgs[0];
+                errorDiv.classList.remove("d-none");
+            } else {
+                errorDiv.innerText = errorMessage;
+                errorDiv.classList.remove("d-none");
+            }
+
+        } catch (err) {
+            errorDiv.innerText = "Ошибка сети. Попробуйте позже.";
+            errorDiv.classList.remove("d-none");
+        } finally {
+            button.disabled = false;
         }
-
-        errorDiv.innerText = msg.trim() || errorMessage;
-        errorDiv.classList.remove("d-none");
-    }
-
-} catch (err) {
-    console.error("Ошибка при отправке:", err);
-    errorDiv.innerText = "Ошибка соединения. Попробуйте позже.";
-    errorDiv.classList.remove("d-none");
-}finally {
-      // Обязательно возвращаем всё в исходное состояние
-      button.disabled = false;
-      if (spinner) spinner.classList.add("d-none");
-      if (btnText) btnText.innerText = defaultText;
-    }
-  });
+    });
 }
 
+// Инициализация
 setupAjaxForm({
-  formId: "loginForm",
-  buttonId: "loginButton",
-  errorId: "loginErrors",
-  errorMessage: "Неверный email или пароль.",
-  loadingText: "Входим...",
-  defaultText: "Войти",
+    formId: "loginForm",
+    apiUrl: "/_allauth/browser/v1/auth/login", // Официальный API-эндпоинт
+    buttonId: "loginButton",
+    errorId: "loginErrors",
+    errorMessage: "Неверный email или пароль.",
+    loadingText: "Входим...",
+    defaultText: "Войти",
 });
 
 setupAjaxForm({
-  formId: "registerForm",
-  buttonId: "registerButton",
-  errorId: "registerErrors",
-  errorMessage: "Ошибка регистрации. Проверьте данные.",
-  loadingText: "Создаём аккаунт...",
-  defaultText: "Зарегистрироваться",
+    formId: "registerForm",
+    apiUrl: "/_allauth/browser/v1/auth/signup", // Официальный API-эндпоинт
+    buttonId: "registerButton",
+    errorId: "registerErrors",
+    errorMessage: "Ошибка регистрации. Проверьте данные.",
+    loadingText: "Создаём аккаунт...",
+    defaultText: "Зарегистрироваться",
 });

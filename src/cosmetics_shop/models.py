@@ -171,6 +171,7 @@ class Client(models.Model):
     last_name = models.CharField(max_length=50, blank=True)
     phone = models.CharField(max_length=10, validators=[validate_phone_number])
     email = models.EmailField()
+    # email = models.EmailField(null=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -185,13 +186,6 @@ class Client(models.Model):
     class Meta:
         verbose_name = _("клиента")
         verbose_name_plural = _("Клиенты")
-        constraints = [
-            models.UniqueConstraint(
-                fields=["email"],
-                condition=Q(user__isnull=False),
-                name="unique_registered_email",
-            )
-        ]
 
 
 class DeliveryAddress(models.Model):

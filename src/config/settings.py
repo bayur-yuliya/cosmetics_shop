@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "allauth",
     "allauth.account",
+    "allauth.headless",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     # apps
@@ -59,13 +60,13 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
-    "django.middleware.locale.LocaleMiddleware",
     "django.contrib.redirects.middleware.RedirectFallbackMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
@@ -173,8 +174,15 @@ ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_LOGOUT_ON_GET = True
-ACCOUNT_ADAPTER = 'accounts.adapters.AjaxFriendlyAccountAdapter'
+ACCOUNT_ADAPTER = 'allauth.account.adapter.DefaultAccountAdapter'
 ACCOUNT_PREVENT_ENUMERATION = False
+
+# Headless Setup
+HEADLESS_FRONTEND_URLS = {
+    "account_login": "/accounts/login/",
+}
+ALLAUTH_HEADLESS_ONLY = False
+
 
 AUTHENTICATION_BACKENDS = [
     "accounts.authentication.EmailAuthBackend",
