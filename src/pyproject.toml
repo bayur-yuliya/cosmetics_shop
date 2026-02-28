@@ -10,6 +10,7 @@ check_untyped_defs = true
 [tool.django-stubs]
 django_settings_module = "config.settings"
 
+# mypy
 [[tool.mypy.overrides]]
 module = "*.migrations.*"
 ignore_errors = true
@@ -17,3 +18,15 @@ ignore_errors = true
 [[tool.mypy.overrides]]
 module = ["allauth.*"]
 ignore_missing_imports = true
+
+# ruff
+[tool.ruff]
+line-length = 88
+src = [
+    "src",
+]
+
+# pytest
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["test_*.py"]
