@@ -21,8 +21,7 @@ class Status(models.IntegerChoices):
     PAYMENT_FAILED = 2, "Payment failed"
     IN_PROGRESS = 3, "In progress"
     COMPLETED = 4, "Completed"
-    CLOSED = 5, "Closed"
-    CANCELED = 6, "Canceled"
+    CANCELED = 5, "Canceled"
 
     @classmethod
     def badge_class(cls, status):
@@ -187,12 +186,14 @@ class Client(models.Model):
     phone = models.CharField(max_length=13, validators=[validate_phone_number])
     email = models.EmailField(verbose_name="Контактный email клиента")
     is_active = models.BooleanField(default=True)
+    is_pending_deletion = models.BooleanField(default=False)
+    deletion_scheduled_date = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
     def save(self, *args, **kwargs):
-        if self.user:
+        if self.user and self.is_active:
             self.email = self.user.email
         super().save(*args, **kwargs)
 
