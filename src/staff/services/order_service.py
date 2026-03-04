@@ -10,7 +10,9 @@ def get_latest_order_statuses() -> QuerySet[OrderStatusLog]:
         .order_by("-changed_at")
         .values("id")[:1]
     )
-    return OrderStatusLog.objects.filter(id__in=Subquery(latest_status_ids)).select_related("order")
+    return OrderStatusLog.objects.filter(
+        id__in=Subquery(latest_status_ids)
+    ).select_related("order")
 
 
 def filter_orders_status(queryset: QuerySet, filters: dict) -> QuerySet:

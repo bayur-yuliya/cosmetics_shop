@@ -16,10 +16,7 @@ from utils.helper_function import get_paginator_page
 @permission_required("cosmetics_shop.view_product", raise_exception=True)
 def products(request: HttpRequest) -> HttpResponse:
     products_list = (
-        Product.objects.all()
-        .order_by("-id")
-        .filter(is_active=True)
-        .for_catalog()
+        Product.objects.all().order_by("-id").filter(is_active=True).for_catalog()
     )
 
     form = ProductFilterForm(request.GET)

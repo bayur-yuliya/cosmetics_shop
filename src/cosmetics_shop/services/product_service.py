@@ -17,10 +17,14 @@ def favorites_products(user: CustomUser) -> QuerySet[Product]:
     favorites_subquery = Favorite.objects.filter(user=user, product_id=OuterRef("pk"))
 
     products = (
-        Product.objects.filter(is_active=True).annotate(
-            is_favorite=Exists(favorites_subquery)
+        (
+            Product.objects.filter(is_active=True).annotate(
+                is_favorite=Exists(favorites_subquery)
+            )
         )
-    ).order_by("-stock").for_catalog()
+        .order_by("-stock")
+        .for_catalog()
+    )
 
     return products
 

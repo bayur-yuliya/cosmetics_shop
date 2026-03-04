@@ -8,8 +8,4 @@ from staff.services.dashboard_service import get_dashboard_context
 def index(request: HttpRequest) -> HttpResponse:
     context = get_dashboard_context()
     context["title"] = "Главная страница"
-    return render(
-        request,
-        "staff/dashboard.html",
-        context
-    )
+    return render(request, "staff/dashboard.html", context)

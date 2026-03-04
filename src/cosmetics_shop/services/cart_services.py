@@ -12,7 +12,11 @@ def get_id_products_in_cart(cart: Cart) -> list[int]:
     if not cart:
         return []
 
-    cart_products = CartItem.objects.filter(cart=cart).values_list("product_id", flat=True).distinct()
+    cart_products = (
+        CartItem.objects.filter(cart=cart)
+        .values_list("product_id", flat=True)
+        .distinct()
+    )
     return cart_products
 
 
@@ -61,13 +65,13 @@ def get_cart_total_price(cart_items):
 
 
 def get_cart_status_response(cart, product_code):
-    cart_items = cart.cartitem_set.select_related("product")
+    cart_items = cart.cart_items.select_related("product")
 
     total_count = cart_items.aggregate(total=Sum("quantity"))["total"] or 0
 
-    total_price = cart_items.aggregate(
-        total=Sum(F("quantity") * F("product__price"))
-    )["total"] or Decimal("0.00")
+    total_price = cart_items.aggregate(total=Sum(F("quantity") * F("product__price")))[
+        "total"
+    ] or Decimal("0.00")
 
     current_item = cart_items.filter(product__code=product_code).first()
 

@@ -12,15 +12,11 @@ class Command(BaseCommand):
         now = timezone.now()
 
         pending_clients = Client.objects.filter(
-            is_pending_deletion=True,
-            deletion_scheduled_date__lte=now
+            is_pending_deletion=True, deletion_scheduled_date__lte=now
         )
 
         three_years_ago = now - timezone.timedelta(days=365 * 3)
-        old_guests = Client.objects.filter(
-            user__isnull=True,
-            is_active=True
-        ).exclude(
+        old_guests = Client.objects.filter(user__isnull=True, is_active=True).exclude(
             order__created_at__gte=three_years_ago
         )
 
@@ -30,4 +26,6 @@ class Command(BaseCommand):
         for client in targets:
             anonymize_client(client)
 
-        self.stdout.write(self.style.SUCCESS(f"Successfully! {count} old guests id anonymize."))
+        self.stdout.write(
+            self.style.SUCCESS(f"Successfully! {count} old guests id anonymize.")
+        )

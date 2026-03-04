@@ -14,10 +14,7 @@ User = get_user_model()
 # CustomUserManager tests
 @pytest.mark.django_db
 def test_create_user_success():
-    user = User.objects.create_user(
-        email="TEST@Example.com",
-        password="password123"
-    )
+    user = User.objects.create_user(email="TEST@Example.com", password="password123")
 
     assert user.email == "TEST@example.com"
     assert user.check_password("password123")
@@ -33,10 +30,7 @@ def test_create_user_without_email():
 
 @pytest.mark.django_db
 def test_create_superuser():
-    admin = User.objects.create_superuser(
-        email="admin@test.com",
-        password="adminpass"
-    )
+    admin = User.objects.create_superuser(email="admin@test.com", password="adminpass")
 
     assert admin.is_staff is True
     assert admin.is_superuser is True
@@ -44,10 +38,7 @@ def test_create_superuser():
 
 @pytest.mark.django_db
 def test_user_str():
-    user = User.objects.create_user(
-        email="user@test.com",
-        password="123"
-    )
+    user = User.objects.create_user(email="user@test.com", password="123")
     assert str(user) == "user@test.com"
 
 
@@ -63,10 +54,7 @@ def test_email_unique():
 # ActivationToken
 @pytest.mark.django_db
 def test_create_activation_token():
-    user = User.objects.create_user(
-        email="user@test.com",
-        password="123"
-    )
+    user = User.objects.create_user(email="user@test.com", password="123")
 
     token = ActivationToken.create_for_user(user)
 

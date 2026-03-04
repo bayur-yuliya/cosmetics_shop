@@ -11,7 +11,8 @@ from cosmetics_shop.models import (
     GroupProduct,
     Brand,
     OrderStatusLog,
-    Tag, Status,
+    Tag,
+    Status,
 )
 from staff.services.order_service import change_order_status_log
 from staff.services.permission_service import get_individually_assigned_permits
@@ -112,8 +113,12 @@ class ProductForm(forms.ModelForm):
 
 class OrderFilterForm(forms.Form):
     status = forms.ChoiceField(choices=Status.choices, required=False)
-    date_from = forms.DateField(required=False, widget=forms.DateInput(attrs={"type": "date"}))
-    date_to = forms.DateField(required=False, widget=forms.DateInput(attrs={"type": "date"}))
+    date_from = forms.DateField(
+        required=False, widget=forms.DateInput(attrs={"type": "date"})
+    )
+    date_to = forms.DateField(
+        required=False, widget=forms.DateInput(attrs={"type": "date"})
+    )
 
 
 class OrderStatusUpdateForm(forms.ModelForm):

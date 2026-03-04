@@ -7,7 +7,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 
 from cosmetics_shop.models import (
     Order,
-    OrderStatusLog, OrderItem,
+    OrderStatusLog,
+    OrderItem,
 )
 from staff.forms import OrderStatusUpdateForm, OrderFilterForm
 from staff.services.order_service import (
@@ -55,11 +56,10 @@ def order_info(request: AuthenticatedRequest, order_code: int) -> HttpResponse:
     else:
         form = OrderStatusUpdateForm(user=request.user, order=order)
     order_status_log: QuerySet[OrderStatusLog] = (
-            OrderStatusLog.objects
-            .filter(order=order)
-            .select_related("changed_by")
-            .order_by("-changed_at")
-        )
+        OrderStatusLog.objects.filter(order=order)
+        .select_related("changed_by")
+        .order_by("-changed_at")
+    )
 
     return render(
         request,

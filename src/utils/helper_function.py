@@ -7,7 +7,11 @@ from django.http import HttpRequest
 from config.settings import PRODUCTS_PER_PAGE
 
 
-def get_paginator_page(request: HttpRequest, object_list: QuerySet | Sequence, per_page: int = PRODUCTS_PER_PAGE) -> Page:
+def get_paginator_page(
+    request: HttpRequest,
+    object_list: QuerySet | Sequence,
+    per_page: int = PRODUCTS_PER_PAGE,
+) -> Page:
     paginator = Paginator(object_list, per_page)
     page_number = request.GET.get("page")
     return paginator.get_page(page_number)

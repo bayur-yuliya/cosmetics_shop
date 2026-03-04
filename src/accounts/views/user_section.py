@@ -25,6 +25,15 @@ def delete_account(request: AuthenticatedRequest) -> HttpResponse:
         delete_client(client)
         if not client.is_pending_deletion:
             logout(request)
+        else:
+            messages.warning(
+                request,
+                """
+                У вас остались незавершенные заказы.
+                Аккаунт будет удален после из завершения и 14 дней требующих для возврата.
+                Если все равно удалить, свяжитесь с менеджером для отмены заказа.
+                """,
+            )
     return redirect("main_page")
 
 

@@ -8,6 +8,7 @@ from django.core.validators import MinValueValidator
 from django.db import models, transaction, IntegrityError
 from django.db.models import Sum, F
 from django.urls import reverse, NoReverseMatch
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from slugify import slugify
 
@@ -54,7 +55,9 @@ class ProductQuerySet(models.QuerySet):
 
     def product_group_by_category(self, category_slug):
         group_products: list[int] = list(
-            GroupProduct.objects.filter(category__slug=category_slug).values_list("id", flat=True)
+            GroupProduct.objects.filter(category__slug=category_slug).values_list(
+                "id", flat=True
+            )
         )
         return self.filter(group__in=group_products)
 
@@ -296,9 +299,13 @@ class Tag(models.Model):
 
 class Product(TimestampedModel):
     name = models.CharField(max_length=100, unique=True)
-    group = models.ForeignKey(GroupProduct, on_delete=models.CASCADE, related_name="products")
+    group = models.ForeignKey(
+        GroupProduct, on_delete=models.CASCADE, related_name="products"
+    )
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name="products")
-    price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.00'))])
+    price = models.DecimalField(
+        max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal("0.00"))]
+    )
     description = models.TextField()
     stock = models.PositiveIntegerField(default=0)
     code = models.PositiveIntegerField(unique=True, editable=False, db_index=True)
@@ -341,8 +348,12 @@ class Product(TimestampedModel):
 
 
 class Favorite(TimestampedModel):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="favorites")
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="favorites")
+    user = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name="favorites"
+    )
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name="favorites"
+    )
 
     class Meta:
         ordering = ["-created_at"]
@@ -350,7 +361,9 @@ class Favorite(TimestampedModel):
 
 
 class Cart(TimestampedModel):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, null=True, related_name="cart")
+    user = models.OneToOneField(
+        CustomUser, on_delete=models.CASCADE, null=True, related_name="cart"
+    )
     session_key = models.CharField(max_length=40, null=True, blank=True)
 
     def __str__(self):
@@ -370,7 +383,9 @@ class CartItem(models.Model):
 
 
 class Order(TimestampedModel):
-    client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, related_name="orders")
+    client = models.ForeignKey(
+        Client, on_delete=models.SET_NULL, null=True, related_name="orders"
+    )
     code = models.UUIDField(default=uuid.uuid4, editable=False)
     status = models.IntegerField(
         choices=Status.choices, default=Status.NEW, db_index=True
@@ -379,9 +394,9 @@ class Order(TimestampedModel):
         max_digits=10,
         decimal_places=2,
         default=0.00,
-        validators=[MinValueValidator(Decimal('0.00'))]
+        validators=[MinValueValidator(Decimal("0.00"))],
     )
-
+    completed_at = models.DateTimeField(null=True, blank=True, editable=False)
     comment = models.TextField(max_length=300, null=True, blank=True)
 
     snapshot_name = models.CharField(max_length=200)
@@ -395,8 +410,6 @@ class Order(TimestampedModel):
     def save(self, *args, **kwargs):
         is_new = not self.pk
 
-        super().save(*args, **kwargs)
-
         if is_new and self.client:
             self.snapshot_name = (
                 f"{self.client.first_name} {self.client.last_name}".strip()
@@ -408,8 +421,13 @@ class Order(TimestampedModel):
             if address:
                 self.snapshot_address = str(address)
 
+        if self.status == Status.COMPLETED and not self.completed_at:
+            self.completed_at = timezone.now()
+
+        super().save(*args, **kwargs)
+
         if is_new:
-            self.set_status(self.status)
+            self.set_status(self.status, commit=False)
 
     def update_total_price(self):
         # NOTE: Automatic recalculation of the order total is intentionally moved out of the save method.
@@ -426,10 +444,11 @@ class Order(TimestampedModel):
 
         self.total_price = total
 
-    def set_status(self, new_status, user=None, comment=""):
+    def set_status(self, new_status, user=None, comment="", commit=True):
         with transaction.atomic():
             self.status = new_status
-            self.save(update_fields=["status"])
+            if commit:
+                self.save(update_fields=["status"])
             OrderStatusLog.objects.create(
                 order=self, status=new_status, changed_by=user, comment=comment
             )
@@ -471,7 +490,11 @@ class OrderStatusLog(models.Model):
     status = models.IntegerField(choices=Status.choices, default=Status.NEW)
     changed_at = models.DateTimeField(auto_now_add=True)
     changed_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="order_status_logs"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="order_status_logs",
     )
     comment = models.TextField(null=True, blank=True)
 

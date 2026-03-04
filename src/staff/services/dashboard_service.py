@@ -6,13 +6,10 @@ from cosmetics_shop.models import Order, Status, Favorite
 
 
 def get_completed_orders_queryset(start_date):
-    return (
-        Order.objects.filter(
-            created_at__gte=start_date,
-            status=Status.COMPLETED,
-        )
-        .distinct()
-    )
+    return Order.objects.filter(
+        created_at__gte=start_date,
+        status=Status.COMPLETED,
+    ).distinct()
 
 
 def get_today_stats():
@@ -50,8 +47,7 @@ def get_dashboard_context():
     month_stats = get_month_stats(today)
 
     max_favorite = (
-        Favorite.objects
-        .annotate(num_product=Count("product"))
+        Favorite.objects.annotate(num_product=Count("product"))
         .order_by("-num_product")
         .select_related("product__group")[:3]
     )
@@ -67,4 +63,4 @@ def get_dashboard_context():
         "max_favorite": max_favorite,
         "years": years,
         "current_year": current_year,
-        }
+    }

@@ -85,6 +85,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "cosmetics_shop.context_processors.cart_item_count",
                 "cosmetics_shop.context_processors.register_form",
+                "cosmetics_shop.context_processors.is_pending_deletion_client",
             ],
         },
     },
@@ -174,7 +175,7 @@ ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_LOGOUT_ON_GET = True
-ACCOUNT_ADAPTER = 'allauth.account.adapter.DefaultAccountAdapter'
+ACCOUNT_ADAPTER = "allauth.account.adapter.DefaultAccountAdapter"
 ACCOUNT_PREVENT_ENUMERATION = False
 
 # Headless Setup

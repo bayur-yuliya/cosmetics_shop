@@ -14,8 +14,11 @@ from staff.forms import (
     AdminCreateUserForm,
 )
 
-from ..services.permission_service import get_individually_assigned_permits, get_permissions_by_app, \
-    set_user_permissions
+from ..services.permission_service import (
+    get_individually_assigned_permits,
+    get_permissions_by_app,
+    set_user_permissions,
+)
 
 
 @permission_required("staff.manage_permission", raise_exception=True)
