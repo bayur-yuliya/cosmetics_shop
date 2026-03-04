@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cosmetics_shop", "0026_client_deletion_scheduled_date_and_more"),
     ]

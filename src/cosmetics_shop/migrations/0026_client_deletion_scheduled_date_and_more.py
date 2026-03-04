@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cosmetics_shop", "0025_alter_cart_options_alter_favorite_options_and_more"),
     ]

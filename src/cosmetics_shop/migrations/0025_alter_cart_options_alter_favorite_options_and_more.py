@@ -10,7 +10,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cosmetics_shop", "0024_rename_is_main_deliveryaddress_is_primary_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
