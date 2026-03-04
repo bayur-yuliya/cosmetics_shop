@@ -36,7 +36,11 @@
         </div>
     </div>
 </nav>
-    {% if is_pending_deletion %}
+    {% if is_pending_deletion and deletion_scheduled_date %}
+        <span class="alert alert-danger">
+            Ваш аккаунт запланирован к удалению! Дата: {{ deletion_scheduled_date }}
+        </span>
+    {% elif is_pending_deletion %}
         <span class="alert alert-danger">
             Ваш аккаунт запланирован к удалению! Срок: после доставки последнего заказа и истечения срока возврата (14 дней)
         </span>

@@ -36,7 +36,10 @@ def is_pending_deletion_client(request):
     if request.user.is_authenticated:
         try:
             client = Client.objects.get(user=request.user)
-            return {"is_pending_deletion": client.is_pending_deletion}
+            return {
+                "is_pending_deletion": client.is_pending_deletion,
+                "deletion_scheduled_date": client.deletion_scheduled_date,
+            }
         except Client.DoesNotExist:
             return {"is_pending_deletion": None}
     else:
