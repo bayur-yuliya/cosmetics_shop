@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AnonymousUser
 from django.db.models import Sum
 from django.urls import resolve
 
@@ -32,5 +33,11 @@ def register_form(request):
 
 # need cache
 def is_pending_deletion_client(request):
-    client = Client.objects.get(user=request.user)
-    return {"is_pending_deletion": client.is_pending_deletion}
+    if request.user.is_authenticated:
+        try:
+            client = Client.objects.get(user=request.user)
+            return {"is_pending_deletion": client.is_pending_deletion}
+        except Client.DoesNotExist:
+            return {"is_pending_deletion": None}
+    else:
+        return {"is_pending_deletion": None}

@@ -14,6 +14,7 @@ urlpatterns = [
     path("favorites/", favorites.favorites, name="favorites"),
     # user_section
     path("order_history/", user_section.order_history, name="order_history"),
-    path("delete_account/", user_section.delete_account, name="delete_account"),
+    path("delete/reset/", user_section.reset_account_deletion, name="reset_account_deletion"),
+    path("delete/", user_section.delete_account, name="delete_account"),
     path("", user_section.user_contact, name="user_contact"),
 ]

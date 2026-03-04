@@ -63,7 +63,13 @@
                     Избранное
                 </a>
                 <button class="list-group-item list-group-item-action text-danger" onclick="openLogoutDialog()">Выйти</button>
+                {% if is_pending_deletion %}
+                <button class="list-group-item list-group-item-action text-danger" onclick="openResetDeleteDialog()">
+                    Отменить удаление аккаунта
+                </button>
+                {% else %}
                 <button class="list-group-item list-group-item-action text-danger" onclick="openDeleteDialog()">Удалить аккаунт</button>
+                {% endif %}
             </div>
         </div>
         <!-- ПРАВАЯ ЧАСТЬ -->
@@ -100,6 +106,18 @@
         </div>
     </form>
 </dialog>
+
+<dialog id="resetDialog">
+    <form action="{%  url 'reset_account_deletion'  %}" method="POST">
+        {%  csrf_token  %}
+        <p id="resetText"></p>
+        <div class="d-flex gap-2 mt-2">
+            <button type="reset" class="btn btn-secondary">Назад</button>
+            <button type="submit" class="btn btn-success">Отменить удаление</button>
+        </div>
+    </form>
+</dialog>
+
 {% include 'cosmetics_shop/includes/footer.html' %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{% static 'accounts/js/dialog_scripts.js' %}"></script>

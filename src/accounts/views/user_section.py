@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
 from accounts.forms import ClientCreationForm
 from accounts.utils.account_services import delete_client
@@ -25,6 +25,7 @@ def delete_account(request: AuthenticatedRequest) -> HttpResponse:
         delete_client(client)
         if not client.is_pending_deletion:
             logout(request)
+            messages.success(request, "Аккаунт успешно удален!")
         else:
             messages.warning(
                 request,
@@ -34,7 +35,18 @@ def delete_account(request: AuthenticatedRequest) -> HttpResponse:
                 Если все равно удалить, свяжитесь с менеджером для отмены заказа.
                 """,
             )
+            return redirect("user_contact")
     return redirect("main_page")
+
+
+@login_required
+def reset_account_deletion(request: AuthenticatedRequest) -> HttpResponse:
+    client = get_object_or_404(Client, user=request.user)
+    with transaction.atomic():
+        client.is_pending_deletion = False
+        client.deletion_scheduled_date = None
+        client.save()
+    return redirect("user_contact")
 
 
 @login_required
