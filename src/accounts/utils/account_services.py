@@ -136,8 +136,7 @@ def delete_client(client: Client) -> None:
 
         if now < order_return_period:
             client.is_pending_deletion = True
-            scheduled_date = order_return_period - last_order.completed_at
-            client.deletion_scheduled_date = scheduled_date
+            client.deletion_scheduled_date = order_return_period
             client.save()
         else:
             anonymize_client(client)

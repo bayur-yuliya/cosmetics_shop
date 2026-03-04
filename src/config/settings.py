@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 
+from celery.schedules import crontab
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -212,3 +213,18 @@ DEFAULT_FROM_EMAIL = "Cosmetics Shop <noreply@gmail.com>"
 
 
 PRODUCTS_PER_PAGE = 20
+
+
+# CELERY SETTINGS
+CELERY_BEAT_SCHEDULE = {
+    "check-completed-orders-for-deletion": {
+        "task": "your_app_name.tasks.update_pending_deletion_dates",
+        "schedule": crontab(minute=0),  # start every hour
+    },
+    "anonymize-clients-every-night": {
+        "task": "accounts.tasks.process_client_anonymization",
+        "schedule": crontab(minute=0, hour=3),  # 03:00
+    },
+}
+CELERY_TIMEZONE = "Europe/Kiev"
+CELERY_ENABLE_UTC = True
