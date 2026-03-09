@@ -196,8 +196,10 @@ class Client(models.Model):
         return f"{self.first_name} {self.last_name}"
 
     def save(self, *args, **kwargs):
-        if self.user and self.is_active:
+        if self.user and self.is_active and not self.email:
             self.email = self.user.email
+        elif self.user and self.is_active:
+            self.user.email = self.email
         super().save(*args, **kwargs)
 
     class Meta:
