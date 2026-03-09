@@ -1,0 +1,15 @@
+[run]
+# Какие папки игнорировать
+omit =
+    *migrations*
+    manage.py
+    *venv*
+    *site-packages*
+    *settings*
+
+[report]
+# Не считать пустые строки и комментарии
+exclude_lines =
+    pragma: no cover
+    def __str__
+    if __name__ == .__main__.:
