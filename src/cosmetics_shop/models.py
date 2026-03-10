@@ -4,6 +4,7 @@ from decimal import Decimal
 from random import randint
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models, transaction, IntegrityError
 from django.db.models import Sum, F
@@ -65,8 +66,8 @@ class ProductQuerySet(models.QuerySet):
 class SlugRedirectModel(models.Model):
     """
     An abstract model that handles:
-    1. The slug field
-    2. Generating a unique slug upon saving
+    1. The automatically generated slug field
+    2. Uniqueness check
     3. Creating a redirect when the slug changes
     """
 
@@ -78,63 +79,46 @@ class SlugRedirectModel(models.Model):
     class Meta:
         abstract = True
 
+    def clean(self):
+        super().clean()
+        source_val = getattr(self, self.slug_source_field, "")
+
+        if not source_val and not self.slug:
+            return
+
+        if source_val:
+            new_slug = slugify(source_val)
+            exists = (
+                self.__class__.objects.filter(slug=new_slug)
+                .exclude(pk=self.pk)
+                .exists()
+            )
+            if exists:
+                raise ValidationError(
+                    {self.slug_source_field: _("Такое название уже используется.")}
+                )
+
     def save(self, *args, **kwargs):
         old_slug = None
-        old_source_value = None
 
         if self.pk:
-            try:
-                old_instance = self.__class__.objects.get(pk=self.pk)
+            old_instance = (
+                self.__class__.objects.filter(pk=self.pk).only("slug").first()
+            )
+            if old_instance:
                 old_slug = old_instance.slug
-                old_source_value = getattr(old_instance, self.slug_source_field, None)
-            except self.__class__.DoesNotExist:
-                pass
 
-        current_source_value = getattr(self, self.slug_source_field, "object")
-        if not self.slug or (
-            old_source_value is not None and current_source_value != old_source_value
-        ):
-            self.slug = slugify(current_source_value)
-
-        self.generate_slug()
+        if not self.slug:
+            self.slug = slugify(getattr(self, self.slug_source_field, "object"))
 
         try:
             with transaction.atomic():
                 super().save(*args, **kwargs)
         except IntegrityError:
-            import uuid
-
-            self.slug = f"{self.slug}-{uuid.uuid4().hex[:4]}"
-            super().save(*args, **kwargs)
+            raise ValidationError("Слаг не уникален.")
 
         if old_slug and old_slug != self.slug and self.redirect_url_configs:
             self._handle_redirects(old_slug)
-
-    def generate_slug(self):
-        if not self.slug:
-            self.slug = slugify(getattr(self, "name", "object"))
-
-        exists = (
-            self.__class__._default_manager.filter(slug=self.slug)
-            .exclude(pk=self.pk)
-            .exists()
-        )
-
-        if exists:
-            base_slug = self.slug
-            all_slugs = self.__class__._default_manager.filter(
-                slug__startswith=f"{base_slug}-"
-            ).values_list("slug", flat=True)
-
-            pattern = re.compile(rf"^{re.escape(base_slug)}-(\d+)$")
-            nums = []
-            for s in all_slugs:
-                match = pattern.match(s)
-                if match:
-                    nums.append(int(match.group(1)))
-
-            next_num = max(nums) + 1 if nums else 1
-            self.slug = f"{base_slug}-{next_num}"
 
     def _handle_redirects(self, old_slug):
         # print replace to logging
@@ -148,6 +132,9 @@ class SlugRedirectModel(models.Model):
                 new_path = reverse(url_name, kwargs={slug_param: self.slug})
 
                 if old_path != new_path:
+                    Redirect.objects.filter(site=site, new_path=old_path).update(
+                        new_path=new_path
+                    )
                     Redirect.objects.update_or_create(
                         site=site, old_path=old_path, defaults={"new_path": new_path}
                     )
