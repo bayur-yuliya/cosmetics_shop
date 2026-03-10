@@ -14,12 +14,28 @@ User = get_user_model()
 # CustomUserManager tests
 @pytest.mark.django_db
 def test_create_user_success():
-    user = User.objects.create_user(email="TEST@Example.com", password="password123")
+    user = User.objects.create_user(email="user@test.com", password="password")
 
-    assert user.email == "TEST@example.com"
-    assert user.check_password("password123")
+    assert user.email == "user@test.com"
+    assert user.check_password("password")
     assert user.is_staff is False
     assert user.is_superuser is False
+
+
+@pytest.mark.django_db
+def test_create_superuser_without_staff():
+    with pytest.raises(ValueError, match="Superuser must have is_staff=True."):
+        User.objects.create_superuser(
+            email="user@test.com", password="password", is_staff=False
+        )
+
+
+@pytest.mark.django_db
+def test_create_superuser_without_is_superuser():
+    with pytest.raises(ValueError, match="Superuser must have is_superuser=True."):
+        User.objects.create_superuser(
+            email="user@test.com", password="password", is_superuser=False
+        )
 
 
 @pytest.mark.django_db
@@ -45,10 +61,10 @@ def test_user_str():
 # CustomUser model
 @pytest.mark.django_db
 def test_email_unique():
-    User.objects.create_user(email="a@test.com", password="123")
+    User.objects.create_user(email="user@test.com", password="123")
 
     with pytest.raises(IntegrityError):
-        User.objects.create_user(email="a@test.com", password="123")
+        User.objects.create_user(email="user@test.com", password="123")
 
 
 # ActivationToken

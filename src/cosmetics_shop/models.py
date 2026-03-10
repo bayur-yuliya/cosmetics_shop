@@ -494,6 +494,6 @@ class OrderStatusLog(models.Model):
         return Status.badge_class(self.status)
 
     class Meta:
-        ordering = ["-changed_at"]
+        ordering = ["-changed_at", "-id"]
         verbose_name = _("статус заказа")
         verbose_name_plural = _("Статусы заказов")

@@ -32,3 +32,23 @@ DJANGO_SETTINGS_MODULE = "config.settings"
 python_files = ["test_*.py"]
 pythonpath = ["src"]
 addopts = "--cov=src --cov-report=html"
+
+# coverage
+[tool.coverage.run]
+omit = [
+    "*/migrations/*",
+    "*/management/*",
+    "*/tests/*",
+    "manage.py",
+    "*/venv/*",
+    "*/site-packages/*",
+    "*/config/*",
+    "*urls.py*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __str__",
+    'if __name__ == .__main__.:'
+]
