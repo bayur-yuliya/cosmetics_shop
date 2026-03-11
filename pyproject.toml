@@ -31,7 +31,7 @@ src = [
 DJANGO_SETTINGS_MODULE = "config.settings"
 python_files = ["test_*.py"]
 pythonpath = ["src"]
-addopts = "--cov=src --cov-report=html"
+addopts = "--cov=src --cov-report=html --reuse-db --nomigrations"
 
 # coverage
 [tool.coverage.run]
