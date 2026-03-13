@@ -83,7 +83,7 @@ def get_order_items_by_client(client: Client) -> list[dict[str, Any]]:
     order_items_data: list[dict[str, Any]] = []
 
     for order in orders:
-        status_badge = order.status_badge_class
+        status_badge = order.status_badge_class()
         order_items_data.append(
             {
                 "order": order,

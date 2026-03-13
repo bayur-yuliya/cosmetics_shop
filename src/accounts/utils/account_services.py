@@ -47,9 +47,9 @@ def send_activation_email(user: CustomUser, token_obj: ActivationToken) -> None:
         print(f"Ошибка отправки письма: {e}")
 
 
-def activate_user_service(token_value: str, password: str) -> CustomUser | None:
+def activate_user(token: str, password: str) -> CustomUser | None:
     try:
-        validate_activation_token(token_value)
+        validate_activation_token(token)
     except ValidationError:
         return None
 
@@ -57,7 +57,7 @@ def activate_user_service(token_value: str, password: str) -> CustomUser | None:
         token_obj: ActivationToken = (
             ActivationToken.objects.select_for_update()
             .select_related("user")
-            .get(token=token_value)
+            .get(token=token)
         )
 
         user: CustomUser = token_obj.user
