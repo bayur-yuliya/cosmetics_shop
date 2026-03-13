@@ -6,7 +6,7 @@ from cosmetics_shop.forms import ProductFilterForm
 from cosmetics_shop.services.cart_services import (
     get_id_products_in_cart,
 )
-from cosmetics_shop.services.category_services import context_categories
+from cosmetics_shop.utils.context_utils import context_categories
 from cosmetics_shop.utils.cart_utils import get_cart
 from cosmetics_shop.utils.product_filter import ProductFilter
 from utils.helper_function import get_paginator_page

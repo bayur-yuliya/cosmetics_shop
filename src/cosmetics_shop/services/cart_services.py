@@ -1,8 +1,5 @@
-from decimal import Decimal
-
 from django.db import transaction
 from django.db.models import F, Sum
-from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 from cosmetics_shop.models import Cart, Product, CartItem
@@ -12,7 +9,7 @@ def get_id_products_in_cart(cart: Cart) -> list[int]:
     if not cart:
         return []
 
-    cart_products = (
+    cart_products = list(
         CartItem.objects.filter(cart=cart)
         .values_list("product_id", flat=True)
         .distinct()
@@ -62,36 +59,6 @@ def get_cart_total_price(cart_items):
         ]
         or 0
     )
-
-
-def get_cart_status_response(cart, product_code):
-    cart_items = cart.cart_items.select_related("product")
-
-    total_count = cart_items.aggregate(total=Sum("quantity"))["total"] or 0
-
-    total_price = cart_items.aggregate(total=Sum(F("quantity") * F("product__price")))[
-        "total"
-    ] or Decimal("0.00")
-
-    current_item = cart_items.filter(product__code=product_code).first()
-
-    product_qty = current_item.quantity if current_item else 0
-    product_price = current_item.product.price if current_item else 0
-
-    data = {
-        "success": True,
-        "count": total_count,
-        "product_count": product_qty,
-        "product_total_price": product_qty * product_price,
-        "total_price": float(total_price),
-        "product_code": product_code,
-        "message": None,
-    }
-
-    if current_item and current_item.quantity == current_item.product.stock:
-        data["message"] = {"level": "error", "text": "Это последний товар"}
-
-    return JsonResponse(data)
 
 
 def clear_cart_after_order(cart: Cart) -> None:

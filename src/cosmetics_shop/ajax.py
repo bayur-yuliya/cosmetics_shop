@@ -1,3 +1,6 @@
+from decimal import Decimal
+
+from django.db.models import Sum, F
 from django.http import JsonResponse, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
@@ -6,7 +9,6 @@ from cosmetics_shop.models import Product, Favorite
 from cosmetics_shop.services.cart_services import (
     add_product_to_cart,
     remove_product_from_cart,
-    get_cart_status_response,
 )
 from cosmetics_shop.utils.cart_utils import get_or_create_cart
 
@@ -65,3 +67,33 @@ def cart_remove(request: HttpRequest) -> HttpResponse:
 
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+
+def get_cart_status_response(cart, product_code):
+    cart_items = cart.cart_items.select_related("product")
+
+    total_count = cart_items.aggregate(total=Sum("quantity"))["total"] or 0
+
+    total_price = cart_items.aggregate(total=Sum(F("quantity") * F("product__price")))[
+        "total"
+    ] or Decimal("0.00")
+
+    current_item = cart_items.filter(product__code=product_code).first()
+
+    product_qty = current_item.quantity if current_item else 0
+    product_price = current_item.product.price if current_item else 0
+
+    data = {
+        "success": True,
+        "count": total_count,
+        "product_count": product_qty,
+        "product_total_price": product_qty * product_price,
+        "total_price": float(total_price),
+        "product_code": product_code,
+        "message": None,
+    }
+
+    if current_item and current_item.quantity == current_item.product.stock:
+        data["message"] = {"level": "error", "text": "Это последний товар"}
+
+    return JsonResponse(data)

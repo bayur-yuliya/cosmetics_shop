@@ -179,8 +179,7 @@ class TestOrderStatusLog:
 
 @pytest.mark.django_db
 class TestCart:
-    def test_cart_item_unique(self, user, product):
-        cart = Cart.objects.create(user=user)
+    def test_cart_item_unique(self, cart, product):
         CartItem.objects.create(cart=cart, product=product, quantity=1)
 
         with pytest.raises(IntegrityError):

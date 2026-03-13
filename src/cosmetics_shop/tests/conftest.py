@@ -1,6 +1,6 @@
 import pytest
 
-from ..models import Category, GroupProduct, Brand, Product, Tag, Client
+from ..models import Category, GroupProduct, Brand, Product, Tag, Client, Cart
 from accounts.models import CustomUser
 
 
@@ -112,3 +112,8 @@ def mock_env(mocker):
             f"/{list(kwargs.values())[0]}/" if kwargs else "/err/"
         ),
     )
+
+
+@pytest.fixture()
+def cart(user):
+    return Cart.objects.create(user=user)
