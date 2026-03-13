@@ -11,7 +11,6 @@ from cosmetics_shop.services.cart_services import (
     get_cart_total_price,
     is_product_in_cart,
 )
-from cosmetics_shop.ajax import get_cart_status_response
 
 
 @pytest.mark.django_db

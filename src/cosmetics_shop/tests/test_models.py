@@ -143,14 +143,8 @@ class TestProduct:
 
 @pytest.mark.django_db
 class TestOrder:
-    def test_order_snapshot(self, client):
-        DeliveryAddress.objects.create(
-            client=client,
-            city="Test City",
-            street="Test Street",
-            post_office="1",
-            is_primary=True,
-        )
+    def test_order_snapshot(self, client, address):
+
         order = Order.objects.create(client=client)
 
         assert order.snapshot_name == "John Doe"

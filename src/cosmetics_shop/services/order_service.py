@@ -90,7 +90,7 @@ def get_order_items_by_client(client: Client) -> list[dict[str, Any]]:
             {
                 "order": order,
                 "items": order.order_items.all(),
-                "latest_status": latest_status,
+                "latest_status": order.status,
                 "status_badge_class": (
                     latest_status.status_badge_class() if latest_status else "secondary"
                 ),

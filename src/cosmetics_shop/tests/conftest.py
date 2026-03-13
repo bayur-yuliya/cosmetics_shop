@@ -1,6 +1,15 @@
 import pytest
 
-from ..models import Category, GroupProduct, Brand, Product, Tag, Client, Cart
+from ..models import (
+    Category,
+    GroupProduct,
+    Brand,
+    Product,
+    Tag,
+    Client,
+    Cart,
+    DeliveryAddress,
+)
 from accounts.models import CustomUser
 
 
@@ -17,6 +26,17 @@ def client(user):
         last_name="Doe",
         phone="+380000000000",
         email="test@test.com",
+    )
+
+
+@pytest.fixture
+def address(client):
+    return DeliveryAddress.objects.create(
+        client=client,
+        city="Test City",
+        street="Test Street",
+        post_office="1",
+        is_primary=True,
     )
 
 
@@ -101,6 +121,11 @@ def products(group, group2, brand):
     return [product1, product2, product3, product4]
 
 
+@pytest.fixture()
+def cart(user):
+    return Cart.objects.create(user=user)
+
+
 @pytest.fixture(autouse=True)
 def mock_env(mocker):
     from django.contrib.sites.models import Site
@@ -112,8 +137,3 @@ def mock_env(mocker):
             f"/{list(kwargs.values())[0]}/" if kwargs else "/err/"
         ),
     )
-
-
-@pytest.fixture()
-def cart(user):
-    return Cart.objects.create(user=user)
