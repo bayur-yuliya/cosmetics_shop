@@ -9,7 +9,6 @@ from cosmetics_shop.models import (
     Order,
     OrderItem,
     Client,
-    OrderStatusLog,
     DeliveryAddress,
 )
 from cosmetics_shop.services.cart_services import clear_cart_after_order
@@ -78,22 +77,19 @@ def create_order_from_cart(cart: Cart, client_data, address_data) -> Order:
 def get_order_items_by_client(client: Client) -> list[dict[str, Any]]:
     orders = (
         Order.objects.filter(client=client)
-        .prefetch_related("order_items", "order_status_log")
+        .prefetch_related("order_items")
         .order_by("-created_at")
     )
     order_items_data: list[dict[str, Any]] = []
 
     for order in orders:
-        latest_status: OrderStatusLog = order.order_status_log.last()
-
+        status_badge = order.status_badge_class
         order_items_data.append(
             {
                 "order": order,
                 "items": order.order_items.all(),
                 "latest_status": order.status,
-                "status_badge_class": (
-                    latest_status.status_badge_class() if latest_status else "secondary"
-                ),
+                "status_badge_class": (status_badge if status_badge else "secondary"),
             }
         )
 

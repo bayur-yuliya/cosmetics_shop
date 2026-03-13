@@ -427,6 +427,9 @@ class Order(TimestampedModel):
                 order=self, status=new_status, changed_by=user, comment=comment
             )
 
+    def status_badge_class(self):
+        return Status.badge_class(self.status)
+
     class Meta:
         ordering = ["-id"]
         verbose_name = _("заказ")

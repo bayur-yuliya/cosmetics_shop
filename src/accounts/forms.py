@@ -61,12 +61,12 @@ class SetInitialPasswordForm(forms.Form):
         self.token = token
 
     def get_user_and_password(self):
-        from .utils.account_services import activate_user_service
+        from .utils.account_services import activate_user
 
         if not self.token:
             return None
 
         password = self.cleaned_data["password1"]
-        user = activate_user_service(self.token, password)
+        user = activate_user(self.token, password)
 
         return user, password
