@@ -5,7 +5,7 @@ from django.shortcuts import render, get_object_or_404
 from cosmetics_shop.models import Brand, Tag, Product, GroupProduct, Category
 from cosmetics_shop.services.cart_services import is_product_in_cart
 from cosmetics_shop.services.category_services import get_grouped_for_alphabet_brands
-from cosmetics_shop.services.product_service import get_ready_product_list
+from cosmetics_shop.utils.product_utils import get_ready_product_list
 from cosmetics_shop.utils.cart_utils import get_cart
 from cosmetics_shop.utils.view_helpers import processing_product_page
 from utils.custom_types import AuthenticatedRequest

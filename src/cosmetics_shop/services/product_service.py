@@ -1,5 +1,4 @@
 from django.db.models import QuerySet, Exists, OuterRef, F
-from django.http import HttpRequest
 
 from accounts.models import CustomUser
 from cosmetics_shop.models import Product, Favorite
@@ -25,14 +24,5 @@ def favorites_products(user: CustomUser) -> QuerySet[Product]:
         .order_by("-stock")
         .for_catalog()
     )
-
-    return products
-
-
-def get_ready_product_list(request: HttpRequest) -> QuerySet[Product]:
-    if request.user.is_authenticated:
-        products = favorites_products(request.user)
-    else:
-        products = Product.objects.filter(is_active=True).for_catalog()
 
     return products

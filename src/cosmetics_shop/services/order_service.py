@@ -12,12 +12,9 @@ from cosmetics_shop.models import (
     OrderStatusLog,
     DeliveryAddress,
 )
+from cosmetics_shop.services.cart_services import clear_cart_after_order
 from cosmetics_shop.services.product_service import change_stock_product
 from utils.custom_exceptions import OutOfStockError
-
-
-def clear_cart_after_order(cart: Cart) -> None:
-    cart.cart_items.all().delete()
 
 
 def create_order_from_cart(cart: Cart, client_data, address_data) -> Order:

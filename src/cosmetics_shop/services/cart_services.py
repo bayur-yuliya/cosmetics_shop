@@ -92,3 +92,7 @@ def get_cart_status_response(cart, product_code):
         data["message"] = {"level": "error", "text": "Это последний товар"}
 
     return JsonResponse(data)
+
+
+def clear_cart_after_order(cart: Cart) -> None:
+    cart.cart_items.all().delete()

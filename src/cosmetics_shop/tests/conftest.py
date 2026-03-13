@@ -26,13 +26,13 @@ def category(db):
 
 
 @pytest.fixture
-def group(category):
-    return GroupProduct.objects.create(name="Test Group", category=category)
+def category2(db):
+    return Category.objects.create(name="Test Category 2")
 
 
 @pytest.fixture
-def category2(db):
-    return Category.objects.create(name="Test Category 2")
+def group(category):
+    return GroupProduct.objects.create(name="Test Group", category=category)
 
 
 @pytest.fixture
@@ -108,5 +108,7 @@ def mock_env(mocker):
     Site.objects.get_or_create(id=1, defaults={"domain": "t.com", "name": "t"})
     return mocker.patch(
         "cosmetics_shop.models.reverse",
-        side_effect=lambda name, kwargs: f"/{kwargs.get('slug', 'err')}/",
+        side_effect=lambda name, kwargs: (
+            f"/{list(kwargs.values())[0]}/" if kwargs else "/err/"
+        ),
     )

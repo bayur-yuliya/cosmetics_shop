@@ -8,7 +8,7 @@ from cosmetics_shop.models import DeliveryAddress, Order, OrderItem
 from cosmetics_shop.services.order_service import create_order_from_cart
 from cosmetics_shop.utils.cart_utils import get_cart
 from cosmetics_shop.utils.decorators import cart_required, order_session_required
-from cosmetics_shop.services.client_service import process_delivery_data, get_client
+from cosmetics_shop.utils.client_utils import process_delivery_data, get_client
 from utils.custom_exceptions import OutOfStockError
 from utils.custom_types import AuthenticatedRequest
 

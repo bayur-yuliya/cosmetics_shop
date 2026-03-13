@@ -1,4 +1,3 @@
-import re
 import uuid
 from decimal import Decimal
 from random import randint
@@ -45,7 +44,7 @@ class ProductQuerySet(models.QuerySet):
                 default=models.Value(0),
                 output_field=models.IntegerField(),
             )
-        ).order_by("stock_zero")
+        ).order_by("stock_zero", "-stock")
 
     def for_catalog(self):
         return (
@@ -53,14 +52,6 @@ class ProductQuerySet(models.QuerySet):
             .prefetch_related("tags")
             .with_stock_order()
         )
-
-    def product_group_by_category(self, category_slug):
-        group_products: list[int] = list(
-            GroupProduct.objects.filter(category__slug=category_slug).values_list(
-                "id", flat=True
-            )
-        )
-        return self.filter(group__in=group_products)
 
 
 class SlugRedirectModel(models.Model):
@@ -145,12 +136,6 @@ class SlugRedirectModel(models.Model):
                 )
             except IntegrityError as e:
                 print(f"Database error while creating redirect for {self.slug}: {e}")
-
-    def get_absolute_url(self):
-        if self.redirect_url_configs:
-            url_name, slug_param = self.redirect_url_configs[0]
-            return reverse(url_name, kwargs={slug_param: self.slug})
-        return ""
 
 
 class TimestampedModel(models.Model):
