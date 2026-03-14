@@ -86,7 +86,7 @@ def product(group, brand, tag):
 
 @pytest.fixture
 def products(group, group2, brand):
-    product1 = Product.objects.create(
+    Product.objects.create(
         name="Гипоаллергенная тушь для объема, оттенок 1",
         group=group,
         brand=brand,
@@ -94,7 +94,7 @@ def products(group, group2, brand):
         description="Test1",
         stock=5,
     )
-    product2 = Product.objects.create(
+    Product.objects.create(
         name="Гипоаллергенная тушь для объема, оттенок 2",
         group=group2,
         brand=brand,
@@ -102,7 +102,7 @@ def products(group, group2, brand):
         description="Test2",
         stock=10,
     )
-    product3 = Product.objects.create(
+    Product.objects.create(
         name="Гипоаллергенная тушь для объема, оттенок 3",
         group=group2,
         brand=brand,
@@ -110,7 +110,7 @@ def products(group, group2, brand):
         description="Test3",
         stock=0,
     )
-    product4 = Product.objects.create(
+    Product.objects.create(
         name="Гипоаллергенная тушь для объема, оттенок 4",
         group=group,
         brand=brand,
@@ -118,7 +118,7 @@ def products(group, group2, brand):
         description="Test4",
         stock=0,
     )
-    return [product1, product2, product3, product4]
+    return Product.objects.all()
 
 
 @pytest.fixture()
