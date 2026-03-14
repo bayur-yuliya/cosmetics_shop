@@ -7,7 +7,7 @@ from cosmetics_shop.models import OrderStatusLog, Order
 def get_latest_order_statuses() -> QuerySet[OrderStatusLog]:
     latest_status_ids = (
         OrderStatusLog.objects.filter(order=OuterRef("order"))
-        .order_by("-changed_at")
+        .order_by("-changed_at", "-id")
         .values("id")[:1]
     )
     return OrderStatusLog.objects.filter(
@@ -25,7 +25,7 @@ def filter_orders_status(queryset: QuerySet, filters: dict) -> QuerySet:
     return queryset.order_by("status")
 
 
-def change_order_status_log(order: Order, user, status: str, comment: str) -> bool:
+def change_order_status_log(order: Order, user, status: int, comment: str) -> bool:
     last_log = OrderStatusLog.objects.filter(order=order).first()
 
     if last_log and last_log.status == status and last_log.comment == comment:

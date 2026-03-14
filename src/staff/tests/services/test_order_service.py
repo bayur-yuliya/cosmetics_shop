@@ -1,0 +1,99 @@
+import pytest
+
+from cosmetics_shop.models import OrderStatusLog, Order
+from staff.services.order_service import (
+    change_order_status_log,
+    filter_orders_status,
+    get_latest_order_statuses,
+)
+
+
+@pytest.mark.django_db
+def test_get_latest_order_statuses(client):
+    order1 = Order.objects.create(client=client)
+    order2 = Order.objects.create(client=client)
+
+    OrderStatusLog.objects.create(order=order1, status=1)
+    last1 = OrderStatusLog.objects.create(order=order1, status=2)
+
+    OrderStatusLog.objects.create(order=order2, status=1)
+    last2 = OrderStatusLog.objects.create(order=order2, status=3)
+
+    qs = get_latest_order_statuses()
+
+    assert qs.count() == 2
+    assert last1 in qs
+    assert last2 in qs
+
+
+@pytest.mark.django_db
+def test_filter_orders_status(client):
+    order1 = Order.objects.create(client=client)
+    order2 = Order.objects.create(client=client)
+
+    log1 = OrderStatusLog.objects.create(order=order1, status=1)
+    OrderStatusLog.objects.create(order=order2, status=2)
+
+    qs = OrderStatusLog.objects.all()
+
+    filtered = filter_orders_status(qs, {"status": 1})
+
+    assert list(filtered) == [log1]
+
+
+@pytest.mark.django_db
+def test_filter_orders_status_by_date(client):
+    order = Order.objects.create(client=client)
+
+    log = OrderStatusLog.objects.create(order=order, status=1)
+
+    qs = OrderStatusLog.objects.all()
+
+    filtered = filter_orders_status(
+        qs,
+        {
+            "date_from": order.created_at.date(),
+            "date_to": order.created_at.date(),
+        },
+    )
+
+    assert log in filtered
+
+
+@pytest.mark.django_db
+def test_change_order_status_log_creates_log(client, admin_user):
+    order = Order.objects.create(client=client)
+
+    result = change_order_status_log(
+        order=order,
+        user=admin_user,
+        status=2,
+        comment="updated",
+    )
+
+    assert result is True
+
+    log = OrderStatusLog.objects.filter(order=order).first()
+
+    assert log.status == 2
+    assert log.comment == "updated"
+
+
+@pytest.mark.django_db
+def test_change_order_status_log_no_changes(client, admin_user):
+    order = Order.objects.create(client=client)
+
+    OrderStatusLog.objects.create(
+        order=order,
+        status=1,
+        comment="same",
+    )
+
+    result = change_order_status_log(
+        order=order,
+        user=admin_user,
+        status=1,
+        comment="same",
+    )
+
+    assert result is False
