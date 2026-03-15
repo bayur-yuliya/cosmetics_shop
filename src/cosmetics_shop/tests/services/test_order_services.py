@@ -8,21 +8,21 @@ from cosmetics_shop.services.order_service import (
 
 
 @pytest.mark.django_db
-def test_create_order_from_cart(cart, client, address, product):
-    assert Order.objects.filter(client=client).count() == 0
+def test_create_order_from_cart(cart, client_obj, address, product):
+    assert Order.objects.filter(client=client_obj).count() == 0
 
     CartItem.objects.create(cart=cart, product=product, quantity=3)
-    create_order_from_cart(cart, client, address)
-    order = Order.objects.filter(client=client)
+    create_order_from_cart(cart, client_obj, address)
+    order = Order.objects.filter(client=client_obj)
 
     assert order.count() == 1
 
 
 @pytest.mark.django_db
-def test_get_order_items_by_client(client, product):
-    order = Order.objects.create(client=client)
+def test_get_order_items_by_client(client_obj, product):
+    order = Order.objects.create(client=client_obj)
     OrderItem.objects.create(order=order, product=product, price=150.50, quantity=3)
-    client_order_items = get_order_items_by_client(client)
+    client_order_items = get_order_items_by_client(client_obj)
     items = client_order_items[0]["items"]
     item = items.first()
 

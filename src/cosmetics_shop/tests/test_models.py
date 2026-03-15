@@ -87,16 +87,16 @@ class TestClient:
 
         assert client.email == user.email
 
-    def test_only_one_primary_address(self, client):
+    def test_only_one_primary_address(self, client_obj):
         address_1 = DeliveryAddress.objects.create(
-            client=client,
+            client=client_obj,
             city="Test City",
             street="Test Street",
             post_office="1",
             is_primary=True,
         )
         address_2 = DeliveryAddress.objects.create(
-            client=client,
+            client=client_obj,
             city="Test City",
             street="Test Street",
             post_office="2",
@@ -143,16 +143,16 @@ class TestProduct:
 
 @pytest.mark.django_db
 class TestOrder:
-    def test_order_snapshot(self, client, address):
+    def test_order_snapshot(self, client_obj, address):
 
-        order = Order.objects.create(client=client)
+        order = Order.objects.create(client=client_obj)
 
         assert order.snapshot_name == "John Doe"
         assert order.snapshot_phone == "+380000000000"
         assert order.snapshot_email == "test@test.com"
 
-    def test_order_total_price(self, product, client):
-        order = Order.objects.create(client=client)
+    def test_order_total_price(self, product, client_obj):
+        order = Order.objects.create(client=client_obj)
         OrderItem.objects.create(order=order, product=product, price=100.50, quantity=2)
         order.update_total_price()
 
@@ -161,8 +161,8 @@ class TestOrder:
 
 @pytest.mark.django_db
 class TestOrderStatusLog:
-    def test_order_status_log(self, product, client, user):
-        order = Order.objects.create(client=client)
+    def test_order_status_log(self, product, client_obj, user):
+        order = Order.objects.create(client=client_obj)
         order.set_status(Status.COMPLETED, user=user)
         status_log = OrderStatusLog.objects.filter(order=order).first()
 

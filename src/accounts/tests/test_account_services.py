@@ -41,50 +41,50 @@ def test_activate_user_service(user, token):
 
 
 @pytest.mark.django_db
-def test_has_active_orders(client):
-    Order.objects.create(client=client)
-    assert has_active_orders(client) is True
+def test_has_active_orders(client_obj):
+    Order.objects.create(client=client_obj)
+    assert has_active_orders(client_obj) is True
 
 
-def test_has_no_active_orders(client):
-    assert has_active_orders(client) is False
+def test_has_no_active_orders(client_obj):
+    assert has_active_orders(client_obj) is False
 
 
 @pytest.mark.django_db
-def test_anonymize_client(client, address):
-    address.client = client
+def test_anonymize_client(client_obj, address):
+    address.client_obj = client_obj
     address.save()
 
-    anonymize_client(client)
+    anonymize_client(client_obj)
 
-    client.refresh_from_db()
+    client_obj.refresh_from_db()
 
-    assert client.first_name == "Аноним"
-    assert client.phone == ""
-    assert client.is_active is False
+    assert client_obj.first_name == "Аноним"
+    assert client_obj.phone == ""
+    assert client_obj.is_active is False
 
-    assert not DeliveryAddress.objects.filter(client=client).exists()
-
-
-@pytest.mark.django_db
-def test_delete_client_with_active_orders(client):
-    Order.objects.create(client=client)
-    delete_client(client)
-    client.refresh_from_db()
-
-    assert client.is_pending_deletion is True
+    assert not DeliveryAddress.objects.filter(client=client_obj).exists()
 
 
 @pytest.mark.django_db
-def test_delete_client_after_return_period(client):
-    order = Order.objects.create(client=client)
-    order.client = client
+def test_delete_client_with_active_orders(client_obj):
+    Order.objects.create(client=client_obj)
+    delete_client(client_obj)
+    client_obj.refresh_from_db()
+
+    assert client_obj.is_pending_deletion is True
+
+
+@pytest.mark.django_db
+def test_delete_client_after_return_period(client_obj):
+    order = Order.objects.create(client=client_obj)
+    order.client = client_obj
     order.status = Status.COMPLETED
     order.completed_at = timezone.now() - timezone.timedelta(days=20)
     order.save()
 
-    delete_client(client)
+    delete_client(client_obj)
 
-    client.refresh_from_db()
+    client_obj.refresh_from_db()
 
-    assert client.first_name == "Аноним"
+    assert client_obj.first_name == "Аноним"

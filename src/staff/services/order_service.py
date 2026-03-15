@@ -1,3 +1,5 @@
+from datetime import datetime, time
+
 from django.db import transaction
 from django.db.models import QuerySet, OuterRef, Subquery
 
@@ -16,13 +18,22 @@ def get_latest_order_statuses() -> QuerySet[OrderStatusLog]:
 
 
 def filter_orders_status(queryset: QuerySet, filters: dict) -> QuerySet:
+    orm_filters = {}
+
     if filters.get("status"):
-        queryset = queryset.filter(status=filters["status"])
+        orm_filters["status"] = filters["status"]
+
     if filters.get("date_from"):
-        queryset = queryset.filter(order__created_at__date__gte=filters["date_from"])
+        orm_filters["order__created_at__gte"] = datetime.combine(
+            filters["date_from"], time.min
+        )
+
     if filters.get("date_to"):
-        queryset = queryset.filter(order__created_at__date__lte=filters["date_to"])
-    return queryset.order_by("status")
+        orm_filters["order__created_at__lte"] = datetime.combine(
+            filters["date_to"], time.max
+        )
+
+    return queryset.filter(**orm_filters).order_by("status")
 
 
 def change_order_status_log(order: Order, user, status: int, comment: str) -> bool:

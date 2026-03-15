@@ -15,13 +15,15 @@ from staff.services.dashboard_service import (
 
 
 @pytest.mark.django_db
-def test_get_completed_orders_queryset(client):
+def test_get_completed_orders_queryset(client_obj):
     date = timezone.now()
     old_date = date - timedelta(weeks=5)
 
-    Order.objects.create(client=client, status=Status.NEW, completed_at=date)
-    Order.objects.create(client=client, status=Status.COMPLETED, completed_at=date)
-    Order.objects.create(client=client, status=Status.COMPLETED, completed_at=old_date)
+    Order.objects.create(client=client_obj, status=Status.NEW, completed_at=date)
+    Order.objects.create(client=client_obj, status=Status.COMPLETED, completed_at=date)
+    Order.objects.create(
+        client=client_obj, status=Status.COMPLETED, completed_at=old_date
+    )
 
     orders = get_completed_orders_queryset(date)
 
@@ -35,15 +37,19 @@ def test_get_completed_orders_queryset(client):
 
 
 @pytest.mark.django_db
-def test_get_today_stats(client):
+def test_get_today_stats(client_obj):
     date = timezone.now()
     yesterday = date - timedelta(days=1)
     old_date = date - timedelta(weeks=5)
 
-    Order.objects.create(client=client, status=Status.NEW, completed_at=date)
-    Order.objects.create(client=client, status=Status.COMPLETED, completed_at=date)
-    Order.objects.create(client=client, status=Status.COMPLETED, completed_at=yesterday)
-    Order.objects.create(client=client, status=Status.COMPLETED, completed_at=old_date)
+    Order.objects.create(client=client_obj, status=Status.NEW, completed_at=date)
+    Order.objects.create(client=client_obj, status=Status.COMPLETED, completed_at=date)
+    Order.objects.create(
+        client=client_obj, status=Status.COMPLETED, completed_at=yesterday
+    )
+    Order.objects.create(
+        client=client_obj, status=Status.COMPLETED, completed_at=old_date
+    )
 
     orders = get_today_stats()
 
@@ -55,25 +61,28 @@ def test_get_today_stats(client):
 
 
 @pytest.mark.django_db
-def test_get_month_stats(client):
+def test_get_month_stats(client_obj):
     date = timezone.now()
     yesterday = date - timedelta(days=1)
     old_date = date - timedelta(weeks=5)
 
     Order.objects.create(
-        client=client, status=Status.NEW, completed_at=date, total_price=650.50
+        client=client_obj, status=Status.NEW, completed_at=date, total_price=650.50
     )
     Order.objects.create(
-        client=client, status=Status.COMPLETED, completed_at=date, total_price=1200
+        client=client_obj, status=Status.COMPLETED, completed_at=date, total_price=1200
     )
     Order.objects.create(
-        client=client,
+        client=client_obj,
         status=Status.COMPLETED,
         completed_at=yesterday,
         total_price=500.50,
     )
     Order.objects.create(
-        client=client, status=Status.COMPLETED, completed_at=old_date, total_price=230
+        client=client_obj,
+        status=Status.COMPLETED,
+        completed_at=old_date,
+        total_price=230,
     )
 
     month_stats = get_month_stats(date)
@@ -84,7 +93,7 @@ def test_get_month_stats(client):
 
 
 @pytest.mark.django_db
-def test_get_dashboard_context_max_favorite(user, client, products):
+def test_get_dashboard_context_max_favorite(user, client_obj, products):
     for product in products:
         Favorite.objects.create(user=user, product=product)
 

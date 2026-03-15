@@ -19,7 +19,7 @@ def user(db):
 
 
 @pytest.fixture
-def client(user):
+def client_obj(user):
     return Client.objects.create(
         user=user,
         first_name="John",
@@ -30,9 +30,9 @@ def client(user):
 
 
 @pytest.fixture
-def address(client):
+def address(client_obj):
     return DeliveryAddress.objects.create(
-        client=client,
+        client=client_obj,
         city="Test City",
         street="Test Street",
         post_office="1",

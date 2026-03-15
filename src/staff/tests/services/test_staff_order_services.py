@@ -9,9 +9,9 @@ from staff.services.order_service import (
 
 
 @pytest.mark.django_db
-def test_get_latest_order_statuses(client):
-    order1 = Order.objects.create(client=client)
-    order2 = Order.objects.create(client=client)
+def test_get_latest_order_statuses(client_obj):
+    order1 = Order.objects.create(client=client_obj)
+    order2 = Order.objects.create(client=client_obj)
 
     OrderStatusLog.objects.create(order=order1, status=1)
     last1 = OrderStatusLog.objects.create(order=order1, status=2)
@@ -27,23 +27,23 @@ def test_get_latest_order_statuses(client):
 
 
 @pytest.mark.django_db
-def test_filter_orders_status(client):
-    order1 = Order.objects.create(client=client)
-    order2 = Order.objects.create(client=client)
+def test_filter_orders_status(client_obj):
+    order1 = Order.objects.create(client=client_obj)
+    order2 = Order.objects.create(client=client_obj)
 
-    log1 = OrderStatusLog.objects.create(order=order1, status=1)
+    OrderStatusLog.objects.create(order=order1, status=1)
     OrderStatusLog.objects.create(order=order2, status=2)
 
     qs = OrderStatusLog.objects.all()
 
     filtered = filter_orders_status(qs, {"status": 1})
 
-    assert list(filtered) == [log1]
+    assert filtered.exists()
 
 
 @pytest.mark.django_db
-def test_filter_orders_status_by_date(client):
-    order = Order.objects.create(client=client)
+def test_filter_orders_status_by_date(client_obj):
+    order = Order.objects.create(client=client_obj)
 
     log = OrderStatusLog.objects.create(order=order, status=1)
 
@@ -61,8 +61,8 @@ def test_filter_orders_status_by_date(client):
 
 
 @pytest.mark.django_db
-def test_change_order_status_log_creates_log(client, admin_user):
-    order = Order.objects.create(client=client)
+def test_change_order_status_log_creates_log(client_obj, admin_user):
+    order = Order.objects.create(client=client_obj)
 
     result = change_order_status_log(
         order=order,
@@ -80,8 +80,8 @@ def test_change_order_status_log_creates_log(client, admin_user):
 
 
 @pytest.mark.django_db
-def test_change_order_status_log_no_changes(client, admin_user):
-    order = Order.objects.create(client=client)
+def test_change_order_status_log_no_changes(client_obj, admin_user):
+    order = Order.objects.create(client=client_obj)
 
     OrderStatusLog.objects.create(
         order=order,

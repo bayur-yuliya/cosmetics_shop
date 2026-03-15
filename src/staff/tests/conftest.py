@@ -1,6 +1,6 @@
 from cosmetics_shop.tests.conftest import (  # noqa
     user,
-    client,
+    client_obj,
     group,
     group2,
     brand,
