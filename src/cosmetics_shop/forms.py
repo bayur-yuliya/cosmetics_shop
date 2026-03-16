@@ -1,8 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User
 
-from cosmetics_shop.models import Client, DeliveryAddress, GroupProduct, Brand, Tag
 from accounts.utils.validators import validate_phone_number
+from cosmetics_shop.models import Brand, Client, DeliveryAddress, GroupProduct, Tag
 
 
 class ClientForm(forms.ModelForm):

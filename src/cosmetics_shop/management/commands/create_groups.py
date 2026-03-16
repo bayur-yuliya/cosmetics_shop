@@ -1,14 +1,15 @@
-from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
+from django.core.management.base import BaseCommand
+
 from cosmetics_shop.models import (
-    Order,
-    Product,
-    Category,
-    Tag,
-    GroupProduct,
-    OrderStatusLog,
     Brand,
+    Category,
+    GroupProduct,
+    Order,
+    OrderStatusLog,
+    Product,
+    Tag,
 )
 from staff.models import StaffPermission
 

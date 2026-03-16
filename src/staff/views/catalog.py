@@ -1,12 +1,12 @@
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView
 
-from cosmetics_shop.models import Tag, Brand, GroupProduct, Category
-from staff.forms import TagForm, BrandForm, GroupProductForm, CategoryForm
+from cosmetics_shop.models import Brand, Category, GroupProduct, Tag
+from staff.forms import BrandForm, CategoryForm, GroupProductForm, TagForm
 from staff.services.list_service import (
     BaseStaffDeleteView,
-    BaseStaffManageView,
     BaseStaffListView,
+    BaseStaffManageView,
 )
 
 

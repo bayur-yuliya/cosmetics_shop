@@ -1,16 +1,16 @@
+from datetime import timedelta
 from decimal import Decimal
 
 import pytest
 from django.utils import timezone
-from datetime import timedelta
 
 from accounts.models import CustomUser
-from cosmetics_shop.models import Order, Status, Favorite
+from cosmetics_shop.models import Favorite, Order, Status
 from staff.services.dashboard_service import (
     get_completed_orders_queryset,
-    get_today_stats,
-    get_month_stats,
     get_dashboard_context,
+    get_month_stats,
+    get_today_stats,
 )
 
 

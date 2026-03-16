@@ -1,7 +1,7 @@
-from django.db.models import QuerySet, Exists, OuterRef, F
+from django.db.models import Exists, F, OuterRef, QuerySet
 
 from accounts.models import CustomUser
-from cosmetics_shop.models import Product, Favorite
+from cosmetics_shop.models import Favorite, Product
 
 
 def change_stock_product(product_code: int, count: int) -> None:

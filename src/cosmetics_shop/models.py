@@ -5,9 +5,9 @@ from random import randint
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
-from django.db import models, transaction, IntegrityError
-from django.db.models import Sum, F
-from django.urls import reverse, NoReverseMatch
+from django.db import IntegrityError, models, transaction
+from django.db.models import F, Sum
+from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from slugify import slugify
@@ -404,9 +404,11 @@ class Order(TimestampedModel):
             self.set_status(self.status, commit=False)
 
     def update_total_price(self):
-        # NOTE: Automatic recalculation of the order total is intentionally moved out of the save method.
+        # NOTE: Automatic recalculation of the order total is intentionally moved out
+        # of the save method.
         # This avoids the N+1 problem during bulk operations.
-        # Don't forget to call order.update_total_price() at the end of View or Service function.
+        # Don't forget to call order.update_total_price()
+        # at the end of View or Service function.
         total = (
             self.order_items.aggregate(
                 total=Sum(

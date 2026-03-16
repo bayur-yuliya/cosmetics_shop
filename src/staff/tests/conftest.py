@@ -2,14 +2,14 @@ import pytest
 from django.contrib.auth.models import Group
 
 from cosmetics_shop.tests.conftest import (  # noqa
-    user,
+    brand,
+    category,
+    category2,
     client_obj,
     group,
     group2,
-    brand,
     products,
-    category,
-    category2,
+    user,
 )
 
 

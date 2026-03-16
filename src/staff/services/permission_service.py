@@ -1,8 +1,8 @@
 from typing import Any
 
+from django.contrib.auth.models import Permission
 from django.db import transaction
 from django.db.models import Q, QuerySet
-from django.contrib.auth.models import Permission
 
 
 def get_individually_assigned_permits() -> QuerySet[Permission]:

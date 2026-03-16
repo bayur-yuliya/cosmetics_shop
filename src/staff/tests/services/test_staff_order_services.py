@@ -1,7 +1,7 @@
 import pytest
 from django.utils.timezone import localtime
 
-from cosmetics_shop.models import OrderStatusLog, Order
+from cosmetics_shop.models import Order, OrderStatusLog
 from staff.services.order_service import (
     change_order_status_log,
     filter_orders_status,

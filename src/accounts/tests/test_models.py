@@ -7,7 +7,6 @@ from django.utils import timezone
 
 from accounts.models import ActivationToken
 
-
 User = get_user_model()
 
 

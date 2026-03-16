@@ -1,6 +1,6 @@
 import pytest
 
-from cosmetics_shop.models import CartItem, Order, OrderItem, Status
+from cosmetics_shop.models import CartItem, Order, OrderItem
 from cosmetics_shop.services.order_service import (
     create_order_from_cart,
     get_order_items_by_client,

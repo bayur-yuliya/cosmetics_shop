@@ -1,6 +1,6 @@
 from typing import Sequence
 
-from django.core.paginator import Paginator, Page
+from django.core.paginator import Page, Paginator
 from django.db.models import QuerySet
 from django.http import HttpRequest
 

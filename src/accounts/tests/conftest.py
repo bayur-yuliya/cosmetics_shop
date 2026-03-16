@@ -4,7 +4,7 @@ import pytest
 from django.utils import timezone
 
 from accounts.models import ActivationToken
-from cosmetics_shop.tests.conftest import user, client_obj, address  # noqa
+from cosmetics_shop.tests.conftest import address, client_obj, user  # noqa
 
 
 @pytest.fixture

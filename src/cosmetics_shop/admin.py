@@ -1,14 +1,14 @@
 from django.contrib import admin
 
 from cosmetics_shop.models import (
-    Category,
-    GroupProduct,
-    Product,
     Brand,
     Cart,
     CartItem,
+    Category,
+    GroupProduct,
     Order,
     OrderItem,
+    Product,
 )
 
 admin.site.register(Category)

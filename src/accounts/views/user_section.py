@@ -3,11 +3,10 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.http import HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 
 from accounts.forms import ClientCreationForm
 from accounts.utils.account_services import delete_client
-
 from cosmetics_shop.models import Client
 from cosmetics_shop.services.order_service import get_order_items_by_client
 from utils.custom_types import AuthenticatedRequest
@@ -31,7 +30,8 @@ def delete_account(request: AuthenticatedRequest) -> HttpResponse:
                 request,
                 """
                 У вас остались незавершенные заказы.
-                Аккаунт будет удален после из завершения и 14 дней требующих для возврата.
+                Аккаунт будет удален после из завершения 
+                и 14 дней, требующихся для возврата.
                 Если все равно удалить, свяжитесь с менеджером для отмены заказа.
                 """,
             )

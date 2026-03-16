@@ -10,11 +10,11 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 
-from accounts.models import CustomUser, ActivationToken
+from accounts.models import ActivationToken, CustomUser
 from accounts.utils.validators import validate_activation_token
 from config import settings
 from config.settings import DEFAULT_STAFF_GROUP_NAME
-from cosmetics_shop.models import Client, Order, Status, DeliveryAddress
+from cosmetics_shop.models import Client, DeliveryAddress, Order, Status
 
 
 def send_activation_email(user: CustomUser, token_obj: ActivationToken) -> None:
@@ -29,7 +29,8 @@ def send_activation_email(user: CustomUser, token_obj: ActivationToken) -> None:
             f"Вас добавили в систему магазина.\n\n"
             f"Чтобы активировать аккаунт и установить пароль, перейдите по ссылке:\n"
             f"{activation_url}\n\n"
-            f"Ссылка действительна до: {token_obj.expires_at.strftime('%Y-%m-%d %H:%M')}"
+            f"Ссылка действительна до: "
+            f"{token_obj.expires_at.strftime('%Y-%m-%d %H:%M')}"
         )
 
         if user.email is not None:
@@ -95,7 +96,8 @@ def anonymize_client(client: Client):
 
     DeliveryAddress.objects.filter(client=client).delete()
 
-    # These snapshots are of no value to the tax authorities, so we will also anonymize them.
+    # These snapshots are of no value to the tax authorities,
+    # so we will also anonymize them.
     Order.objects.filter(client=client).update(
         snapshot_name="Анонимный клиент",
         snapshot_phone="",

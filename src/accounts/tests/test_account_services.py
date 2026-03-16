@@ -6,19 +6,18 @@ from django.utils import timezone
 
 from accounts.models import ActivationToken
 from accounts.utils.account_services import (
-    send_activation_email,
     activate_user,
-    has_active_orders,
     anonymize_client,
     delete_client,
+    has_active_orders,
+    send_activation_email,
 )
 from config.settings import DEFAULT_STAFF_GROUP_NAME
-from cosmetics_shop.models import Status, DeliveryAddress, Order
+from cosmetics_shop.models import DeliveryAddress, Order, Status
 
 
 @patch("accounts.utils.account_services.send_mail")
 def test_send_activation_email(mock_send_mail, user, token):
-
     send_activation_email(user, token)
 
     mock_send_mail.assert_called_once()

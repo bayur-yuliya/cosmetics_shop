@@ -1,10 +1,10 @@
 from datetime import datetime, time
 
 from django.db import transaction
-from django.db.models import QuerySet, OuterRef, Subquery
+from django.db.models import OuterRef, QuerySet, Subquery
 from django.utils import timezone
 
-from cosmetics_shop.models import OrderStatusLog, Order
+from cosmetics_shop.models import Order, OrderStatusLog
 from utils.date_utils import to_date
 
 

@@ -6,13 +6,13 @@ from django.core.exceptions import ValidationError
 
 from accounts.models import CustomUser
 from cosmetics_shop.models import (
-    Product,
+    Brand,
     Category,
     GroupProduct,
-    Brand,
     OrderStatusLog,
-    Tag,
+    Product,
     Status,
+    Tag,
 )
 from staff.services.order_service import change_order_status_log
 from staff.services.permission_service import get_individually_assigned_permits

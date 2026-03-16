@@ -1,13 +1,13 @@
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 
 from cosmetics_shop.forms import ProductFilterForm
 from cosmetics_shop.services.cart_services import (
     get_id_products_in_cart,
 )
-from cosmetics_shop.utils.context_utils import context_categories
 from cosmetics_shop.utils.cart_utils import get_cart
+from cosmetics_shop.utils.context_utils import context_categories
 from cosmetics_shop.utils.product_filter import ProductFilter
 from utils.helper_function import get_paginator_page
 
@@ -21,7 +21,6 @@ def processing_product_page(
     hide_group_field=False,
     hide_brands_field=False,
 ):
-
     is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
 
     query_params = request.GET.copy()

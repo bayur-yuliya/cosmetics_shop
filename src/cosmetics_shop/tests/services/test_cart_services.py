@@ -2,14 +2,14 @@ import pytest
 
 from cosmetics_shop.models import Cart, CartItem
 from cosmetics_shop.services.cart_services import (
-    clear_cart_after_order,
-    get_id_products_in_cart,
     add_product_to_cart,
-    remove_product_from_cart,
-    delete_product_from_cart,
+    clear_cart_after_order,
     delete_cart,
+    delete_product_from_cart,
     get_cart_total_price,
+    get_id_products_in_cart,
     is_product_in_cart,
+    remove_product_from_cart,
 )
 
 

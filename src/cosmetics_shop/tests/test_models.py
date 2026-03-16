@@ -7,22 +7,20 @@ from django.db import IntegrityError
 from django.utils.text import slugify
 
 from cosmetics_shop.models import (
-    OrderItem,
-    Order,
-    DeliveryAddress,
-    Category,
-    Status,
-    OrderStatusLog,
     CartItem,
-    Cart,
-    Product,
+    Category,
     Client,
+    DeliveryAddress,
+    Order,
+    OrderItem,
+    OrderStatusLog,
+    Product,
+    Status,
 )
 
 
 @pytest.mark.django_db
 class TestRedirects:
-
     def test_basic_redirect(self, mock_env):
         obj = Category.objects.create(name="Old", slug="old-slug")
         obj.slug = "new-slug"
@@ -50,7 +48,6 @@ class TestRedirects:
 
 @pytest.mark.django_db
 class TestSlug:
-
     def test_slug_generated(self):
         category = Category.objects.create(name="Test Category")
 
@@ -144,7 +141,6 @@ class TestProduct:
 @pytest.mark.django_db
 class TestOrder:
     def test_order_snapshot(self, client_obj, address):
-
         order = Order.objects.create(client=client_obj)
 
         assert order.snapshot_name == "John Doe"

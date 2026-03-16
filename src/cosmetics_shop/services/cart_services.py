@@ -2,7 +2,7 @@ from django.db import transaction
 from django.db.models import F, Sum
 from django.shortcuts import get_object_or_404
 
-from cosmetics_shop.models import Cart, Product, CartItem
+from cosmetics_shop.models import Cart, CartItem, Product
 
 
 def get_id_products_in_cart(cart: Cart) -> list[int]:

@@ -6,10 +6,10 @@ from django.shortcuts import get_object_or_404
 from cosmetics_shop.models import (
     Cart,
     CartItem,
-    Order,
-    OrderItem,
     Client,
     DeliveryAddress,
+    Order,
+    OrderItem,
 )
 from cosmetics_shop.services.cart_services import clear_cart_after_order
 from cosmetics_shop.services.product_service import change_stock_product
@@ -36,7 +36,11 @@ def create_order_from_cart(cart: Cart, client_data, address_data) -> Order:
         full_name = f"{client_data['last_name']} {client_data['first_name']}"
         user_email = client_data["email"]
         phone = client_data["phone"]
-        address = f"{address_data['city']}, {address_data['street']}, {address_data['post_office']}"
+        address = (
+            f"{address_data['city']}, "
+            f"{address_data['street']}, "
+            f"{address_data['post_office']}"
+        )
 
     with transaction.atomic():
         order = Order.objects.create(

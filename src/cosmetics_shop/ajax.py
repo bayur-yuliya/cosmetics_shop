@@ -1,11 +1,11 @@
 from decimal import Decimal
 
-from django.db.models import Sum, F
-from django.http import JsonResponse, HttpRequest, HttpResponse
+from django.db.models import F, Sum
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 
-from cosmetics_shop.models import Product, Favorite
+from cosmetics_shop.models import Favorite, Product
 from cosmetics_shop.services.cart_services import (
     add_product_to_cart,
     remove_product_from_cart,

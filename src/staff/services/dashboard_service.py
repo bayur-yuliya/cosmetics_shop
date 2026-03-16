@@ -1,8 +1,8 @@
 from dateutil.relativedelta import relativedelta
-from django.db.models import Avg, Sum, Count
+from django.db.models import Avg, Count, Sum
 from django.utils import timezone
 
-from cosmetics_shop.models import Order, Status, Product
+from cosmetics_shop.models import Order, Product, Status
 
 
 def get_completed_orders_queryset(start_date):

@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.db.models import QuerySet, Sum, F
+from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_POST

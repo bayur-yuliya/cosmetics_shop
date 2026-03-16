@@ -1,16 +1,17 @@
 import pytest
 
+from accounts.models import CustomUser
+
 from ..models import (
-    Category,
-    GroupProduct,
     Brand,
+    Cart,
+    Category,
+    Client,
+    DeliveryAddress,
+    GroupProduct,
     Product,
     Tag,
-    Client,
-    Cart,
-    DeliveryAddress,
 )
-from accounts.models import CustomUser
 
 
 @pytest.fixture

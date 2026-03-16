@@ -2,7 +2,7 @@ from django.http import HttpRequest
 from django.utils import timezone
 
 from cosmetics_shop.forms import ClientForm, DeliveryAddressForm
-from cosmetics_shop.models import DeliveryAddress, Client
+from cosmetics_shop.models import Client, DeliveryAddress
 
 
 def get_client(request: HttpRequest) -> Client | None:

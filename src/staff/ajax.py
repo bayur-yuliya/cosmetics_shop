@@ -1,8 +1,8 @@
 from datetime import date
 
-from django.db.models import Count, Avg
+from django.db.models import Avg, Count
 from django.db.models.functions import TruncMonth
-from django.http import JsonResponse, HttpRequest
+from django.http import HttpRequest, JsonResponse
 from django.utils import timezone
 
 from cosmetics_shop.models import Order, Status

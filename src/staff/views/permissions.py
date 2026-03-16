@@ -1,21 +1,17 @@
-from typing import Any
-
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.models import Group
 from django.db.models import Count, QuerySet
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 
 from accounts.models import CustomUser
-
 from staff.forms import (
-    GroupForm,
     AdminCreateUserForm,
+    GroupForm,
 )
 
 from ..services.permission_service import (
-    get_individually_assigned_permits,
     get_permissions_by_app,
     set_user_permissions,
 )

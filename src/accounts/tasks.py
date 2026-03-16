@@ -1,7 +1,7 @@
 from celery import shared_task
 from django.utils import timezone
 
-from accounts.utils.account_services import has_active_orders, anonymize_client
+from accounts.utils.account_services import anonymize_client, has_active_orders
 from cosmetics_shop.models import Client, Order, Status
 
 

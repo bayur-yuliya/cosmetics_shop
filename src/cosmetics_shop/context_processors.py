@@ -1,10 +1,8 @@
-from django.contrib.auth.models import AnonymousUser
+from django.contrib.auth.forms import UserCreationForm
 from django.db.models import Sum
 from django.urls import resolve
 
 from cosmetics_shop.models import CartItem, Client
-from django.contrib.auth.forms import UserCreationForm
-
 from cosmetics_shop.utils.cart_utils import get_cart
 
 
