@@ -1,4 +1,5 @@
 import pytest
+from django.contrib.sessions.middleware import SessionMiddleware
 
 from accounts.models import CustomUser
 
@@ -138,3 +139,9 @@ def mock_env(mocker):
             f"/{list(kwargs.values())[0]}/" if kwargs else "/err/"
         ),
     )
+
+
+def add_session(request):
+    middleware = SessionMiddleware(lambda r: None)
+    middleware.process_request(request)
+    request.session.save()
