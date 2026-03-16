@@ -15,7 +15,7 @@ from cosmetics_shop.utils.cart_utils import get_or_create_cart
 
 @require_POST
 def toggle_favorite(request: HttpRequest) -> HttpResponse:
-    product_id = request.POST.get("product_id")
+    product_id = int(request.POST.get("product_id"))
     product = get_object_or_404(Product, id=product_id)
     message = None
     if request.user.is_authenticated:

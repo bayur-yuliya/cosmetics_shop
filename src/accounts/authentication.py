@@ -7,12 +7,12 @@ class EmailAuthBackend(BaseBackend):
         user_model = get_user_model()
 
         try:
-            user = user_model.objects.get(email=email)
+            user = user_model.objects.filter(email=email).first()
             if user.check_password(password) and user.is_active:
                 return user
             return None
 
-        except (user_model.DoesNotExist, user_model.MultipleObjectsReturned):
+        except user_model.DoesNotExist:
             return None
 
     def get_user(self, user_id):
