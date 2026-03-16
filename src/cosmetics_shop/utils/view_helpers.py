@@ -8,7 +8,7 @@ from cosmetics_shop.services.cart_services import (
 )
 from cosmetics_shop.utils.cart_utils import get_cart
 from cosmetics_shop.utils.context_utils import context_categories
-from cosmetics_shop.utils.product_filter import ProductFilter
+from cosmetics_shop.utils.product_filters import ProductFilter
 from utils.helper_function import get_paginator_page
 
 
