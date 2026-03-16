@@ -88,7 +88,7 @@ def get_order_items_by_client(client: Client) -> list[dict[str, Any]]:
             {
                 "order": order,
                 "items": order.order_items.all(),
-                "latest_status": order.status,
+                "latest_status": order.get_status_display(),
                 "status_badge_class": (status_badge if status_badge else "secondary"),
             }
         )

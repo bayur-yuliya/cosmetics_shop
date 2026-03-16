@@ -1,4 +1,5 @@
 import pytest
+from django.utils.timezone import localtime
 
 from cosmetics_shop.models import OrderStatusLog, Order
 from staff.services.order_service import (
@@ -44,20 +45,17 @@ def test_filter_orders_status(client_obj):
 @pytest.mark.django_db
 def test_filter_orders_status_by_date(client_obj):
     order = Order.objects.create(client=client_obj)
-
-    log = OrderStatusLog.objects.create(order=order, status=1)
-
-    qs = OrderStatusLog.objects.all()
+    qs = Order.objects.all()
+    local_date = localtime(order.created_at).date()
 
     filtered = filter_orders_status(
         qs,
         {
-            "date_from": order.created_at.date(),
-            "date_to": order.created_at.date(),
+            "date_from": local_date,
+            "date_to": local_date,
         },
     )
-
-    assert log in filtered
+    assert filtered.exists()
 
 
 @pytest.mark.django_db
