@@ -12,8 +12,13 @@ from cosmetics_shop.tests.conftest import address, client_obj, user  # noqa
 @pytest.fixture
 def token(user):  # noqa: F811
     date = timezone.now() + timedelta(days=5, hours=3)
-    token = ActivationToken.objects.create(user=user, token="12345678", expires_at=date)
-    return token
+    return ActivationToken.objects.create(user=user, token="12345678", expires_at=date)
+
+
+@pytest.fixture
+def expired_token(user):  # noqa: F811
+    date = timezone.now() - timedelta(days=5, hours=3)
+    return ActivationToken.objects.create(user=user, token="12345678", expires_at=date)
 
 
 @pytest.fixture
