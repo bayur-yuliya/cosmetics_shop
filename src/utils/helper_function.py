@@ -4,7 +4,7 @@ from django.core.paginator import Page, Paginator
 from django.db.models import QuerySet
 from django.http import HttpRequest
 
-from config.settings import PRODUCTS_PER_PAGE
+from config.settings.base import PRODUCTS_PER_PAGE
 
 
 def get_paginator_page(

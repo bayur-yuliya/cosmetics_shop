@@ -12,7 +12,7 @@ from accounts.utils.account_services import (
     has_active_orders,
     send_activation_email,
 )
-from config.settings import DEFAULT_STAFF_GROUP_NAME
+from config.settings.base import DEFAULT_STAFF_GROUP_NAME
 from cosmetics_shop.models import DeliveryAddress, Order, Status
 
 

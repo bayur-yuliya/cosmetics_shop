@@ -17,7 +17,7 @@ from celery.schedules import crontab
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 load_dotenv()
 # Quick-start development settings - unsuitable for production
@@ -25,13 +25,6 @@ load_dotenv()
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ["127.0.0.1"]
-
-INTERNAL_IPS = ["127.0.0.1"]
 
 # Application definition
 
@@ -43,8 +36,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.redirects",
-    # debug_toolbar
-    "debug_toolbar",
     # django-allauth
     "django.contrib.sites",
     "allauth",
@@ -69,7 +60,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "django.contrib.redirects.middleware.RedirectFallbackMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -93,18 +83,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "config.wsgi.application"
-
-
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -205,8 +183,6 @@ SOCIALACCOUNT_PROVIDERS = {
 SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_AUTO_SIGNUP = True
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-
 
 SITE_URL = "http://127.0.0.1:8000"
 DEFAULT_FROM_EMAIL = "Cosmetics Shop <noreply@gmail.com>"
@@ -218,7 +194,7 @@ PRODUCTS_PER_PAGE = 20
 # CELERY SETTINGS
 CELERY_BEAT_SCHEDULE = {
     "check-completed-orders-for-deletion": {
-        "task": "your_app_name.tasks.update_pending_deletion_dates",
+        "task": "accounts.tasks.update_pending_deletion_dates",
         "schedule": crontab(minute=0),  # start every hour
     },
     "anonymize-clients-every-night": {

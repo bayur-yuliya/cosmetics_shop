@@ -13,7 +13,7 @@ from django.utils import timezone
 from accounts.models import ActivationToken, CustomUser
 from accounts.utils.validators import validate_activation_token
 from config import settings
-from config.settings import DEFAULT_STAFF_GROUP_NAME
+from config.settings.base import DEFAULT_STAFF_GROUP_NAME
 from cosmetics_shop.models import Client, DeliveryAddress, Order, Status
 
 
