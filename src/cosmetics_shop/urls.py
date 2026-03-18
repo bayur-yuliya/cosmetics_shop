@@ -1,7 +1,7 @@
 from django.urls import path
 
 from . import ajax
-from .views import catalog, static_pages, orders, cart
+from .views import cart, catalog, orders, static_pages
 
 urlpatterns = [
     # ajax

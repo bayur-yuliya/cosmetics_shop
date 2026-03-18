@@ -1,40 +1,32 @@
 from typing import Any
 
 from django.db import transaction
-from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
 
 from cosmetics_shop.models import (
     Cart,
     CartItem,
+    Client,
+    DeliveryAddress,
     Order,
     OrderItem,
-    Client,
-    OrderStatusLog,
-    DeliveryAddress,
 )
+from cosmetics_shop.services.cart_services import clear_cart_after_order
 from cosmetics_shop.services.product_service import change_stock_product
-from cosmetics_shop.utils.cart_utils import get_cart
 from utils.custom_exceptions import OutOfStockError
-from utils.custom_types import AuthenticatedRequest
 
 
-def clear_cart_after_order(cart: Cart) -> None:
-    cart.cartitem_set.all().delete()
-
-
-def create_order_from_cart(request: AuthenticatedRequest) -> Order:
-    cart = get_cart(request)
+def create_order_from_cart(cart: Cart, client_data, address_data) -> Order:
     cart_items = CartItem.objects.select_related("product").filter(cart=cart)
-    client_data = request.session.get("client_data", {})
-    address_data = request.session.get("address_data", {})
 
     if cart.user:
         client = get_object_or_404(Client, user=cart.user)
         full_name = f"{client.last_name} {client.first_name}"
         user_email = client.email
         phone = client.phone
-        primary_address = DeliveryAddress.objects.filter(client=client, is_primary=True)
+        primary_address = DeliveryAddress.objects.filter(
+            client=client, is_primary=True
+        ).first()
         address = str(primary_address) if primary_address else "Адрес не указан"
     else:
         if not client_data or not address_data:
@@ -44,7 +36,11 @@ def create_order_from_cart(request: AuthenticatedRequest) -> Order:
         full_name = f"{client_data['last_name']} {client_data['first_name']}"
         user_email = client_data["email"]
         phone = client_data["phone"]
-        address = f"{address_data['city']}, {address_data['street']}, {address_data['post_office']}"
+        address = (
+            f"{address_data['city']}, "
+            f"{address_data['street']}, "
+            f"{address_data['post_office']}"
+        )
 
     with transaction.atomic():
         order = Order.objects.create(
@@ -79,39 +75,25 @@ def create_order_from_cart(request: AuthenticatedRequest) -> Order:
 
         clear_cart_after_order(cart)
 
-        if not request.user.is_authenticated:
-            request.session.pop("cart_id", None)
-
     return order
 
 
 def get_order_items_by_client(client: Client) -> list[dict[str, Any]]:
-    status_prefetch = Prefetch(
-        "status_log",
-        queryset=OrderStatusLog.objects.order_by("-changed_at"),
-        to_attr="order_statuses",
-    )
-
     orders = (
         Order.objects.filter(client=client)
-        .prefetch_related("order_items__product", status_prefetch)
+        .prefetch_related("order_items")
         .order_by("-created_at")
     )
     order_items_data: list[dict[str, Any]] = []
 
     for order in orders:
-        latest_status: OrderStatusLog | None = (
-            order.order_statuses[0] if order.order_statuses else None
-        )
-
+        status_badge = order.status_badge_class()
         order_items_data.append(
             {
                 "order": order,
                 "items": order.order_items.all(),
-                "latest_status": latest_status,
-                "status_badge_class": (
-                    latest_status.status_badge_class() if latest_status else "secondary"
-                ),
+                "latest_status": order.get_status_display(),
+                "status_badge_class": (status_badge if status_badge else "secondary"),
             }
         )
 

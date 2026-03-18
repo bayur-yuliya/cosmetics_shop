@@ -1,42 +1,20 @@
-from allauth.account.forms import SignupForm
 from django import forms
-from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.exceptions import ValidationError
 
-from cosmetics_shop.models import Client
-from .models import CustomUser
 from accounts.utils.validators import validate_phone_number
+from cosmetics_shop.models import Client
 
-
-class CustomUserCreationForm(UserCreationForm):
-    class Meta:
-        model = CustomUser
-        fields = ("email",)
-
-
-class CustomSignupForm(SignupForm):
-    def clean_email(self):
-        email = super().clean_email()
-
-        User = get_user_model()
-        if User.objects.filter(email__iexact=email).exists():
-            raise forms.ValidationError(
-                "Пользователь с таким email уже существует.",
-                code='email_taken'
-            )
-
-        return email
+from .utils.account_services import activate_user
 
 
 class ClientCreationForm(forms.ModelForm):
     phone = forms.CharField(
         label="Номер телефона",
-        max_length=10,
+        max_length=13,
         validators=[validate_phone_number],
         required=False,
     )
-    email = forms.EmailField(label="Email", disabled=True)
+    email = forms.EmailField(label="Email")
 
     class Meta:
         model = Client
@@ -82,12 +60,10 @@ class SetInitialPasswordForm(forms.Form):
         self.token = token
 
     def get_user_and_password(self):
-        from .utils.account_services import activate_user_service
-
         if not self.token:
             return None
 
         password = self.cleaned_data["password1"]
-        user = activate_user_service(self.token, password)
+        user = activate_user(self.token, password)
 
         return user, password

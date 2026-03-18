@@ -1,12 +1,12 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
-from django.views.generic import ListView, DeleteView
+from django.views.generic import DeleteView, ListView
 
 from config.settings import PRODUCTS_PER_PAGE
 from staff.mixins import (
-    PageTitleMixin,
     ModelPermissionMixin,
+    PageTitleMixin,
     StaffPermissionExceptionMixin,
 )
 

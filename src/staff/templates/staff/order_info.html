@@ -6,6 +6,7 @@
 {% block content %}
 <div class="container my-4">
     <h2 class="mb-4">Заказ №{{ order.code }}</h2>
+    <h6>Создан: {{ order.created_at }}</h6><br>
     <!-- Товары заказа -->
     <h4>Товары</h4>
     {% if order_items %}

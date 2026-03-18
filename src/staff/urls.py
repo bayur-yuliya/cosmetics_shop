@@ -1,7 +1,7 @@
 from django.urls import path
 
 from staff import ajax
-from staff.views import dashboard, catalog, permissions, products, orders
+from staff.views import catalog, dashboard, orders, permissions, products
 
 urlpatterns = [
     # products

@@ -1,12 +1,12 @@
 from django.db.models import QuerySet
-from django.http import HttpResponse, HttpRequest
-from django.shortcuts import render, get_object_or_404
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import get_object_or_404, render
 
-from cosmetics_shop.models import Brand, Tag, Product, GroupProduct, Category
+from cosmetics_shop.models import Brand, Category, GroupProduct, Product, Tag
 from cosmetics_shop.services.cart_services import is_product_in_cart
-from cosmetics_shop.services.category_services import get_grouped_for_alphabet_brands
-from cosmetics_shop.services.product_service import get_ready_product_list
 from cosmetics_shop.utils.cart_utils import get_cart
+from cosmetics_shop.utils.context_utils import get_grouped_for_alphabet_brands
+from cosmetics_shop.utils.product_utils import get_ready_product_list
 from cosmetics_shop.utils.view_helpers import processing_product_page
 from utils.custom_types import AuthenticatedRequest
 
@@ -24,7 +24,9 @@ def main_page(request: HttpRequest) -> HttpResponse:
 
 def category_page(request: HttpRequest, category_slug: str) -> HttpResponse:
     title: Category = get_object_or_404(Category, slug=category_slug)
-    products = get_ready_product_list(request).product_group_by_category(category_slug=category_slug)
+    products = get_ready_product_list(request).product_group_by_category(
+        category_slug=category_slug
+    )
 
     return processing_product_page(
         request=request,

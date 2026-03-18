@@ -1,9 +1,7 @@
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 
-from config.settings import PRODUCTS_PER_PAGE
 from cosmetics_shop.models import Favorite
 from utils.custom_types import AuthenticatedRequest
 from utils.helper_function import get_paginator_page

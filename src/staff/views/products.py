@@ -2,24 +2,21 @@ from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
-
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
+
 from cosmetics_shop.models import (
     Product,
     Tag,
 )
-from staff.forms import ProductForm, ProductFilterForm
+from staff.forms import ProductFilterForm, ProductForm
 from utils.helper_function import get_paginator_page
 
 
 @permission_required("cosmetics_shop.view_product", raise_exception=True)
 def products(request: HttpRequest) -> HttpResponse:
     products_list = (
-        Product.objects.all()
-        .order_by("-id")
-        .filter(is_active=True)
-        .for_catalog()
+        Product.objects.all().order_by("-id").filter(is_active=True).for_catalog()
     )
 
     form = ProductFilterForm(request.GET)

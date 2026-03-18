@@ -1,8 +1,8 @@
 from typing import Any
 
+from django.contrib.auth.models import Permission
 from django.db import transaction
 from django.db.models import Q, QuerySet
-from django.contrib.auth.models import Permission
 
 
 def get_individually_assigned_permits() -> QuerySet[Permission]:
@@ -50,7 +50,9 @@ def set_user_permissions(user, selected_groups, selected_permissions) -> bool:
     try:
         with transaction.atomic():
             group_ids = [int(pk) for pk in selected_groups] if selected_groups else []
-            perm_ids = [int(pk) for pk in selected_permissions] if selected_permissions else []
+            perm_ids = (
+                [int(pk) for pk in selected_permissions] if selected_permissions else []
+            )
 
             user.groups.set(group_ids)
             user.user_permissions.set(perm_ids)

@@ -1,6 +1,7 @@
 from django.contrib.auth.models import Permission
 from django.core.management import BaseCommand
-from django.utils.translation import gettext as _, activate
+from django.utils.translation import activate
+from django.utils.translation import gettext as _
 
 
 class Command(BaseCommand):

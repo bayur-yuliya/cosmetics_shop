@@ -1,6 +1,6 @@
 import phonenumbers
-from phonenumbers import carrier
 from django.core.exceptions import ValidationError
+from phonenumbers import carrier
 
 from accounts.models import ActivationToken
 

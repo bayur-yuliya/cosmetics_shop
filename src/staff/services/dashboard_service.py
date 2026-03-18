@@ -1,22 +1,19 @@
 from dateutil.relativedelta import relativedelta
-from django.db.models import Avg, Sum, Count
+from django.db.models import Avg, Count, Sum
 from django.utils import timezone
 
-from cosmetics_shop.models import Order, Status, Favorite
+from cosmetics_shop.models import Order, Product, Status
 
 
 def get_completed_orders_queryset(start_date):
-    return (
-        Order.objects.filter(
-            created_at__gte=start_date,
-            status=Status.COMPLETED,
-        )
-        .distinct()
-    )
+    return Order.objects.filter(
+        completed_at__gte=start_date,
+        status=Status.COMPLETED,
+    ).distinct()
 
 
 def get_today_stats():
-    today = timezone.now().date()
+    today = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
     qs = get_completed_orders_queryset(today)
 
@@ -44,16 +41,15 @@ def get_month_stats(current_date):
 
 
 def get_dashboard_context():
-    today = timezone.now().date()
+    today = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
     today_stats = get_today_stats()
     month_stats = get_month_stats(today)
 
     max_favorite = (
-        Favorite.objects
-        .annotate(num_product=Count("product"))
-        .order_by("-num_product")
-        .select_related("product__group")[:3]
+        Product.objects.annotate(fav_count=Count("favorites"))
+        .filter(fav_count__gt=0)
+        .order_by("-fav_count")[:3]
     )
 
     current_year = timezone.now().year
@@ -67,4 +63,4 @@ def get_dashboard_context():
         "max_favorite": max_favorite,
         "years": years,
         "current_year": current_year,
-        }
+    }

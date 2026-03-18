@@ -47,6 +47,11 @@
     </div>
   </div>
 </nav>
+{% if is_pending_deletion %}
+    <span class="alert alert-danger">
+        Ваш аккаунт запланирован к удалению! Срок: после доставки последнего заказа и истечения срока возврата (14 дней)
+    </span>
+{% endif %}
 <main class="flex-grow-1">
     {%  include 'cosmetics_shop/includes/messages.html'  %}
     {%  block content  %}{%  endblock  %}

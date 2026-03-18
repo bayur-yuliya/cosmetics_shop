@@ -2,7 +2,7 @@ from typing import Any
 
 from django.db.models import QuerySet
 
-from cosmetics_shop.models import Category, Brand
+from cosmetics_shop.models import Brand, Category
 
 
 def context_categories() -> list[dict[str, Any]]:

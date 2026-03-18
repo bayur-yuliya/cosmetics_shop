@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 
+from celery.schedules import crontab
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "allauth",
     "allauth.account",
+    "allauth.headless",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     # apps
@@ -59,13 +61,13 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
-    "django.middleware.locale.LocaleMiddleware",
     "django.contrib.redirects.middleware.RedirectFallbackMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
@@ -84,6 +86,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "cosmetics_shop.context_processors.cart_item_count",
                 "cosmetics_shop.context_processors.register_form",
+                "cosmetics_shop.context_processors.is_pending_deletion_client",
             ],
         },
     },
@@ -108,7 +111,7 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",  # noqa E501
     },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
@@ -173,8 +176,15 @@ ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_LOGOUT_ON_GET = True
-ACCOUNT_ADAPTER = 'accounts.adapters.AjaxFriendlyAccountAdapter'
+ACCOUNT_ADAPTER = "allauth.account.adapter.DefaultAccountAdapter"
 ACCOUNT_PREVENT_ENUMERATION = False
+
+# Headless Setup
+HEADLESS_FRONTEND_URLS = {
+    "account_login": "/accounts/login/",
+}
+ALLAUTH_HEADLESS_ONLY = False
+
 
 AUTHENTICATION_BACKENDS = [
     "accounts.authentication.EmailAuthBackend",
@@ -203,3 +213,18 @@ DEFAULT_FROM_EMAIL = "Cosmetics Shop <noreply@gmail.com>"
 
 
 PRODUCTS_PER_PAGE = 20
+
+
+# CELERY SETTINGS
+CELERY_BEAT_SCHEDULE = {
+    "check-completed-orders-for-deletion": {
+        "task": "your_app_name.tasks.update_pending_deletion_dates",
+        "schedule": crontab(minute=0),  # start every hour
+    },
+    "anonymize-clients-every-night": {
+        "task": "accounts.tasks.process_client_anonymization",
+        "schedule": crontab(minute=0, hour=3),  # 03:00
+    },
+}
+CELERY_TIMEZONE = "Europe/Kiev"
+CELERY_ENABLE_UTC = True

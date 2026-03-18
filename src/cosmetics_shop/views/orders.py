@@ -1,13 +1,14 @@
 from django.contrib import messages
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 
 from cosmetics_shop.forms import ClientForm, DeliveryAddressForm
 from cosmetics_shop.models import DeliveryAddress, Order, OrderItem
 from cosmetics_shop.services.order_service import create_order_from_cart
+from cosmetics_shop.utils.cart_utils import get_cart
+from cosmetics_shop.utils.client_utils import get_client, process_delivery_data
 from cosmetics_shop.utils.decorators import cart_required, order_session_required
-from cosmetics_shop.services.client_service import process_delivery_data, get_client
 from utils.custom_exceptions import OutOfStockError
 from utils.custom_types import AuthenticatedRequest
 
@@ -48,7 +49,10 @@ def delivery(request: HttpRequest) -> HttpResponse:
 @cart_required
 def create_order(request: AuthenticatedRequest) -> HttpResponse:
     try:
-        order = create_order_from_cart(request)
+        cart = get_cart(request)
+        client_data = request.session.get("client_data", {})
+        address_data = request.session.get("address_data", {})
+        order = create_order_from_cart(cart, client_data, address_data)
         request.session["order_id"] = order.id
         return redirect("order_success")
 

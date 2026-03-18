@@ -12,9 +12,9 @@ def cart_required(view_func):
     @wraps(view_func)
     def wrapped_view(request, *args, **kwargs):
         cart = get_cart(request)
-        cart_items = cart.cartitem_set.all()
+        cart_items = cart.cart_items.all().exists()
 
-        if not cart_items.exists():
+        if not cart_items:
             messages.error(
                 request, "Ваша корзина пуста. Добавьте товары для оформления заказа."
             )
