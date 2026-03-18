@@ -4,15 +4,17 @@ from django.core.exceptions import ValidationError
 from accounts.utils.validators import validate_phone_number
 from cosmetics_shop.models import Client
 
+from .utils.account_services import activate_user
+
 
 class ClientCreationForm(forms.ModelForm):
     phone = forms.CharField(
         label="Номер телефона",
-        max_length=10,
+        max_length=13,
         validators=[validate_phone_number],
         required=False,
     )
-    email = forms.EmailField(label="Email", disabled=True)
+    email = forms.EmailField(label="Email")
 
     class Meta:
         model = Client
@@ -58,8 +60,6 @@ class SetInitialPasswordForm(forms.Form):
         self.token = token
 
     def get_user_and_password(self):
-        from .utils.account_services import activate_user
-
         if not self.token:
             return None
 
