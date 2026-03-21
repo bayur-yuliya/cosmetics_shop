@@ -2,6 +2,7 @@ import uuid
 
 from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount
+from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
@@ -12,7 +13,6 @@ from django.utils import timezone
 
 from accounts.models import ActivationToken, CustomUser
 from accounts.utils.validators import validate_activation_token
-from config import settings
 from config.settings.base import DEFAULT_STAFF_GROUP_NAME
 from cosmetics_shop.models import Client, DeliveryAddress, Order, Status
 
