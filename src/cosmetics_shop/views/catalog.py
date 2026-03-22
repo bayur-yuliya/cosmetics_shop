@@ -24,9 +24,7 @@ def main_page(request: HttpRequest) -> HttpResponse:
 
 def category_page(request: HttpRequest, category_slug: str) -> HttpResponse:
     title: Category = get_object_or_404(Category, slug=category_slug)
-    products = get_ready_product_list(request).product_group_by_category(
-        category_slug=category_slug
-    )
+    products = get_ready_product_list(request)
 
     return processing_product_page(
         request=request,

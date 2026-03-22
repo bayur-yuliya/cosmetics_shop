@@ -59,7 +59,11 @@ dependencies = [
     "urllib3 (==2.5.0)",
     "vine (==5.1.0)",
     "wcwidth (==0.6.0)",
-    "psycopg2-binary (>=2.9.11,<3.0.0)"
+    "psycopg2-binary (>=2.9.11,<3.0.0)",
+    "djangorestframework (>=3.17.0,<4.0.0)",
+    "markdown (>=3.10.2,<4.0.0)",
+    "django-filter (>=25.2,<26.0)",
+    "djangorestframework-stubs (>=3.16.8,<4.0.0)"
 ]
 
 
