@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "cosmetics_shop.apps.CosmeticsShopConfig",
     "staff.apps.StaffConfig",
     "accounts.apps.AccountsConfig",
+    "api.apps.ApiConfig",
 ]
 
 MIDDLEWARE = [

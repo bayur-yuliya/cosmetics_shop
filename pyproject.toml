@@ -95,7 +95,6 @@ target-version = "py311"
 extend-exclude = [
     "*/migrations/*",
 ]
-cache-dir = "null"
 src = [
     "src",
 ]
