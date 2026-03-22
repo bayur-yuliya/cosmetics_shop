@@ -58,17 +58,18 @@ dependencies = [
     "tzlocal (==5.3.1)",
     "urllib3 (==2.5.0)",
     "vine (==5.1.0)",
-    "wcwidth (==0.6.0)"
+    "wcwidth (==0.6.0)",
+    "psycopg2-binary (>=2.9.11,<3.0.0)",
+    "djangorestframework (>=3.17.0,<4.0.0)",
+    "markdown (>=3.10.2,<4.0.0)",
+    "django-filter (>=25.2,<26.0)",
+    "djangorestframework-stubs (>=3.16.8,<4.0.0)"
 ]
 
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
-
-
-[tool.mypy]
-plugins = ["mypy_django_plugin.main"]
 
 python_version = "3.11"
 strict_optional = true
@@ -80,6 +81,9 @@ check_untyped_defs = true
 django_settings_module = "config.settings"
 
 # mypy
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
+
 [[tool.mypy.overrides]]
 module = "*.migrations.*"
 ignore_errors = true
@@ -95,7 +99,6 @@ target-version = "py311"
 extend-exclude = [
     "*/migrations/*",
 ]
-cache-dir = "null"
 src = [
     "src",
 ]
@@ -112,9 +115,12 @@ ignore = []
 [tool.ruff.lint.isort]
 known-first-party = ["src"]
 
+[tool.ruff.lint.per-file-ignores]
+"src/config/settings/*.py" = ["F403", "F405"]
+
 # pytest
 [tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "config.settings"
+DJANGO_SETTINGS_MODULE = "config.settings.dev"
 python_files = ["test_*.py"]
 pythonpath = ["src"]
 addopts = "--cov=src --cov-report=html --reuse-db --nomigrations"

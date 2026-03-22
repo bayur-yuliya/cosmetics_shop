@@ -15,27 +15,28 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', includes('blog.urls'))
 """
 
-from debug_toolbar.toolbar import debug_toolbar_urls
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
-urlpatterns = (
-    [
-        path("admin/", admin.site.urls),
-        path("staff/", include("staff.urls")),
-        path("accounts/", include("allauth.urls")),
-        path("profile/", include("accounts.urls")),
-        path("_allauth/", include("allauth.headless.urls")),
-        path("", include("cosmetics_shop.urls")),
-    ]
-    + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    + debug_toolbar_urls()
-)
+urlpatterns = [
+    path("api/v1/", include("api.urls")),
+    path("admin/", admin.site.urls),
+    path("staff/", include("staff.urls")),
+    path("accounts/", include("allauth.urls")),
+    path("profile/", include("accounts.urls")),
+    path("_allauth/", include("allauth.headless.urls")),
+    path("", include("cosmetics_shop.urls")),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    from debug_toolbar.toolbar import debug_toolbar_urls
+
+    urlpatterns += (
+        static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+        + debug_toolbar_urls()
+    )
 
 handler404 = "cosmetics_shop.views.static_pages.page_not_found"
