@@ -3,6 +3,8 @@ FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
+RUN groupadd -r appgroup && useradd -r -g appgroup -m -d /home/appuser appuser
+
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
@@ -10,12 +12,22 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
+RUN pip install --no-cache-dir poetry && \
+    poetry config virtualenvs.create false
+
 COPY pyproject.toml poetry.lock ./
+RUN poetry install --only main --no-interaction --no-ansi --no-root
 
-RUN pip install --no-cache-dir poetry
-RUN poetry config virtualenvs.create false
-RUN poetry install --no-interaction --no-ansi
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh && chown appuser:appgroup /app/entrypoint.sh
 
-COPY . .
+COPY --chown=appuser:appgroup . .
 
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
+USER appuser
+
+ENTRYPOINT ["/app/entrypoint.sh"]
+
+CMD ["gunicorn", "config.wsgi:application", \
+     "--bind", "0.0.0.0:8000", \
+     "--workers", "3", \
+     "--timeout", "120"]

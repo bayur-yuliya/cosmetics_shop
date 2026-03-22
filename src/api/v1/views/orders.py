@@ -4,7 +4,7 @@ from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from api.v1.serilizers.orders import OrderCreateSerializer, OrderSerializer
+from api.v1.serializers.orders import OrderCreateSerializer, OrderSerializer
 from cosmetics_shop.models import Cart, Order
 from cosmetics_shop.services.order_service import create_order_from_cart
 
