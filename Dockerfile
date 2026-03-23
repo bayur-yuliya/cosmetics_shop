@@ -21,10 +21,12 @@ RUN poetry install --only main --no-interaction --no-ansi --no-root
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh && chown appuser:appgroup /app/entrypoint.sh
 
+RUN mkdir -p /app/static /app/media && \
+    chown -R appuser:appgroup /app/static /app/media
+
 COPY --chown=appuser:appgroup . .
 
 USER appuser
-
 WORKDIR /app/src
 
 ENV PYTHONPATH=/app/src

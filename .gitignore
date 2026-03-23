@@ -178,4 +178,7 @@ cython_debug/
 
 src/db.sqlite3
 src/cosmetics_shop/management/commands/create_info.py
-src/media/
+media/
+static/
+
+src/gunicorn.ctl
