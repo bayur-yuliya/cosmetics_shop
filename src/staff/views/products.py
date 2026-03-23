@@ -56,7 +56,7 @@ def product_card(request: HttpRequest, product_code: int) -> HttpResponse:
 @permission_required("cosmetics_shop.add_product", raise_exception=True)
 def create_products(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
-        form = ProductForm(request.POST, request.FILES)
+        form = ProductForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
             form.save()
             return redirect("products")
@@ -75,6 +75,7 @@ def create_products(request: HttpRequest) -> HttpResponse:
 @permission_required("cosmetics_shop.change_product", raise_exception=True)
 def edit_products(request: HttpRequest, product_code: int) -> HttpResponse:
     product = get_object_or_404(Product, code=product_code)
+    print(request.FILES)
     if request.method == "POST":
         form = ProductForm(
             request.POST, request.FILES, instance=product, user=request.user

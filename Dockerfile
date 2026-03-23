@@ -16,19 +16,23 @@ RUN pip install --no-cache-dir poetry && \
     poetry config virtualenvs.create false
 
 COPY pyproject.toml poetry.lock ./
-RUN poetry install --only main --no-interaction --no-ansi --no-root
+# Авто-фикс лок-файла, о котором ругался Docker
+RUN poetry lock --regenerate && \
+    poetry install --only main --no-interaction --no-ansi --no-root
+
+# Создаем структуру и даем права.
+# ВАЖНО: создаем и подпапку для картинок, чтобы Django не споткнулся
+RUN mkdir -p /app/static /app/media/default /app/media/product_images && \
+    chown -R appuser:appgroup /app/static /app/media && \
+    chmod -R 755 /app/media
 
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh && chown appuser:appgroup /app/entrypoint.sh
-
-RUN mkdir -p /app/static /app/media && \
-    chown -R appuser:appgroup /app/static /app/media
 
 COPY --chown=appuser:appgroup . .
 
 USER appuser
 WORKDIR /app/src
-
 ENV PYTHONPATH=/app/src
 
 ENTRYPOINT ["/app/entrypoint.sh"]
