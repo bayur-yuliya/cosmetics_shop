@@ -25,6 +25,10 @@ COPY --chown=appuser:appgroup . .
 
 USER appuser
 
+WORKDIR /app/src
+
+ENV PYTHONPATH=/app/src
+
 ENTRYPOINT ["/app/entrypoint.sh"]
 
 CMD ["gunicorn", "config.wsgi:application", \
