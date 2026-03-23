@@ -272,7 +272,7 @@ class Tag(models.Model):
 
 
 class Product(TimestampedModel):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=250, unique=True)
     group = models.ForeignKey(
         GroupProduct, on_delete=models.CASCADE, related_name="products"
     )
@@ -447,7 +447,7 @@ class OrderItem(models.Model):
         max_digits=10, decimal_places=2, help_text="Цена на момент покупки"
     )
     quantity = models.PositiveIntegerField()
-    snapshot_product = models.CharField(max_length=100)
+    snapshot_product = models.CharField(max_length=300)
 
     def __str__(self):
         return f"{self.product} - {self.quantity}"
