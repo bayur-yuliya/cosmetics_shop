@@ -16,14 +16,13 @@
         </div>
 
         <a href="{% url 'product_page' product.code %}" class="product-title-link">
-            <h5 class="product-title">{{ product.name|truncatewords:6 }}</h5>
+            <h5 class="product-title">{{ product.name|truncatewords:5 }}</h5>
         </a>
 
-        <a href="{% url 'group_page' product.group.id %}" class="product-group">
+        <a href="{% url 'group_page' product.group.slug %}" class="product-group">
             {{ product.group.name }}
-        </a>
-
-        <a href="{% url 'brand_detail' product.brand.id %}" class="product-brand">
+        </a> /
+        <a href="{% url 'brand_detail' product.brand.slug %}" class="product-brand">
             {{ product.brand }}
         </a>
     </div>

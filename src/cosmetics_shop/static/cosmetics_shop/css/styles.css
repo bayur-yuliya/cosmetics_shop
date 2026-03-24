@@ -17,11 +17,14 @@ button:focus-visible {
     outline: none;
 }
 
+a {
+    text-decoration: none;
+}
 
 .product-card {
     display: flex;
     flex-direction: column;
-    height: 100%; /* важно */
+    height: 100%;
     border: 1px solid #eee;
     padding: 10px;
     text-align: center;
@@ -86,8 +89,8 @@ button:focus-visible {
     color: #555;
 }
 .sorting-panel {
-    margin: 20px 0;
-    padding: 15px;
+    text-align: right;
+    padding: 5px;
     background: #f8f9fa;
     border-radius: 8px;
 }
