@@ -46,6 +46,15 @@ class ProductQuerySet(models.QuerySet):
             )
         ).order_by("stock_zero", "-stock")
 
+    def annotate_availability(self):
+        return self.annotate(
+            is_out_of_stock=models.Case(
+                models.When(stock=0, then=models.Value(1)),
+                default=models.Value(0),
+                output_field=models.IntegerField(),
+            )
+        )
+
     def for_catalog(self):
         return (
             self.select_related("group", "brand")

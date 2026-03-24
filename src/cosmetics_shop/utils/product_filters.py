@@ -94,18 +94,17 @@ class ProductFilter:
         return sort_by, direction
 
     def apply_sorting(self):
-        """Applies sorting to queryset"""
+        """Applies sorting, storing missing items at the end"""
+
         sort_by, direction = self.get_sort_params()
 
+        qs = self.queryset.annotate_availability()
+
         if not sort_by:
-            return self.queryset
+            return qs.order_by("is_out_of_stock", "-id")
 
-        elif direction == "desc":
-            sort_field = f"-{sort_by}"
-        else:
-            sort_field = sort_by
-
-        return self.queryset.order_by(sort_field)
+        sort_field = f"-{sort_by}" if direction == "desc" else sort_by
+        return qs.order_by("is_out_of_stock", sort_field)
 
     def get_clear_sort_url(self):
         """Return URL without sorting parameters, keeping filters"""
