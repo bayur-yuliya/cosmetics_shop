@@ -13,6 +13,23 @@ function getCookie(name) {
     return cookieValue;
 }
 
+function disablePlusButton(productCode) {
+    const row = document.querySelector(
+        `.js-item-counter-quantity[data-product-code="${productCode}"]`
+    )?.closest("tr");
+
+    if (!row) return;
+
+    const plusBtn = row.querySelector(
+        `.js-cart-btn[data-product-code="${productCode}"]`
+    );
+
+    if (plusBtn) {
+        plusBtn.disabled = true;
+        plusBtn.classList.add("disabled");
+    }
+}
+
 document.addEventListener("click", function (e) {
     const button = e.target.closest(".favorite-btn");
     if (!button) return;
@@ -105,6 +122,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     updateItemTotal(data.product_code, data.product_total_price);
                     updateTotalPrice(data.total_price);
                     showMessage(data.message);
+
+                    // блокируем кнопку "+"
+                    if (data.is_max_quantity) {
+                        disablePlusButton(data.product_code);
+                    }
                 }
             })
         });
@@ -162,27 +184,45 @@ function updateItemCounter(productCode, quantity) {
     );
 
     if (!counter) return;
+
     const row = counter.closest("tr");
+
     const removeBtn = row?.querySelector(
         `.js-cart-btn-remove[data-product-code="${productCode}"]`
     );
 
+    const plusBtn = row?.querySelector(
+        `.js-cart-btn[data-product-code="${productCode}"]`
+    );
+
+    // --- ОБНОВЛЯЕМ ЧИСЛО ---
+    counter.textContent = quantity;
+
+    // --- ЛОГИКА "-" ---
     if (quantity > 1) {
-        counter.textContent = quantity;
-    // если раньше была выключена — включаем обратно
         if (removeBtn) {
             removeBtn.disabled = false;
             removeBtn.classList.remove("disabled");
         }
-        } else {
-            counter.textContent = 1;
-
-            // делаем кнопку "-" неактивной
-            if (removeBtn) {
-                removeBtn.disabled = true;
-                removeBtn.classList.add("disabled");
-            }
+    } else {
+        if (removeBtn) {
+            removeBtn.disabled = true;
+            removeBtn.classList.add("disabled");
         }
+    }
+
+    // --- ЛОГИКА "+" ---
+    const maxStock = parseInt(counter.dataset.maxStock);
+
+    if (plusBtn) {
+        if (quantity >= maxStock) {
+            plusBtn.disabled = true;
+            plusBtn.classList.add("disabled");
+        } else {
+            plusBtn.disabled = false;
+            plusBtn.classList.remove("disabled");
+        }
+    }
 }
 
 function updateTotalPrice(totalPrice) {

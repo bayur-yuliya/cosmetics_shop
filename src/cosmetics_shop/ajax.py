@@ -91,6 +91,7 @@ def get_cart_status_response(cart, product_code):
         "total_price": float(total_price),
         "product_code": product_code,
         "message": None,
+        "is_max_quantity": current_item.product.stock == product_qty,
     }
 
     if current_item and current_item.quantity == current_item.product.stock:
