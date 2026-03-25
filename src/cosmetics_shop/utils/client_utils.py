@@ -1,18 +1,26 @@
+import logging
+
 from django.http import HttpRequest
 from django.utils import timezone
 
 from cosmetics_shop.forms import ClientForm, DeliveryAddressForm
 from cosmetics_shop.models import Client, DeliveryAddress
 
+logger = logging.getLogger(__name__)
+
 
 def get_client(request: HttpRequest) -> Client | None:
     if request.user.is_authenticated:
         try:
-            return Client.objects.get(user=request.user)
+            client = Client.objects.get(user=request.user)
+            logger.debug(f"Client found: user_id={request.user.id}")
+            return client
+
         except Client.DoesNotExist:
+            logger.warning(f"Client not found: user_id={request.user.id}")
             return None
-    else:
-        return None
+
+    return None
 
 
 def process_delivery_data(
@@ -22,12 +30,16 @@ def process_delivery_data(
     form_delivery = DeliveryAddressForm(request.POST, instance=last_address)
 
     if form.is_valid() and form_delivery.is_valid():
+        logger.info(
+            f"Processing delivery data: user_id={getattr(request.user, 'id', None)}"
+        )
         new_client = form.save(commit=False)
 
         if request.user.is_authenticated:
             new_client.user = request.user
             new_client.save()
         else:
+            logger.debug("Anonymous checkout data stored in session")
             new_client.deletion_scheduled_date = timezone.now() + timezone.timedelta(
                 days=365 * 3
             )
