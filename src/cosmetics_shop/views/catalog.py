@@ -1,3 +1,5 @@
+import logging
+
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -9,6 +11,8 @@ from cosmetics_shop.utils.context_utils import get_grouped_for_alphabet_brands
 from cosmetics_shop.utils.product_utils import get_ready_product_list
 from cosmetics_shop.utils.view_helpers import processing_product_page
 from utils.custom_types import AuthenticatedRequest
+
+logger = logging.getLogger(__name__)
 
 
 def main_page(request: HttpRequest) -> HttpResponse:
