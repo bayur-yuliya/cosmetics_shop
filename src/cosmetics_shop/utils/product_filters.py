@@ -1,3 +1,8 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 class ProductFilter:
     def __init__(self, request, queryset):
         self.request = request
@@ -9,7 +14,10 @@ class ProductFilter:
         """Applies filters from forms"""
 
         if not form.is_valid():
+            logger.debug("Filter form invalid")
             return
+
+        logger.debug("Applying filters", extra={"data": form.cleaned_data})
 
         if form.cleaned_data["group"]:
             self.queryset = self.queryset.filter(group__in=form.cleaned_data["group"])
@@ -97,6 +105,11 @@ class ProductFilter:
         """Applies sorting, storing missing items at the end"""
 
         sort_by, direction = self.get_sort_params()
+
+        logger.debug(
+            "Applying sorting",
+            extra={"sort_by": sort_by, "direction": direction},
+        )
 
         qs = self.queryset.annotate_availability()
 
