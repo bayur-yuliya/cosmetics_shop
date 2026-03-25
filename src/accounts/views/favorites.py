@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
@@ -5,6 +7,8 @@ from django.shortcuts import redirect, render
 from cosmetics_shop.models import Favorite
 from utils.custom_types import AuthenticatedRequest
 from utils.helper_function import get_paginator_page
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -27,5 +31,8 @@ def favorites(request: AuthenticatedRequest) -> HttpResponse:
 def remove_from_favorites(
     request: AuthenticatedRequest, product_id: int
 ) -> HttpResponse:
+    logger.info(
+        f"Remove from favorites: user_id={request.user.id}, product_id={product_id}"
+    )
     Favorite.objects.filter(user=request.user, product_id=product_id).delete()
     return redirect("favorites")
