@@ -1,3 +1,4 @@
+import logging
 import uuid
 from decimal import Decimal
 from random import randint
@@ -14,6 +15,8 @@ from slugify import slugify
 
 from accounts.models import CustomUser
 from accounts.utils.validators import validate_phone_number
+
+logger = logging.getLogger(__name__)
 
 
 class Status(models.IntegerChoices):
@@ -139,12 +142,15 @@ class SlugRedirectModel(models.Model):
                         site=site, old_path=old_path, defaults={"new_path": new_path}
                     )
             except NoReverseMatch:
-                print(
+                logger.error(
                     f"Redirect failed: URL name '{url_name}' not found. "
-                    f"Check your urls.py for model {self.__class__.__name__}."
+                    f"Check your urls.py for model {self.__class__.__name__}.",
+                    exc_info=True,
                 )
             except IntegrityError as e:
-                print(f"Database error while creating redirect for {self.slug}: {e}")
+                logger.error(
+                    f"Database error while creating redirect for {self.slug}: " f"{e}"
+                )
 
 
 class TimestampedModel(models.Model):
@@ -431,11 +437,17 @@ class Order(TimestampedModel):
 
     def set_status(self, new_status, user=None, comment="", commit=True):
         with transaction.atomic():
+            old_status = self.get_status_display()
             self.status = new_status
             if commit:
                 self.save(update_fields=["status"])
-            OrderStatusLog.objects.create(
+            log_entry = OrderStatusLog.objects.create(
                 order=self, status=new_status, changed_by=user, comment=comment
+            )
+            logger.info(
+                f"STATUS_UPDATE: Order {self.code} changed from {old_status} "
+                f"to {log_entry.get_status_display()}"
+                f"by User: {user if user else 'System'}"
             )
 
     def status_badge_class(self):
