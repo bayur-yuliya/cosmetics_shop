@@ -1,12 +1,18 @@
+import logging
 from typing import Any
 
 from django.contrib.auth.models import Permission
 from django.db import transaction
 from django.db.models import Q, QuerySet
 
+logger = logging.getLogger(__name__)
+
 
 def get_individually_assigned_permits() -> QuerySet[Permission]:
     # Разрешения, которые можно назначать индивидуально
+
+    logger.debug("Fetching individually assignable permissions")
+
     permissions = Permission.objects.exclude(
         Q(
             content_type__app_label__in=[
@@ -34,6 +40,8 @@ def get_individually_assigned_permits() -> QuerySet[Permission]:
 
 
 def get_permissions_by_app():
+    logger.debug("Grouping permissions by app")
+
     permissions = get_individually_assigned_permits()
 
     permissions_by_app: dict[str, Any] = {}
@@ -43,10 +51,14 @@ def get_permissions_by_app():
             permissions_by_app[app_label] = []
         permissions_by_app[app_label].append(perm)
 
+    logger.info(f"Permissions grouped: apps={len(permissions_by_app)}")
+
     return permissions_by_app
 
 
 def set_user_permissions(user, selected_groups, selected_permissions) -> bool:
+    logger.info(f"Setting permissions: user_id={user.id}")
+
     try:
         with transaction.atomic():
             group_ids = [int(pk) for pk in selected_groups] if selected_groups else []
@@ -56,6 +68,19 @@ def set_user_permissions(user, selected_groups, selected_permissions) -> bool:
 
             user.groups.set(group_ids)
             user.user_permissions.set(perm_ids)
+
+            logger.info(
+                f"Permissions updated: user_id={user.id}, "
+                f"groups={len(group_ids)}, perms={len(perm_ids)}"
+            )
+
             return True
-    except (ValueError, TypeError):
+    except (ValueError, TypeError) as e:
+        logger.warning(f"Invalid permissions data: user_id={user.id}, error={str(e)}")
+        return False
+
+    except Exception as e:
+        logger.exception(
+            f"Failed to set permissions: user_id={user.id}, error={str(e)}"
+        )
         return False

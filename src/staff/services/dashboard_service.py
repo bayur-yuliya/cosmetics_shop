@@ -1,11 +1,17 @@
+import logging
+
 from dateutil.relativedelta import relativedelta
 from django.db.models import Avg, Count, Sum
 from django.utils import timezone
 
 from cosmetics_shop.models import Order, Product, Status
 
+logger = logging.getLogger(__name__)
+
 
 def get_completed_orders_queryset(start_date):
+    logger.debug(f"Fetching completed orders from: {start_date}")
+
     return Order.objects.filter(
         completed_at__gte=start_date,
         status=Status.COMPLETED,
@@ -15,15 +21,22 @@ def get_completed_orders_queryset(start_date):
 def get_today_stats():
     today = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
+    logger.debug(f"Calculating today's stats: date={today}")
+
     qs = get_completed_orders_queryset(today)
+    total = qs.count()
+
+    logger.info(f"Today's stats: total_orders={total}")
 
     return {
-        "total_orders": qs.count(),
+        "total_orders": total,
     }
 
 
 def get_month_stats(current_date):
     one_month_ago = current_date - relativedelta(months=1)
+
+    logger.debug(f"Calculating month stats from: {one_month_ago}")
 
     qs = get_completed_orders_queryset(one_month_ago)
 
@@ -31,6 +44,11 @@ def get_month_stats(current_date):
         total_orders=Count("id"),
         total_revenue=Sum("total_price"),
         avg_check=Avg("total_price"),
+    )
+
+    logger.info(
+        f"Month stats: orders={stats['total_orders']}, "
+        f"revenue={stats['total_revenue']}, avg={stats['avg_check']}"
     )
 
     return {
@@ -41,6 +59,8 @@ def get_month_stats(current_date):
 
 
 def get_dashboard_context():
+    logger.debug("Building dashboard context")
+
     today = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
     today_stats = get_today_stats()
@@ -54,6 +74,11 @@ def get_dashboard_context():
 
     current_year = timezone.now().year
     years = range(current_year - 5, current_year + 1)
+
+    logger.info(
+        f"Dashboard loaded: today_orders={today_stats['total_orders']}, "
+        f"month_orders={month_stats['total_orders']}"
+    )
 
     return {
         "number_of_completed_orders_today": today_stats["total_orders"],
