@@ -17,40 +17,53 @@ button:focus-visible {
     outline: none;
 }
 
+a {
+    text-decoration: none;
+}
+
 .product-card {
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border: 1px solid #eee;
     padding: 10px;
     text-align: center;
-    transition: transform 0.2s, box-shadow 0.2s;
-    background-color: #fff;
-    user-select: none; /* Запрещаем выделение всей карточки */
 }
+
+/* Верхняя часть */
+.product-card-body {
+    flex-grow: 1; /* растягивается */
+}
+
+/* Нижняя часть (фиксируется снизу) */
+.product-card-footer {
+    margin-top: auto; /* магия */
+}
+
+/* Ограничиваем заголовок */
+.product-title {
+    min-height: 48px; /* фиксируем высоту */
+}
+
+/* Картинка одинаковая */
+.product-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+
 .product-card:hover {
     z-index: 10;
     transform: translateY(-5px);
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
-.product-price {
-    user-select: text; /* Разрешаем выделять текст точечно */
-}
-.product-image {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 5px;
-}
-.product-title {
-    font-size: 1.1rem;
-    margin-top: 10px;
-    hyphens: auto;
-    user-select: text;
-}
 .product-title-link {
     text-decoration: none;
 }
 .product-price {
+    user-select: text;
     font-weight: bold;
     color: #2c3e50;
 }
@@ -76,8 +89,8 @@ button:focus-visible {
     color: #555;
 }
 .sorting-panel {
-    margin: 20px 0;
-    padding: 15px;
+    text-align: right;
+    padding: 5px;
     background: #f8f9fa;
     border-radius: 8px;
 }
@@ -175,6 +188,7 @@ button.btn-success {
 .categories-menu {
     position: relative;
     background: #fff;
+
 }
 
 /* СТРОКА КАТЕГОРИЙ */
@@ -183,7 +197,7 @@ button.btn-success {
     gap: 24px;
     list-style: none;
     margin: 0;
-    padding: 12px 20px;
+    padding: 12px 0 20px 0;
 }
 
 /* ССЫЛКА КАТЕГОРИИ */

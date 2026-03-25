@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, time
 
 from django.db import transaction
@@ -7,8 +8,12 @@ from django.utils import timezone
 from cosmetics_shop.models import Order, OrderStatusLog
 from utils.date_utils import to_date
 
+logger = logging.getLogger(__name__)
+
 
 def get_latest_order_statuses() -> QuerySet[OrderStatusLog]:
+    logger.debug("Fetching latest order statuses")
+
     latest_status_ids = (
         OrderStatusLog.objects.filter(order=OuterRef("order"))
         .order_by("-changed_at", "-id")
@@ -20,6 +25,8 @@ def get_latest_order_statuses() -> QuerySet[OrderStatusLog]:
 
 
 def filter_orders_status(queryset: QuerySet, filters: dict) -> QuerySet:
+    logger.debug(f"Filtering orders with filters: {filters}")
+
     orm_filters = {}
 
     if filters.get("status"):
@@ -37,16 +44,29 @@ def filter_orders_status(queryset: QuerySet, filters: dict) -> QuerySet:
             datetime.combine(date_to, time.max)
         )
 
-    return queryset.filter(**orm_filters).order_by("status")
+    qs = queryset.filter(**orm_filters).order_by("status")
+
+    logger.info(f"Orders filtered: count={qs.count()}")
+
+    return qs
 
 
 def change_order_status_log(order: Order, user, status: int, comment: str) -> bool:
+    logger.debug(f"Change order status attempt: order_id={order.id}, status={status}")
+
     last_log = OrderStatusLog.objects.filter(order=order).first()
 
     if last_log and last_log.status == status and last_log.comment == comment:
+        logger.debug(f"No status change needed: order_id={order.id}")
         return False
+
     with transaction.atomic():
         order.status = status
         order.save()
         order.set_status(status, user=user, comment=comment)
+
+    logger.info(
+        f"Order status changed: order_id={order.id}, status={status}, user_id={user.id}"
+    )
+
     return True

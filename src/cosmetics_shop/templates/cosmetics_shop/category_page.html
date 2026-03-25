@@ -4,13 +4,15 @@
 
 {%  block content  %}
 
+<div class="container">
 {% include 'cosmetics_shop/includes/categories_menu.html' %}
+</div>
 
 <div align="center"><h2>{{  title  }}</h2></div>
 <hr>
 <div class="container">
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-lg-3 col-md-4">
             <div class="filters p-3 border rounded">
                 <h5>Фильтры</h5>
                 <form id="product-filter-form" method="get">
@@ -41,7 +43,6 @@
             </div>
             <div id="products-container">
                 {% include 'cosmetics_shop/includes/product_list.html' %}
-                {% include  'cosmetics_shop/includes/paginator.html' with page_elements=products %}
             </div>
         </div>
     </div>

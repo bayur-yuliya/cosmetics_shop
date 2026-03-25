@@ -4,15 +4,22 @@
 
 {%  block content  %}
 
+<div class="container">
 {% include 'cosmetics_shop/includes/categories_menu.html' %}
+</div>
 
 <div class="container">
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-lg-3 col-md-4">
             <div class="filters p-3 border rounded">
                 <h5>Фильтры</h5>
                 <form id="product-filter-form" method="get">
-                    {{ form.as_p }}
+                    {% for field in form %}
+                        <div class="mb-2">
+                            <label class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                        </div>
+                    {% endfor %}
                     <button class="btn btn-primary btn-sm mt-2 filter-form-submit">Применить</button>
                 </form>
             </div>
@@ -25,7 +32,6 @@
             </div>
             <div id="products-container">
                 {% include 'cosmetics_shop/includes/product_list.html' %}
-                {% include  'cosmetics_shop/includes/paginator.html' with page_elements=products %}
             </div>
         </div>
     </div>

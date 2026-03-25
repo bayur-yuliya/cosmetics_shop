@@ -6,7 +6,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from api.v1.filters import ProductFilter
 from api.v1.permissions import ProductPermission
-from api.v1.serilizers.products import (
+from api.v1.serializers.products import (
     ProductDetailSerializer,
     ProductListSerializer,
     ProductWriteSerializer,

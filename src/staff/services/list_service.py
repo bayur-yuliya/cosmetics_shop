@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
@@ -9,6 +11,8 @@ from staff.mixins import (
     PageTitleMixin,
     StaffPermissionExceptionMixin,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class BaseStaffListView(
@@ -36,6 +40,12 @@ class BaseStaffDeleteView(
 
     def form_valid(self, form):
         success_url = self.get_success_url()
+
+        logger.info(
+            f"Staff delete: user_id={self.request.user.id}, object_id={self.object.id}"
+        )
+
         self.object.delete()
+
         messages.success(self.request, "Успешное удаление")
         return redirect(success_url)

@@ -1,3 +1,5 @@
+import logging
+
 from allauth.account.views import logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -12,20 +14,27 @@ from cosmetics_shop.services.order_service import get_order_items_by_client
 from utils.custom_types import AuthenticatedRequest
 from utils.helper_function import get_paginator_page
 
+logger = logging.getLogger(__name__)
+
 
 @login_required
 def delete_account(request: AuthenticatedRequest) -> HttpResponse:
+    logger.info(f"Delete account request: user_id={request.user.id}")
+
     try:
         client = Client.objects.get(user=request.user)
     except Client.DoesNotExist:
+        logger.warning(f"Client not found for user: user_id={request.user.id}")
         return redirect("main_page")
 
     with transaction.atomic():
         delete_client(client)
         if not client.is_pending_deletion:
+            logger.info(f"Account fully deleted: user_id={request.user.id}")
             logout(request)
             messages.success(request, "Аккаунт успешно удален!")
         else:
+            logger.info(f"Account marked for deletion: user_id={request.user.id}")
             messages.warning(
                 request,
                 """
@@ -41,11 +50,16 @@ def delete_account(request: AuthenticatedRequest) -> HttpResponse:
 
 @login_required
 def reset_account_deletion(request: AuthenticatedRequest) -> HttpResponse:
+    logger.info(f"Reset deletion request: user_id={request.user.id}")
+
     client = get_object_or_404(Client, user=request.user)
     with transaction.atomic():
         client.is_pending_deletion = False
         client.deletion_scheduled_date = None
         client.save()
+
+    logger.info(f"Deletion reset: client_id={client.id}")
+
     return redirect("user_contact")
 
 

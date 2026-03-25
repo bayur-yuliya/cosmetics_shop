@@ -31,7 +31,11 @@ class DeliveryAddressForm(forms.ModelForm):
 
 
 class ProductFilterForm(forms.Form):
-    name = forms.CharField(label="Название содержит", required=False)
+    name = forms.CharField(
+        label="Название содержит",
+        required=False,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
 
     group = forms.ModelMultipleChoiceField(
         label="Группа",
@@ -57,8 +61,16 @@ class ProductFilterForm(forms.Form):
         required=False,
     )
 
-    min_price = forms.DecimalField(required=False, label="Минимальная цена")
-    max_price = forms.DecimalField(required=False, label="Максимальная цена")
+    min_price = forms.DecimalField(
+        required=False,
+        label="Минимальная цена",
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+    max_price = forms.DecimalField(
+        required=False,
+        label="Максимальная цена",
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
 
 
 class UserRegistrationForm(forms.ModelForm):

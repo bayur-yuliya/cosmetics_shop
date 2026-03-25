@@ -1,3 +1,5 @@
+import logging
+
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
@@ -11,12 +13,21 @@ from cosmetics_shop.utils.context_utils import context_categories
 from cosmetics_shop.utils.product_filters import ProductFilter
 from utils.helper_function import get_paginator_page
 
+logger = logging.getLogger(__name__)
+
 
 def clean_query_params(request):
     query_params = request.GET.copy()
+
+    removed_keys = []
+
     for key, value in list(query_params.items()):
         if value in ("", "None", None):
             query_params.pop(key)
+            removed_keys.append(key)
+
+    if removed_keys:
+        logger.debug("Removed empty query params", extra={"keys": removed_keys})
 
     clean_url = (
         f"{request.path}?{query_params.urlencode()}" if query_params else request.path
@@ -25,11 +36,16 @@ def clean_query_params(request):
 
 
 def build_context(request, products, title, extra_context=None, **kwargs):
+    logger.debug("Building product context", extra={"title": title})
+
     product_filter = ProductFilter(request, products)
     form = ProductFilterForm(request.GET or None)
 
     if form.is_valid():
         product_filter.apply_filters(form)
+        logger.debug("Filters applied", extra={"filters": form.cleaned_data})
+    else:
+        logger.debug("Invalid filter form")
 
     cart = get_cart(request)
     cart_products = get_id_products_in_cart(cart)
@@ -37,6 +53,11 @@ def build_context(request, products, title, extra_context=None, **kwargs):
 
     page = get_paginator_page(request, products)
     categories = context_categories()
+
+    logger.debug(
+        "Pagination applied",
+        extra={"page": request.GET.get("page"), "count": page.paginator.count},
+    )
 
     context = {
         "title": title,
@@ -58,6 +79,8 @@ def build_context(request, products, title, extra_context=None, **kwargs):
 
 
 def handle_ajax(request, context, clean_url):
+    logger.debug("Handling AJAX request")
+
     html = render_to_string(
         "cosmetics_shop/includes/product_list.html",
         context,
@@ -88,6 +111,11 @@ def processing_product_page(
 ):
     is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
 
+    logger.debug(
+        "Processing product page",
+        extra={"is_ajax": is_ajax, "path": request.path},
+    )
+
     query_params, clean_url = clean_query_params(request)
 
     context = build_context(
@@ -100,6 +128,7 @@ def processing_product_page(
     )
 
     if clean_url != request.get_full_path() and not is_ajax:
+        logger.debug("Redirecting to clean URL", extra={"url": clean_url})
         return redirect(clean_url)
 
     if is_ajax:

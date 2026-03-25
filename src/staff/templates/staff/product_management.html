@@ -24,7 +24,10 @@
                                  class="img-fluid border"
                                  style="max-height:200px;">
                         </div>
-                        {{ form.image|add_class:"form-control" }}
+                        <input type="file"
+                           name="image"
+                           id="imageInput"
+                           class="form-control">
                     </div>
 
                     <!-- Теги -->
@@ -90,5 +93,12 @@
         </form>
     </div>
 </div>
+<script>
+    const imagePreviewConfig = {
+        inputId: "imageInput",
+        previewId: "previewImage",
+        placeholder: "{% static 'staff/images/default/image.jpg' %}"
+    };
+</script>
 <script src="{%  static 'staff/js/image_preview.js'  %}"></script>
 {% endblock %}

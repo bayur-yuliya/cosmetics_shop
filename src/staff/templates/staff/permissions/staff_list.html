@@ -8,7 +8,6 @@
     <table class="table align-middle table-bordered">
         <thead class="table-light">
             <tr>
-                <th style="width: 5%;">#</th>
                 <th>Сотрудник</th>
                 <th>Его группы</th>
                 <th>Его права</th>
@@ -18,7 +17,6 @@
         <tbody>
             {%  for staff in staffs  %}
                 <tr>
-                    <td>{{  staff.id  }}</td>
                     <td>{{  staff  }}</td>
                     <td>
                         {%  if staff.groups.all  %}

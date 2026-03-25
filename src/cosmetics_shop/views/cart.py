@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib import messages
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
@@ -12,13 +14,19 @@ from cosmetics_shop.services.cart_services import (
 )
 from cosmetics_shop.utils.cart_utils import get_cart
 
+logger = logging.getLogger(__name__)
+
 
 def cart(request: HttpRequest) -> HttpResponse:
+    logger.debug(f"Cart view accessed: user_id={getattr(request.user, 'id', None)}")
+
     cart_object = get_cart(request)
     cart_items: QuerySet[CartItem] = CartItem.objects.select_related("product").filter(
         cart=cart_object
     )
     total_price = get_cart_total_price(cart_items)
+
+    logger.debug(f"Cart loaded: cart_id={cart_object.id}, items={cart_items.count()}")
 
     return render(
         request,
@@ -33,8 +41,12 @@ def cart(request: HttpRequest) -> HttpResponse:
 
 def clean_cart(request: HttpRequest) -> HttpResponse:
     cart_obj = get_cart(request)
+
+    logger.info(f"User cleared cart: cart_id={cart_obj.id}")
+
     delete_cart(cart_obj)
     messages.success(request, "Корзина очищена")
+
     return redirect("cart")
 
 
@@ -42,9 +54,16 @@ def clean_cart(request: HttpRequest) -> HttpResponse:
 def cart_delete(request: HttpRequest, product_id: int) -> HttpResponse:
     cart_obj = get_cart(request)
     if product_id is not None:
+        logger.info(
+            f"User deletes product from cart: cart_id={cart_obj.id},"
+            f" product_id={product_id}"
+        )
+
         product_id_row = int(product_id)
         delete_product_from_cart(cart_obj, product_id_row)
         messages.success(request, "Товар успешно удален")
     else:
+        logger.warning("cart_delete called without product_id")
         messages.error(request, "Не удалось удалить товар")
+
     return redirect("cart")
