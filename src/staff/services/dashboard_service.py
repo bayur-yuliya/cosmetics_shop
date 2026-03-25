@@ -1,6 +1,7 @@
 import logging
 
 from dateutil.relativedelta import relativedelta
+from django.core.cache import cache
 from django.db.models import Avg, Count, Sum
 from django.utils import timezone
 
@@ -63,6 +64,13 @@ def get_dashboard_context():
 
     today = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
+    cache_key = f"dashboard:{today}"
+
+    data = cache.get(cache_key)
+    if data:
+        logger.debug("Dashboard from cache")
+        return data
+
     today_stats = get_today_stats()
     month_stats = get_month_stats(today)
 
@@ -79,6 +87,8 @@ def get_dashboard_context():
         f"Dashboard loaded: today_orders={today_stats['total_orders']}, "
         f"month_orders={month_stats['total_orders']}"
     )
+
+    cache.set(cache_key, data, timeout=60 * 5)  # 5 minute
 
     return {
         "number_of_completed_orders_today": today_stats["total_orders"],

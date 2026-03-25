@@ -1,16 +1,33 @@
+import logging
 from typing import Any
 
+from django.core.cache import cache
 from django.db.models import QuerySet
 
 from cosmetics_shop.models import Brand, Category
 
+logger = logging.getLogger(__name__)
+
 
 def context_categories() -> list[dict[str, Any]]:
+    cache_key = "categories_with_groups"
+
+    data = cache.get(cache_key)
+    if data:
+        logger.debug("Categories fetched from cache")
+        return data
+
     categories = Category.objects.all().prefetch_related("groupproduct_set")
-    context_values: list[dict[str, Any]] = []
-    for category in categories:
-        groups = category.groupproduct_set.all()
-        context_values.append({"category": category, "groups": groups})
+
+    context_values: list[dict[str, Any]] = [
+        {"category": category, "groups": category.groupproduct_set.all()}
+        for category in categories
+    ]
+
+    cache.set(cache_key, context_values, timeout=60 * 60)  # 1 hour
+
+    logger.debug("Categories cached")
+
     return context_values
 
 

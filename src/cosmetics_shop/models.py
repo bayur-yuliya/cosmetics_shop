@@ -4,6 +4,7 @@ from decimal import Decimal
 from random import randint
 
 from django.conf import settings
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import IntegrityError, models, transaction
@@ -232,6 +233,10 @@ class Category(SlugRedirectModel):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        cache.delete("categories_with_groups")
 
     class Meta:
         ordering = ["name"]

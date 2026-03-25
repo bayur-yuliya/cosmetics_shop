@@ -56,7 +56,7 @@ def build_context(request, products, title, extra_context=None, **kwargs):
 
     logger.debug(
         "Pagination applied",
-        extra={"page": request.GET.get("page"), "count": page.paginator.count},
+        extra={"page": request.GET.get("page"), "count": page.count},
     )
 
     context = {

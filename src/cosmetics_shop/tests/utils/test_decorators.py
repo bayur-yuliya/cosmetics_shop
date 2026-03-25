@@ -11,10 +11,11 @@ from cosmetics_shop.utils.decorators import cart_required, order_session_require
 
 @pytest.mark.django_db
 @patch("cosmetics_shop.utils.decorators.get_cart")
-def test_cart_required_empty_cart(mock_get_cart):
+def test_cart_required_empty_cart(mock_get_cart, user):
     request = RequestFactory().get("/")
 
     request.session = {}
+    request.user = user
 
     setattr(request, "_messages", FallbackStorage(request))
 
