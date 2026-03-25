@@ -122,7 +122,9 @@ class OrderFilterForm(forms.Form):
 
 
 class OrderStatusUpdateForm(forms.ModelForm):
-    comment = forms.CharField(widget=forms.Textarea, required=False)
+    comment = forms.CharField(
+        widget=forms.Textarea(attrs={"class": "form-control"}), required=False
+    )
 
     class Meta:
         model = OrderStatusLog
