@@ -64,7 +64,7 @@ def get_dashboard_context():
 
     today = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
-    cache_key = f"dashboard:{today}"
+    cache_key = f"dashboard:{today.date().isoformat()}"
 
     data = cache.get(cache_key)
     if data:
@@ -77,7 +77,7 @@ def get_dashboard_context():
     max_favorite = (
         Product.objects.annotate(fav_count=Count("favorites"))
         .filter(fav_count__gt=0)
-        .order_by("-fav_count")[:3]
+        .order_by("-fav_count", "id")[:3]
     )
 
     current_year = timezone.now().year
@@ -87,10 +87,7 @@ def get_dashboard_context():
         f"Dashboard loaded: today_orders={today_stats['total_orders']}, "
         f"month_orders={month_stats['total_orders']}"
     )
-
-    cache.set(cache_key, data, timeout=60 * 5)  # 5 minute
-
-    return {
+    context = {
         "number_of_completed_orders_today": today_stats["total_orders"],
         "number_of_orders_per_month": month_stats["total_orders"],
         "summ_bill": month_stats["total_revenue"],
@@ -99,3 +96,7 @@ def get_dashboard_context():
         "years": years,
         "current_year": current_year,
     }
+
+    cache.set(cache_key, context, timeout=60 * 5)  # 5 minute
+
+    return context

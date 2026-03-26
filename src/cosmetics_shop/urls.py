@@ -39,6 +39,7 @@ urlpatterns = [
         static_pages.payment_and_delivery,
         name="payment_and_delivery",
     ),
+    path("privacy-policy/", static_pages.privacy_policy, name="privacy_policy"),
     # main page
     path("", catalog.main_page, name="main_page"),
 ]

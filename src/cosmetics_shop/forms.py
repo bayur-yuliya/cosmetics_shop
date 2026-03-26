@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.auth.models import User
 
 from accounts.utils.validators import validate_phone_number
 from cosmetics_shop.models import Brand, Client, DeliveryAddress, GroupProduct, Tag
@@ -71,18 +70,3 @@ class ProductFilterForm(forms.Form):
         label="Максимальная цена",
         widget=forms.TextInput(attrs={"class": "form-control"}),
     )
-
-
-class UserRegistrationForm(forms.ModelForm):
-    password = forms.CharField(label="Пароль", widget=forms.PasswordInput)
-    password2 = forms.CharField(label="Повторение пароля", widget=forms.PasswordInput)
-
-    class Meta:
-        model = User
-        fields = ("email",)
-
-    def clean_password2(self):
-        cd = self.cleaned_data
-        if cd["password"] != cd["password2"]:
-            raise forms.ValidationError("Passwords don't match.")
-        return cd["password2"]
