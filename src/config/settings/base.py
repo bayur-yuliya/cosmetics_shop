@@ -138,8 +138,8 @@ LOCALE_PATHS = [
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "/static/"
-STATIC_ROOT = os.getenv("STATIC_ROOT", BASE_DIR.parent / "static")
+STATIC_URL = "/staticfiles/"
+STATIC_ROOT = os.getenv("STATIC_ROOT", BASE_DIR.parent / "staticfiles")
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.getenv("MEDIA_ROOT", BASE_DIR.parent / "media")
@@ -250,14 +250,14 @@ LOGGING = {
         },
         "file": {
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": "logs/django.log",
+            "filename": "../logs/django.log",
             "maxBytes": 1024 * 1024 * 10,
             "backupCount": 5,
             "formatter": "verbose",
         },
         "errors_file": {
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": "logs/errors.log",
+            "filename": "../logs/errors.log",
             "maxBytes": 1024 * 1024 * 10,
             "backupCount": 5,
             "level": "ERROR",
@@ -266,32 +266,32 @@ LOGGING = {
     },
     "loggers": {
         "django": {
-            "handlers": ["console", "file"],
+            "handlers": ["console", "file", "errors_file"],
             "level": "INFO",
             "propagate": True,
         },
         "celery": {
-            "handlers": ["console", "file"],
+            "handlers": ["console", "file", "errors_file"],
             "level": "INFO",
             "propagate": False,
         },
         "cosmetics_shop": {
-            "handlers": ["console", "file"],
+            "handlers": ["console", "file", "errors_file"],
             "level": "DEBUG",
             "propagate": False,
         },
         "accounts": {
-            "handlers": ["console", "file"],
+            "handlers": ["console", "file", "errors_file"],
             "level": "DEBUG",
             "propagate": False,
         },
         "staff": {
-            "handlers": ["console", "file"],
+            "handlers": ["console", "file", "errors_file"],
             "level": "DEBUG",
             "propagate": False,
         },
         "api": {
-            "handlers": ["console", "file"],
+            "handlers": ["console", "file", "errors_file"],
             "level": "DEBUG",
             "propagate": False,
         },

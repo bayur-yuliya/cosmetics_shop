@@ -175,11 +175,10 @@ cython_debug/
 .pypirc
 
 .idea/
-.env
 
 src/db.sqlite3
 src/cosmetics_shop/management/commands/create_info.py
 media/
-static/
+staticfiles/
 
 src/gunicorn.ctl
