@@ -1,0 +1,41 @@
+/* Стили для адаптивности таблицы */
+@media (max-width: 767.98px) {
+.responsive-table thead {
+    display: none; /* Прячем заголовок на мобилках */
+}
+.responsive-table tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+}
+.responsive-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: right;
+    border-bottom: 1px solid #eee;
+    padding: 0.5rem 0.75rem;
+}
+.responsive-table td:last-child {
+    border-bottom: 0;
+}
+/* Добавляем подписи колонок через data-label */
+.responsive-table td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    text-align: left;
+    flex: 1;
+    padding-right: 0.5rem;
+}
+/* Специальный стиль для первой колонки с товаром */
+.responsive-table td.product-cell {
+    flex-direction: row;
+    text-align: left;
+    justify-content: flex-start;
+}
+.responsive-table td.product-cell::before {
+        display: none; /* Для товара подпись не нужна, он и так понятен */
+    }
+}

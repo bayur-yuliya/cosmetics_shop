@@ -35,7 +35,7 @@
 
                     <div class="col-md-2 col-4 text-center">
                         <div class="d-md-none text-muted small mb-1">Цена</div>
-                        {{ item.product.price|number_format }} ₴
+                        {{ item.product.price|number_format }} грн
                     </div>
 
                     <div class="col-md-2 col-4 text-center">
@@ -56,7 +56,7 @@
                     <div class="col-md-2 col-4 text-center">
                         <div class="d-md-none text-muted small mb-1">Сумма</div>
                         <span class="fw-bold js-item-counter-total" data-product-code="{{ item.product.code }}">
-                            {{ item.product.price|multiply:item.quantity|number_format }} ₴
+                            {{ item.product.price|multiply:item.quantity|number_format }} грн
                         </span>
                     </div>
 
@@ -79,7 +79,7 @@
                 </div>
                 <div class="footer-total">
                     <h4 class="mb-3 mb-md-0 d-inline-block me-md-4">
-                        Итого: <span id="cart-total" class="fw-bold text-primary">{{ total_price|number_format }} ₴</span>
+                        Итого: <span id="cart-total" class="fw-bold text-primary">{{ total_price|number_format }} грн</span>
                     </h4>
                     <a href="{% url 'delivery' %}" class="btn btn-success btn-lg px-4">Оформить заказ</a>
                 </div>

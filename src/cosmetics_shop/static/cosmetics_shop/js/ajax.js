@@ -218,7 +218,7 @@ function updateTotalPrice(totalPrice) {
         maximumFractionDigits: 2,
     }).format(totalPrice);
 
-    totalElement.textContent = `${formatted} ₴`;
+    totalElement.textContent = `${formatted} грн`;
 }
 
 function showMessage(message) {
