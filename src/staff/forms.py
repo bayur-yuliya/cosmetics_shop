@@ -84,8 +84,8 @@ class ProductForm(forms.ModelForm):
             "stock": "Количество товара на складе",
         }
 
-    def __init__(self, *args, user=None, **kwargs):
-        user = kwargs.pop("user", None)  # теперь user забирается правильно
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
 
         if self.instance and self.instance.pk:

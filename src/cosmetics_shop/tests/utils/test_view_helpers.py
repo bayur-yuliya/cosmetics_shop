@@ -1,5 +1,4 @@
 import json
-from unittest.mock import patch
 
 import pytest
 from django.http import JsonResponse
@@ -81,11 +80,11 @@ def test_build_context(mocker):
 
 
 @pytest.mark.django_db
-@patch("cosmetics_shop.utils.view_helpers.render_to_string")
-def test_ajax_response(mock_render):
+def test_ajax_response(mocker):
     factory = RequestFactory()
     request = factory.get("/products/")
 
+    mock_render = mocker.patch("cosmetics_shop.utils.view_helpers.render_to_string")
     mock_render.return_value = "<html></html>"
 
     response = handle_ajax(request, {"a": 1}, "/products/")
@@ -99,11 +98,12 @@ def test_ajax_response(mock_render):
     assert data["url"] == "/products/"
 
 
-@patch("cosmetics_shop.utils.view_helpers.build_context")
 @pytest.mark.django_db
-def test_redirect(mock_context):  # noqa
+def test_redirect(mocker):  # noqa
     factory = RequestFactory()
     request = factory.get("/products/?brand=")
+
+    mocker.patch("cosmetics_shop.utils.view_helpers.build_context")
 
     response = processing_product_page(
         request,
@@ -116,11 +116,12 @@ def test_redirect(mock_context):  # noqa
 
 
 @pytest.mark.django_db
-@patch("cosmetics_shop.utils.view_helpers.handle_ajax")
-@patch("cosmetics_shop.utils.view_helpers.build_context")
-def test_ajax(mock_context, mock_ajax):
+def test_ajax(mocker):
     factory = RequestFactory()
     request = factory.get("/products/", HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+
+    mock_context = mocker.patch("cosmetics_shop.utils.view_helpers.build_context")
+    mock_ajax = mocker.patch("cosmetics_shop.utils.view_helpers.handle_ajax")
 
     mock_context.return_value = {"ctx": 1}
     mock_ajax.return_value = JsonResponse({"ok": True})
@@ -137,11 +138,12 @@ def test_ajax(mock_context, mock_ajax):
 
 
 @pytest.mark.django_db
-@patch("cosmetics_shop.utils.view_helpers.render")
-@patch("cosmetics_shop.utils.view_helpers.build_context")
-def test_render(mock_context, mock_render):
+def test_render(mocker):
     factory = RequestFactory()
     request = factory.get("/products/")
+
+    mock_context = mocker.patch("cosmetics_shop.utils.view_helpers.build_context")
+    mock_render = mocker.patch("cosmetics_shop.utils.view_helpers.render")
 
     mock_context.return_value = {"ctx": 1}
     mock_render.return_value = "response"

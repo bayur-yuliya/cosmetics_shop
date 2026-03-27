@@ -1,5 +1,3 @@
-from unittest.mock import patch
-
 import pytest
 from django.contrib.auth.models import Group
 from django.utils import timezone
@@ -16,8 +14,8 @@ from config.settings.base import DEFAULT_STAFF_GROUP_NAME
 from cosmetics_shop.models import DeliveryAddress, Order, Status
 
 
-@patch("accounts.utils.account_services.send_mail")
-def test_send_activation_email(mock_send_mail, user, token):
+def test_send_activation_email(mocker, user, token):
+    mock_send_mail = mocker.patch("accounts.utils.account_services.send_mail")
     send_activation_email(user, token)
 
     mock_send_mail.assert_called_once()
