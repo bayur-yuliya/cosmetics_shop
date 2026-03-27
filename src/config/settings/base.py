@@ -250,14 +250,14 @@ LOGGING = {
         },
         "file": {
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": "../logs/django.log",
+            "filename": "logs/django.log",
             "maxBytes": 1024 * 1024 * 10,
             "backupCount": 5,
             "formatter": "verbose",
         },
         "errors_file": {
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": "../logs/errors.log",
+            "filename": "logs/errors.log",
             "maxBytes": 1024 * 1024 * 10,
             "backupCount": 5,
             "level": "ERROR",
@@ -277,23 +277,27 @@ LOGGING = {
         },
         "cosmetics_shop": {
             "handlers": ["console", "file", "errors_file"],
-            "level": "DEBUG",
+            "level": "INFO",
             "propagate": False,
         },
         "accounts": {
             "handlers": ["console", "file", "errors_file"],
-            "level": "DEBUG",
+            "level": "INFO",
             "propagate": False,
         },
         "staff": {
             "handlers": ["console", "file", "errors_file"],
-            "level": "DEBUG",
+            "level": "INFO",
             "propagate": False,
         },
         "api": {
             "handlers": ["console", "file", "errors_file"],
-            "level": "DEBUG",
+            "level": "INFO",
             "propagate": False,
         },
     },
 }
+
+# NOVA POSHTA
+NOVA_POSHTA_API_URL = "https://api.novaposhta.ua/v2.0/json/"
+NOVA_POSHTA_API_KEY = os.getenv("NOVA_POSHTA_API_KEY")
