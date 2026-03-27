@@ -21,11 +21,20 @@ class ClientForm(forms.ModelForm):
 class DeliveryAddressForm(forms.ModelForm):
     class Meta:
         model = DeliveryAddress
-        fields = ["city", "street", "post_office"]
-        labels = {
-            "city": "Город",
-            "street": "Улица",
-            "post_office": "Почтовое отделение",
+        fields = ["city", "post_office"]
+        widgets = {
+            "city": forms.TextInput(
+                attrs={
+                    "class": "form-control np-city-input",
+                    "placeholder": "Начните вводить город...",
+                    "autocomplete": "off",
+                }
+            ),
+            "post_office": forms.Select(
+                attrs={
+                    "class": "form-control np-warehouse-select",
+                }
+            ),
         }
 
 

@@ -321,3 +321,14 @@ button.btn-success {
 .product-image-wrapper {
     position: relative;
 }
+
+/* nova_poshta */
+.np-results-container {
+        position: absolute;
+        width: 100%;
+        max-height: 250px;
+        overflow-y: auto;
+        z-index: 1050;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+.card { position: relative; }
