@@ -226,6 +226,7 @@ CELERY_TASK_SERIALIZER = "json"
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8080",
     "http://127.0.0.1:8080",
+    "https://*.ngrok-free.app",
 ]
 
 USE_X_FORWARDED_HOST = True
@@ -301,3 +302,7 @@ LOGGING = {
 # NOVA POSHTA
 NOVA_POSHTA_API_URL = "https://api.novaposhta.ua/v2.0/json/"
 NOVA_POSHTA_API_KEY = os.getenv("NOVA_POSHTA_API_KEY")
+
+# MONOBANK
+MONO_URL = "https://api.monobank.ua/api/merchant/invoice/create"
+MONO_TOKEN = os.getenv("MONO_TOKEN")

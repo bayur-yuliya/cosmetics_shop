@@ -38,6 +38,16 @@ class DeliveryAddressForm(forms.ModelForm):
         }
 
 
+class PaymentForm(forms.Form):
+    method = forms.ChoiceField(
+        choices=[
+            ("card", "Онлайн"),
+            ("cash", "При получении"),
+        ],
+        widget=forms.RadioSelect,
+    )
+
+
 class ProductFilterForm(forms.Form):
     name = forms.CharField(
         label="Название содержит",

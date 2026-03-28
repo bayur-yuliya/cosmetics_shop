@@ -42,6 +42,23 @@
                 </div>
             </div>
         </div>
+        <div class="card p-3 mb-4">
+        <h5 class="card-title mb-3">Способ оплаты</h5>
+        {{ payment_form.as_p }}
+<!--        <div class="form-check">-->
+<!--            <input class="form-check-input" type="radio" name="payment_method" id="pay_card" value="card" checked>-->
+<!--            <label class="form-check-label" for="pay_card">-->
+<!--                💳 Онлайн оплата (Monobank)-->
+<!--            </label>-->
+<!--        </div>-->
+
+<!--        <div class="form-check">-->
+<!--            <input class="form-check-input" type="radio" name="payment_method" id="pay_cash" value="cash">-->
+<!--            <label class="form-check-label" for="pay_cash">-->
+<!--                💵 Оплата при получении-->
+<!--            </label>-->
+<!--        </div>-->
+<!--    </div>-->
         <!-- Кнопка заказа -->
         {%  if not user.is_authenticated  %}
         <div class="form-check mb-3">
