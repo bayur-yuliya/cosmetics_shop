@@ -6,6 +6,7 @@ from django.db.models import Avg, Count, Sum
 from django.utils import timezone
 
 from cosmetics_shop.models import Order, Product, Status
+from utils.date_utils import get_first_order_year
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +82,8 @@ def get_dashboard_context():
     )
 
     current_year = timezone.now().year
-    years = range(current_year - 5, current_year + 1)
+    first_year = get_first_order_year()
+    years = range(first_year, current_year + 1)
 
     logger.info(
         f"Dashboard loaded: today_orders={today_stats['total_orders']}, "
