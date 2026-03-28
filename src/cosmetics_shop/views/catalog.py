@@ -28,14 +28,13 @@ def main_page(request: HttpRequest) -> HttpResponse:
 
 def category_page(request: HttpRequest, category_slug: str) -> HttpResponse:
     title: Category = get_object_or_404(Category, slug=category_slug)
-    products = get_ready_product_list(request)
+    products = get_ready_product_list(request).filter(group__category=title)
 
     return processing_product_page(
         request=request,
         products=products,
         title=title,
-        template_name="cosmetics_shop/category_page.html",
-        hide_group_field=True,
+        template_name="cosmetics_shop/main_page.html",
     )
 
 
@@ -49,7 +48,7 @@ def group_page(
         request=request,
         title=title,
         products=products,
-        template_name="cosmetics_shop/category_page.html",
+        template_name="cosmetics_shop/main_page.html",
         hide_group_field=True,
     )
 
@@ -96,6 +95,6 @@ def brand_products(request: HttpRequest, brand_slug: str) -> HttpResponse:
         request=request,
         products=products,
         title=title,
-        template_name="cosmetics_shop/category_page.html",
+        template_name="cosmetics_shop/main_page.html",
         hide_brands_field=True,
     )

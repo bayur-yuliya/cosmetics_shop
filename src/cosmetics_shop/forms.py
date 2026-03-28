@@ -62,7 +62,7 @@ class ProductFilterForm(forms.Form):
     group = forms.ModelMultipleChoiceField(
         label="Группа",
         widget=forms.CheckboxSelectMultiple,
-        queryset=GroupProduct.objects.all(),
+        queryset=GroupProduct.objects.none(),
         initial=0,
         required=False,
     )
@@ -70,7 +70,7 @@ class ProductFilterForm(forms.Form):
     brand = forms.ModelMultipleChoiceField(
         label="Бренды",
         widget=forms.CheckboxSelectMultiple,
-        queryset=Brand.objects.all(),
+        queryset=Brand.objects.none(),
         initial=0,
         required=False,
     )
@@ -78,7 +78,7 @@ class ProductFilterForm(forms.Form):
     tags = forms.ModelMultipleChoiceField(
         label="Теги",
         widget=forms.CheckboxSelectMultiple,
-        queryset=Tag.objects.all(),
+        queryset=Tag.objects.none(),
         initial=0,
         required=False,
     )
@@ -93,3 +93,35 @@ class ProductFilterForm(forms.Form):
         label="Максимальная цена",
         widget=forms.TextInput(attrs={"class": "form-control"}),
     )
+
+    def __init__(self, *args, **kwargs):
+        products_qs = kwargs.pop("products_qs", None)
+        hide_group = kwargs.pop("hide_group", False)
+        hide_brand = kwargs.pop("hide_brand", False)
+        super().__init__(*args, **kwargs)
+
+        if hide_group and "group" in self.fields:
+            del self.fields["group"]
+        if hide_brand and "brand" in self.fields:
+            del self.fields["brand"]
+
+        if products_qs is not None:
+            if "group" in self.fields:
+                self.fields["group"].queryset = GroupProduct.objects.filter(
+                    products__in=products_qs
+                ).distinct()
+
+            if "brand" in self.fields:
+                self.fields["brand"].queryset = Brand.objects.filter(
+                    products__in=products_qs
+                ).distinct()
+
+            if "tags" in self.fields:
+                self.fields["tags"].queryset = Tag.objects.filter(
+                    products__in=products_qs
+                ).distinct()
+
+        else:
+            self.fields["group"].queryset = GroupProduct.objects.all()
+            self.fields["brand"].queryset = Brand.objects.all()
+            self.fields["tags"].queryset = Tag.objects.all()
