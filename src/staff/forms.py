@@ -109,12 +109,14 @@ class ProductForm(forms.ModelForm):
 
 
 class OrderFilterForm(forms.Form):
-    status = forms.ChoiceField(choices=Status.choices, required=False)
+    status = forms.ChoiceField(
+        label="Статус заказа", choices=Status.choices, required=False
+    )
     date_from = forms.DateField(
-        required=False, widget=forms.DateInput(attrs={"type": "date"})
+        label="Дата с", required=False, widget=forms.DateInput(attrs={"type": "date"})
     )
     date_to = forms.DateField(
-        required=False, widget=forms.DateInput(attrs={"type": "date"})
+        label="Дата по", required=False, widget=forms.DateInput(attrs={"type": "date"})
     )
 
 

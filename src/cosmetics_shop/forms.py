@@ -22,6 +22,10 @@ class DeliveryAddressForm(forms.ModelForm):
     class Meta:
         model = DeliveryAddress
         fields = ["city", "post_office"]
+        labels = {
+            "city": "Город: ",
+            "post_office": "Почтовое отделение: ",
+        }
         widgets = {
             "city": forms.TextInput(
                 attrs={
