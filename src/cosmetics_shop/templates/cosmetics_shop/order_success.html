@@ -5,52 +5,75 @@
 
 {% block content %}
 <div class="container my-5">
-    <h2 class="mb-4">Заказ успешно оформлен</h2>
+    <div class="d-flex align-items-center mb-4">
+        <span class="badge bg-success ms-3 fs-6">Заказ №{{ order.code }}</span>
+    </div>
 
-    <!-- Статус и номер заказа -->
-    <div class="alert alert-success">
-        {{ status }}<br>
-        Номер заказа: <strong>{{ order.code }}</strong>
+    <div class="alert alert-success shadow-sm border-0 mb-4">
+        <i class="bi bi-check-circle-fill me-2"></i> {{ status }}
     </div>
 
     {% if products %}
-    <div class="table-responsive">
-        <table class="table align-middle">
-            <thead>
-                <tr>
-                    <th>Товар</th>
-                    <th>Цена</th>
-                    <th>Количество</th>
-                    <th>Сумма</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for prod in products %}
-                <tr>
-                    <td class="d-flex align-items-center">
-                        <img src="{{ prod.product.image.url }}" class="img-thumbnail me-3" style="width:80px; height:80px; object-fit:cover;">
-                        <a href="{% url 'product_page' prod.product.code %}">{{ prod.product.name }}</a>
-                    </td>
-                    <td>{{ prod.product.price|number_format }} грн</td>
-                    <td>{{ prod.quantity }}</td>
-                    <td>{{ prod.product.price|multiply:prod.quantity|number_format }} грн</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+        <div class="cart-container shadow-sm border">
+            <div class="row cart-header g-0 bg-light text-muted small fw-bold p-3 border-bottom d-none d-md-flex">
+                <div class="col-md-6">ТОВАР</div>
+                <div class="col-md-2 text-center">ЦЕНА</div>
+                <div class="col-md-2 text-center">КОЛИЧЕСТВО</div>
+                <div class="col-md-2 text-end">СУММА</div>
+            </div>
 
-    <!-- Итоговая сумма -->
-    <div class="d-flex justify-content-end mt-3">
-        <h5>Итого: <strong>{{ order.total_price|number_format }} грн</strong></h5>
-    </div>
+            {% for prod in products %}
+                <div class="row cart-item-row align-items-center g-0 p-3 border-bottom">
+                    <div class="col-md-6 col-12 mb-3 mb-md-0">
+                        <div class="d-flex align-items-center">
+                            <img src="{{ prod.product.image.url }}" class="product-img me-3" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">
+                            <div class="text-start">
+                                <a href="{% url 'product_page' prod.product.code %}" class="text-decoration-none fw-bold text-dark">
+                                    {{ prod.product.name }}
+                                </a>
+                                <div class="text-muted small">Код: {{ prod.product.code }}</div>
+                            </div>
+                        </div>
+                    </div>
 
-    <!-- Кнопка возврата -->
-    <div class="mt-4">
-        <a href="{% url 'main_page' %}" class="btn btn-primary">Вернуться на главную</a>
-    </div>
+                    <div class="col-md-2 col-4 text-md-center">
+                        <div class="d-md-none text-muted small mb-1">Цена</div>
+                        {{ prod.product.price|number_format }} грн
+                    </div>
+
+                    <div class="col-md-2 col-4 text-md-center">
+                        <div class="d-md-none text-muted small mb-1">Кол-во</div>
+                        <span class="fw-bold">{{ prod.quantity }}</span>
+                    </div>
+
+                    <div class="col-md-2 col-4 text-md-end">
+                        <div class="d-md-none text-muted small mb-1">Сумма</div>
+                        <span class="fw-bold text-primary">
+                            {{ prod.product.price|multiply:prod.quantity|number_format }} грн
+                        </span>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <div class="cart-footer bg-light p-4">
+                <div class="row w-100 align-items-center">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <a href="{% url 'main_page' %}" class="btn btn-outline-dark">
+                            <i class="bi bi-house-door me-1"></i> Вернуться на главную
+                        </a>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <h4 class="mb-0">
+                            Итого: <span class="fw-bold text-primary">{{ order.total_price|number_format }} грн</span>
+                        </h4>
+                    </div>
+                </div>
+            </div>
+        </div>
     {% else %}
-        <div class="alert alert-info">Нет товаров в этом заказе.</div>
+        <div class="alert alert-info text-center py-5 shadow-sm">
+            <p class="mb-0">Нет товаров в этом заказе.</p>
+        </div>
     {% endif %}
 </div>
 {% endblock %}

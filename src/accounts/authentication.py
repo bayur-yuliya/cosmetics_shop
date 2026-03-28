@@ -14,12 +14,17 @@ class EmailAuthBackend(BaseBackend):
 
         try:
             user = user_model.objects.filter(email=email).first()
-            logger.info(f"Auth success: user_id={user.id}")
+            if user:
+                logger.info(f"Auth success: user_id={user.id}")
 
-            if user.check_password(password) and user.is_active:
-                return user
+                if user.check_password(password) and user.is_active:
+                    return user
 
-            logger.warning(f"Auth failed: email={email}")
+            else:
+                logger.warning(
+                    f"Auth failed: user not found or invalid credentials,"
+                    f" email={email}"
+                )
             return None
 
         except user_model.DoesNotExist as e:

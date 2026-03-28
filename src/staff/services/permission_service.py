@@ -2,6 +2,7 @@ import logging
 from typing import Any
 
 from django.contrib.auth.models import Permission
+from django.core.cache import cache
 from django.db import transaction
 from django.db.models import Q, QuerySet
 
@@ -42,6 +43,12 @@ def get_individually_assigned_permits() -> QuerySet[Permission]:
 def get_permissions_by_app():
     logger.debug("Grouping permissions by app")
 
+    cache_key = "permissions_by_app"
+
+    data = cache.get(cache_key)
+    if data:
+        return data
+
     permissions = get_individually_assigned_permits()
 
     permissions_by_app: dict[str, Any] = {}
@@ -52,6 +59,8 @@ def get_permissions_by_app():
         permissions_by_app[app_label].append(perm)
 
     logger.info(f"Permissions grouped: apps={len(permissions_by_app)}")
+
+    cache.set(cache_key, permissions_by_app, timeout=60 * 60)  # 1 hour
 
     return permissions_by_app
 

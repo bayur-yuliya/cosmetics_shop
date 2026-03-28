@@ -2,7 +2,12 @@ from .base import *
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "sociologically-unprudent-elisabeth.ngrok-free.dev",
+    # ngrok url to test monobank webhook
+]
 
 INTERNAL_IPS = ["127.0.0.1"]
 

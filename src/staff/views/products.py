@@ -112,6 +112,7 @@ def edit_products(request: HttpRequest, product_code: int) -> HttpResponse:
         form = ProductForm(
             request.POST, request.FILES, instance=product, user=request.user
         )
+
         if form.is_valid():
             form.save()
             logger.info(
@@ -121,7 +122,11 @@ def edit_products(request: HttpRequest, product_code: int) -> HttpResponse:
         else:
             logger.warning(f"Invalid product update form: errors={form.errors}")
 
-    form = ProductForm(instance=product, user=request.user)
+    else:  # GET
+        print("--- DEBUG: Мы внутри GET блока ---")
+        form = ProductForm(instance=product, user=request.user)
+    print(f"Form initial data: {dict(form.initial)}")
+    print(f"Form fields: {list(form.fields.keys())}")
     return render(
         request,
         "staff/product_management.html",

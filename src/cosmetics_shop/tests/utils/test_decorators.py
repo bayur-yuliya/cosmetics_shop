@@ -1,4 +1,4 @@
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import pytest
 from django.contrib.messages.storage.fallback import FallbackStorage
@@ -10,11 +10,11 @@ from cosmetics_shop.utils.decorators import cart_required, order_session_require
 
 
 @pytest.mark.django_db
-@patch("cosmetics_shop.utils.decorators.get_cart")
-def test_cart_required_empty_cart(mock_get_cart):
+def test_cart_required_empty_cart(mocker, user):
     request = RequestFactory().get("/")
 
     request.session = {}
+    request.user = user
 
     setattr(request, "_messages", FallbackStorage(request))
 
@@ -23,6 +23,8 @@ def test_cart_required_empty_cart(mock_get_cart):
     cart_items.exists.return_value = False
 
     cart.cart_items.all.return_value = cart_items
+
+    mock_get_cart = mocker.patch("cosmetics_shop.utils.decorators.get_cart")
     mock_get_cart.return_value = cart
 
     def test_view(request):
@@ -36,8 +38,7 @@ def test_cart_required_empty_cart(mock_get_cart):
 
 
 @pytest.mark.django_db
-@patch("cosmetics_shop.utils.decorators.get_cart")
-def test_cart_required_with_items(mock_get_cart):
+def test_cart_required_with_items(mocker):
     request = RequestFactory().get("/")
 
     request.session = {}
@@ -49,6 +50,7 @@ def test_cart_required_with_items(mock_get_cart):
     cart_items.exists.return_value = True
 
     cart.cart_items.all.return_value = cart_items
+    mock_get_cart = mocker.patch("cosmetics_shop.utils.decorators.get_cart")
     mock_get_cart.return_value = cart
 
     def test_view(request):

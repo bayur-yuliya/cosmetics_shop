@@ -1,10 +1,12 @@
 import logging
 
 from dateutil.relativedelta import relativedelta
+from django.core.cache import cache
 from django.db.models import Avg, Count, Sum
 from django.utils import timezone
 
 from cosmetics_shop.models import Order, Product, Status
+from utils.date_utils import get_first_order_year
 
 logger = logging.getLogger(__name__)
 
@@ -63,24 +65,31 @@ def get_dashboard_context():
 
     today = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
+    cache_key = f"dashboard:{today.date().isoformat()}"
+
+    data = cache.get(cache_key)
+    if data:
+        logger.debug("Dashboard from cache")
+        return data
+
     today_stats = get_today_stats()
     month_stats = get_month_stats(today)
 
     max_favorite = (
         Product.objects.annotate(fav_count=Count("favorites"))
         .filter(fav_count__gt=0)
-        .order_by("-fav_count")[:3]
+        .order_by("-fav_count", "id")[:3]
     )
 
     current_year = timezone.now().year
-    years = range(current_year - 5, current_year + 1)
+    first_year = get_first_order_year()
+    years = range(first_year, current_year + 1)
 
     logger.info(
         f"Dashboard loaded: today_orders={today_stats['total_orders']}, "
         f"month_orders={month_stats['total_orders']}"
     )
-
-    return {
+    context = {
         "number_of_completed_orders_today": today_stats["total_orders"],
         "number_of_orders_per_month": month_stats["total_orders"],
         "summ_bill": month_stats["total_revenue"],
@@ -89,3 +98,7 @@ def get_dashboard_context():
         "years": years,
         "current_year": current_year,
     }
+
+    cache.set(cache_key, context, timeout=60 * 5)  # 5 minute
+
+    return context

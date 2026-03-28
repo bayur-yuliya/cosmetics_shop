@@ -1,5 +1,3 @@
-from unittest.mock import patch
-
 import pytest
 from django.urls import reverse
 
@@ -45,8 +43,8 @@ def test_add_to_cart_no_product_code(client):
 
 
 @pytest.mark.django_db
-@patch("cosmetics_shop.ajax.add_product_to_cart")
-def test_add_to_cart_product_not_found(mock_add, client, product):
+def test_add_to_cart_product_not_found(mocker, client, product):
+    mock_add = mocker.patch("cosmetics_shop.ajax.add_product_to_cart")
     mock_add.side_effect = Product.DoesNotExist
 
     response = client.post(
@@ -65,8 +63,8 @@ def test_cart_remove_no_code(client):
 
 
 @pytest.mark.django_db
-@patch("cosmetics_shop.ajax.remove_product_from_cart")
-def test_cart_remove_error(mock_remove, client):
+def test_cart_remove_error(mocker, client):
+    mock_remove = mocker.patch("cosmetics_shop.ajax.remove_product_from_cart")
     mock_remove.side_effect = Exception("test error")
 
     response = client.post(

@@ -39,7 +39,16 @@ def build_context(request, products, title, extra_context=None, **kwargs):
     logger.debug("Building product context", extra={"title": title})
 
     product_filter = ProductFilter(request, products)
-    form = ProductFilterForm(request.GET or None)
+
+    hide_group = kwargs.get("hide_group_field", False)
+    hide_brand = kwargs.get("hide_brands_field", False)
+
+    form = ProductFilterForm(
+        request.GET or None,
+        products_qs=products,
+        hide_group=hide_group,
+        hide_brand=hide_brand,
+    )
 
     if form.is_valid():
         product_filter.apply_filters(form)
@@ -56,7 +65,7 @@ def build_context(request, products, title, extra_context=None, **kwargs):
 
     logger.debug(
         "Pagination applied",
-        extra={"page": request.GET.get("page"), "count": page.paginator.count},
+        extra={"page": request.GET.get("page"), "count": page.count},
     )
 
     context = {
@@ -67,8 +76,8 @@ def build_context(request, products, title, extra_context=None, **kwargs):
         "context_categories": categories,
         "current_sort": product_filter.current_sort,
         "current_direction": product_filter.current_direction,
-        "hide_brands_field": kwargs.get("hide_brands_field", False),
-        "hide_group_field": kwargs.get("hide_group_field", False),
+        "hide_brands_field": hide_brand,
+        "hide_group_field": hide_group,
         "cart_products": cart_products,
     }
 
@@ -105,9 +114,9 @@ def processing_product_page(
     products,
     template_name,
     title,
+    hide_group_field=None,
+    hide_brands_field=None,
     extra_context=None,
-    hide_group_field=False,
-    hide_brands_field=False,
 ):
     is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
 

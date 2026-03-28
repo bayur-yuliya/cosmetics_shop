@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.auth.models import User
 
 from accounts.utils.validators import validate_phone_number
 from cosmetics_shop.models import Brand, Client, DeliveryAddress, GroupProduct, Tag
@@ -22,12 +21,35 @@ class ClientForm(forms.ModelForm):
 class DeliveryAddressForm(forms.ModelForm):
     class Meta:
         model = DeliveryAddress
-        fields = ["city", "street", "post_office"]
+        fields = ["city", "post_office"]
         labels = {
-            "city": "Город",
-            "street": "Улица",
-            "post_office": "Почтовое отделение",
+            "city": "Город: ",
+            "post_office": "Почтовое отделение: ",
         }
+        widgets = {
+            "city": forms.TextInput(
+                attrs={
+                    "class": "form-control np-city-input",
+                    "placeholder": "Начните вводить город...",
+                    "autocomplete": "off",
+                }
+            ),
+            "post_office": forms.Select(
+                attrs={
+                    "class": "form-control np-warehouse-select",
+                }
+            ),
+        }
+
+
+class PaymentForm(forms.Form):
+    method = forms.ChoiceField(
+        choices=[
+            ("card", "Онлайн"),
+            ("cash", "При получении"),
+        ],
+        widget=forms.RadioSelect,
+    )
 
 
 class ProductFilterForm(forms.Form):
@@ -40,7 +62,7 @@ class ProductFilterForm(forms.Form):
     group = forms.ModelMultipleChoiceField(
         label="Группа",
         widget=forms.CheckboxSelectMultiple,
-        queryset=GroupProduct.objects.all(),
+        queryset=GroupProduct.objects.none(),
         initial=0,
         required=False,
     )
@@ -48,7 +70,7 @@ class ProductFilterForm(forms.Form):
     brand = forms.ModelMultipleChoiceField(
         label="Бренды",
         widget=forms.CheckboxSelectMultiple,
-        queryset=Brand.objects.all(),
+        queryset=Brand.objects.none(),
         initial=0,
         required=False,
     )
@@ -56,7 +78,7 @@ class ProductFilterForm(forms.Form):
     tags = forms.ModelMultipleChoiceField(
         label="Теги",
         widget=forms.CheckboxSelectMultiple,
-        queryset=Tag.objects.all(),
+        queryset=Tag.objects.none(),
         initial=0,
         required=False,
     )
@@ -72,17 +94,34 @@ class ProductFilterForm(forms.Form):
         widget=forms.TextInput(attrs={"class": "form-control"}),
     )
 
+    def __init__(self, *args, **kwargs):
+        products_qs = kwargs.pop("products_qs", None)
+        hide_group = kwargs.pop("hide_group", False)
+        hide_brand = kwargs.pop("hide_brand", False)
+        super().__init__(*args, **kwargs)
 
-class UserRegistrationForm(forms.ModelForm):
-    password = forms.CharField(label="Пароль", widget=forms.PasswordInput)
-    password2 = forms.CharField(label="Повторение пароля", widget=forms.PasswordInput)
+        if hide_group and "group" in self.fields:
+            del self.fields["group"]
+        if hide_brand and "brand" in self.fields:
+            del self.fields["brand"]
 
-    class Meta:
-        model = User
-        fields = ("email",)
+        if products_qs is not None:
+            if "group" in self.fields:
+                self.fields["group"].queryset = GroupProduct.objects.filter(
+                    products__in=products_qs
+                ).distinct()
 
-    def clean_password2(self):
-        cd = self.cleaned_data
-        if cd["password"] != cd["password2"]:
-            raise forms.ValidationError("Passwords don't match.")
-        return cd["password2"]
+            if "brand" in self.fields:
+                self.fields["brand"].queryset = Brand.objects.filter(
+                    products__in=products_qs
+                ).distinct()
+
+            if "tags" in self.fields:
+                self.fields["tags"].queryset = Tag.objects.filter(
+                    products__in=products_qs
+                ).distinct()
+
+        else:
+            self.fields["group"].queryset = GroupProduct.objects.all()
+            self.fields["brand"].queryset = Brand.objects.all()
+            self.fields["tags"].queryset = Tag.objects.all()

@@ -6,125 +6,101 @@
 
 {% block content %}
 
-<div class="container my-4">
+<div class="container my-5">
     <h2 class="mb-4">Ваша корзина</h2>
 
     {% if cart_items %}
-        <div class="table-responsive">
-            <table class="table align-middle cart-table">
-                    <colgroup>
-                        <col style="width:55%">
-                        <col style="width:10%">
-                        <col style="width:10%">
-                        <col style="width:15%">
-                        <col style="width:10%">
-                    </colgroup>
-                <thead>
-                    <tr>
-                        <th>Товар</th>
-                        <th>Цена</th>
-                        <th>Количество</th>
-                        <th>Сумма</th>
-                        <th>Действия</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in cart_items %}
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center product-cell">
-                                    <img src="/media/{{ item.product.image }}" class="img-thumbnail me-3" style="width:80px; height:80px; object-fit:cover;">
-                                    <a href="{% url 'product_page' item.product.code %}">{{ item.product.name }}</a>
-                                </div>
-                            </td>
-                            <td>{{ item.product.price|number_format }} грн</td>
-                            <td>
-                                {%  if item.quantity == 1  %}
-                                <button
-                                    class="btn btn-sm btn-outline-secondary js-cart-btn-remove"
-                                    data-product-code="{{  item.product.code  }}" disabled>
-                                    -
-                                </button>
-                                {%  else  %}
-                                <button
-                                    class="btn btn-sm btn-outline-secondary js-cart-btn-remove"
-                                    data-product-code="{{  item.product.code  }}">
-                                    -
-                                </button>
-                                {%  endif  %}
-                                <span
-                                    class="mx-2 js-item-counter-quantity"
-                                    data-product-code="{{ item.product.code }}">
-                                    {{ item.quantity }}
-                                </span>
+        <div class="cart-container shadow-sm border">
+            <div class="row cart-header g-0 bg-light text-muted small fw-bold p-3 border-bottom">
+                <div class="col-md-5">ТОВАР</div>
+                <div class="col-md-2 text-center">ЦЕНА</div>
+                <div class="col-md-2 text-center">КОЛИЧЕСТВО</div>
+                <div class="col-md-2 text-center">СУММА</div>
+                <div class="col-md-1 text-end"></div>
+            </div>
 
-                                {%  if item.quantity == item.product.stock %}
-                                <button
-                                    class="btn btn-sm btn-outline-secondary js-cart-btn"
-                                    data-product-code="{{  item.product.code  }}" disabled>
-                                    +
-                                </button>
-                                {%  else  %}
-                                <button
-                                        class="btn btn-sm btn-outline-secondary js-cart-btn"
-                                        data-product-code="{{  item.product.code  }}">
-                                    +
-                                </button>
-                                {%  endif  %}
-                            </td>
-                            <td>
-                                <div class="d-flex align-items-center product-cell">
-                                    <span
-                                        class="mx-2 js-item-counter-total"
-                                        data-product-code="{{ item.product.code }}">
-                                        {{ item.product.price|multiply:item.quantity|number_format }} грн
-                                    </span>
-                                </div>
-                            </td>
-                            <td>
-                            <button
-                                data-id="{{ item.product.id }}"
+            {% for item in cart_items %}
+                <div class="row cart-item-row align-items-center g-0">
+                    <div class="col-md-5 col-12 mb-3 mb-md-0">
+                        <div class="d-flex align-items-center">
+                            <img src="/media/{{ item.product.image }}" class="product-img me-3">
+                            <div class="text-start">
+                                <a href="{% url 'product_page' item.product.code %}" class="text-decoration-none fw-bold text-dark">
+                                    {{ item.product.name }}
+                                </a>
+                                <div class="text-muted small">Код: {{ item.product.code }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 col-4 text-center">
+                        <div class="d-md-none text-muted small mb-1">Цена</div>
+                        {{ item.product.price|number_format }} грн
+                    </div>
+
+                    <div class="col-md-2 col-4 text-center">
+                        <div class="d-md-none text-muted small mb-1">Кол-во</div>
+                        <div class="quantity-controls">
+                            <button class="js-cart-btn-remove"
+                                    data-product-code="{{ item.product.code }}"
+                                    {% if item.quantity <= 1 %}disabled{% endif %}>-</button>
+                            <span class="js-item-counter-quantity" data-product-code="{{ item.product.code }}">
+                                {{ item.quantity }}
+                            </span>
+                            <button class="js-cart-btn"
+                                    data-product-code="{{ item.product.code }}"
+                                    {% if item.quantity >= item.product.stock %}disabled{% endif %}>+</button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 col-4 text-center">
+                        <div class="d-md-none text-muted small mb-1">Сумма</div>
+                        <span class="fw-bold js-item-counter-total" data-product-code="{{ item.product.code }}">
+                            {{ item.product.price|multiply:item.quantity|number_format }} грн
+                        </span>
+                    </div>
+
+                    <div class="col-md-1 col-12 text-md-end text-center mt-3 mt-md-0">
+                        <button data-id="{{ item.product.id }}"
                                 data-name="{{ item.product.name|escape }}"
                                 onclick="openDeleteDialog(this)"
-                                class="btn btn-sm btn-danger">
-                                Удалить
-                            </button>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                                class="btn btn-link text-danger p-0 border-0" title="Удалить">
+                            <span class="d-md-inline d-none">✕</span>
+                            <span class="d-md-none">Удалить товар</span>
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
 
-        <div class="d-flex justify-content-between align-items-center mt-4">
-            <h5 id="cart-total">Итого: {{ total_price|number_format }} грн</h5>
-            <div>
-                <a href="{% url 'main_page' %}" class="btn btn-outline-primary me-2">Продолжить выбор</a>
-                <a href="{% url 'delivery' %}" class="btn btn-success">Оформить заказ</a>
+            <div class="cart-footer">
+                <div class="footer-actions">
+                    <a href="{% url 'main_page' %}" class="btn btn-outline-dark btn-sm">← Назад к покупкам</a>
+                    <a href="{% url 'clean_cart' %}" class="btn btn-link btn-sm text-danger ms-md-3">Очистить корзину</a>
+                </div>
+                <div class="footer-total">
+                    <h4 class="mb-3 mb-md-0 d-inline-block me-md-4">
+                        Итого: <span id="cart-total" class="fw-bold text-primary">{{ total_price|number_format }} грн</span>
+                    </h4>
+                    <a href="{% url 'delivery' %}" class="btn btn-success btn-lg px-4">Оформить заказ</a>
+                </div>
             </div>
         </div>
-        <div>
-            <a href="{%  url 'clean_cart'  %}" class="btn btn-danger">Очистить корзину</a>
-        </div>
     {% else %}
-        <div class="alert alert-info">
-            Корзина пуста
+        <div class="alert alert-info text-center py-5 shadow-sm">
+            <p class="mb-3">В корзине пока ничего нет</p>
+            <a href="{% url 'main_page' %}" class="btn btn-primary">За покупками!</a>
         </div>
-        <a href="{% url 'main_page' %}" class="btn btn-primary">Перейти к покупкам</a>
     {% endif %}
-
 </div>
 
-<dialog id="deleteDialog">
-    <form
-        id="deleteForm"
-        method="POST"
-        action=""
-            >
-        {%  csrf_token  %}
-            <p id="deleteText"></p>
-            <button type="reset" onclick="document.getElementById('deleteDialog').close()" class="btn btn-secondary">Назад</button>
-            <button type="submit" class="btn btn-danger">Удалить</button>
+<dialog id="deleteDialog" class="p-4 border-0 shadow rounded">
+    <form id="deleteForm" method="POST" action="">
+        {% csrf_token %}
+        <p id="deleteText" class="mb-4 text-center"></p>
+        <div class="d-flex justify-content-center gap-2">
+            <button type="button" onclick="document.getElementById('deleteDialog').close()" class="btn btn-secondary">Отмена</button>
+            <button type="submit" class="btn btn-danger">Да, удалить</button>
+        </div>
     </form>
 </dialog>
 

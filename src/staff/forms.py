@@ -55,9 +55,7 @@ class TagForm(forms.ModelForm):
 
 
 class ProductForm(forms.ModelForm):
-    brand = forms.ModelChoiceField(
-        label="Бренд", queryset=Brand.objects.all(), initial=0
-    )
+    brand = forms.ModelChoiceField(label="Бренд", queryset=Brand.objects.all())
     tags = forms.ModelMultipleChoiceField(
         label="Теги",
         widget=forms.CheckboxSelectMultiple,
@@ -86,23 +84,22 @@ class ProductForm(forms.ModelForm):
             "stock": "Количество товара на складе",
         }
 
-    def __init__(self, *args, user=None, **kwargs):
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
 
+        if self.instance and self.instance.pk:
+            if "price" in self.fields:
+                self.initial["price"] = str(self.instance.price)
+
         if user:
-            self.user = user
-
             if not user.has_perm("cosmetics_shop.can_change_product_price"):
-                self.fields.pop("price")
-            else:
-                self.fields["price"].localize = True
-                self.fields["price"].widget.is_localized = True
-
+                self.fields.pop("price", None)
             if not user.has_perm("cosmetics_shop.can_manage_product_stock"):
-                self.fields.pop("stock")
+                self.fields.pop("stock", None)
 
     def clean_price(self):
-        price = self.cleaned_data["price"]
+        price = self.cleaned_data.get("price")
         if isinstance(price, str):
             price = price.replace(" ", "").replace(",", ".")
         try:
@@ -112,12 +109,14 @@ class ProductForm(forms.ModelForm):
 
 
 class OrderFilterForm(forms.Form):
-    status = forms.ChoiceField(choices=Status.choices, required=False)
+    status = forms.ChoiceField(
+        label="Статус заказа", choices=Status.choices, required=False
+    )
     date_from = forms.DateField(
-        required=False, widget=forms.DateInput(attrs={"type": "date"})
+        label="Дата с", required=False, widget=forms.DateInput(attrs={"type": "date"})
     )
     date_to = forms.DateField(
-        required=False, widget=forms.DateInput(attrs={"type": "date"})
+        label="Дата по", required=False, widget=forms.DateInput(attrs={"type": "date"})
     )
 
 

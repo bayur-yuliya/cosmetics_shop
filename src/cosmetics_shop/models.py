@@ -4,6 +4,7 @@ from decimal import Decimal
 from random import randint
 
 from django.conf import settings
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import IntegrityError, models, transaction
@@ -233,6 +234,10 @@ class Category(SlugRedirectModel):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        cache.delete("categories_with_groups")
+
     class Meta:
         ordering = ["name"]
         verbose_name = _("категорию")
@@ -453,10 +458,42 @@ class Order(TimestampedModel):
     def status_badge_class(self):
         return Status.badge_class(self.status)
 
+    def is_paid(self):
+        return self.payments.filter(status="success").exists()
+
+    def mark_as_paid(self):
+        self.set_status(Status.PAYMENT_RECEIVED)
+
     class Meta:
         ordering = ["-id"]
         verbose_name = _("заказ")
         verbose_name_plural = _("Заказы")
+
+
+class Payment(TimestampedModel):
+    class PaymentMethod(models.TextChoices):
+        CARD = "card", "Card (Online)"
+        CASH = "cash", "Cash on delivery"
+
+    class PaymentStatus(models.TextChoices):
+        PENDING = "pending", "Pending"
+        SUCCESS = "success", "Success"
+        FAILED = "failed", "Failed"
+
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="payments")
+
+    method = models.CharField(max_length=20, choices=PaymentMethod.choices)
+    status = models.CharField(
+        max_length=20, choices=PaymentStatus.choices, default=PaymentStatus.PENDING
+    )
+
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+    external_id = models.CharField(max_length=255, blank=True, null=True)
+    # mono invoice_id
+
+    def __str__(self):
+        return f"{self.order.code} - {self.method} - {self.status}"
 
 
 class OrderItem(models.Model):

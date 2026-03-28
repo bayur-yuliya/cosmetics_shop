@@ -14,16 +14,12 @@ function getCookie(name) {
 }
 
 function disablePlusButton(productCode) {
-    const row = document.querySelector(
-        `.js-item-counter-quantity[data-product-code="${productCode}"]`
-    )?.closest("tr");
+    const counter = document.querySelector(`.js-item-counter-quantity[data-product-code="${productCode}"]`);
+    const row = counter?.closest(".cart-item-row"); // Ищем ближайший контейнер строки
 
     if (!row) return;
 
-    const plusBtn = row.querySelector(
-        `.js-cart-btn[data-product-code="${productCode}"]`
-    );
-
+    const plusBtn = row.querySelector(`.js-cart-btn[data-product-code="${productCode}"]`);
     if (plusBtn) {
         plusBtn.disabled = true;
         plusBtn.classList.add("disabled");
@@ -179,43 +175,31 @@ function updateCartCounter(count) {
 }
 
 function updateItemCounter(productCode, quantity) {
-    const counter = document.querySelector(
-        `.js-item-counter-quantity[data-product-code="${productCode}"]`
-    );
-
+    const counter = document.querySelector(`.js-item-counter-quantity[data-product-code="${productCode}"]`);
     if (!counter) return;
 
-    const row = counter.closest("tr");
+    const row = counter.closest(".cart-item-row");
+    const removeBtn = row?.querySelector(`.js-cart-btn-remove[data-product-code="${productCode}"]`);
+    const plusBtn = row?.querySelector(`.js-cart-btn[data-product-code="${productCode}"]`);
 
-    const removeBtn = row?.querySelector(
-        `.js-cart-btn-remove[data-product-code="${productCode}"]`
-    );
-
-    const plusBtn = row?.querySelector(
-        `.js-cart-btn[data-product-code="${productCode}"]`
-    );
-
-    // --- ОБНОВЛЯЕМ ЧИСЛО ---
+    // Обновляем число
     counter.textContent = quantity;
 
-    // --- ЛОГИКА "-" ---
-    if (quantity > 1) {
-        if (removeBtn) {
+    // Логика кнопки МИНУС
+    if (removeBtn) {
+        if (parseInt(quantity) > 1) {
             removeBtn.disabled = false;
             removeBtn.classList.remove("disabled");
-        }
-    } else {
-        if (removeBtn) {
+        } else {
             removeBtn.disabled = true;
             removeBtn.classList.add("disabled");
         }
     }
 
-    // --- ЛОГИКА "+" ---
+    // Логика кнопки ПЛЮС
     const maxStock = parseInt(counter.dataset.maxStock);
-
     if (plusBtn) {
-        if (quantity >= maxStock) {
+        if (parseInt(quantity) >= maxStock) {
             plusBtn.disabled = true;
             plusBtn.classList.add("disabled");
         } else {
@@ -234,9 +218,8 @@ function updateTotalPrice(totalPrice) {
         maximumFractionDigits: 2,
     }).format(totalPrice);
 
-    totalElement.textContent = `Итого: ${formatted} грн`;
+    totalElement.textContent = `${formatted} грн`;
 }
-
 
 function showMessage(message) {
     if (!message) return;

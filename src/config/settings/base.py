@@ -138,8 +138,8 @@ LOCALE_PATHS = [
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "/static/"
-STATIC_ROOT = os.getenv("STATIC_ROOT", BASE_DIR.parent / "static")
+STATIC_URL = "/staticfiles/"
+STATIC_ROOT = os.getenv("STATIC_ROOT", BASE_DIR.parent / "staticfiles")
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.getenv("MEDIA_ROOT", BASE_DIR.parent / "media")
@@ -226,6 +226,7 @@ CELERY_TASK_SERIALIZER = "json"
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8080",
     "http://127.0.0.1:8080",
+    "https://*.ngrok-free.app",
 ]
 
 USE_X_FORWARDED_HOST = True
@@ -250,14 +251,14 @@ LOGGING = {
         },
         "file": {
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": "logs/django.log",
+            "filename": BASE_DIR.parent / "logs/django.log",
             "maxBytes": 1024 * 1024 * 10,
             "backupCount": 5,
             "formatter": "verbose",
         },
         "errors_file": {
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": "logs/errors.log",
+            "filename": BASE_DIR.parent / "logs/errors.log",
             "maxBytes": 1024 * 1024 * 10,
             "backupCount": 5,
             "level": "ERROR",
@@ -266,34 +267,42 @@ LOGGING = {
     },
     "loggers": {
         "django": {
-            "handlers": ["console", "file"],
+            "handlers": ["console", "file", "errors_file"],
             "level": "INFO",
             "propagate": True,
         },
         "celery": {
-            "handlers": ["console", "file"],
+            "handlers": ["console", "file", "errors_file"],
             "level": "INFO",
             "propagate": False,
         },
         "cosmetics_shop": {
-            "handlers": ["console", "file"],
-            "level": "DEBUG",
+            "handlers": ["console", "file", "errors_file"],
+            "level": "INFO",
             "propagate": False,
         },
         "accounts": {
-            "handlers": ["console", "file"],
-            "level": "DEBUG",
+            "handlers": ["console", "file", "errors_file"],
+            "level": "INFO",
             "propagate": False,
         },
         "staff": {
-            "handlers": ["console", "file"],
-            "level": "DEBUG",
+            "handlers": ["console", "file", "errors_file"],
+            "level": "INFO",
             "propagate": False,
         },
         "api": {
-            "handlers": ["console", "file"],
-            "level": "DEBUG",
+            "handlers": ["console", "file", "errors_file"],
+            "level": "INFO",
             "propagate": False,
         },
     },
 }
+
+# NOVA POSHTA
+NOVA_POSHTA_API_URL = "https://api.novaposhta.ua/v2.0/json/"
+NOVA_POSHTA_API_KEY = os.getenv("NOVA_POSHTA_API_KEY")
+
+# MONOBANK
+MONO_URL = "https://api.monobank.ua/api/merchant/invoice/create"
+MONO_TOKEN = os.getenv("MONO_TOKEN")

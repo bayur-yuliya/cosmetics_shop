@@ -11,18 +11,7 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-3 col-md-4">
-            <div class="filters p-3 border rounded">
-                <h5>Фильтры</h5>
-                <form id="product-filter-form" method="get">
-                    {% for field in form %}
-                        <div class="mb-2">
-                            <label class="form-label">{{ field.label }}</label>
-                            {{ field }}
-                        </div>
-                    {% endfor %}
-                    <button class="btn btn-primary btn-sm mt-2 filter-form-submit">Применить</button>
-                </form>
-            </div>
+        {% include 'cosmetics_shop/includes/filter_panel.html' %}
         </div>
         <div class="col-md-9">
             <div class="sorting-panel mb-3">

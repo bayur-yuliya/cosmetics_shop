@@ -4,29 +4,28 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
+
 <div class="container my-4">
     <h2 class="mb-4">История заказов</h2>
 
     {% if order_items %}
         {% for order in order_items %}
             <div class="card mb-4 shadow-sm">
-                <!-- ШАПКА ЗАКАЗА -->
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <div>
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                    <div class="mb-1">
                         <strong>Заказ № {{ order.order.code }}</strong><br>
                         <small class="text-muted">
                             {{ order.order.created_at }}
                         </small>
                     </div>
-                    <span class="badge bg-{{  order.status_badge_class  }}">
+                    <span class="badge bg-{{ order.status_badge_class }}">
                         {{ order.latest_status }}
                     </span>
                 </div>
 
-                <!-- ТЕЛО ЗАКАЗА -->
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table align-middle mb-0">
+                        <table class="table align-middle mb-0 responsive-table">
                             <thead class="table-light">
                                 <tr>
                                     <th>Товар</th>
@@ -38,16 +37,16 @@
                             <tbody>
                                 {% for item in order.items %}
                                 <tr>
-                                    <td class="d-flex align-items-center">
+                                    <td class="product-cell d-flex align-items-center">
                                         <img src="{{ item.product.image.url }}"
                                              class="img-thumbnail me-3"
-                                             style="width:60px; height:60px; object-fit:cover;">
-                                        {{ item.snapshot_product }}
+                                             style="width:60px; height:60px; min-width:60px; object-fit:cover;">
+                                        <span class="text-wrap">{{ item.snapshot_product }}</span>
                                     </td>
-                                    <td>{{ item.price|number_format }} грн</td>
-                                    <td>{{ item.quantity }}</td>
-                                    <td>
-                                        {{ item.price|multiply:item.quantity|number_format }} грн
+                                    <td data-label="Цена">{{ item.price|number_format }} грн</td>
+                                    <td data-label="Кол-во">{{ item.quantity }}</td>
+                                    <td data-label="Сумма">
+                                        <strong>{{ item.price|multiply:item.quantity|number_format }} грн</strong>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -56,7 +55,6 @@
                     </div>
                 </div>
 
-                <!-- ИТОГО -->
                 <div class="card-footer d-flex justify-content-end">
                     <strong>
                         Итого: {{ order.order.total_price|number_format }} грн
@@ -64,7 +62,7 @@
                 </div>
             </div>
         {% endfor %}
-    {% include  'cosmetics_shop/includes/paginator.html' with page_elements=order_items %}
+        {% include 'cosmetics_shop/includes/paginator.html' with page_elements=order_items %}
     {% else %}
         <div class="alert alert-info">
             У вас пока нет заказов
@@ -72,7 +70,7 @@
     {% endif %}
 
     <a href="{% url 'user_contact' %}" class="btn btn-outline-secondary">
-        ←
+        ← Назад
     </a>
 </div>
 {% endblock %}

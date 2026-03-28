@@ -1,7 +1,7 @@
 from django.urls import path
 
 from . import ajax
-from .views import cart, catalog, orders, static_pages
+from .views import cart, catalog, nova_poshta, orders, static_pages
 
 urlpatterns = [
     # ajax
@@ -17,6 +17,9 @@ urlpatterns = [
         ajax.cart_remove,
         name="ajax_cart_remove",
     ),
+    # nova_poshta
+    path("api/np/cities/", nova_poshta.cities_view, name="api_np_cities"),
+    path("api/np/warehouses/", nova_poshta.warehouses_view, name="api_np_warehouses"),
     # catalog
     path("groups/<slug:group_slug>/", catalog.group_page, name="group_page"),
     path(
@@ -33,12 +36,15 @@ urlpatterns = [
     path("order/success/", orders.order_success, name="order_success"),
     path("order/", orders.create_order, name="order"),
     path("delivery/", orders.delivery, name="delivery"),
+    path("pay_order/<int:order_id>/", orders.pay_order, name="pay_order"),
+    path("api/payment/webhook/", orders.mono_webhook, name="mono_webhook"),
     # static_pages
     path(
         "payment_and_delivery/",
         static_pages.payment_and_delivery,
         name="payment_and_delivery",
     ),
+    path("privacy-policy/", static_pages.privacy_policy, name="privacy_policy"),
     # main page
     path("", catalog.main_page, name="main_page"),
 ]
