@@ -428,3 +428,10 @@ button.btn-success {
         margin-top: 15px;
     }
 }
+
+.product-img-cart {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 6px;
+}

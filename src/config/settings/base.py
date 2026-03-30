@@ -236,6 +236,12 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "filters": {
+        "no_traceback": {
+            "()": "django.utils.log.CallbackFilter",
+            "callback": lambda record: setattr(record, "exc_info", None) or True,
+        },
+    },
     "formatters": {
         "standard": {
             "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
@@ -255,6 +261,7 @@ LOGGING = {
             "maxBytes": 1024 * 1024 * 10,
             "backupCount": 5,
             "formatter": "verbose",
+            "filters": ["no_traceback"],
         },
         "errors_file": {
             "class": "logging.handlers.RotatingFileHandler",
@@ -263,6 +270,7 @@ LOGGING = {
             "backupCount": 5,
             "level": "ERROR",
             "formatter": "verbose",
+            "filters": ["no_traceback"],
         },
     },
     "loggers": {
