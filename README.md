@@ -15,7 +15,7 @@ The project demonstrates:
 * User registration and authorization
 * Product catalog
 * Cart (add/delete/change quantity)
-* Create orders? change order status
+* Create orders, change order status
 * Payment system integration (Monobank, sandbox)
 * REST API (Django REST Framework)
 * Background tasks (Celery)
@@ -34,8 +34,8 @@ The project demonstrates:
 
 ### Project Stats
 
-- ~15 models
-- ~40 API endpoints
+- ~20 models
+- ~140 tests
 - Test coverage: ~75%
 
 ## Quick Start
