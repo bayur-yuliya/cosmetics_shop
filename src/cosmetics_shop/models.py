@@ -21,12 +21,12 @@ logger = logging.getLogger(__name__)
 
 
 class Status(models.IntegerChoices):
-    NEW = 0, "New"
-    PAYMENT_RECEIVED = 1, "Payment received"
-    PAYMENT_FAILED = 2, "Payment failed"
-    IN_PROGRESS = 3, "In progress"
-    COMPLETED = 4, "Completed"
-    CANCELED = 5, "Canceled"
+    NEW = 0, "Новый"
+    PAYMENT_RECEIVED = 1, "Успешная оплата"
+    PAYMENT_FAILED = 2, "Оплата не прошла"
+    IN_PROGRESS = 3, "Доставляется"
+    COMPLETED = 4, "Получен"
+    CANCELED = 5, "Отменен"
 
     @classmethod
     def badge_class(cls, status):
@@ -236,7 +236,10 @@ class Category(SlugRedirectModel):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        cache.delete("categories_with_groups")
+        try:
+            cache.delete("categories_with_groups")
+        except Exception:
+            pass
 
     class Meta:
         ordering = ["name"]
