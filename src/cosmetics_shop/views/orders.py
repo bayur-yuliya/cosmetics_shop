@@ -46,6 +46,9 @@ def delivery(request: HttpRequest) -> HttpResponse:
     form = ClientForm(instance=client, initial=client_data)
     form_delivery = DeliveryAddressForm(instance=last_address, initial=address_data)
 
+    if address_data.get("post_office"):
+        form_delivery.fields["post_office"].initial = address_data["post_office"]
+
     return render(
         request,
         "cosmetics_shop/delivery.html",

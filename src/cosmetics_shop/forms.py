@@ -15,6 +15,7 @@ class ClientForm(forms.ModelForm):
         labels = {
             "first_name": "Имя: ",
             "last_name": "Фамилия: ",
+            "email": "Контактный email клиента: ",
         }
 
 
