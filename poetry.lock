@@ -781,7 +781,7 @@ version = "5.2.9"
 description = "Mypy stubs for Django"
 optional = false
 python-versions = ">=3.10"
-groups = ["main"]
+groups = ["main", "dev"]
 files = [
     {file = "django_stubs-5.2.9-py3-none-any.whl", hash = "sha256:2317a7130afdaa76f6ff7f623650d7f3bf1b6c86a60f95840e14e6ec6de1a7cd"},
     {file = "django_stubs-5.2.9.tar.gz", hash = "sha256:c192257120b08785cfe6f2f1c91f1797aceae8e9daa689c336e52c91e8f6a493"},
@@ -804,7 +804,7 @@ version = "5.2.9"
 description = "Monkey-patching and extensions for django-stubs"
 optional = false
 python-versions = ">=3.10"
-groups = ["main"]
+groups = ["main", "dev"]
 files = [
     {file = "django_stubs_ext-5.2.9-py3-none-any.whl", hash = "sha256:230c51575551b0165be40177f0f6805f1e3ebf799b835c85f5d64c371ca6cf71"},
     {file = "django_stubs_ext-5.2.9.tar.gz", hash = "sha256:6db4054d1580657b979b7d391474719f1a978773e66c7070a5e246cd445a25a9"},
@@ -1948,6 +1948,21 @@ files = [
 ]
 
 [[package]]
+name = "types-django-filter"
+version = "25.2.0.20260213"
+description = "Typing stubs for django-filter"
+optional = false
+python-versions = ">=3.10"
+groups = ["dev"]
+files = [
+    {file = "types_django_filter-25.2.0.20260213-py3-none-any.whl", hash = "sha256:ec61f0cd665eae7b96f3bfb3d5d463a4928d78f06c983a17afd1751db391b9e2"},
+    {file = "types_django_filter-25.2.0.20260213.tar.gz", hash = "sha256:1c63808aa23fbcf356074cad0712866be73fbb6bc6b8695ce8ed02da58da512a"},
+]
+
+[package.dependencies]
+django-stubs = "*"
+
+[[package]]
 name = "types-python-dateutil"
 version = "2.9.0.20260124"
 description = "Typing stubs for python-dateutil"
@@ -1965,7 +1980,7 @@ version = "6.0.12.20250915"
 description = "Typing stubs for PyYAML"
 optional = false
 python-versions = ">=3.9"
-groups = ["main"]
+groups = ["main", "dev"]
 files = [
     {file = "types_pyyaml-6.0.12.20250915-py3-none-any.whl", hash = "sha256:e7d4d9e064e89a3b3cae120b4990cd370874d2bf12fa5f46c97018dd5d3c9ab6"},
     {file = "types_pyyaml-6.0.12.20250915.tar.gz", hash = "sha256:0f8b54a528c303f0e6f7165687dd33fafa81c807fcac23f632b63aa624ced1d3"},
@@ -2107,4 +2122,4 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11"
-content-hash = "0f5c85cd17651a6c909b7fcd75ad24f4b0bb91f86f18860e15e18693cd46e281"
+content-hash = "9618dece1e99b1284e72152cd8dab766a5cf4eb92f3cadf9775422f4d3a284cb"

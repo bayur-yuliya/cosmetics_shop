@@ -1,6 +1,9 @@
 import logging
 import uuid
 
+# from datetime import timezone
+from datetime import timedelta
+
 from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
@@ -166,7 +169,16 @@ def delete_client(client: Client) -> None:
             anonymize_client(client)
             return None
 
-        order_return_period = last_order.completed_at + timezone.timedelta(days=14)
+        if last_order.completed_at is None:
+            client.is_pending_deletion = True
+            client.save()
+            logger.info(
+                f"Client scheduled for deletion: client_id={client.id},"
+                f" after completed last order"
+            )
+            return None
+
+        order_return_period = last_order.completed_at + timedelta(days=14)
         now = timezone.now()
 
         if now < order_return_period:

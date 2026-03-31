@@ -1,4 +1,5 @@
 import logging
+from datetime import timedelta
 
 from django.http import HttpRequest
 from django.utils import timezone
@@ -39,7 +40,7 @@ def process_delivery_data(
             new_client.user = request.user
         else:
             logger.debug("Anonymous checkout data stored in session")
-            new_client.deletion_scheduled_date = timezone.now() + timezone.timedelta(
+            new_client.deletion_scheduled_date = timezone.now() + timedelta(
                 days=365 * 3
             )
             request.session["client_data"] = form.cleaned_data

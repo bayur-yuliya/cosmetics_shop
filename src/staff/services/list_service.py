@@ -30,7 +30,7 @@ class BaseStaffListView(
 class BaseStaffManageView(
     PageTitleMixin, LoginRequiredMixin, StaffPermissionExceptionMixin
 ):
-    template_name = "staff/catalog/manage_page.html"
+    template_name: str | None = "staff/catalog/manage_page.html"
 
 
 class BaseStaffDeleteView(
