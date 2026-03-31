@@ -26,7 +26,10 @@ def cart(request: HttpRequest) -> HttpResponse:
     )
     total_price = get_cart_total_price(cart_items)
 
-    logger.debug(f"Cart loaded: cart_id={cart_object.id}, items={cart_items.count()}")
+    logger.debug(
+        f"Cart loaded: cart_id={cart_object.id if cart_object else None}"
+        f", items={cart_items.count()}"
+    )
 
     return render(
         request,

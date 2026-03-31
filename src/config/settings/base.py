@@ -17,6 +17,8 @@ from pathlib import Path
 from celery.schedules import crontab
 from dotenv import load_dotenv
 
+from utils.setting_utils import filter_no_traceback
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -240,7 +242,7 @@ LOGGING = {
     "filters": {
         "no_traceback": {
             "()": "django.utils.log.CallbackFilter",
-            "callback": lambda record: setattr(record, "exc_info", None) or True,
+            "callback": filter_no_traceback,
         },
     },
     "formatters": {
@@ -320,6 +322,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
 }
 
 SIMPLE_JWT = {
