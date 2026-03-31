@@ -58,6 +58,8 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
 
 class ProductWriteSerializer(serializers.ModelSerializer):
+    tags = serializers.PrimaryKeyRelatedField(many=True, queryset=Tag.objects.all())
+
     class Meta:
         model = Product
         fields = [
@@ -67,7 +69,6 @@ class ProductWriteSerializer(serializers.ModelSerializer):
             "price",
             "description",
             "stock",
-            "image",
             "tags",
             "is_active",
         ]
