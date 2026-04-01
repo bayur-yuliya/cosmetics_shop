@@ -68,6 +68,8 @@ dependencies = [
     "gunicorn (>=25.1.0,<26.0.0)",
     "whitenoise (>=6.12.0,<7.0.0)",
     "django-debug-toolbar (>=6.2.0,<7.0.0)",
+    "djangorestframework-simplejwt (>=5.5.1,<6.0.0)",
+    "types-requests (>=2.33.0.20260327,<3.0.0.0)",
 ]
 
 
@@ -82,18 +84,25 @@ warn_unused_ignores = true
 check_untyped_defs = true
 
 [tool.django-stubs]
-django_settings_module = "config.settings"
+django_settings_module = "config.settings.dev"
 
 # mypy
 [tool.mypy]
 plugins = ["mypy_django_plugin.main"]
+check_untyped_defs = true
 
 [[tool.mypy.overrides]]
-module = "*.migrations.*"
+module = ["*.migrations.*", "*.tests.*",]
 ignore_errors = true
 
 [[tool.mypy.overrides]]
-module = ["allauth.*"]
+module = [
+    "celery.*",
+    "celery.schedules.*",
+    "allauth.*",
+    "debug_toolbar.*",
+    "django_filters.*",
+]
 ignore_missing_imports = true
 
 # ruff
@@ -157,4 +166,5 @@ dev = [
     "mypy-extensions (>=1.1.0,<2.0.0)",
     "django-debug-toolbar (>=6.2.0,<7.0.0)",
     "black (>=26.3.1,<27.0.0)",
+    "types-django-filter (>=25.2.0.20260213,<26.0.0.0)",
 ]

@@ -19,27 +19,31 @@ class ProductFilter:
 
         logger.debug("Applying filters", extra={"data": form.cleaned_data})
 
-        if form.cleaned_data["group"]:
-            self.queryset = self.queryset.filter(group__in=form.cleaned_data["group"])
-
-        if form.cleaned_data["tags"]:
-            self.queryset = self.queryset.filter(tags__in=form.cleaned_data["tags"])
-
-        if form.cleaned_data["min_price"] is not None:
+        if form.cleaned_data.get("group"):
             self.queryset = self.queryset.filter(
-                price__gte=form.cleaned_data["min_price"]
+                group__in=form.cleaned_data.get("group")
             )
 
-        if form.cleaned_data["max_price"] is not None:
+        if form.cleaned_data.get("tags"):
+            self.queryset = self.queryset.filter(tags__in=form.cleaned_data.get("tags"))
+
+        if form.cleaned_data.get("min_price") is not None:
             self.queryset = self.queryset.filter(
-                price__lte=form.cleaned_data["max_price"]
+                price__gte=form.cleaned_data.get("min_price")
             )
 
-        if form.cleaned_data["brand"]:
-            self.queryset = self.queryset.filter(brand__in=form.cleaned_data["brand"])
+        if form.cleaned_data.get("max_price") is not None:
+            self.queryset = self.queryset.filter(
+                price__lte=form.cleaned_data.get("max_price")
+            )
 
-        if form.cleaned_data["name"]:
-            name = form.cleaned_data["name"].lower()
+        if form.cleaned_data.get("brand"):
+            self.queryset = self.queryset.filter(
+                brand__in=form.cleaned_data.get("brand")
+            )
+
+        if form.cleaned_data.get("name"):
+            name = form.cleaned_data.get("name").lower()
             self.queryset = self.queryset.filter(name__icontains=name)
 
     def _get_param(self, key, default=None):

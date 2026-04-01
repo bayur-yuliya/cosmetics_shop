@@ -18,6 +18,21 @@ urlpatterns = [
         products.delete_product,
         name="delete_product",
     ),
+    path(
+        "products/<int:product_id>/hard_delete/",
+        products.hard_delete_products,
+        name="hard_delete_products",
+    ),
+    path(
+        "products/<int:product_id>/recovery/",
+        products.recovery_products,
+        name="recovery_products",
+    ),
+    path(
+        "products/archive/",
+        products.archive_products,
+        name="archive_products",
+    ),
     # staff permissions
     path(
         "staff_groups/<int:pk>/edit/",
@@ -85,8 +100,10 @@ urlpatterns = [
     # tags
     path("tags/", catalog.TagListView.as_view(), name="tags_list"),
     path("tags/create/", catalog.TagCreateView.as_view(), name="create_tags"),
-    path("tags/<int:pk>/edit/", catalog.TagChangeView.as_view(), name="edit_tags"),
-    path("tags/<int:pk>/delete/", catalog.TagDeleteView.as_view(), name="delete_tags"),
+    path("tags/<slug:slug>/edit/", catalog.TagChangeView.as_view(), name="edit_tags"),
+    path(
+        "tags/<slug:slug>/delete/", catalog.TagDeleteView.as_view(), name="delete_tags"
+    ),
     # ajax chart
     path(
         "ajax/charts/sales/",

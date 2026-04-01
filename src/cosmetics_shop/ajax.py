@@ -18,7 +18,9 @@ logger = logging.getLogger(__name__)
 
 @require_POST
 def toggle_favorite(request: HttpRequest) -> HttpResponse:
-    product_id = int(request.POST.get("product_id"))
+    product_id_var = request.POST.get("product_id")
+    if product_id_var is not None:
+        product_id = int(product_id_var)
 
     logger.debug(
         f"Toggle favorite: product_id={product_id},"

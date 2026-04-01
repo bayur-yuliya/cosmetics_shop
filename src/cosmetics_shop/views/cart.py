@@ -26,7 +26,10 @@ def cart(request: HttpRequest) -> HttpResponse:
     )
     total_price = get_cart_total_price(cart_items)
 
-    logger.debug(f"Cart loaded: cart_id={cart_object.id}, items={cart_items.count()}")
+    logger.debug(
+        f"Cart loaded: cart_id={cart_object.id if cart_object else None}"
+        f", items={cart_items.count()}"
+    )
 
     return render(
         request,
@@ -41,11 +44,11 @@ def cart(request: HttpRequest) -> HttpResponse:
 
 def clean_cart(request: HttpRequest) -> HttpResponse:
     cart_obj = get_cart(request)
+    if cart_obj:
+        logger.info(f"User cleared cart: cart_id={cart_obj.id if cart_obj else None}")
 
-    logger.info(f"User cleared cart: cart_id={cart_obj.id}")
-
-    delete_cart(cart_obj)
-    messages.success(request, "Корзина очищена")
+        delete_cart(cart_obj)
+        messages.success(request, "Корзина очищена")
 
     return redirect("cart")
 
@@ -53,7 +56,7 @@ def clean_cart(request: HttpRequest) -> HttpResponse:
 @require_POST
 def cart_delete(request: HttpRequest, product_id: int) -> HttpResponse:
     cart_obj = get_cart(request)
-    if product_id is not None:
+    if product_id is not None and cart_obj:
         logger.info(
             f"User deletes product from cart: cart_id={cart_obj.id},"
             f" product_id={product_id}"

@@ -58,11 +58,7 @@ def create_order_from_cart(cart: Cart, client_data, address_data) -> Order:
         user_email = client_data["email"]
         phone = client_data["phone"]
 
-        address = (
-            f"{address_data['city']}, "
-            f"{address_data['street']}, "
-            f"{address_data['post_office']}"
-        )
+        address = f"{address_data['city']}, " f"{address_data['post_office']}"
 
     try:
         with transaction.atomic():

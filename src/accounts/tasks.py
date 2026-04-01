@@ -1,4 +1,5 @@
 import logging
+from datetime import timedelta
 
 from celery import shared_task
 from django.utils import timezone
@@ -53,9 +54,9 @@ def update_pending_deletion_dates():
                 .first()
             )
 
-            if last_order:
-                client.deletion_scheduled_date = (
-                    last_order.completed_at + timezone.timedelta(days=14)
+            if last_order and last_order.completed_at:
+                client.deletion_scheduled_date = last_order.completed_at + timedelta(
+                    days=14
                 )
                 client.save(update_fields=["deletion_scheduled_date"])
                 logger.info(f"Deletion date set: client_id={client.id}")

@@ -21,12 +21,12 @@ logger = logging.getLogger(__name__)
 
 
 class Status(models.IntegerChoices):
-    NEW = 0, "New"
-    PAYMENT_RECEIVED = 1, "Payment received"
-    PAYMENT_FAILED = 2, "Payment failed"
-    IN_PROGRESS = 3, "In progress"
-    COMPLETED = 4, "Completed"
-    CANCELED = 5, "Canceled"
+    NEW = 0, "Новый"
+    PAYMENT_RECEIVED = 1, "Успешная оплата"
+    PAYMENT_FAILED = 2, "Оплата не прошла"
+    IN_PROGRESS = 3, "Доставляется"
+    COMPLETED = 4, "Получен"
+    CANCELED = 5, "Отменен"
 
     @classmethod
     def badge_class(cls, status):
@@ -74,6 +74,8 @@ class SlugRedirectModel(models.Model):
     2. Uniqueness check
     3. Creating a redirect when the slug changes
     """
+
+    objects: models.Manager
 
     slug = models.SlugField(max_length=200, unique=True, blank=True)
 
@@ -236,7 +238,10 @@ class Category(SlugRedirectModel):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        cache.delete("categories_with_groups")
+        try:
+            cache.delete("categories_with_groups")
+        except Exception:
+            pass
 
     class Meta:
         ordering = ["name"]
@@ -279,8 +284,13 @@ class Brand(SlugRedirectModel):
         verbose_name_plural = _("Бренды")
 
 
-class Tag(models.Model):
+class Tag(SlugRedirectModel):
     name = models.CharField(max_length=50, unique=True)
+
+    redirect_url_configs = [
+        ("tag_detail", "tag_slug"),
+        ("edit_tags", "slug"),
+    ]
 
     def __str__(self):
         return self.name

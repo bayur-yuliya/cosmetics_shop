@@ -46,6 +46,9 @@ def delivery(request: HttpRequest) -> HttpResponse:
     form = ClientForm(instance=client, initial=client_data)
     form_delivery = DeliveryAddressForm(instance=last_address, initial=address_data)
 
+    if address_data.get("post_office"):
+        form_delivery.fields["post_office"].initial = address_data["post_office"]
+
     return render(
         request,
         "cosmetics_shop/delivery.html",
@@ -63,18 +66,22 @@ def create_order(request: AuthenticatedRequest) -> HttpResponse:
     logger.info(f"Create order started: user_id={request.user.id}")
     try:
         cart = get_cart(request)
-        client_data = request.session.get("client_data", {})
-        address_data = request.session.get("address_data", {})
-        order = create_order_from_cart(cart, client_data, address_data)
+        if cart:
+            client_data = request.session.get("client_data", {})
+            address_data = request.session.get("address_data", {})
+            order = create_order_from_cart(cart, client_data, address_data)
 
-        request.session["order_id"] = order.id
-        payment_method = request.session.get("payment_method", "card")
+            request.session["order_id"] = order.id
+            payment_method = request.session.get("payment_method", "card")
 
-        if payment_method == "card":
-            return redirect("pay_order", order_id=order.id)
+            if payment_method == "card":
+                return redirect("pay_order", order_id=order.id)
 
-        logger.info(f"Order created successfully: order_id={order.id}")
-        return redirect("order_success")
+            logger.info(f"Order created successfully: order_id={order.id}")
+            return redirect("order_success")
+        else:
+            messages.error(request, "Ошибка при создании заказа")
+            return redirect("delivery")
 
     except OutOfStockError as e:
         messages.warning(request, str(e))

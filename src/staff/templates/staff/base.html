@@ -23,8 +23,11 @@
             {%  if perms.cosmetics_shop.add_product  %}
                 <a href="{% url 'create_products' %}" class="btn btn-success me-2 mb-2">Создать новый товар</a>
             {%  endif  %}
+            {%  if perms.staff.hard_delete_and_recovery_products  %}
+                <a href="{% url 'archive_products' %}" class="btn btn-outline-primary me-2 mb-2">Восстановить/удалить товар</a>
+            {%  endif  %}
             {%  if perms.cosmetics_shop.view_order %}
-                <a href="{% url 'orders' %}" class="btn btn-outline-secondary me-2 mb-2">Список заказов</a>
+                <a href="{% url 'orders' %}" class="btn btn-outline-primary me-2 mb-2">Список заказов</a>
             {%  endif  %}
             {%  if perms.staff.dashboard_view  %}
                 <a href="{% url 'index' %}" class="btn btn-outline-info me-2 mb-2">Дашборд</a>

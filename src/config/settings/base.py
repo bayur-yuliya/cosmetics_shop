@@ -11,10 +11,13 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 
 from celery.schedules import crontab
 from dotenv import load_dotenv
+
+from utils.setting_utils import filter_no_traceback
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -236,6 +239,12 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "filters": {
+        "no_traceback": {
+            "()": "django.utils.log.CallbackFilter",
+            "callback": filter_no_traceback,
+        },
+    },
     "formatters": {
         "standard": {
             "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
@@ -255,6 +264,7 @@ LOGGING = {
             "maxBytes": 1024 * 1024 * 10,
             "backupCount": 5,
             "formatter": "verbose",
+            "filters": ["no_traceback"],
         },
         "errors_file": {
             "class": "logging.handlers.RotatingFileHandler",
@@ -263,6 +273,7 @@ LOGGING = {
             "backupCount": 5,
             "level": "ERROR",
             "formatter": "verbose",
+            "filters": ["no_traceback"],
         },
     },
     "loggers": {
@@ -306,3 +317,18 @@ NOVA_POSHTA_API_KEY = os.getenv("NOVA_POSHTA_API_KEY")
 # MONOBANK
 MONO_URL = "https://api.monobank.ua/api/merchant/invoice/create"
 MONO_TOKEN = os.getenv("MONO_TOKEN")
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}

@@ -57,7 +57,11 @@ def build_context(request, products, title, extra_context=None, **kwargs):
         logger.debug("Invalid filter form")
 
     cart = get_cart(request)
-    cart_products = get_id_products_in_cart(cart)
+    if cart:
+        cart_products = get_id_products_in_cart(cart)
+    else:
+        cart_products = None
+
     products = product_filter.apply_sorting()
 
     page = get_paginator_page(request, products)

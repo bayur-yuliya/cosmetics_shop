@@ -33,5 +33,5 @@ def test_get_order_items_by_client(client_obj, product):
     assert item.product == product
     assert item.quantity == 3
 
-    assert client_order_items[0]["latest_status"] == "New"
+    assert client_order_items[0]["latest_status"] == "Новый"
     assert client_order_items[0]["status_badge_class"] == "info"

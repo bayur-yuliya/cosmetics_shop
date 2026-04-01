@@ -8,6 +8,10 @@ class StaffPermission(models.Model):
             ("manage_permission", "Может управлять правами и группами"),
             ("dashboard_view", "Может просматривать статистику"),
             ("staff_add", "Может добавлять сотрудников"),
+            (
+                "hard_delete_and_recovery_products",
+                "Может окончательно удалять и восстанавливать товары",
+            ),
         ]
         verbose_name = _("разрешения сотрудников")
         verbose_name_plural = _("Разрешения сотрудников")

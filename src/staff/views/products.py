@@ -49,6 +49,30 @@ def products(request: HttpRequest) -> HttpResponse:
 
 
 @permission_required("cosmetics_shop.view_product", raise_exception=True)
+def archive_products(request: HttpRequest) -> HttpResponse:
+    logger.debug(f"Products list opened: user_id={request.user.id}")
+
+    products_list = (
+        Product.objects.all().order_by("-id").filter(is_active=False).for_catalog()
+    )
+
+    page = get_paginator_page(request, products_list)
+
+    logger.info(
+        f"Products page loaded: user_id={request.user.id}, count={page.paginator.count}"
+    )
+
+    return render(
+        request,
+        "staff/archive_page.html",
+        {
+            "title": "Товары",
+            "products": page,
+        },
+    )
+
+
+@permission_required("cosmetics_shop.view_product", raise_exception=True)
 def product_card(request: HttpRequest, product_code: int) -> HttpResponse:
     logger.debug(
         f"Product card opened: product_code={product_code}, user_id={request.user.id}"
@@ -154,4 +178,54 @@ def delete_product(request: HttpRequest, product_id: int) -> HttpResponse:
         logger.warning("Delete product called without product_id")
 
         messages.error(request, "Не удалось удалить товар")
+    return redirect("products")
+
+
+@require_POST
+@permission_required("staff.hard_delete_and_recovery_products", raise_exception=True)
+def hard_delete_products(request: HttpRequest, product_id: int) -> HttpResponse:
+    if not product_id:
+        logger.warning("Hard delete called without product_id")
+        messages.error(request, "Не удалось удалить товар")
+        return redirect("products")
+
+    product = get_object_or_404(Product, id=product_id)
+
+    logger.info(
+        f"Hard delete attempt: product_id={product_id}, user_id={request.user.id}"
+    )
+
+    if hasattr(product, "orders") and product.orders.exists():
+        logger.warning(f"Hard delete denied (has orders): product_id={product_id}")
+        messages.error(request, "Нельзя удалить товар с заказами")
+        return redirect("products")
+
+    product.delete()
+
+    logger.info(f"Product hard deleted: product_id={product_id}")
+    messages.success(request, "Товар удалён навсегда")
+
+    return redirect("products")
+
+
+@require_POST
+@permission_required("staff.hard_delete_and_recovery_products", raise_exception=True)
+def recovery_products(request: HttpRequest, product_id: int) -> HttpResponse:
+    if not product_id:
+        logger.warning("Recovery called without product_id")
+        messages.error(request, "Не удалось восстановить товар")
+        return redirect("products")
+
+    product = get_object_or_404(Product, id=product_id)
+
+    logger.info(
+        f"Product recovery attempt: product_id={product_id}, user_id={request.user.id}"
+    )
+
+    product.is_active = True
+    product.save()
+
+    logger.info(f"Product restored: product_id={product_id}")
+    messages.success(request, "Товар восстановлен")
+
     return redirect("products")
