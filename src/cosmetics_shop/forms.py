@@ -68,6 +68,7 @@ class ProductFilterForm(forms.Form):
         queryset=GroupProduct.objects.none(),
         initial=0,
         required=False,
+        to_field_name="slug",
     )
 
     brand = forms.ModelMultipleChoiceField(
@@ -76,6 +77,7 @@ class ProductFilterForm(forms.Form):
         queryset=Brand.objects.none(),
         initial=0,
         required=False,
+        to_field_name="slug",
     )
 
     tags = forms.ModelMultipleChoiceField(
@@ -84,6 +86,7 @@ class ProductFilterForm(forms.Form):
         queryset=Tag.objects.none(),
         initial=0,
         required=False,
+        to_field_name="slug",
     )
 
     min_price = forms.DecimalField(

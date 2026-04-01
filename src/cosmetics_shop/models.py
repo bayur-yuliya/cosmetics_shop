@@ -284,8 +284,13 @@ class Brand(SlugRedirectModel):
         verbose_name_plural = _("Бренды")
 
 
-class Tag(models.Model):
+class Tag(SlugRedirectModel):
     name = models.CharField(max_length=50, unique=True)
+
+    redirect_url_configs = [
+        ("tag_detail", "tag_slug"),
+        ("edit_tags", "slug"),
+    ]
 
     def __str__(self):
         return self.name

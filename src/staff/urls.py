@@ -85,8 +85,10 @@ urlpatterns = [
     # tags
     path("tags/", catalog.TagListView.as_view(), name="tags_list"),
     path("tags/create/", catalog.TagCreateView.as_view(), name="create_tags"),
-    path("tags/<int:pk>/edit/", catalog.TagChangeView.as_view(), name="edit_tags"),
-    path("tags/<int:pk>/delete/", catalog.TagDeleteView.as_view(), name="delete_tags"),
+    path("tags/<slug:slug>/edit/", catalog.TagChangeView.as_view(), name="edit_tags"),
+    path(
+        "tags/<slug:slug>/delete/", catalog.TagDeleteView.as_view(), name="delete_tags"
+    ),
     # ajax chart
     path(
         "ajax/charts/sales/",
