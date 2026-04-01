@@ -19,7 +19,9 @@
                 <tr>
                     <td>{{  staff  }}</td>
                     <td>
-                        {%  if staff.groups.all  %}
+                        {%  if staff.is_superuser  %}
+                            Суперпользователь
+                        {%  elif staff.groups.all  %}
                             {%  for group in staff.groups.all  %}
                                 {{  group  }}{%  if not forloop.last  %}, {%  endif  %}<br>
                             {%  endfor  %}
@@ -28,7 +30,9 @@
                         {% endif %}
                         </td>
                         <td>
-                            {% if staff.user_permissions.all %}
+                        {%  if staff.is_superuser  %}
+                            Суперпользователь
+                        {%  elif staff.user_permissions.all %}
                             <div class="mt-1">
                                 {% for perm in staff.user_permissions.all|slice:":3" %}
                                     <span>{{ perm.name }}</span><br>

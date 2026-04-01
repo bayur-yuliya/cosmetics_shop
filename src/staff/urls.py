@@ -18,6 +18,21 @@ urlpatterns = [
         products.delete_product,
         name="delete_product",
     ),
+    path(
+        "products/<int:product_id>/hard_delete/",
+        products.hard_delete_products,
+        name="hard_delete_products",
+    ),
+    path(
+        "products/<int:product_id>/recovery/",
+        products.recovery_products,
+        name="recovery_products",
+    ),
+    path(
+        "products/archive/",
+        products.archive_products,
+        name="archive_products",
+    ),
     # staff permissions
     path(
         "staff_groups/<int:pk>/edit/",
