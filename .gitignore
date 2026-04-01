@@ -177,8 +177,9 @@ cython_debug/
 .idea/
 
 src/db.sqlite3
-src/cosmetics_shop/management/commands/create_info.py
 media/
 staticfiles/
 
 src/gunicorn.ctl
+
+data/products_data.json

@@ -8,7 +8,7 @@ from cosmetics_shop.models import Client
 
 
 class Command(BaseCommand):
-    help = "Автоматическая анонимизация клиентов по расписанию"
+    help = "Automatic anonymization of clients on a schedule"
 
     def handle(self, *args, **options):
         now = timezone.now()
