@@ -40,7 +40,7 @@ def get_individually_assigned_permits() -> QuerySet[Permission]:
     return permissions
 
 
-def get_permissions_by_app():
+def get_permissions_by_app() -> dict[str, Any]:
     logger.debug("Grouping permissions by app")
 
     cache_key = "permissions_by_app"

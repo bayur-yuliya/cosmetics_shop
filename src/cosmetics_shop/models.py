@@ -75,6 +75,8 @@ class SlugRedirectModel(models.Model):
     3. Creating a redirect when the slug changes
     """
 
+    objects: models.Manager
+
     slug = models.SlugField(max_length=200, unique=True, blank=True)
 
     redirect_url_configs: list[tuple[str, str]] = []

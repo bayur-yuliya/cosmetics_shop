@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.core.management import BaseCommand
 from django.utils import timezone
 
@@ -15,9 +17,9 @@ class Command(BaseCommand):
             is_pending_deletion=True, deletion_scheduled_date__lte=now
         )
 
-        three_years_ago = now - timezone.timedelta(days=365 * 3)
+        three_years_ago = now - timedelta(days=365 * 3)
         old_guests = Client.objects.filter(user__isnull=True, is_active=True).exclude(
-            order__created_at__gte=three_years_ago
+            orders__created_at__gte=three_years_ago
         )
 
         targets = pending_clients | old_guests

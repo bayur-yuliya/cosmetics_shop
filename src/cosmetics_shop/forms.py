@@ -1,3 +1,5 @@
+from typing import cast
+
 from django import forms
 
 from accounts.utils.validators import validate_phone_number
@@ -108,21 +110,32 @@ class ProductFilterForm(forms.Form):
 
         if products_qs is not None:
             if "group" in self.fields:
-                self.fields["group"].queryset = GroupProduct.objects.filter(
+                group_field = cast(forms.ModelMultipleChoiceField, self.fields["group"])
+
+                group_field.queryset = GroupProduct.objects.filter(
                     products__in=products_qs
                 ).distinct()
 
             if "brand" in self.fields:
-                self.fields["brand"].queryset = Brand.objects.filter(
+                brand_field = cast(forms.ModelMultipleChoiceField, self.fields["brand"])
+
+                brand_field.queryset = Brand.objects.filter(
                     products__in=products_qs
                 ).distinct()
 
             if "tags" in self.fields:
-                self.fields["tags"].queryset = Tag.objects.filter(
+                tags_field = cast(forms.ModelMultipleChoiceField, self.fields["tags"])
+
+                tags_field.queryset = Tag.objects.filter(
                     products__in=products_qs
                 ).distinct()
 
         else:
-            self.fields["group"].queryset = GroupProduct.objects.all()
-            self.fields["brand"].queryset = Brand.objects.all()
-            self.fields["tags"].queryset = Tag.objects.all()
+            group_field = cast(forms.ModelMultipleChoiceField, self.fields["group"])
+            group_field.queryset = GroupProduct.objects.all()
+
+            brand_field = cast(forms.ModelMultipleChoiceField, self.fields["brand"])
+            brand_field.queryset = Brand.objects.all()
+
+            tags_field = cast(forms.ModelMultipleChoiceField, self.fields["tags"])
+            tags_field.queryset = Tag.objects.all()

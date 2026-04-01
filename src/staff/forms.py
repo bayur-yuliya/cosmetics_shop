@@ -99,13 +99,19 @@ class ProductForm(forms.ModelForm):
                 self.fields.pop("stock", None)
 
     def clean_price(self):
-        price = self.cleaned_data.get("price")
-        if isinstance(price, str):
-            price = price.replace(" ", "").replace(",", ".")
+        price_value = self.cleaned_data.get("price")
+
+        if price_value is None:
+            return Decimal("0.00")
+
+        price_str = str(price_value).replace(",", ".")
+
         try:
-            return Decimal(price)
+            price = Decimal(price_str)
         except (InvalidOperation, ValueError):
-            raise ValidationError("Некорректная цена")
+            raise ValidationError("Введите корректное число.")
+
+        return price
 
 
 class OrderFilterForm(forms.Form):
