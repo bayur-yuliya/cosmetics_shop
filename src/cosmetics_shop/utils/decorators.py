@@ -15,18 +15,16 @@ def cart_required(view_func):
     @wraps(view_func)
     def wrapped_view(request, *args, **kwargs):
         cart = get_cart(request)
-        if cart is not None:
-            cart_items = cart.cart_items.all().exists()
 
-            if not cart or not cart_items:
-                logger.warning(
-                    f"Empty cart access: user_id={getattr(request.user, 'id', None)}"
-                )
-                messages.error(
-                    request,
-                    "Ваша корзина пуста. Добавьте товары для оформления заказа.",
-                )
-                return redirect("cart")
+        if not cart or not cart.cart_items.exists():
+            logger.warning(
+                f"Empty cart access: user_id={getattr(request.user, 'id', None)}"
+            )
+            messages.error(
+                request,
+                "Ваша корзина пуста. Добавьте товары для оформления заказа.",
+            )
+            return redirect("cart")
 
         return view_func(request, *args, **kwargs)
 

@@ -190,6 +190,7 @@ class Client(models.Model):
             self.email = self.user.email
         elif self.user and self.is_active:
             self.user.email = self.email
+            self.user.save()
         super().save(*args, **kwargs)
 
     class Meta:
