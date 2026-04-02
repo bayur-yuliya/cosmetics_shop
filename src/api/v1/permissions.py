@@ -15,13 +15,12 @@ class ProductPermission(BasePermission):
         return False
 
 
-class IsOwnerOrReadOnly(BasePermission):
-    """
-    Custom permission to only allow owners of an object to edit it.
-    """
-
+class IsAdminOrOwnerReadOnly(BasePermission):
     def has_object_permission(self, request, view, obj):
-        if request.method in SAFE_METHODS:
+        if request.user.is_staff:
             return True
 
-        return obj.user == request.user
+        if request.method in SAFE_METHODS:
+            return obj.client and obj.client.user == request.user
+
+        return False
