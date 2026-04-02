@@ -125,27 +125,30 @@ class Command(BaseCommand):
         # -------- PRODUCTS --------
         file_path = os.getenv("PRODUCTS_FILE")
 
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(
-                "products_data.json not found. Copy products_data_example.json"
-            )
-
-        with open(file_path, encoding="utf-8") as f:
-            products_list = json.load(f)
-            for p_data in products_list:
-                product, created = Product.objects.get_or_create(
-                    name=p_data["name"],
-                    defaults={
-                        "group": groups[p_data["group"]],
-                        "brand": brands[p_data["brand"]],
-                        "price": Decimal(p_data["price"]),
-                        "stock": p_data["stock"],
-                        "description": p_data["desc"],
-                    },
+        if file_path:
+            if not os.path.exists(file_path):
+                raise FileNotFoundError(
+                    "products_data.json not found. Copy products_data_example.json"
                 )
 
-                if created:
-                    product.tags.set([tags[t] for t in p_data["tags"]])
+            with open(file_path, encoding="utf-8") as f:
+                products_list = json.load(f)
+                for p_data in products_list:
+                    product, created = Product.objects.get_or_create(
+                        name=p_data["name"],
+                        defaults={
+                            "group": groups[p_data["group"]],
+                            "brand": brands[p_data["brand"]],
+                            "price": Decimal(p_data["price"]),
+                            "stock": p_data["stock"],
+                            "description": p_data["desc"],
+                        },
+                    )
+
+                    if created:
+                        product.tags.set([tags[t] for t in p_data["tags"]])
+        else:
+            self.style.ERROR("PRODUCTS_FILE not found.")
 
         self.stdout.write(
             self.style.SUCCESS(

@@ -36,6 +36,7 @@ urlpatterns = [
     path("order/success/", orders.order_success, name="order_success"),
     path("order/", orders.create_order, name="order"),
     path("delivery/", orders.delivery, name="delivery"),
+    # payment
     path("pay_order/<int:order_id>/", orders.pay_order, name="pay_order"),
     path("api/payment/webhook/", orders.mono_webhook, name="mono_webhook"),
     # static_pages

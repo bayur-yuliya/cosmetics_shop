@@ -47,14 +47,12 @@ class ProductListSerializer(serializers.ModelSerializer):
         ]
 
 
-class ProductDetailSerializer(serializers.ModelSerializer):
-    brand = BrandSerializer()
-    group = GroupSerializer()
-    tags = TagSerializer(many=True)
+class ProductDetailSerializer(ProductListSerializer):
+    group = GroupSerializer(read_only=True)
+    tags = TagSerializer(many=True, read_only=True)
 
-    class Meta:
-        model = Product
-        fields = "__all__"
+    class Meta(ProductListSerializer.Meta):
+        fields = ProductListSerializer.Meta.fields + ["description", "group", "tags"]
 
 
 class ProductWriteSerializer(serializers.ModelSerializer):

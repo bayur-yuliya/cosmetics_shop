@@ -7,9 +7,21 @@ class ProductPermission(BasePermission):
             return True
 
         if request.method in ["POST", "PUT", "PATCH"]:
-            return request.user.has_perm("products.change_product")
+            return request.user.has_perm("cosmetics_shop.change_product")
 
         if request.method == "DELETE":
-            return request.user.has_perm("products.delete_product")
+            return request.user.has_perm("cosmetics_shop.delete_product")
 
         return False
+
+
+class IsOwnerOrReadOnly(BasePermission):
+    """
+    Custom permission to only allow owners of an object to edit it.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in SAFE_METHODS:
+            return True
+
+        return obj.owner == request.user
