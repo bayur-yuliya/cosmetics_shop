@@ -1,4 +1,5 @@
 from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
@@ -14,6 +15,8 @@ from cosmetics_shop.utils.cart_utils import get_cart, get_or_create_cart
 
 
 class CartViewSet(ViewSet):
+    permission_classes = [AllowAny]
+
     def list(self, request):
         cart = get_cart(request)
 

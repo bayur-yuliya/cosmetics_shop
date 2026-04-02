@@ -65,16 +65,16 @@ def remove_product_from_cart(cart: Cart, product_code: int) -> None:
             )
 
 
-def delete_product_from_cart(cart: Cart, product_id: int) -> None:
-    logger.debug(f"Delete product: cart_id={cart.id}, product_id={product_id}")
+def delete_product_from_cart(cart: Cart, product_code: int) -> None:
+    logger.debug(f"Delete product: cart_id={cart.id}, product_code={product_code}")
 
-    product = get_object_or_404(Product, pk=product_id)
+    product = get_object_or_404(Product, pk=product_code)
 
     deleted, _ = CartItem.objects.filter(cart=cart, product=product).delete()
 
     logger.info(
         f"Product removed from cart: cart_id={cart.id},"
-        f" product_id={product_id},"
+        f" product_code={product_code},"
         f" deleted={deleted}"
     )
 

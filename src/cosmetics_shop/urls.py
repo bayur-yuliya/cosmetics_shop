@@ -29,7 +29,7 @@ urlpatterns = [
     path("brands/<slug:brand_slug>/", catalog.brand_products, name="brand_detail"),
     path("brands/", catalog.brand_page, name="brand_page"),
     # cart
-    path("cart/<int:product_id>/delete/", cart.cart_delete, name="cart_delete"),
+    path("cart/<int:product_code>/delete/", cart.cart_delete, name="cart_delete"),
     path("cart/clean/", cart.clean_cart, name="clean_cart"),
     path("cart/", cart.cart, name="cart"),
     # order
