@@ -59,16 +59,16 @@ class CartViewSet(ViewSet):
 
     @action(detail=False, methods=["post"])
     def delete(self, request):
-        product_id = request.data.get("product_id")
+        product_code = request.data.get("product_code")
 
-        if not product_id:
-            return Response({"error": "product_id required"}, status=400)
+        if not product_code:
+            return Response({"error": "product_code required"}, status=400)
 
         cart = get_cart(request)
         if not cart:
             return Response({"error": "cart not found"}, status=404)
 
-        delete_product_from_cart(cart, int(product_id))
+        delete_product_from_cart(cart, int(product_code))
 
         return Response({"status": "deleted"})
 
