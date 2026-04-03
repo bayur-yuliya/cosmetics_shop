@@ -1,19 +1,45 @@
-from rest_framework.generics import ListAPIView
+from rest_framework import generics, mixins, viewsets
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 
-from api.v1.serializers.orders import OrderSerializer
-from cosmetics_shop.models import Order
+from cosmetics_shop.models import Client, Favorite, Order
+
+from ..serializers.orders import OrderSerializer
+from ..serializers.profile import FavoriteSerializer
 
 
-class UserOrdersAPIView(ListAPIView):
+class FavoriteViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
+    serializer_class = FavoriteSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = "product_id"
+
+    def get_queryset(self):
+        queryset = Favorite.objects.filter(user=self.request.user)
+        if self.action == "list":
+            return queryset.select_related("product")
+        return queryset
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class OrderHistoryListAPIView(generics.ListAPIView):
+    serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        client = request.user.client
+    def get_queryset(self):
+        client = Client.objects.filter(user=self.request.user).first()
+        if not client:
+            return Order.objects.none()
 
-        orders = Order.objects.filter(client=client).prefetch_related("order_items")
-
-        serializer = OrderSerializer(orders, many=True)
-
-        return Response(serializer.data)
+        # prefetch_related('order_items') is needed because the OrderSerializer
+        # has a nested OrderItemSerializer
+        return (
+            Order.objects.filter(client=client)
+            .prefetch_related("order_items")
+            .order_by("-created_at")
+        )

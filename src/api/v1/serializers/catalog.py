@@ -29,6 +29,15 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "slug", "category"]
 
 
+class ProductShortListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = [
+            "id",
+            "name",
+        ]
+
+
 class ProductListSerializer(serializers.ModelSerializer):
     brand = BrandSerializer()
     group = GroupSerializer()

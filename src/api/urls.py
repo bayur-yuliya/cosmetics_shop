@@ -2,38 +2,32 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from api.v1.views.cart import CartViewSet
-from api.v1.views.catalog import (
-    BrandViewSet,
-    CategoryViewSet,
-    GroupProductViewSet,
-    ProductViewSet,
-)
-from api.v1.views.orders import OrderViewSet
+from api.v1.views import cart, catalog, orders, profile
 from cosmetics_shop.views.orders import mono_webhook
 
 router = DefaultRouter()
 # catalog
-router.register(r"catalog/products", ProductViewSet, basename="products")
-(router.register(r"catalog/brands", BrandViewSet, basename="brands"),)
-(router.register(r"catalog/categories", CategoryViewSet, basename="categories"),)
-(router.register(r"catalog/group", GroupProductViewSet, basename="groups"),)
+router.register(r"catalog/products", catalog.ProductViewSet, basename="products")
+(router.register(r"catalog/brands", catalog.BrandViewSet, basename="brands"),)
+(
+    router.register(
+        r"catalog/categories", catalog.CategoryViewSet, basename="categories"
+    ),
+)
+(router.register(r"catalog/group", catalog.GroupProductViewSet, basename="groups"),)
 # order
-router.register(r"orders", OrderViewSet, basename="orders")
+router.register(r"orders", orders.OrderViewSet, basename="orders")
 # cart
-router.register(r"cart", CartViewSet, basename="cart")
-
-
-# router.register(r"profile/orders", ProfileOrderViewSet, basename="profile-order")
-# router.register(r"profile/favorites", ProfileFavoriteViewSet,
-#                 basename="profile-favorite")
-
+router.register(r"cart", cart.CartViewSet, basename="cart")
+# profile
+router.register(r"favorites", profile.FavoriteViewSet, basename="favorite")
 
 urlpatterns = [
     path("", include(router.urls)),
     # JWT
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    # path("orders/create/", CreateOrderAPIView.as_view()),
+    # payments
     path("payments/webhook/", mono_webhook),
+    path("profile/orders/history/", profile.OrderHistoryListAPIView.as_view()),
 ]
