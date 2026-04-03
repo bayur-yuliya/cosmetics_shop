@@ -306,6 +306,7 @@ NOVA_POSHTA_API_URL = "https://api.novaposhta.ua/v2.0/json/"
 NOVA_POSHTA_API_KEY = os.getenv("NOVA_POSHTA_API_KEY")
 
 # MONOBANK
+MONO_URL_STATUS = "https://api.monobank.ua/api/merchant/invoice/status"
 MONO_URL = "https://api.monobank.ua/api/merchant/invoice/create"
 MONO_TOKEN = os.getenv("MONO_TOKEN")
 

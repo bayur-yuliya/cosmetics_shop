@@ -30,13 +30,18 @@ def update_order_from_cart(order, cart, client_data, address_data):
         restore_stock_product(item.product.code, item.quantity)
     old_items.delete()
 
-    address = f"{address_data['city']}, " f"{address_data['post_office']}"
+    address = (
+        f"{address_data.get('city', order.snapshot_address)}, "
+        f"{address_data.get('post_office', '')}"
+    )
 
     order.snapshot_name = (
-        f"{client_data.get('first_name', '')} " f"{client_data.get('last_name', '')}"
-    ).strip()
-    order.snapshot_phone = client_data.get("phone")
-    order.snapshot_email = client_data.get("email")
+        f"{client_data.get('first_name', order.snapshot_name)}",
+        f"{client_data.get('last_name', '')}",
+    )
+
+    order.snapshot_phone = client_data.get("phone", order.snapshot_phone)
+    order.snapshot_email = client_data.get("email", order.snapshot_email)
     order.snapshot_address = address
     order.cart = cart
 

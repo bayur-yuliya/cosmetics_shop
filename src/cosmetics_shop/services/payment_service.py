@@ -53,7 +53,7 @@ def init_payment(order: Order, request):
 
 
 def check_mono_payment_status(invoice_id: str) -> str | None:
-    url = "https://api.monobank.ua/api/merchant/invoice/status"
+    url = settings.MONO_URL_STATUS
     headers = {
         "X-Token": settings.MONO_TOKEN,
     }
@@ -69,3 +69,20 @@ def check_mono_payment_status(invoice_id: str) -> str | None:
     except requests.exceptions.RequestException as e:
         logger.error(f"Error checking Monobank status for {invoice_id}: {e}")
         return None
+
+
+def sync_pending_payments():
+    payments = Payment.objects.filter(status=Payment.PaymentStatus.PENDING)
+
+    for payment in payments:
+        status = check_mono_payment_status(payment.external_id)
+
+        if status == "success":
+            payment.status = Payment.PaymentStatus.SUCCESS
+            payment.save()
+            payment.order.mark_as_paid()
+
+        elif status in ["failure", "expired", "canceled", "reversed"]:
+            payment.status = Payment.PaymentStatus.FAILED
+            payment.save()
+            payment.order.mark_as_failed_payment()
