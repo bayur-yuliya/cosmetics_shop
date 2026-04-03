@@ -1,5 +1,6 @@
 import logging
 
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -7,7 +8,8 @@ from rest_framework.viewsets import ModelViewSet
 
 from api.v1.permissions import IsAdminOrOwnerReadOnly
 from api.v1.serializers.orders import OrderCreateSerializer, OrderSerializer
-from cosmetics_shop.models import CartItem, Order, Payment, Status
+from cosmetics_shop.models import Order, Payment, Status
+from cosmetics_shop.services.cart_services import clear_cart_after_order
 from cosmetics_shop.services.order_service import create_order_from_cart
 from cosmetics_shop.services.payment_service import init_payment
 from cosmetics_shop.utils.cart_utils import get_cart
@@ -24,7 +26,7 @@ class OrderViewSet(ModelViewSet):
         user = self.request.user
         if user.is_staff:
             return self.queryset
-        return self.queryset.filter(client__user=user)
+        return self.queryset.filter(client__user=user.id)
 
     def get_serializer_class(self):
         if self.action == "create":
@@ -41,13 +43,14 @@ class OrderViewSet(ModelViewSet):
         serializer.is_valid(raise_exception=True)
 
         cart = get_cart(request)
+
         if not cart:
             return Response(
                 {"detail": "Корзина не найдена"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        if not CartItem.objects.filter(cart=cart).exists():
+        if not cart.cart_items.exists():
             return Response(
                 {"detail": "Корзина пуста"},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -71,34 +74,20 @@ class OrderViewSet(ModelViewSet):
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         payment_method = serializer.validated_data["payment_method"]
+
         response_data = {
             "order_id": order.id,
+            "status": order.get_status_display(),
+            "payment_method": payment_method,
+            "total_price": order.total_price,
             "message": "Заказ успешно создан",
         }
 
         if payment_method == "card":
-            try:
-                payment_url = init_payment(order, request)
-                response_data["payment_url"] = payment_url
-            except Exception as e:
-                logger.error(f"MonoBank Init Error for order {order.id}: {e}")
-
-                order.set_status(
-                    Status.PAYMENT_FAILED,
-                    comment=f"Техническая ошибка при создании счета: {str(e)}",
-                )
-
-                Payment.objects.create(
-                    order=order,
-                    method=Payment.PaymentMethod.CARD,
-                    amount=order.total_price,
-                    status=Payment.PaymentStatus.FAILED,
-                )
-                response_data["message"] = (
-                    "Заказ принят, но мы не смогли сформировать ссылку на оплату. "
-                    "Наш менеджер свяжется с вами в ближайшее время."
-                )
-                response_data["order_status"] = "payment_failed"
+            response_data.update(self._handle_card_payment(order, request))
+        else:
+            clear_cart_after_order(cart)
+            response_data["message"] = "Заказ принят (оплата при получении)"
 
         return Response(response_data, status=status.HTTP_201_CREATED)
 
@@ -115,3 +104,43 @@ class OrderViewSet(ModelViewSet):
                 {"detail": "Действие запрещено"}, status=status.HTTP_403_FORBIDDEN
             )
         return super().partial_update(request, *args, **kwargs)
+
+    def _handle_card_payment(self, order, request):
+        fallback_url = request.build_absolute_uri(
+            reverse("orders-detail", kwargs={"pk": order.id})
+        )
+
+        redirect_url = request.headers.get(
+            "X-Frontend-Redirect-Url",
+            fallback_url,
+        )
+
+        try:
+            payment_url = init_payment(
+                order,
+                request,
+                custom_redirect_url=redirect_url,
+            )
+
+            return {"payment_url": payment_url}
+
+        except Exception as e:
+            logger.error(f"MonoBank Init Error for order {order.id}: {e}")
+
+            order.set_status(
+                Status.PAYMENT_FAILED,
+                comment=f"Ошибка оплаты: {str(e)}",
+            )
+
+            Payment.objects.create(
+                order=order,
+                method=Payment.PaymentMethod.CARD,
+                amount=order.total_price,
+                status=Payment.PaymentStatus.FAILED,
+            )
+
+            return {
+                "payment_url": None,
+                "payment_status": "failed",
+                "message": "Ошибка создания ссылки на оплату",
+            }

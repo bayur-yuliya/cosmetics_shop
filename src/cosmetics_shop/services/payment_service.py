@@ -33,8 +33,12 @@ def create_mono_invoice(order: Order, redirect_url: str, webhook_url: str):
     return response.json()
 
 
-def init_payment(order: Order, request):
-    redirect_url = request.build_absolute_uri(reverse("order_result"))
+def init_payment(order: Order, request, custom_redirect_url: str = None):
+    if custom_redirect_url:
+        redirect_url = custom_redirect_url
+    else:
+        redirect_url = request.build_absolute_uri(reverse("order_result"))
+
     webhook_url = request.build_absolute_uri(reverse("mono_webhook"))
 
     invoice = create_mono_invoice(order, redirect_url, webhook_url)
