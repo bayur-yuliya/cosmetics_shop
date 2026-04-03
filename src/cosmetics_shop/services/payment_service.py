@@ -1,3 +1,4 @@
+import logging
 from decimal import Decimal
 
 import requests
@@ -5,6 +6,8 @@ from django.conf import settings
 from django.urls import reverse
 
 from cosmetics_shop.models import Order, Payment
+
+logger = logging.getLogger(__name__)
 
 
 def create_mono_invoice(order: Order, redirect_url: str, webhook_url: str):
@@ -31,7 +34,7 @@ def create_mono_invoice(order: Order, redirect_url: str, webhook_url: str):
 
 
 def init_payment(order: Order, request):
-    redirect_url = request.build_absolute_uri(reverse("order_success"))
+    redirect_url = request.build_absolute_uri(reverse("order_result"))
     webhook_url = request.build_absolute_uri(reverse("mono_webhook"))
 
     invoice = create_mono_invoice(order, redirect_url, webhook_url)
@@ -47,3 +50,22 @@ def init_payment(order: Order, request):
     )
 
     return invoice.get("pageUrl")
+
+
+def check_mono_payment_status(invoice_id: str) -> str | None:
+    url = "https://api.monobank.ua/api/merchant/invoice/status"
+    headers = {
+        "X-Token": settings.MONO_TOKEN,
+    }
+    params = {"invoiceId": invoice_id}
+
+    try:
+        response = requests.get(url, headers=headers, params=params, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        return data.get("status")
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error checking Monobank status for {invoice_id}: {e}")
+        return None

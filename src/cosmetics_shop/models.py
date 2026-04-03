@@ -203,7 +203,6 @@ class DeliveryAddress(models.Model):
         Client, on_delete=models.CASCADE, related_name="addresses"
     )
     city = models.CharField(max_length=100)
-    street = models.CharField(max_length=100)
     post_office = models.CharField(max_length=100)
     is_primary = models.BooleanField(default=True)
 
@@ -391,6 +390,9 @@ class Order(TimestampedModel):
     client = models.ForeignKey(
         Client, on_delete=models.SET_NULL, null=True, related_name="orders"
     )
+    cart = models.ForeignKey(
+        "Cart", on_delete=models.SET_NULL, null=True, blank=True, related_name="orders"
+    )
     code = models.UUIDField(default=uuid.uuid4, editable=False)
     status = models.IntegerField(
         choices=Status.choices, default=Status.NEW, db_index=True
@@ -474,6 +476,11 @@ class Order(TimestampedModel):
 
     def mark_as_paid(self):
         self.set_status(Status.PAYMENT_RECEIVED)
+        self.save()
+
+    def mark_as_failed_payment(self):
+        self.set_status(Status.PAYMENT_FAILED)
+        self.save()
 
     class Meta:
         ordering = ["-id"]

@@ -33,7 +33,7 @@ urlpatterns = [
     path("cart/clean/", cart.clean_cart, name="clean_cart"),
     path("cart/", cart.cart, name="cart"),
     # order
-    path("order/success/", orders.order_success, name="order_success"),
+    path("order/result/", orders.order_result, name="order_result"),
     path("order/", orders.create_order, name="order"),
     path("delivery/", orders.delivery, name="delivery"),
     # payment

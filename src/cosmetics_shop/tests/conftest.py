@@ -36,7 +36,6 @@ def address(client_obj):
     return DeliveryAddress.objects.create(
         client=client_obj,
         city="Test City",
-        street="Test Street",
         post_office="1",
         is_primary=True,
     )

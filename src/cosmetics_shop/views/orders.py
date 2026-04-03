@@ -2,15 +2,23 @@ import json
 import logging
 
 from django.contrib import messages
+from django.db import transaction
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt
 
 from cosmetics_shop.forms import ClientForm, DeliveryAddressForm, PaymentForm
-from cosmetics_shop.models import DeliveryAddress, Order, OrderItem, Payment
-from cosmetics_shop.services.order_service import create_order_from_cart
-from cosmetics_shop.services.payment_service import init_payment
+from cosmetics_shop.models import DeliveryAddress, Order, OrderItem, Payment, Status
+from cosmetics_shop.services.cart_services import clear_cart_after_order
+from cosmetics_shop.services.order_service import (
+    create_order_from_cart,
+    update_order_from_cart,
+)
+from cosmetics_shop.services.payment_service import (
+    check_mono_payment_status,
+    init_payment,
+)
 from cosmetics_shop.utils.cart_utils import get_cart
 from cosmetics_shop.utils.client_utils import get_client, process_delivery_data
 from cosmetics_shop.utils.decorators import cart_required, order_session_required
@@ -63,31 +71,43 @@ def delivery(request: HttpRequest) -> HttpResponse:
 
 @cart_required
 def create_order(request: AuthenticatedRequest) -> HttpResponse:
-    logger.info(f"Create order started: user_id={request.user.id}")
     try:
         cart = get_cart(request)
-        if cart:
-            client_data = request.session.get("client_data", {})
-            address_data = request.session.get("address_data", {})
-            order = create_order_from_cart(cart, client_data, address_data)
+        client_data = request.session.get("client_data", {})
+        address_data = request.session.get("address_data", {})
 
-            request.session["order_id"] = order.id
-            payment_method = request.session.get("payment_method", "card")
+        order_id = request.session.get("order_id")
 
-            if payment_method == "card":
-                return redirect("pay_order", order_id=order.id)
+        existing_order = None
+        if order_id:
+            existing_order = Order.objects.filter(
+                id=order_id, status=Status.NEW
+            ).first()
 
-            logger.info(f"Order created successfully: order_id={order.id}")
-            return redirect("order_success")
+        if existing_order:
+            order = update_order_from_cart(
+                existing_order, cart, client_data, address_data
+            )
         else:
-            messages.error(request, "Ошибка при создании заказа")
-            return redirect("delivery")
+            order = create_order_from_cart(cart, client_data, address_data)
+            request.session["order_id"] = order.id
+
+        payment_method = request.session.get("payment_method", "card")
+
+        if payment_method == "card":
+            return redirect("pay_order", order_id=order.id)
+
+        clear_cart_after_order(cart)
+        if "order_id" in request.session:
+            del request.session["order_id"]
+        return redirect("order_result")
 
     except OutOfStockError as e:
         messages.warning(request, str(e))
         return redirect("cart")
-    except ValueError:
-        messages.error(request, "Ошибка при создании заказа")
+    except Exception as e:
+        logger.error(f"Order processing error: {e}")
+        messages.error(request, "Ошибка при оформлении заказа")
         return redirect("delivery")
 
 
@@ -110,17 +130,27 @@ def mono_webhook(request):
             invoice_id = data.get("invoiceId")
             status = data.get("status")
 
-            if invoice_id and status:
-                payment = Payment.objects.filter(external_id=invoice_id).first()
-                if payment:
-                    if status == "success":
-                        payment.status = Payment.PaymentStatus.SUCCESS
-                        payment.save()
-                        payment.order.mark_as_paid()
+            with transaction.atomic():
+                if invoice_id and status:
+                    payment = Payment.objects.filter(external_id=invoice_id).first()
+                    if payment:
+                        if status == "success":
+                            payment.status = Payment.PaymentStatus.SUCCESS
+                            payment.save()
+                            payment.order.mark_as_paid()
+                            if payment.order.cart:
+                                clear_cart_after_order(payment.order.cart)
 
-                    elif status in ["failure", "expired", "rejected"]:
-                        payment.status = Payment.PaymentStatus.FAILED
-                        payment.save()
+                        elif status in [
+                            "failure",
+                            "expired",
+                            "rejected",
+                            "canceled",
+                            "reversed",
+                        ]:
+                            payment.status = Payment.PaymentStatus.FAILED
+                            payment.save()
+                            payment.order.mark_as_failed_payment()
             return HttpResponse(status=200)
         except Exception as e:
             logger.error(f"Mono Webhook error: {e}")
@@ -130,29 +160,63 @@ def mono_webhook(request):
 
 
 @order_session_required
-def order_success(request: HttpRequest) -> HttpResponse:
+def order_result(request: HttpRequest) -> HttpResponse:
     order_id: int | None = request.session.get("order_id")
-
-    if order_id:
-        logger.info(f"Order success page: order_id={order_id}")
-
-        order: Order = get_object_or_404(Order, pk=order_id)
-        products: QuerySet[OrderItem] = OrderItem.objects.filter(
-            order=order
-        ).select_related("product")
-        del request.session["order_id"]
-    else:
+    if not order_id:
         logger.error("Order success page without order_id in session")
-        messages.error(request, "Возникла проблема с сохранением заказа")
+        messages.error(request, "Заказ не найден")
         return redirect("main_page")
+
+    order: Order = get_object_or_404(Order, pk=order_id)
+    products: QuerySet[OrderItem] = OrderItem.objects.filter(
+        order=order
+    ).select_related("product")
+
+    last_payment = order.payments.order_by("-created_at").first()
+
+    if last_payment and last_payment.status == Payment.PaymentStatus.PENDING:
+        actual_status = check_mono_payment_status(last_payment.external_id)
+
+        with transaction.atomic():
+            if actual_status == "success":
+                last_payment.status = Payment.PaymentStatus.SUCCESS
+                last_payment.save()
+                order.mark_as_paid()
+                if order.cart:
+                    clear_cart_after_order(order.cart)
+            elif actual_status in ["failure", "expired", "canceled", "reversed"]:
+                last_payment.status = Payment.PaymentStatus.FAILED
+                last_payment.save()
+                order.mark_as_failed_payment()
+
+    status_context = {
+        "is_paid": order.is_paid(),
+        "is_failed": (
+            last_payment.status == Payment.PaymentStatus.FAILED
+            if last_payment
+            else False
+        ),
+        "is_pending": (
+            last_payment.status == Payment.PaymentStatus.PENDING
+            if last_payment
+            else True
+        ),
+        "payment_method": last_payment.method if last_payment else None,
+    }
+
+    if order.is_paid() or (
+        last_payment and last_payment.method == Payment.PaymentMethod.CASH
+    ):
+        if "order_id" in request.session:
+            del request.session["order_id"]
 
     return render(
         request,
-        "cosmetics_shop/order_success.html",
+        "cosmetics_shop/order_result.html",
         {
-            "title": "Заказ",
+            "title": "Статус заказа",
             "order": order,
             "products": products,
-            "status": "Заказ успешно обработан",
+            **status_context,
         },
     )
