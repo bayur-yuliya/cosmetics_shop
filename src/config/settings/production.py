@@ -1,3 +1,5 @@
+import dj_database_url
+
 from .base import *
 
 DEBUG = False
@@ -15,6 +17,31 @@ DATABASES = {
     }
 }
 
+db_from_env = dj_database_url.config(conn_max_age=600)
+DATABASES["default"].update(db_from_env)
+
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        "OPTIONS": {
+            "access_key": os.getenv("R2_ACCESS_KEY_ID"),
+            "secret_key": os.getenv("R2_SECRET_ACCESS_KEY"),
+            "bucket_name": os.getenv("R2_BUCKET_NAME"),
+            "endpoint_url": os.getenv("R2_ENDPOINT_URL"),
+            "region_name": "auto",
+            "file_overwrite": False,
+        },
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
+MEDIA_URL = os.getenv("MEDIA_URL")
+DEFAULT_FILE_STORAGE = BASE_DIR / "utils.storage_backends.MediaStorage"
+
+STATIC_ROOT = BASE_DIR.parent / "staticfiles"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Secure
 # SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
