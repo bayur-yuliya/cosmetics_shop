@@ -11,7 +11,6 @@ def test_process_delivery_data_anonymous_success(rf):
         "last_name": "Test last name",
         "email": "test_email@example.com",
         "phone": "0970000000",
-        "street": "Test Street",
         "city": "Test City",
         "post_office": "Test post office",
     }

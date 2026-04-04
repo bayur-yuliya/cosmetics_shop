@@ -54,19 +54,19 @@ def clean_cart(request: HttpRequest) -> HttpResponse:
 
 
 @require_POST
-def cart_delete(request: HttpRequest, product_id: int) -> HttpResponse:
+def cart_delete(request: HttpRequest, product_code: int) -> HttpResponse:
     cart_obj = get_cart(request)
-    if product_id is not None and cart_obj:
+    if product_code is not None and cart_obj:
         logger.info(
             f"User deletes product from cart: cart_id={cart_obj.id},"
-            f" product_id={product_id}"
+            f" product_code={product_code}"
         )
 
-        product_id_row = int(product_id)
-        delete_product_from_cart(cart_obj, product_id_row)
+        product_code_row = int(product_code)
+        delete_product_from_cart(cart_obj, product_code_row)
         messages.success(request, "Товар успешно удален")
     else:
-        logger.warning("cart_delete called without product_id")
+        logger.warning("cart_delete called without product_code")
         messages.error(request, "Не удалось удалить товар")
 
     return redirect("cart")

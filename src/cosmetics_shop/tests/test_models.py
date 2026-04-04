@@ -88,14 +88,12 @@ class TestClient:
         address_1 = DeliveryAddress.objects.create(
             client=client_obj,
             city="Test City",
-            street="Test Street",
             post_office="1",
             is_primary=True,
         )
         address_2 = DeliveryAddress.objects.create(
             client=client_obj,
             city="Test City",
-            street="Test Street",
             post_office="2",
             is_primary=True,
         )

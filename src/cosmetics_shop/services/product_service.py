@@ -8,6 +8,11 @@ from cosmetics_shop.models import Favorite, Product
 logger = logging.getLogger(__name__)
 
 
+def restore_stock_product(product_code: int, count: int) -> None:
+    logger.debug(f"Restoring stock: product_code={product_code}, count={count}")
+    Product.objects.filter(code=product_code).update(stock=F("stock") + count)
+
+
 def change_stock_product(product_code: int, count: int) -> None:
     logger.debug(f"Stock update attempt: product_code={product_code}, count={count}")
 

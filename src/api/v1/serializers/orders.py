@@ -3,40 +3,10 @@ from rest_framework import serializers
 from cosmetics_shop.models import Order, OrderItem
 
 
-class ClientDataSerializer(serializers.Serializer):
-    first_name = serializers.CharField()
-    last_name = serializers.CharField()
-    email = serializers.EmailField()
-    phone = serializers.CharField()
-
-
-class AddressDataSerializer(serializers.Serializer):
-    city = serializers.CharField()
-    street = serializers.CharField()
-    post_office = serializers.CharField()
-
-
-class OrderCreateSerializer(serializers.Serializer):
-    client_data = ClientDataSerializer(required=False)
-    address_data = AddressDataSerializer(required=False)
-
-    def validate(self, attrs):
-        request = self.context["request"]
-
-        if not request.user.is_authenticated:
-            if not attrs.get("client_data") or not attrs.get("address_data"):
-                raise serializers.ValidationError(
-                    "Для неавторизованных пользователей"
-                    "нужны client_data и address_data"
-                )
-
-        return attrs
-
-
 class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
-        fields = ["snapshot_product", "price", "quantity"]
+        fields = ["id", "snapshot_product", "quantity", "price"]
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -46,9 +16,42 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = [
             "id",
-            "code",
-            "status",
+            "snapshot_name",
+            "snapshot_phone",
+            "snapshot_email",
+            "snapshot_address",
             "total_price",
+            "status",
             "created_at",
             "items",
         ]
+
+
+class ClientDataSerializer(serializers.Serializer):
+    first_name = serializers.CharField(max_length=50, required=True)
+    last_name = serializers.CharField(max_length=50, required=True)
+    email = serializers.EmailField(required=True)
+    phone = serializers.CharField(max_length=20, required=True)
+
+
+class AddressDataSerializer(serializers.Serializer):
+    city = serializers.CharField(max_length=100, required=True)
+    post_office = serializers.CharField(max_length=100, required=True)
+
+
+class OrderCreateSerializer(serializers.Serializer):
+    payment_method = serializers.ChoiceField(choices=["card", "cash"], default="card")
+    client_data = ClientDataSerializer(required=False)
+    address_data = AddressDataSerializer(required=False)
+
+    def validate(self, attrs):
+        # Если API поддерживает анонимных пользователей (без профиля),
+        # можно добавить проверку, что данные обязательно переданы.
+        request = self.context.get("request")
+        if request and not request.user.is_authenticated:
+            if "client_data" not in attrs or "address_data" not in attrs:
+                raise serializers.ValidationError(
+                    "Для оформления заказа без регистрации необходимо передать "
+                    "client_data и address_data."
+                )
+        return attrs

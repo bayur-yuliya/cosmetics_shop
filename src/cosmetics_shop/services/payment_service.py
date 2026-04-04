@@ -1,3 +1,4 @@
+import logging
 from decimal import Decimal
 
 import requests
@@ -5,6 +6,8 @@ from django.conf import settings
 from django.urls import reverse
 
 from cosmetics_shop.models import Order, Payment
+
+logger = logging.getLogger(__name__)
 
 
 def create_mono_invoice(order: Order, redirect_url: str, webhook_url: str):
@@ -30,8 +33,12 @@ def create_mono_invoice(order: Order, redirect_url: str, webhook_url: str):
     return response.json()
 
 
-def init_payment(order: Order, request):
-    redirect_url = request.build_absolute_uri(reverse("order_success"))
+def init_payment(order: Order, request, custom_redirect_url: str | None = None):
+    if custom_redirect_url:
+        redirect_url = custom_redirect_url
+    else:
+        redirect_url = request.build_absolute_uri(reverse("order_result"))
+
     webhook_url = request.build_absolute_uri(reverse("mono_webhook"))
 
     invoice = create_mono_invoice(order, redirect_url, webhook_url)
@@ -47,3 +54,44 @@ def init_payment(order: Order, request):
     )
 
     return invoice.get("pageUrl")
+
+
+def check_mono_payment_status(invoice_id: str) -> str | None:
+    url = settings.MONO_URL_STATUS
+    headers = {
+        "X-Token": settings.MONO_TOKEN,
+    }
+    params = {"invoiceId": invoice_id}
+
+    try:
+        response = requests.get(url, headers=headers, params=params, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        return data.get("status")
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error checking Monobank status for {invoice_id}: {e}")
+        return None
+
+
+def sync_pending_payments():
+    payments = Payment.objects.filter(status=Payment.PaymentStatus.PENDING)
+
+    for payment in payments:
+        invoice_id = payment.external_id
+
+        if invoice_id is None:
+            return
+
+        status = check_mono_payment_status(invoice_id)
+
+        if status == "success":
+            payment.status = Payment.PaymentStatus.SUCCESS
+            payment.save()
+            payment.order.mark_as_paid()
+
+        elif status in ["failure", "expired", "canceled", "reversed"]:
+            payment.status = Payment.PaymentStatus.FAILED
+            payment.save()
+            payment.order.mark_as_failed_payment()

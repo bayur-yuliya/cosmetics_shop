@@ -12,11 +12,65 @@ from cosmetics_shop.models import (
     Order,
     OrderItem,
 )
-from cosmetics_shop.services.cart_services import clear_cart_after_order
-from cosmetics_shop.services.product_service import change_stock_product
+from cosmetics_shop.services.product_service import (
+    change_stock_product,
+    restore_stock_product,
+)
 from utils.custom_exceptions import OutOfStockError
 
 logger = logging.getLogger(__name__)
+
+
+@transaction.atomic
+def update_order_from_cart(order, cart, client_data, address_data):
+    logger.info(f"Updating order started: order_id={order.id}")
+
+    old_items = order.order_items.all()
+    for item in old_items:
+        restore_stock_product(item.product.code, item.quantity)
+    old_items.delete()
+
+    address = (
+        f"{address_data.get('city', order.snapshot_address)}, "
+        f"{address_data.get('post_office', '')}"
+    )
+
+    order.snapshot_name = (
+        f"{client_data.get('first_name', order.snapshot_name)}",
+        f"{client_data.get('last_name', '')}",
+    )
+
+    order.snapshot_phone = client_data.get("phone", order.snapshot_phone)
+    order.snapshot_email = client_data.get("email", order.snapshot_email)
+    order.snapshot_address = address
+    order.cart = cart
+
+    new_order_items = []
+    cart_items = cart.cart_items.select_related("product")
+
+    for item in cart_items:
+        try:
+            change_stock_product(item.product.code, item.quantity)
+        except ValueError:
+            logger.warning(f"Out of stock during update: product={item.product.name}")
+            raise OutOfStockError(f"Товара {item.product.name} недостаточно")
+
+        new_order_items.append(
+            OrderItem(
+                order=order,
+                product=item.product,
+                quantity=item.quantity,
+                price=item.product.price,
+                snapshot_product=item.product.name,
+            )
+        )
+
+    OrderItem.objects.bulk_create(new_order_items)
+    order.update_total_price()
+    order.save()
+
+    logger.info(f"Order updated successfully: order_id={order.id}")
+    return order
 
 
 def create_order_from_cart(cart: Cart, client_data, address_data) -> Order:
@@ -66,6 +120,7 @@ def create_order_from_cart(cart: Cart, client_data, address_data) -> Order:
 
             order = Order.objects.create(
                 client=client,
+                cart=cart,
                 snapshot_name=full_name,
                 snapshot_phone=phone,
                 snapshot_email=user_email,
@@ -113,10 +168,6 @@ def create_order_from_cart(cart: Cart, client_data, address_data) -> Order:
             logger.info(
                 f"Order finalized: order_id={order.id}, total={order.total_price}"
             )
-
-            clear_cart_after_order(cart)
-
-            logger.debug(f"Cart cleared: cart_id={cart.id}")
 
     except Exception as e:
         logger.exception(
