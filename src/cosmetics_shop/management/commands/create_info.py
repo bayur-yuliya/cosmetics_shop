@@ -140,6 +140,7 @@ class Command(BaseCommand):
                             "group": groups[p_data["group"]],
                             "brand": brands[p_data["brand"]],
                             "price": Decimal(p_data["price"]),
+                            "image": p_data.get("image", "default/image.jpg"),
                             "stock": p_data["stock"],
                             "description": p_data["desc"],
                         },
