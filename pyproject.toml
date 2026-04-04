@@ -70,6 +70,8 @@ dependencies = [
     "django-debug-toolbar (>=6.2.0,<7.0.0)",
     "djangorestframework-simplejwt (>=5.5.1,<6.0.0)",
     "types-requests (>=2.33.0.20260327,<3.0.0.0)",
+    "django-storages[s3] (>=1.14.6,<2.0.0)",
+    "dj-database-url (>=3.1.2,<4.0.0)",
 ]
 
 
