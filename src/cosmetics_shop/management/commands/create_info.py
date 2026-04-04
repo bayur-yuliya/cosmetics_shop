@@ -2,6 +2,7 @@ import json
 import os
 from decimal import Decimal
 
+from django.conf import settings
 from django.core.cache import cache
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -123,7 +124,7 @@ class Command(BaseCommand):
         tags = {name: Tag.objects.get_or_create(name=name)[0] for name in tags_data}
 
         # -------- PRODUCTS --------
-        file_path = os.getenv("PRODUCTS_FILE")
+        file_path = settings.PRODUCTS_FILE
 
         if file_path:
             if not os.path.exists(file_path):
@@ -148,12 +149,12 @@ class Command(BaseCommand):
 
                     if created:
                         product.tags.set([tags[t] for t in p_data["tags"]])
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"✅ The database has been successfully populated with "
+                    f"({len(products_list)} product)"
+                )
+            )
         else:
             self.style.ERROR("PRODUCTS_FILE not found.")
-
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"✅ The database has been successfully populated with "
-                f"({len(products_list)} product)"
-            )
-        )
+            return

@@ -1,0 +1,2112 @@
+[
+  {
+      "name": "Effaclar Purifying Foaming Gel",
+      "group": "Очищение",
+      "brand": "La Roche-Posay",
+      "price": "620.00",
+      "stock": 25,
+      "image": "product_images/lipikar_baume_ap+m.webp",
+      "tags": ["Для жирной кожи", "Для чувствительной кожи"],
+      "desc": "Очищающий гель для жирной чувствительной кожи."
+  },
+  {
+      "name": "Lip Lingerie XXL",
+      "group": "Помады",
+      "brand": "Nyx Professional Makeup",
+      "price": "350.00",
+      "stock": 62,
+      "image": "product_images/lipstick1.webp",
+      "tags": ["Водостойкий"],
+      "desc": "Жидкая матовая помада с 16-часовой стойкостью."
+  },
+  {
+      "name": "Sumptuous Extreme Lash",
+      "group": "Тушь для ресниц",
+      "brand": "Estée Lauder",
+      "price": "1250.00",
+      "stock": 18,
+      "image": "product_images/tush.webp",
+      "tags": [],
+      "desc": "Тушь для создания экстремального объема и изгиба ресниц."
+  },
+  {
+      "name": "Pure Color Envy Sculpting Lipstick",
+      "group": "Помады",
+      "brand": "Estée Lauder",
+      "price": "1650.00",
+      "stock": 20,
+      "image": "product_images/lipstick2.webp",
+      "tags": [],
+      "desc": "Скульптурирующая помада с эффектом объема и увлажнением."
+  },
+  {
+      "name": "Immortelle Reset Serum",
+      "group": "Сыворотки",
+      "brand": "L'Occitane",
+      "price": "1950.00",
+      "stock": 12,
+      "image": "product_images/capture_totale_serum.webp",
+      "tags": [],
+      "desc": "Восстанавливающая сыворотка с бессмертником для сияния кожи."
+  },
+  {
+      "name": "Shea Butter Face Cream",
+      "group": "Увлажнение",
+      "brand": "L'Occitane",
+      "price": "950.00",
+      "stock": 20,
+      "image": "product_images/creame1.webp",
+      "tags": ["Для сухой кожи"],
+      "desc": "Питательный крем для лица с 25% масла ши."
+  },
+  {
+      "name": "Almond Cleansing Oil",
+      "group": "Очищение",
+      "brand": "L'Occitane",
+      "price": "890.00",
+      "stock": 18,
+      "image": "product_images/image_processing20250702-136-kz62ji.webp",
+      "tags": [],
+      "desc": "Масло для умывания с маслом сладкого миндаля для бережного очищения."
+  },
+  {
+      "name": "Ultra Facial Cream",
+      "group": "Увлажнение",
+      "brand": "Kiehl's",
+      "price": "1850.00",
+      "stock": 15,
+      "image": "product_images/image_processing20250702-136-kz62ji.webp",
+      "tags": ["Для всех типов кожи"],
+      "desc": "Легендарный увлажняющий крем с глицерином и скваланом для круглосуточного увлажнения."
+  },
+  {
+      "name": "Midnight Recovery Concentrate",
+      "group": "Сыворотки",
+      "brand": "Kiehl's",
+      "price": "2450.00",
+      "stock": 8,
+      "image": "product_images/hydra_beauty_micro_serum.webp",
+      "tags": ["Для сухой кожи"],
+      "desc": "Ночное восстанавливающее масло с эфирными маслами для сияния кожи утром."
+  },
+  {
+      "name": "Calendula Herbal-Extract Toner",
+      "group": "Лосьоны",
+      "brand": "Kiehl's",
+      "price": "1250.00",
+      "stock": 18,
+      "image": "product_images/image_processing20250702-136-kz62ji.webp",
+      "tags": ["Для чувствительной кожи"],
+      "desc": "Успокаивающий тонер с экстрактом календулы для нормальной и сухой кожи."
+  },
+  {
+      "name": "Advanced Génifique Serum",
+      "group": "Сыворотки",
+      "brand": "Lancome",
+      "price": "3450.00",
+      "stock": 12,
+      "image": "product_images/almond_supple_skin_oil.webp",
+      "tags": ["Для всех типов кожи"],
+      "desc": "Знаменитая антивозрастная сыворотка для сияния и упругости кожи."
+  },
+  {
+      "name": "Pure Retinol Pro 0.3",
+      "group": "Сыворотки",
+      "brand": "CeraVe",
+      "price": "680.00",
+      "stock": 22,
+      "image": "product_images/hair_balms6.webp",
+      "tags": ["С ретинолом", "Для всех типов кожи"],
+      "desc": "Сыворотка с ретинолом и церамидами для обновления кожи и разглаживания морщин."
+  },
+  {
+      "name": "Skinfood Rice Mask",
+      "group": "Очищение",
+      "brand": "The Ordinary",
+      "price": "380.00",
+      "stock": 28,
+      "image": "product_images/image_processing20250702-136-kz62ji.webp",
+      "tags": ["Для всех типов кожи", "Веган"],
+      "desc": "Мягкая отшелушивающая маска с рисовыми отрубями и ниацинамидом."
+  },
+  {
+      "name": "UV Shield SPF 50",
+      "group": "Солнцезащита",
+      "brand": "Kiehl's",
+      "price": "1550.00",
+      "stock": 14,
+      "image": "product_images/face_cream3.webp",
+      "tags": ["SPF 50", "Для всех типов кожи"],
+      "desc": "Легкий солнцезащитный флюид с антиоксидантами для ежедневной защиты."
+  },
+  {
+      "name": "Aqua Gel SPF 30",
+      "group": "Солнцезащита",
+      "brand": "Shiseido",
+      "price": "1850.00",
+      "stock": 12,
+      "image": "product_images/Effaclar_Purifying_Foaming_Gel.jpg",
+      "tags": ["SPF 50"],
+      "desc": "Легкий солнцезащитный гель с технологией WetForce для усиления защиты при контакте с водой."
+  },
+  {
+      "name": "Sensibio H2O Micellar Water",
+      "group": "Очищение",
+      "brand": "Bioderma",
+      "price": "450.00",
+      "stock": 40,
+      "image": "product_images/shampoo2.webp",
+      "tags": ["Для чувствительной кожи", "Без парабенов"],
+      "desc": "Мицеллярная вода для бережного снятия макияжа."
+  },
+  {
+      "name": "Moisturizing Cream",
+      "group": "Увлажнение",
+      "brand": "CeraVe",
+      "price": "680.00",
+      "stock": 40,
+      "image": "product_images/Effaclar_Purifying_Foaming_Gel.jpg",
+      "tags": ["Для сухой кожи", "Без парабенов"],
+      "desc": "Увлажняющий крем для сухой и очень сухой кожи лица и тела."
+  },
+  {
+      "name": "Aqualia Thermal Rich Cream",
+      "group": "Увлажнение",
+      "brand": "Vichy",
+      "price": "980.00",
+      "stock": 15,
+      "image": "product_images/Effaclar_Purifying_Foaming_Gel.jpg",
+      "tags": ["Для сухой кожи", "С гиалуроновой кислотой"],
+      "desc": "Насыщенный крем для интенсивного увлажнения кожи в течение 48 часов."
+  },
+  {
+      "name": "Hyalu B5 Serum",
+      "group": "Сыворотки",
+      "brand": "La Roche-Posay",
+      "price": "1450.00",
+      "stock": 15,
+      "image": "product_images/Effaclar_Purifying_Foaming_Gel.jpg",
+      "tags": ["Для чувствительной кожи", "С гиалуроновой кислотой"],
+      "desc": "Увлажняющая сыворотка для восстановления упругости кожи лица."
+  },
+  {
+      "name": "Niacinamide 10% + Zinc 1%",
+      "group": "Сыворотки",
+      "brand": "The Ordinary",
+      "price": "420.00",
+      "stock": 25,
+      "image": "product_images/Effaclar_Purifying_Foaming_Gel.jpg",
+      "tags": ["Для жирной кожи", "Веган"],
+      "desc": "Легендарная сыворотка для борьбы с несовершенствами и жирным блеском."
+  },
+  {
+      "name": "Toleriane Sensitive Cream",
+      "group": "Крема",
+      "brand": "La Roche-Posay",
+      "price": "750.00",
+      "stock": 20,
+      "image": "product_images/face_cream2.webp",
+      "tags": ["Для чувствительной кожи"],
+      "desc": "Пребиотический крем для увлажнения и успокоения кожи."
+  },
+  {
+      "name": "Liner Ink",
+      "group": "Подводки",
+      "brand": "Shiseido",
+      "price": "980.00",
+      "stock": 18,
+      "image": "product_images/eyeliner1.webp",
+      "tags": ["Водостойкий"],
+      "desc": "Жидкая подводка с водостойкой формулой и точным аппликатором."
+  },
+  {
+      "name": "Epic Ink Liner",
+      "group": "Подводки",
+      "brand": "Nyx Professional Makeup",
+      "price": "280.00",
+      "stock": 55,
+      "image": "product_images/eyeliner1.webp",
+      "tags": ["Водостойкий"],
+      "desc": "Водостойкая жидкая подводка с аппликатором-фломастером для идеальной стрелки."
+  },
+  {
+      "name": "Jumbo Eye Pencil",
+      "group": "Карандаши",
+      "brand": "Nyx Professional Makeup",
+      "price": "250.00",
+      "stock": 60,
+      "image": "product_images/liner.webp",
+      "tags": [],
+      "desc": "Универсальный карандаш для глаз и губ с кремовой текстурой в 20 оттенках."
+  },
+  {
+      "name": "Natural Moisturizing Factors + HA",
+      "group": "Крема",
+      "brand": "The Ordinary",
+      "price": "390.00",
+      "stock": 35,
+      "image": "product_images/face_cream3.webp",
+      "tags": ["Для всех типов кожи", "Веган"],
+      "desc": "Увлажняющий крем с натуральными факторами и гиалуроновой кислотой."
+  },
+  {
+      "name": "Normaderm Purifying Lotion",
+      "group": "Лосьоны",
+      "brand": "Vichy",
+      "price": "560.00",
+      "stock": 18,
+      "image": "product_images/Effaclar_Purifying_Foaming_Gel.jpg",
+      "tags": ["Для жирной кожи"],
+      "desc": "Сужающий поры лосьон для проблемной кожи."
+  },
+  {
+      "name": "Snail Eye Patches",
+      "group": "Патчи",
+      "brand": "The Ordinary",
+      "price": "580.00",
+      "stock": 50,
+      "image": "product_images/hair_masks5.webp",
+      "tags": ["Для чувствительной кожи"],
+      "desc": "Успокаивающие патчи для кожи вокруг глаз."
+  },
+  {
+      "name": "Dercos Anti-Dandruff Shampoo",
+      "group": "Против перхоти",
+      "brand": "Vichy",
+      "price": "620.00",
+      "stock": 14,
+      "image": "product_images/hair_balms2.webp",
+      "tags": ["Для жирной кожи"],
+      "desc": "Шампунь-уход с селеном для борьбы с перхотью."
+  },
+  {
+      "name": "Ultimate Reset Shampoo",
+      "group": "Шампуни",
+      "brand": "Shu Uemura",
+      "price": "1250.00",
+      "stock": 10,
+      "image": "product_images/shampoo2.webp",
+      "tags": [],
+      "desc": "Восстанавливающий шампунь для глубокой регенерации поврежденных волос."
+  },
+  {
+      "name": "Ultimate Reset Mask",
+      "group": "Маски для волос",
+      "brand": "Shu Uemura",
+      "price": "1650.00",
+      "stock": 8,
+      "image": "product_images/hair_masks1.webp",
+      "tags": [],
+      "desc": "Интенсивная восстанавливающая маска с комплексом для глубокого питания."
+  },
+  {
+      "name": "Metal DX Shampoo",
+      "group": "Шампуни",
+      "brand": "L'Oreal Professionnel",
+      "price": "670.00",
+      "stock": 18,
+      "image": "product_images/shampoo3.webp",
+      "tags": [],
+      "desc": "Шампунь для нейтрализации металлических частиц в волосах после обесцвечивания."
+  },
+  {
+      "name": "Dercos Energizing Shampoo",
+      "group": "Против перхоти",
+      "brand": "Vichy",
+      "price": "680.00",
+      "stock": 10,
+      "image": "product_images/hair_balms1.webp",
+      "tags": ["Против выпадения"],
+      "desc": "Шампунь против выпадения волос, стимулирующий микроциркуляцию кожи головы."
+  },
+  {
+      "name": "Chroma Absolu Mask",
+      "group": "Маски для волос",
+      "brand": "Kérastase",
+      "price": "1450.00",
+      "stock": 10,
+      "image": "product_images/hair_masks2.webp",
+      "tags": [],
+      "desc": "Маска для интенсивного ухода за окрашенными волосами."
+  },
+  {
+      "name": "Genesis Serum Anti-Chute",
+      "group": "Против перхоти",
+      "brand": "Kérastase",
+      "price": "1950.00",
+      "stock": 7,
+      "image": "product_images/hair_balms3.webp",
+      "tags": ["Против выпадения"],
+      "desc": "Сыворотка против выпадения волос для укрепления корней."
+  },
+  {
+      "name": "Anthelios XL Spray",
+      "group": "Солнцезащита",
+      "brand": "La Roche-Posay",
+      "price": "1100.00",
+      "stock": 10,
+      "image": "product_images/dewy_finish_setting_spray.webp",
+      "tags": ["SPF 50", "Для чувствительной кожи"],
+      "desc": "Солнцезащитный спрей с высокой степенью защиты."
+  },
+  {
+      "name": "Shea Butter Hand Cream",
+      "group": "Кремы для рук",
+      "brand": "L'Occitane",
+      "price": "380.00",
+      "stock": 55,
+      "image": "product_images/creame1.webp",
+      "tags": ["Для сухой кожи"],
+      "desc": "Легендарный крем для рук с 20% масла ши."
+  },
+  {
+      "name": "Aqua Allegoria Pera Granita",
+      "group": "Женская парфюмерия",
+      "brand": "Guerlain",
+      "price": "2950.00",
+      "stock": 14,
+      "image": "product_images/miss_dior_eau_de_parfum.webp",
+      "tags": [],
+      "desc": "Сочный фруктовый аромат с нотами груши, грейпфрута и мускуса."
+  },
+  {
+      "name": "Almond Shower Oil",
+      "group": "Мыло",
+      "brand": "L'Occitane",
+      "price": "890.00",
+      "stock": 28,
+      "image": "product_images/almond_supple_skin_oil.webp",
+      "tags": [],
+      "desc": "Масло для душа с маслом сладкого миндаля для мягкого очищения."
+  },
+  {
+      "name": "Shea Butter Body Lotion",
+      "group": "Кремы для тела",
+      "brand": "L'Occitane",
+      "price": "720.00",
+      "stock": 32,
+      "image": "product_images/conditioner10.webp",
+      "tags": ["Для сухой кожи"],
+      "desc": "Увлажняющий лосьон для тела с маслом ши и медом."
+  },
+  {
+      "name": "Almond Supple Skin Oil",
+      "group": "Кремы для тела",
+      "brand": "L'Occitane",
+      "price": "1250.00",
+      "stock": 18,
+      "image": "product_images/almond_supple_skin_oil.webp",
+      "tags": [],
+      "desc": "Смягчающее масло для тела с маслом сладкого миндаля."
+  },
+  {
+      "name": "Rêve de Miel Hand Cream",
+      "group": "Кремы для рук",
+      "brand": "Nuxe",
+      "price": "420.00",
+      "stock": 35,
+      "image": "product_images/shampoo8.webp",
+      "tags": ["Для сухой кожи"],
+      "desc": "Питательный крем для рук с медом и маслом ши."
+  },
+  {
+      "name": "La Vie Est Belle Mini",
+      "group": "Миниатюры",
+      "brand": "Lancome",
+      "price": "1100.00",
+      "stock": 28,
+      "image": "product_images/eau_dynamisante.webp",
+      "tags": [],
+      "desc": "Мини-версия культового аромата La Vie Est Belle (15 мл)."
+  },
+  {
+      "name": "Prodigieux Body Lotion",
+      "group": "Кремы для тела",
+      "brand": "Nuxe",
+      "price": "890.00",
+      "stock": 24,
+      "image": "product_images/prodigieux_body_lotion.webp",
+      "tags": [],
+      "desc": "Ароматный увлажняющий лосьон для тела с маслом макадамии."
+  },
+  {
+      "name": "Body Lotion",
+      "group": "Кремы для тела",
+      "brand": "Molton Brown",
+      "price": "1050.00",
+      "stock": 15,
+      "image": "product_images/Effaclar_Purifying_Foaming_Gel.jpg",
+      "tags": [],
+      "desc": "Увлажняющий лосьон для тела с ароматом розы и мускуса."
+  },
+  {
+      "name": "Replenishing Body Scrub",
+      "group": "Скрабы",
+      "brand": "Nuxe",
+      "price": "780.00",
+      "stock": 16,
+      "image": "product_images/conditioner10.webp",
+      "tags": [],
+      "desc": "Скраб для тела с сахаром и маслом арганы для мягкого отшелушивания."
+  },
+  {
+      "name": "Gel de Douche",
+      "group": "Мыло",
+      "brand": "Molton Brown",
+      "price": "950.00",
+      "stock": 20,
+      "image": "product_images/capture_totale_serum.webp",
+      "tags": [],
+      "desc": "Роскошный гель для душа с нотами черного перца и имбиря."
+  },
+  {
+      "name": "Bleu Noir Mini",
+      "group": "Миниатюры",
+      "brand": "Lancome",
+      "price": "980.00",
+      "stock": 25,
+      "image": "product_images/mon_guerlain_mini.webp",
+      "tags": [],
+      "desc": "Мини-версия элегантного мужского аромата Bleu Noir (10 мл)."
+  },
+  {
+      "name": "Miss Dior Eau de Parfum",
+      "group": "Женская парфюмерия",
+      "brand": "Dior",
+      "price": "4550.00",
+      "stock": 11,
+      "image": "product_images/miss_dior_eau_de_parfum.webp",
+      "tags": [],
+      "desc": "Современная интерпретация классического аромата с нотами розы и пачули."
+  },
+  {
+      "name": "Bath & Shower Gel",
+      "group": "Пена для ванн",
+      "brand": "Hermès",
+      "price": "1450.00",
+      "stock": 12,
+      "image": "product_images/conditioner1.webp",
+      "tags": [],
+      "desc": "Роскошный гель для душа и ванны с ароматом цитрусов и древесины."
+  },
+  {
+      "name": "Exfoliating Body Scrub",
+      "group": "Скрабы",
+      "brand": "L'Occitane",
+      "price": "680.00",
+      "stock": 18,
+      "image": "product_images/hair_masks3.webp",
+      "tags": [],
+      "desc": "Скраб для тела с солью Мертвого моря и маслом ши."
+  },
+  {
+      "name": "Capital Soleil Eco-Milk",
+      "group": "Солнцезащита",
+      "brand": "Vichy",
+      "price": "1250.00",
+      "stock": 8,
+      "image": "product_images/face_cream1.webp",
+      "tags": ["SPF 50"],
+      "desc": "Солнцезащитное молочко для лица и тела."
+  },
+  {
+      "name": "Cicaplast Mains",
+      "group": "Кремы для рук",
+      "brand": "La Roche-Posay",
+      "price": "320.00",
+      "stock": 45,
+      "image": "product_images/reve_de_miel_hand_cream.webp",
+      "tags": ["Для сухой кожи"],
+      "desc": "Крем-барьер для восстановления кожи рук."
+  },
+  {
+      "name": "Moisturizing Body Lotion",
+      "group": "Кремы для тела",
+      "brand": "Kiehl's",
+      "price": "780.00",
+      "stock": 25,
+      "image": "product_images/reve_de_miel_hand_cream.webp",
+      "tags": ["Для сухой кожи"],
+      "desc": "Легкий увлажняющий лосьон для тела с маслом ши и миндаля."
+  },
+  {
+      "name": "Exfoliating Body Scrub",
+      "group": "Скрабы",
+      "brand": "Clarins",
+      "price": "1250.00",
+      "stock": 10,
+      "image": "product_images/hair_masks6.webp",
+      "tags": [],
+      "desc": "Скраб для тела с бамбуковой пудрой и эфирными маслами."
+  },
+  {
+      "name": "Lait Corporel",
+      "group": "Кремы для тела",
+      "brand": "Biotherm",
+      "price": "950.00",
+      "stock": 18,
+      "image": "product_images/hair_balms5.webp",
+      "tags": ["Для сухой кожи"],
+      "desc": "Увлажняющее молочко для тела с термальным планктоном."
+  },
+  {
+      "name": "Lipikar Gel Lavant",
+      "group": "Мыло",
+      "brand": "La Roche-Posay",
+      "price": "490.00",
+      "stock": 40,
+      "image": "product_images/Effaclar_Purifying_Foaming_Gel.jpg",
+      "tags": ["Для чувствительной кожи", "Без парабенов"],
+      "desc": "Очищающий гель для тела с увлажняющими свойствами для очень сухой кожи."
+  },
+  {
+      "name": "Foaming Bath Milk",
+      "group": "Пена для ванн",
+      "brand": "Lancome",
+      "price": "1250.00",
+      "stock": 12,
+      "image": "product_images/le-baume.webp",
+      "tags": [],
+      "desc": "Нежная пенящаяся эмульсия для расслабляющих ванн с ароматом розы."
+  },
+  {
+      "name": "SA Smoothing Cleanser",
+      "group": "Мыло",
+      "brand": "CeraVe",
+      "price": "520.00",
+      "stock": 28,
+      "image": "product_images/shampoo11.webp",
+      "tags": ["Для жирной кожи"],
+      "desc": "Очищающее средство для тела с салициловой кислотой для гладкости кожи."
+  },
+  {
+      "name": "Capital Soleil Ultra-Light Fluid",
+      "group": "Солнцезащита",
+      "brand": "Vichy",
+      "price": "1350.00",
+      "stock": 9,
+      "image": "product_images/conditioner5.webp",
+      "tags": ["SPF 50", "Для чувствительной кожи"],
+      "desc": "Невидимая флюидная текстура SPF 50 для лица без жирного блеска."
+  },
+  {
+      "name": "Cicaplast Lavant",
+      "group": "Кремы для тела",
+      "brand": "La Roche-Posay",
+      "price": "380.00",
+      "stock": 32,
+      "image": "product_images/Effaclar_Purifying_Foaming_Gel.jpg",
+      "tags": ["Для сухой кожи"],
+      "desc": "Очищающее и успокаивающее средство для раздраженной кожи тела."
+  },
+  {
+      "name": "Crème de Corps",
+      "group": "Кремы для тела",
+      "brand": "Kiehl's",
+      "price": "1950.00",
+      "stock": 12,
+      "image": "product_images/face_cream2.webp",
+      "tags": ["Для сухой кожи"],
+      "desc": "Легендарный увлажняющий крем для тела с маслом какао и скваланом."
+  },
+  {
+      "name": "Grapefruit Body Cleanser",
+      "group": "Мыло",
+      "brand": "Kiehl's",
+      "price": "850.00",
+      "stock": 20,
+      "image": "product_images/conditioner11.webp",
+      "tags": [],
+      "desc": "Освежающий гель для душа с экстрактом грейпфрута и алоэ."
+  },
+  {
+      "name": "Hand Cream",
+      "group": "Кремы для рук",
+      "brand": "Kiehl's",
+      "price": "450.00",
+      "stock": 35,
+      "image": "product_images/lipikar_baume_ap+m.webp",
+      "tags": ["Для сухой кожи"],
+      "desc": "Интенсивный питательный крем для рук с маслом авокадо и эвкалипта."
+  },
+  {
+      "name": "Ultra Repair Cream",
+      "group": "Кремы для тела",
+      "brand": "CeraVe",
+      "price": "850.00",
+      "stock": 28,
+      "image": "product_images/hair_masks7.webp",
+      "tags": ["Для сухой кожи", "Без парабенов"],
+      "desc": "Интенсивный восстанавливающий крем для очень сухой и шелушащейся кожи."
+  },
+  {
+      "name": "Hydrating Body Lotion",
+      "group": "Кремы для тела",
+      "brand": "Bioderma",
+      "price": "690.00",
+      "stock": 24,
+      "image": "product_images/shampoo9.webp",
+      "tags": ["Для сухой кожи"],
+      "desc": "Увлажняющий лосьон для тела с комплексом для восстановления гидролипидной пленки."
+  },
+  {
+      "name": "Ambre Solaire Dry Mist",
+      "group": "Солнцезащита",
+      "brand": "Vichy",
+      "price": "980.00",
+      "stock": 12,
+      "image": "product_images/prodigieux_body_lotion.webp",
+      "tags": ["SPF 50"],
+      "desc": "Сухой солнцезащитный спрей с невесомой текстурой для лица и тела."
+  },
+  {
+      "name": "After-Sun Repair Lotion",
+      "group": "Солнцезащита",
+      "brand": "La Roche-Posay",
+      "price": "580.00",
+      "stock": 20,
+      "image": "product_images/shampoo10.webp",
+      "tags": ["Для чувствительной кожи"],
+      "desc": "Восстанавливающий лосьон после загара для успокоения кожи."
+  },
+  {
+      "name": "Bath Salts Lavender",
+      "group": "Пена для ванн",
+      "brand": "Kiehl's",
+      "price": "620.00",
+      "stock": 18,
+      "image": "product_images/Effaclar_Purifying_Foaming_Gel.jpg",
+      "tags": [],
+      "desc": "Расслабляющая соль для ванны с лавандой и эвкалиптом."
+  },
+  {
+      "name": "Gentle Body Wash",
+      "group": "Мыло",
+      "brand": "CeraVe",
+      "price": "420.00",
+      "stock": 32,
+      "image": "product_images/hydra_beauty_micro_serum.webp",
+      "tags": ["Для чувствительной кожи", "Без парабенов"],
+      "desc": "Мягкий гель для душа с церамидами для восстановления защитного барьера."
+  },
+  {
+      "name": "CeraVe SA Smoothing Cream",
+      "group": "Скрабы",
+      "brand": "CeraVe",
+      "price": "740.00",
+      "stock": 15,
+      "image": "product_images/Effaclar_Purifying_Foaming_Gel.jpg",
+      "tags": ["Для жирной кожи"],
+      "desc": "Смягчающий крем с салициловой кислотой для огрубевшей кожи."
+  },
+  {
+      "name": "Smoothing Body Scrub",
+      "group": "Скрабы",
+      "brand": "The Ordinary",
+      "price": "320.00",
+      "stock": 18,
+      "image": "product_images/hair_masks10.webp",
+      "tags": ["Для всех типов кожи", "Веган"],
+      "desc": "Скраб для тела с сахарной основой и маслами для мягкого отшелушивания."
+  },
+  {
+      "name": "Lash Sensational",
+      "group": "Тушь для ресниц",
+      "brand": "Maybelline New York",
+      "price": "350.00",
+      "stock": 100,
+      "image": "product_images/le_volume_mascara.webp",
+      "tags": ["Водостойкий"],
+      "desc": "Тушь для ресниц с эффектом веерного объема."
+  },
+  {
+      "name": "Hypnôse Drama",
+      "group": "Тушь для ресниц",
+      "brand": "Lancome",
+      "price": "1350.00",
+      "stock": 15,
+      "image": "product_images/le_volume_mascara.webp",
+      "tags": ["Для чувствительной кожи"],
+      "desc": "Тушь для создания экстремального объема."
+  },
+  {
+      "name": "Fit Me Matte + Poreless",
+      "group": "Тональные средства",
+      "brand": "Maybelline New York",
+      "price": "280.00",
+      "stock": 60,
+      "image": "product_images/Effaclar_Purifying_Foaming_Gel.jpg",
+      "tags": ["Для жирной кожи"],
+      "desc": "Тональный крем, скрывающий поры и жирный блеск."
+  },
+  {
+      "name": "Teint Idole Ultra Wear",
+      "group": "Тональные средства",
+      "brand": "Lancome",
+      "price": "1850.00",
+      "stock": 20,
+      "image": "product_images/forever_foundation.webp",
+      "tags": ["SPF 50"],
+      "desc": "Стойкое тональное покрытие на 24 часа."
+  },
+  {
+      "name": "Can't Stop Won't Stop Foundation",
+      "group": "Тональные средства",
+      "brand": "Nyx Professional Makeup",
+      "price": "480.00",
+      "stock": 35,
+      "image": "product_images/forever_foundation.webp",
+      "tags": ["Для жирной кожи"],
+      "desc": "Матовая тональная основа с высокой стойкостью до 24 часов."
+  },
+  {
+      "name": "Synchro Skin Foundation",
+      "group": "Тональные средства",
+      "brand": "Shiseido",
+      "price": "1950.00",
+      "stock": 16,
+      "image": "product_images/forever_foundation.webp",
+      "tags": ["Для всех типов кожи"],
+      "desc": "Адаптирующаяся тональная основа с естественным финишем."
+  },
+  {
+      "name": "Dream Matte Mousse",
+      "group": "Тональные средства",
+      "brand": "Maybelline New York",
+      "price": "310.00",
+      "stock": 40,
+      "image": "product_images/image_processing20250702-136-kz62ji.webp",
+      "tags": ["Для жирной кожи"],
+      "desc": "Тональный крем-мусс с матовым финишем."
+  },
+  {
+      "name": "Vitalumière Foundation",
+      "group": "Тональные средства",
+      "brand": "Chanel",
+      "price": "2350.00",
+      "stock": 14,
+      "image": "product_images/Effaclar_Purifying_Foaming_Gel.jpg",
+      "tags": [],
+      "desc": "Тональная основа с сияющим финишем и легким покрытием."
+  },
+  {
+      "name": "Touche Éclat High Cover",
+      "group": "Тональные средства",
+      "brand": "Yves Saint Laurent",
+      "price": "2650.00",
+      "stock": 12,
+      "image": "product_images/forever_foundation.webp",
+      "tags": [],
+      "desc": "Легендарный консилер-корректор с эффектом сияния для области вокруг глаз."
+  },
+  {
+      "name": "Luminous Silk Foundation",
+      "group": "Тональные средства",
+      "brand": "Giorgio Armani",
+      "price": "2950.00",
+      "stock": 10,
+      "image": "product_images/forever_foundation.webp",
+      "tags": ["Для всех типов кожи"],
+      "desc": "Культовая тональная основа с естественным сиянием и невесомым покрытием."
+  },
+  {
+      "name": "Ultra HD Concealer",
+      "group": "Тональные средства",
+      "brand": "Maybelline New York",
+      "price": "340.00",
+      "stock": 48,
+      "image": "product_images/forever_foundation.webp",
+      "tags": [],
+      "desc": "Консилер с высокой кроющей способностью для маскировки несовершенств."
+  },
+  {
+      "name": "Dewy Finish Setting Spray",
+      "group": "Тональные средства",
+      "brand": "Nyx Professional Makeup",
+      "price": "350.00",
+      "stock": 48,
+      "image": "product_images/dewy_finish_setting_spray.webp",
+      "tags": [],
+      "desc": "Фиксирующий спрей для создания сияющего финиша макияжа."
+  },
+  {
+      "name": "Forever Foundation",
+      "group": "Тональные средства",
+      "brand": "Dior",
+      "price": "2250.00",
+      "stock": 18,
+      "image": "product_images/forever_foundation.webp",
+      "tags": ["SPF 50"],
+      "desc": "Стойкая тональная основа с натуральным финишем и SPF 50."
+  },
+  {
+      "name": "Vitalumière Foundation",
+      "group": "Тональные средства",
+      "brand": "Chanel",
+      "price": "2350.00",
+      "stock": 14,
+      "image": "product_images/forever_foundation.webp",
+      "tags": [],
+      "desc": "Тональная основа с сияющим финишем и легким покрытием."
+  },
+  {
+      "name": "Rouge Dior Lipstick",
+      "group": "Помады",
+      "brand": "Dior",
+      "price": "1850.00",
+      "stock": 25,
+      "image": "product_images/lipstick4.webp",
+      "tags": [],
+      "desc": "Роскошная губная помада с насыщенным цветом и уходом."
+  },
+  {
+      "name": "Color Sensational",
+      "group": "Помады",
+      "brand": "Maybelline New York",
+      "price": "240.00",
+      "stock": 80,
+      "image": "product_images/lipstick3.webp",
+      "tags": ["Веган"],
+      "desc": "Насыщенная губная помада с увлажняющими компонентами."
+  },
+  {
+      "name": "Dior Addict Lip Glow",
+      "group": "Помады",
+      "brand": "Dior",
+      "price": "1350.00",
+      "stock": 35,
+      "image": "product_images/lipstick2.webp",
+      "tags": [],
+      "desc": "Увлажняющий бальзам для губ, подстраивающийся под цвет губ."
+  },
+  {
+      "name": "L'Absolu Rouge",
+      "group": "Помады",
+      "brand": "Lancome",
+      "price": "1420.00",
+      "stock": 25,
+      "image": "product_images/lipstick1.webp",
+      "tags": [],
+      "desc": "Увлажняющая помада класса люкс."
+  },
+  {
+      "name": "Rouge Hermès Lipstick",
+      "group": "Помады",
+      "brand": "Hermès",
+      "price": "2450.00",
+      "stock": 15,
+      "image": "product_images/rouge_hermès_lipstick.webp",
+      "tags": [],
+      "desc": "Эксклюзивная губная помада в роскошном футляре."
+  },
+  {
+      "name": "Rouge Coco Lipstick",
+      "group": "Помады",
+      "brand": "Chanel",
+      "price": "1950.00",
+      "stock": 20,
+      "image": "product_images/lipstick4.webp",
+      "tags": [],
+      "desc": "Увлажняющая губная помада с насыщенным цветом и маслом жожоба."
+  },
+  {
+      "name": "Soft Matte Lip Cream",
+      "group": "Помады",
+      "brand": "Nyx Professional Makeup",
+      "price": "320.00",
+      "stock": 85,
+      "image": "product_images/lipstick1.webp",
+      "tags": ["Веган"],
+      "desc": "Легендарная матовая жидкая помада с кремовой текстурой и насыщенным цветом."
+  },
+  {
+      "name": "Butter Gloss",
+      "group": "Помады",
+      "brand": "Nyx Professional Makeup",
+      "price": "290.00",
+      "stock": 70,
+      "image": "product_images/lipstick2.webp",
+      "tags": [],
+      "desc": "Маслянистый блеск для губ с увлажняющим эффектом и полупрозрачным покрытием."
+  },
+  {
+      "name": "Rouge Pur Couture",
+      "group": "Помады",
+      "brand": "Yves Saint Laurent",
+      "price": "2100.00",
+      "stock": 18,
+      "image": "product_images/lipstick3.webp",
+      "tags": [],
+      "desc": "Роскошная губная помада с насыщенным цветом и стойкостью до 8 часов."
+  },
+  {
+      "name": "Diorshow Mascara",
+      "group": "Тушь для ресниц",
+      "brand": "Dior",
+      "price": "1450.00",
+      "stock": 22,
+      "image": "product_images/le_volume_mascara.webp",
+      "tags": [],
+      "desc": "Легендарная тушь для ресниц с эффектом объема и подкручивания."
+  },
+  {
+      "name": "Le Volume Mascara",
+      "group": "Тушь для ресниц",
+      "brand": "Chanel",
+      "price": "1550.00",
+      "stock": 18,
+      "image": "product_images/tush.webp",
+      "tags": [],
+      "desc": "Тушь для ресниц с эффектом максимального объема."
+  },
+  {
+      "name": "Quad Eyeshadow Palette",
+      "group": "Тени для век",
+      "brand": "Hermès",
+      "price": "2850.00",
+      "stock": 8,
+      "image": "product_images/hypnose_palette2.webp",
+      "tags": [],
+      "desc": "Палитра из 4 оттенков теней для век с бархатистой текстурой."
+  },
+  {
+      "name": "Shiseido Eyelash Curler",
+      "group": "Тушь для ресниц",
+      "brand": "Shiseido",
+      "price": "380.00",
+      "stock": 30,
+      "image": "product_images/tush.webp",
+      "tags": [],
+      "desc": "Легендарный щипцы для завивки ресниц с идеальной формой."
+  },
+  {
+      "name": "Nude Palette",
+      "group": "Тени для век",
+      "brand": "Maybelline New York",
+      "price": "590.00",
+      "stock": 45,
+      "image": "product_images/hypnose_palette2.webp",
+      "tags": [],
+      "desc": "Палитра из 12 нюдовых оттенков с матовой и шиммерной текстурой."
+  },
+  {
+      "name": "Hypnôse Palette",
+      "group": "Тени для век",
+      "brand": "Lancome",
+      "price": "2450.00",
+      "stock": 10,
+      "image": "product_images/hypnose_palette.webp",
+      "tags": [],
+      "desc": "Палитра теней для век с насыщенными пигментами и стойкостью 24 часа."
+  },
+  {
+      "name": "Eyes to Kill Palette",
+      "group": "Тени для век",
+      "brand": "Giorgio Armani",
+      "price": "2850.00",
+      "stock": 8,
+      "image": "product_images/hypnose_palette.webp",
+      "tags": [],
+      "desc": "Палитра теней с шелковистой текстурой и высокой пигментацией."
+  },
+  {
+      "name": "Micro Brow Pencil",
+      "group": "Карандаши",
+      "brand": "Nyx Professional Makeup",
+      "price": "280.00",
+      "stock": 52,
+      "image": "product_images/liner.webp",
+      "tags": [],
+      "desc": "Тонкий карандаш для бровей с натуральным финишем."
+  },
+  {
+      "name": "Les Beiges Powder",
+      "group": "Румяна",
+      "brand": "Chanel",
+      "price": "1850.00",
+      "stock": 12,
+      "image": "product_images/blush1.webp",
+      "tags": [],
+      "desc": "Натуральная пудра для лица с эффектом здорового сияния."
+  },
+  {
+      "name": "Hydra Beauty Micro Serum",
+      "group": "Сыворотки",
+      "brand": "Chanel",
+      "price": "3850.00",
+      "stock": 9,
+      "image": "product_images/hydra_beauty_micro_serum.webp",
+      "tags": ["Для всех типов кожи"],
+      "desc": "Интенсивно увлажняющая сыворотка с ягодами камелии."
+  },
+  {
+      "name": "Fit Me Blush",
+      "group": "Румяна",
+      "brand": "Maybelline New York",
+      "price": "210.00",
+      "stock": 55,
+      "image": "product_images/blush2.webp",
+      "tags": [],
+      "desc": "Натуральные румяна для естественного румянца."
+  },
+  {
+      "name": "Le Crayon Khôl",
+      "group": "Карандаши",
+      "brand": "Lancome",
+      "price": "1100.00",
+      "stock": 18,
+      "image": "product_images/liner.webp",
+      "tags": [],
+      "desc": "Мягкий карандаш для глаз с насыщенным черным цветом."
+  },
+  {
+      "name": "Tattoo Liner",
+      "group": "Подводки",
+      "brand": "Maybelline New York",
+      "price": "320.00",
+      "stock": 65,
+      "image": "product_images/eyeliner2.webp",
+      "tags": ["Водостойкий"],
+      "desc": "Жидкая подводка-фломастер с водостойкой формулой до 24 часов."
+  },
+  {
+      "name": "Le Stylo Waterproof",
+      "group": "Подводки",
+      "brand": "Lancome",
+      "price": "1250.00",
+      "stock": 12,
+      "image": "product_images/eyeliner2.webp",
+      "tags": ["Водостойкий"],
+      "desc": "Водостойкий карандаш-подводка для глаз с точным нанесением."
+  },
+  {
+      "name": "Superstay Matte Ink",
+      "group": "Помады",
+      "brand": "Maybelline New York",
+      "price": "280.00",
+      "stock": 95,
+      "image": "product_images/lipstick4.webp",
+      "tags": ["Водостойкий"],
+      "desc": "Сверхстойкая жидкая матовая помада с насыщенным цветом."
+  },
+  {
+      "name": "L'Absolu Rouge Intimatte",
+      "group": "Помады",
+      "brand": "Lancome",
+      "price": "1350.00",
+      "stock": 22,
+      "image": "product_images/lipstick3.webp",
+      "tags": [],
+      "desc": "Матовая увлажняющая помада с невесомой текстурой."
+  },
+  {
+      "name": "Joli Rouge Lipstick",
+      "group": "Помады",
+      "brand": "Clarins",
+      "price": "1150.00",
+      "stock": 24,
+      "image": "product_images/lipstick3.webp",
+      "tags": [],
+      "desc": "Увлажняющая губная помада с маслом ши и экстрактом камелии."
+  },
+  {
+      "name": "Ombre Première Eyeshadow",
+      "group": "Тени для век",
+      "brand": "Lancome",
+      "price": "1450.00",
+      "stock": 15,
+      "image": "product_images/hypnose_palette2.webp",
+      "tags": [],
+      "desc": "Моно-тени для век с кремовой текстурой и высокой стойкостью."
+  },
+  {
+      "name": "Grandiôse Lash Curler",
+      "group": "Тушь для ресниц",
+      "brand": "Lancome",
+      "price": "1250.00",
+      "stock": 16,
+      "image": "product_images/le_volume_mascara.webp",
+      "tags": [],
+      "desc": "Тушь с изогнутой щеточкой для максимального объема и подкручивания."
+  },
+  {
+      "name": "Eye Palette Warm Neutrals",
+      "group": "Тени для век",
+      "brand": "Clarins",
+      "price": "1250.00",
+      "stock": 12,
+      "image": "product_images/le-baume.webp",
+      "tags": [],
+      "desc": "Палитра теплых нейтральных оттенков для создания дневного и вечернего макияжа."
+  },
+  {
+      "name": "Bronzing Compact",
+      "group": "Румяна",
+      "brand": "Clarins",
+      "price": "1350.00",
+      "stock": 14,
+      "image": "product_images/blush3.webp",
+      "tags": [],
+      "desc": "Компактная бронзирующая пудра для естественного загара."
+  },
+  {
+      "name": "La Vie Est Belle",
+      "group": "Женская парфюмерия",
+      "brand": "Lancome",
+      "price": "3850.00",
+      "stock": 10,
+      "image": "product_images/la_vie_est_belle.webp",
+      "tags": [],
+      "desc": "Культовый аромат с нотами ириса, пачули и гурманской сладости."
+  },
+  {
+      "name": "Idôle Eau de Parfum",
+      "group": "Женская парфюмерия",
+      "brand": "Lancome",
+      "price": "3400.00",
+      "stock": 12,
+      "image": "product_images/aqua_allegoria_mandarine_basilic.webp",
+      "tags": ["Веган"],
+      "desc": "Современный цветочный аромат с нотами розы и жасмина."
+  },
+  {
+      "name": "Magie Noire",
+      "group": "Миниатюры",
+      "brand": "Lancome",
+      "price": "950.00",
+      "stock": 30,
+      "image": "product_images/aqua_allegoria_mandarine_basilic.webp",
+      "tags": [],
+      "desc": "Мини-версия классического вечернего аромата."
+  },
+  {
+      "name": "Terre d'Hermès Mini",
+      "group": "Миниатюры",
+      "brand": "Lancome",
+      "price": "1050.00",
+      "stock": 22,
+      "image": "product_images/mon_guerlain_mini.webp",
+      "tags": [],
+      "desc": "Мини-версия культового мужского аромата с древесными нотами (12.5 мл)."
+  },
+  {
+      "name": "Beautiful Eau de Parfum",
+      "group": "Женская парфюмерия",
+      "brand": "Estée Lauder",
+      "price": "3950.00",
+      "stock": 10,
+      "image": "product_images/la_vie_est_belle.webp",
+      "tags": [],
+      "desc": "Классический цветочный аромат с нотами розы, лилии и жасмина."
+  },
+  {
+      "name": "Pleasures Eau de Parfum",
+      "group": "Женская парфюмерия",
+      "brand": "Estée Lauder",
+      "price": "3450.00",
+      "stock": 12,
+      "image": "product_images/la_vie_est_belle.webp",
+      "tags": [],
+      "desc": "Свежий цветочный аромат с нотами белой лилии, пиона и жасмина."
+  },
+  {
+      "name": "Eau Dynamisante",
+      "group": "Унисекс парфюмерия",
+      "brand": "Clarins",
+      "price": "1850.00",
+      "stock": 18,
+      "image": "product_images/eau_dynamisante.webp",
+      "tags": [],
+      "desc": "Легендарный тонизирующий парфюм с нотами розмарина, пачули и апельсина."
+  },
+  {
+      "name": "Gentleman Eau de Parfum",
+      "group": "Мужская парфюмерия",
+      "brand": "Givenchy",
+      "price": "3650.00",
+      "stock": 10,
+      "image": "product_images/l_homme_ideal.webp",
+      "tags": [],
+      "desc": "Элегантный древесный аромат с нотами ириса, черного чая и кедра."
+  },
+  {
+      "name": "J'adore Eau de Parfum",
+      "group": "Женская парфюмерия",
+      "brand": "Dior",
+      "price": "4850.00",
+      "stock": 12,
+      "image": "product_images/un_jardin_sur_le_nil.webp",
+      "tags": [],
+      "desc": "Культовый цветочный аромат с нотами жасмина, розы и иланг-иланга."
+  },
+  {
+      "name": "Sauvage Eau de Parfum",
+      "group": "Мужская парфюмерия",
+      "brand": "Dior",
+      "price": "4250.00",
+      "stock": 14,
+      "image": "product_images/l_homme_ideal.webp",
+      "tags": [],
+      "desc": "Легендарный аромат с нотами бергамота, амбры и ветивера."
+  },
+  {
+      "name": "Fahrenheit Eau de Toilette",
+      "group": "Мужская парфюмерия",
+      "brand": "Dior",
+      "price": "3850.00",
+      "stock": 10,
+      "image": "product_images/l_homme_ideal.webp",
+      "tags": [],
+      "desc": "Культовый аромат с нотами фиалки, кожи и мускуса."
+  },
+  {
+      "name": "No.5 Eau de Parfum",
+      "group": "Женская парфюмерия",
+      "brand": "Chanel",
+      "price": "4950.00",
+      "stock": 10,
+      "image": "product_images/miss_dior_eau_de_parfum.webp",
+      "tags": [],
+      "desc": "Легендарный аромат с нотами альдегидов, жасмина и розы."
+  },
+  {
+      "name": "Bleu de Chanel",
+      "group": "Мужская парфюмерия",
+      "brand": "Chanel",
+      "price": "4350.00",
+      "stock": 13,
+      "image": "product_images/l_homme_ideal.webp",
+      "tags": [],
+      "desc": "Современный древесный аромат с нотами грейпфрута, имбиря и кедра."
+  },
+  {
+      "name": "Coco Mademoiselle",
+      "group": "Женская парфюмерия",
+      "brand": "Chanel",
+      "price": "4750.00",
+      "stock": 12,
+      "image": "product_images/miss_dior_eau_de_parfum.webp",
+      "tags": [],
+      "desc": "Соблазнительный аромат с нотами апельсина, жасмина и пачули."
+  },
+  {
+      "name": "Terre d'Hermès",
+      "group": "Мужская парфюмерия",
+      "brand": "Hermès",
+      "price": "4150.00",
+      "stock": 12,
+      "image": "product_images/l_homme_ideal.webp",
+      "tags": [],
+      "desc": "Легендарный древесно-землистый аромат с нотами апельсина, кремня и кедра."
+  },
+  {
+      "name": "Twilly d'Hermès",
+      "group": "Женская парфюмерия",
+      "brand": "Hermès",
+      "price": "3850.00",
+      "stock": 10,
+      "image": "product_images/miss_dior_eau_de_parfum.webp",
+      "tags": [],
+      "desc": "Современный аромат с нотами имбиря, туберозы и сандала."
+  },
+  {
+      "name": "Un Jardin sur le Nil",
+      "group": "Унисекс парфюмерия",
+      "brand": "Hermès",
+      "price": "3650.00",
+      "stock": 10,
+      "image": "product_images/un_jardin_sur_le_nil.webp",
+      "tags": [],
+      "desc": "Свежий аромат с нотами манго, лотоса и тростника."
+  },
+  {
+      "name": "Shalimar Eau de Parfum",
+      "group": "Женская парфюмерия",
+      "brand": "Guerlain",
+      "price": "3550.00",
+      "stock": 10,
+      "image": "product_images/miss_dior_eau_de_parfum.webp",
+      "tags": [],
+      "desc": "Классический восточный аромат с нотами бергамота, ванили и ириса."
+  },
+  {
+      "name": "L'Homme Idéal",
+      "group": "Мужская парфюмерия",
+      "brand": "Guerlain",
+      "price": "3250.00",
+      "stock": 12,
+      "image": "product_images/l_homme_ideal.webp",
+      "tags": [],
+      "desc": "Аромат с нотами миндаля, кожи и древесины."
+  },
+  {
+      "name": "Rose Eau de Toilette",
+      "group": "Унисекс парфюмерия",
+      "brand": "Molton Brown",
+      "price": "2450.00",
+      "stock": 12,
+      "image": "product_images/image_processing20250702-136-kz62ji.webp",
+      "tags": [],
+      "desc": "Элегантный розовый аромат с нотами дамасской розы и ветивера."
+  },
+  {
+      "name": "Black Pepper Eau de Toilette",
+      "group": "Мужская парфюмерия",
+      "brand": "Molton Brown",
+      "price": "2550.00",
+      "stock": 10,
+      "image": "product_images/hydra_life_fresh_eye_cream.webp",
+      "tags": [],
+      "desc": "Пряный древесный аромат с нотами черного перца, ветивера и амбры."
+  },
+  {
+      "name": "J'adore Mini",
+      "group": "Миниатюры",
+      "brand": "Dior",
+      "price": "1350.00",
+      "stock": 25,
+      "image": "product_images/hydra_beauty_micro_serum.webp",
+      "tags": [],
+      "desc": "Мини-версия культового аромата J'adore (10 мл)."
+  },
+  {
+      "name": "Lipikar Baume AP+M",
+      "group": "Кремы для тела",
+      "brand": "La Roche-Posay",
+      "price": "890.00",
+      "stock": 30,
+      "image": "product_images/lipikar_baume_ap+m.webp",
+      "tags": ["Для чувствительной кожи", "Без парабенов"],
+      "desc": "Липидовосполняющий бальзам для очень сухой кожи."
+  },
+  {
+      "name": "Tonic Body Treatment Oil",
+      "group": "Кремы для тела",
+      "brand": "Clarins",
+      "price": "1850.00",
+      "stock": 12,
+      "image": "product_images/shampoo3.webp",
+      "tags": [],
+      "desc": "Тонизирующее масло для тела с экстрактами розмарина и герани."
+  },
+  {
+      "name": "Sauvage Mini",
+      "group": "Миниатюры",
+      "brand": "Dior",
+      "price": "1250.00",
+      "stock": 28,
+      "image": "product_images/image_processing20250702-136-kz62ji.webp",
+      "tags": [],
+      "desc": "Мини-версия легендарного мужского аромата Sauvage (10 мл)."
+  },
+  {
+      "name": "Cicaplast Baume B5+",
+      "group": "Крема",
+      "brand": "La Roche-Posay",
+      "price": "780.00",
+      "stock": 35,
+      "image": "product_images/face_cream1.webp",
+      "tags": ["Для чувствительной кожи", "Для сухой кожи"],
+      "desc": "Восстанавливающий бальзам для раздраженной и поврежденной кожи."
+  },
+  {
+      "name": "No.5 Mini",
+      "group": "Миниатюры",
+      "brand": "Chanel",
+      "price": "1450.00",
+      "stock": 20,
+      "image": "product_images/image_processing20250702-136-kz62ji.webp",
+      "tags": [],
+      "desc": "Мини-версия культового аромата No.5 (7.5 мл)."
+  },
+  {
+      "name": "Clearly Corrective Dark Spot Corrector",
+      "group": "Сыворотки",
+      "brand": "Kiehl's",
+      "price": "2150.00",
+      "stock": 10,
+      "image": "product_images/capture_totale_serum.webp",
+      "tags": [],
+      "desc": "Сыворотка для осветления пигментных пятен и выравнивания тона кожи."
+  },
+  {
+      "name": "Rare Earth Deep Pore Cleansing Mask",
+      "group": "Очищение",
+      "brand": "Kiehl's",
+      "price": "1650.00",
+      "stock": 12,
+      "image": "product_images/conditioner7.webp",
+      "tags": ["Для жирной кожи"],
+      "desc": "Глиняная маска для глубокого очищения пор и матирования кожи."
+  },
+  {
+      "name": "La Nuit Trésor Mini",
+      "group": "Миниатюры",
+      "brand": "Lancome",
+      "price": "1200.00",
+      "stock": 20,
+      "image": "product_images/mon_guerlain_mini.webp",
+      "tags": [],
+      "desc": "Миниатюрная версия гурманского аромата La Nuit Trésor (15 мл)."
+  },
+  {
+      "name": "Y Eau de Parfum",
+      "group": "Мужская парфюмерия",
+      "brand": "Yves Saint Laurent",
+      "price": "3750.00",
+      "stock": 12,
+      "image": "product_images/mon_guerlain_mini.webp",
+      "tags": [],
+      "desc": "Древесный аромат с нотами бергамота, яблока и кедра для современного мужчины."
+  },
+  {
+      "name": "Capture Totale Serum",
+      "group": "Сыворотки",
+      "brand": "Dior",
+      "price": "4950.00",
+      "stock": 8,
+      "image": "product_images/almond_supple_skin_oil.webp",
+      "tags": ["Для всех типов кожи"],
+      "desc": "Антивозрастная сыворотка с экстрактом цветка лонгозы для сияния кожи."
+  },
+  {
+      "name": "Hydra Life Fresh Eye Cream",
+      "group": "Увлажнение",
+      "brand": "Dior",
+      "price": "1850.00",
+      "stock": 12,
+      "image": "product_images/hydra_life_fresh_eye_cream.webp",
+      "tags": [],
+      "desc": "Освежающий крем для кожи вокруг глаз с экстрактом мальвы."
+  },
+  {
+      "name": "Crème Fraîche de Beauté",
+      "group": "Увлажнение",
+      "brand": "Nuxe",
+      "price": "1450.00",
+      "stock": 16,
+      "image": "product_images/creame1.webp",
+      "tags": ["Для всех типов кожи"],
+      "desc": "Увлажняющий крем-гель с растительным молочком и гиалуроновой кислотой."
+  },
+  {
+      "name": "Huile Prodigieuse Florale",
+      "group": "Сыворотки",
+      "brand": "Nuxe",
+      "price": "1150.00",
+      "stock": 22,
+      "image": "product_images/capture_totale_serum.webp",
+      "tags": ["Для сухой кожи"],
+      "desc": "Цветочное сухое масло для лица, тела и волос с ароматом розы и жасмина."
+  },
+  {
+      "name": "Le Baume",
+      "group": "Крема",
+      "brand": "Chanel",
+      "price": "2350.00",
+      "stock": 10,
+      "image": "product_images/le-baume.webp",
+      "tags": ["Для чувствительной кожи"],
+      "desc": "Универсальный восстанавливающий бальзам для лица и тела."
+  },
+  {
+      "name": "Redermic R Retinol Cream",
+      "group": "Крема",
+      "brand": "La Roche-Posay",
+      "price": "1250.00",
+      "stock": 18,
+      "image": "product_images/capture_totale_serum.webp",
+      "tags": ["Для чувствительной кожи", "С ретинолом"],
+      "desc": "Антивозрастной крем с чистым ретинолом для коррекции морщин."
+  },
+  {
+      "name": "Retinol 0.5% in Squalane",
+      "group": "Сыворотки",
+      "brand": "The Ordinary",
+      "price": "490.00",
+      "stock": 30,
+      "image": "product_images/capture_totale_serum.webp",
+      "tags": ["С ретинолом", "Веган"],
+      "desc": "Сыворотка с ретинолом для выравнивания текстуры и тона кожи."
+  },
+  {
+      "name": "Mineral 89 Eye Serum",
+      "group": "Сыворотки",
+      "brand": "Vichy",
+      "price": "1120.00",
+      "stock": 12,
+      "image": "product_images/hydra_beauty_micro_serum.webp",
+      "tags": ["Для чувствительной кожи", "С гиалуроновой кислотой"],
+      "desc": "Сыворотка для контура глаз с гиалуроновой кислотой и кофеином."
+  },
+  {
+      "name": "Hydrating Cream-to-Foam Cleanser",
+      "group": "Очищение",
+      "brand": "CeraVe",
+      "price": "590.00",
+      "stock": 35,
+      "image": "product_images/lipikar_baume_ap+m.webp",
+      "tags": ["Для всех типов кожи", "Без парабенов"],
+      "desc": "Очищающее средство с кремовой текстурой, превращающееся в пену."
+  },
+  {
+      "name": "Effaclar Mat Moisturizer",
+      "group": "Увлажнение",
+      "brand": "La Roche-Posay",
+      "price": "850.00",
+      "stock": 22,
+      "image": "product_images/capture_totale_serum.webp",
+      "tags": ["Для жирной кожи"],
+      "desc": "Матирующий увлажняющий крем для жирной кожи с себорегулирующим действием."
+  },
+  {
+      "name": "Lotion P50",
+      "group": "Лосьоны",
+      "brand": "Bioderma",
+      "price": "1850.00",
+      "stock": 8,
+      "image": "product_images/image_processing20250702-136-kz62ji.webp",
+      "tags": ["Для жирной кожи"],
+      "desc": "Эксфолиирующий лосьон для обновления кожи и сужения пор."
+  },
+  {
+      "name": "Bath & Shower Oil",
+      "group": "Пена для ванн",
+      "brand": "Bioderma",
+      "price": "780.00",
+      "stock": 20,
+      "image": "product_images/hydra_life_fresh_eye_cream.webp",
+      "tags": ["Для сухой кожи", "Без парабенов"],
+      "desc": "Масло для душа и ванны, бережно очищающее и увлажняющее кожу."
+  },
+  {
+      "name": "Huile Prodigieuse Body Oil",
+      "group": "Кремы для тела",
+      "brand": "Clarins",
+      "price": "1450.00",
+      "stock": 15,
+      "image": "product_images/almond_supple_skin_oil.webp",
+      "tags": ["Для сухой кожи"],
+      "desc": "Сухое масло для тела с растительными экстрактами для питания и аромата."
+  },
+  {
+      "name": "Gold Under Eye Patches",
+      "group": "Патчи",
+      "brand": "Lancome",
+      "price": "2100.00",
+      "stock": 15,
+      "image": "product_images/essential_energy_moisturizer.webp",
+      "tags": [],
+      "desc": "Роскошные гидрогелевые патчи с золотом для сияния кожи вокруг глаз."
+  },
+  {
+      "name": "Essential Energy Moisturizer",
+      "group": "Увлажнение",
+      "brand": "Shiseido",
+      "price": "2150.00",
+      "stock": 14,
+      "image": "product_images/essential_energy_moisturizer.webp",
+      "tags": ["Для всех типов кожи"],
+      "desc": "Увлажняющий крем с комплексом ReNeura для сияющей кожи."
+  },
+  {
+      "name": "Ultimune Power Infusing Concentrate",
+      "group": "Сыворотки",
+      "brand": "Shiseido",
+      "price": "3250.00",
+      "stock": 11,
+      "image": "product_images/capture_totale_serum.webp",
+      "tags": ["Для всех типов кожи"],
+      "desc": "Иммунная сыворотка для укрепления защитных свойств кожи."
+  },
+  {
+      "name": "Benefiance Wrinkle Smoothing Cream",
+      "group": "Крема",
+      "brand": "Shiseido",
+      "price": "2850.00",
+      "stock": 10,
+      "image": "product_images/image_processing20250702-136-kz62ji.webp",
+      "tags": ["Для сухой кожи"],
+      "desc": "Антивозрастной крем для разглаживания морщин."
+  },
+  {
+      "name": "Rêve de Miel Face Cream",
+      "group": "Увлажнение",
+      "brand": "Nuxe",
+      "price": "1250.00",
+      "stock": 18,
+      "image": "product_images/creame1.webp",
+      "tags": ["Для сухой кожи"],
+      "desc": "Питательный крем для лица с медом и прополисом."
+  },
+  {
+      "name": "Bleu Noir",
+      "group": "Мужская парфюмерия",
+      "brand": "Lancome",
+      "price": "3450.00",
+      "stock": 10,
+      "image": "product_images/bleu_noir.webp",
+      "tags": [],
+      "desc": "Элегантный аромат с нотами кипариса, ветивера и амбры."
+  },
+  {
+      "name": "Acqua di Giò",
+      "group": "Мужская парфюмерия",
+      "brand": "Giorgio Armani",
+      "price": "3900.00",
+      "stock": 10,
+      "image": "product_images/hydra_beauty_micro_serum.webp",
+      "tags": [],
+      "desc": "Легендарный морской аромат с нотами бергамота, жасмина и пачули."
+  },
+  {
+      "name": "Stronger With You",
+      "group": "Мужская парфюмерия",
+      "brand": "Giorgio Armani",
+      "price": "3850.00",
+      "stock": 12,
+      "image": "product_images/capture_totale_serum.webp",
+      "tags": [],
+      "desc": "Теплый аромат с нотами имбиря, каштана и ванили для уверенных мужчин."
+  },
+  {
+      "name": "Pi Neo Eau de Toilette",
+      "group": "Мужская парфюмерия",
+      "brand": "Givenchy",
+      "price": "3150.00",
+      "stock": 12,
+      "image": "product_images/bleu_noir.webp",
+      "tags": [],
+      "desc": "Свежий древесно-пряный аромат с нотами грейпфрута, мускатного ореха и кедра."
+  },
+  {
+      "name": "Vetiver Eau de Toilette",
+      "group": "Мужская парфюмерия",
+      "brand": "Guerlain",
+      "price": "3350.00",
+      "stock": 10,
+      "image": "product_images/bleu_noir.webp",
+      "tags": [],
+      "desc": "Классический древесный аромат с нотами ветивера, табака и мускуса."
+  },
+  {
+      "name": "Si Eau de Parfum",
+      "group": "Женская парфюмерия",
+      "brand": "Giorgio Armani",
+      "price": "4450.00",
+      "stock": 8,
+      "image": "product_images/mon_guerlain_mini.webp",
+      "tags": [],
+      "desc": "Элегантный аромат с нотами черной смородины, фрезии и ванили."
+  },
+  {
+      "name": "La Vie Est Belle L'Éclat",
+      "group": "Женская парфюмерия",
+      "brand": "Lancome",
+      "price": "3950.00",
+      "stock": 10,
+      "image": "product_images/mon_guerlain_mini.webp",
+      "tags": [],
+      "desc": "Свежая версия культового аромата с нотами ириса, жасмина и белого мускуса."
+  },
+  {
+      "name": "Absolut Repair Shampoo",
+      "group": "Шампуни",
+      "brand": "L'Oreal Professionnel",
+      "price": "540.00",
+      "stock": 22,
+      "image": "product_images/shampoo1.webp",
+      "tags": ["Против выпадения"],
+      "desc": "Профессиональный шампунь для восстановления поврежденных волос."
+  },
+  {
+      "name": "Libre Eau de Parfum",
+      "group": "Женская парфюмерия",
+      "brand": "Yves Saint Laurent",
+      "price": "4350.00",
+      "stock": 9,
+      "image": "product_images/aqua_allegoria_mandarine_basilic.webp",
+      "tags": [],
+      "desc": "Культовый аромат с нотами лаванды, апельсинового цвета и ванили."
+  },
+  {
+      "name": "Black Opium",
+      "group": "Женская парфюмерия",
+      "brand": "Yves Saint Laurent",
+      "price": "4650.00",
+      "stock": 11,
+      "image": "product_images/aqua_allegoria_mandarine_basilic.webp",
+      "tags": [],
+      "desc": "Соблазнительный гурманский аромат с нотами кофе, ванили и белых цветов."
+  },
+  {
+      "name": "L'Interdit Eau de Parfum",
+      "group": "Женская парфюмерия",
+      "brand": "Givenchy",
+      "price": "4250.00",
+      "stock": 9,
+      "image": "product_images/capture_totale_serum.webp",
+      "tags": [],
+      "desc": "Смелый цветочный аромат с нотами туберозы, жасмина и ветивера."
+  },
+  {
+      "name": "Aqua Allegoria Mandarine Basilic",
+      "group": "Женская парфюмерия",
+      "brand": "Guerlain",
+      "price": "2950.00",
+      "stock": 14,
+      "image": "product_images/aqua_allegoria_mandarine_basilic.webp",
+      "tags": [],
+      "desc": "Сочный цитрусовый аромат с нотами мандарина и базилика."
+  },
+  {
+      "name": "Mon Guerlain Mini",
+      "group": "Миниатюры",
+      "brand": "Guerlain",
+      "price": "1250.00",
+      "stock": 20,
+      "image": "product_images/mon_guerlain_mini.webp",
+      "tags": [],
+      "desc": "Мини-версия культового женского аромата с нотами лаванды и ванили."
+  },
+  {
+      "name": "The Ordinary Unisex Scent",
+      "group": "Унисекс парфюмерия",
+      "brand": "The Ordinary",
+      "price": "1100.00",
+      "stock": 5,
+      "image": "product_images/eau_dynamisante.webp",
+      "tags": ["Веган"],
+      "desc": "Минималистичный аромат для него и для нее."
+  },
+  {
+      "name": "Blush Rush",
+      "group": "Румяна",
+      "brand": "Nyx Professional Makeup",
+      "price": "280.00",
+      "stock": 40,
+      "image": "product_images/blush4.webp",
+      "tags": [],
+      "desc": "Пудровые румяна с мягкой текстурой для естественного румянца."
+  },
+  {
+      "name": "Mythic Oil Scent",
+      "group": "Унисекс парфюмерия",
+      "brand": "L'Oreal Professionnel",
+      "price": "950.00",
+      "stock": 7,
+      "image": "product_images/capture_totale_serum.webp",
+      "tags": [],
+      "desc": "Легкий унисекс-аромат с нотами мускуса и древесины."
+  },
+  {
+      "name": "L'Homme Idéal Mini",
+      "group": "Миниатюры",
+      "brand": "Guerlain",
+      "price": "1150.00",
+      "stock": 22,
+      "image": "product_images/capture_totale_serum.webp",
+      "tags": [],
+      "desc": "Мини-версия мужского аромата с нотами миндаля, древесины и кожи."
+  },
+  {
+      "name": "La Nuit Trésor",
+      "group": "Женская парфюмерия",
+      "brand": "Lancome",
+      "price": "4200.00",
+      "stock": 8,
+      "image": "product_images/un_jardin_sur_le_nil.webp",
+      "tags": [],
+      "desc": "Гурманский аромат с нотами карамели, розы и пралине."
+  },
+  {
+      "name": "Hypnôse Homme",
+      "group": "Мужская парфюмерия",
+      "brand": "Lancome",
+      "price": "3200.00",
+      "stock": 12,
+      "image": "product_images/hypnôse_homme.webp",
+      "tags": [],
+      "desc": "Древесный аромат для мужчин с нотами имбиря, лаванды и ветивера."
+  },
+  {
+      "name": "Source Essentielle Grape Water",
+      "group": "Ополаскиватели для волос",
+      "brand": "L'Oreal Professionnel",
+      "price": "580.00",
+      "stock": 15,
+      "image": "product_images/conditioner8.webp",
+      "tags": [],
+      "desc": "Увлажняющий ополаскиватель с экстрактом винограда для блеска волос."
+  },
+  {
+      "name": "Nutritive Mask for Very Dry Hair",
+      "group": "Маски для волос",
+      "brand": "L'Oreal Professionnel",
+      "price": "1050.00",
+      "stock": 9,
+      "image": "product_images/hair_masks3.webp",
+      "tags": ["Для сухой кожи"],
+      "desc": "Питательная маска для очень сухих и поврежденных волос."
+  },
+  {
+      "name": "Elixir Ultime Oil",
+      "group": "Бальзамы для волос",
+      "brand": "Kérastase",
+      "price": "1650.00",
+      "stock": 10,
+      "image": "product_images/hair_balms1.webp",
+      "tags": [],
+      "desc": "Профессиональное масло для волос с 4 экстрактами масел для сияния."
+  },
+  {
+      "name": "Discipline Smoothing Mask",
+      "group": "Маски для волос",
+      "brand": "Kérastase",
+      "price": "1550.00",
+      "stock": 8,
+      "image": "product_images/hair_masks4.webp",
+      "tags": [],
+      "desc": "Маска для разглаживания непослушных волос с комплексом Morpho-Keratine."
+  },
+  {
+      "name": "Specifique Shampoo",
+      "group": "Шампуни",
+      "brand": "Kérastase",
+      "price": "1050.00",
+      "stock": 12,
+      "image": "product_images/shampoo4.webp",
+      "tags": ["Против выпадения"],
+      "desc": "Шампунь для укрепления волос и борьбы с выпадением."
+  },
+  {
+      "name": "Nuxe Hair Prodigieuse",
+      "group": "Бальзамы для волос",
+      "brand": "Nuxe",
+      "price": "890.00",
+      "stock": 18,
+      "image": "product_images/hair_balms2.webp",
+      "tags": [],
+      "desc": "Восстанавливающее масло для волос с 7 растительными маслами."
+  },
+  {
+      "name": "Nuxe Shampoo",
+      "group": "Шампуни",
+      "brand": "Nuxe",
+      "price": "480.00",
+      "stock": 22,
+      "image": "product_images/shampoo5.webp",
+      "tags": [],
+      "desc": "Мягкий шампунь с экстрактом цветов и маслом макадамии."
+  },
+  {
+      "name": "Aromachologie Repair Shampoo",
+      "group": "Шампуни",
+      "brand": "L'Occitane",
+      "price": "520.00",
+      "stock": 20,
+      "image": "product_images/shampoo6.webp",
+      "tags": ["Для сухой кожи"],
+      "desc": "Восстанавливающий шампунь с маслом ши и экстрактом винограда."
+  },
+  {
+      "name": "Aromachologie Conditioner",
+      "group": "Кондиционеры",
+      "brand": "L'Occitane",
+      "price": "520.00",
+      "stock": 18,
+      "image": "product_images/conditioner1.webp",
+      "tags": ["Для сухой кожи"],
+      "desc": "Питательный кондиционер с маслом ши и кокоса."
+  },
+  {
+      "name": "5 Essential Oils Mask",
+      "group": "Маски для волос",
+      "brand": "L'Occitane",
+      "price": "780.00",
+      "stock": 14,
+      "image": "product_images/hair_masks5.webp",
+      "tags": [],
+      "desc": "Интенсивная маска с 5 эфирными маслами для глубокого питания."
+  },
+  {
+      "name": "Squalane + Peptide Scalp Oil",
+      "group": "Бальзамы для волос",
+      "brand": "The Ordinary",
+      "price": "390.00",
+      "stock": 25,
+      "image": "product_images/hair_balms3.webp",
+      "tags": ["Веган"],
+      "desc": "Масло для кожи головы, укрепляющее волосяные фолликулы."
+  },
+  {
+      "name": "Color Conditioner",
+      "group": "Кондиционеры",
+      "brand": "Bioderma",
+      "price": "520.00",
+      "stock": 14,
+      "image": "product_images/conditioner2.webp",
+      "tags": [],
+      "desc": "Кондиционер для защиты цвета и увлажнения окрашенных волос."
+  },
+  {
+      "name": "Chroma Absolu Shampoo",
+      "group": "Шампуни",
+      "brand": "Kérastase",
+      "price": "1150.00",
+      "stock": 12,
+      "image": "product_images/shampoo7.webp",
+      "tags": [],
+      "desc": "Профессиональный шампунь для защиты цвета и сияния окрашенных волос."
+  },
+  {
+      "name": "Color Extend Conditioner",
+      "group": "Кондиционеры",
+      "brand": "Redken",
+      "price": "790.00",
+      "stock": 15,
+      "image": "product_images/conditioner3.webp",
+      "tags": [],
+      "desc": "Кондиционер для защиты цвета и сияния окрашенных волос."
+  },
+  {
+      "name": "Flash Rinse",
+      "group": "Ополаскиватели для волос",
+      "brand": "L'Oreal Professionnel",
+      "price": "650.00",
+      "stock": 14,
+      "image": "product_images/conditioner9.webp",
+      "tags": [],
+      "desc": "Экспресс-ополаскиватель для мгновенного блеска и мягкости."
+  },
+  {
+      "name": "All Soft Shampoo",
+      "group": "Шампуни",
+      "brand": "Redken",
+      "price": "890.00",
+      "stock": 18,
+      "image": "product_images/shampoo8.webp",
+      "tags": ["Для сухой кожи"],
+      "desc": "Увлажняющий шампунь для мягкости и шелковистости сухих и ломких волос."
+  },
+  {
+      "name": "All Soft Conditioner",
+      "group": "Кондиционеры",
+      "brand": "Redken",
+      "price": "890.00",
+      "stock": 16,
+      "image": "product_images/conditioner4.webp",
+      "tags": ["Для сухой кожи"],
+      "desc": "Питательный кондиционер для интенсивного увлажнения и легкого расчесывания."
+  },
+  {
+      "name": "Extreme Length Shampoo",
+      "group": "Шампуни",
+      "brand": "Matrix",
+      "price": "490.00",
+      "stock": 25,
+      "image": "product_images/shampoo9.webp",
+      "tags": ["Против выпадения"],
+      "desc": "Шампунь для роста и укрепления волос с экстрактом женьшеня."
+  },
+  {
+      "name": "Extreme Length Conditioner",
+      "group": "Кондиционеры",
+      "brand": "Matrix",
+      "price": "490.00",
+      "stock": 22,
+      "image": "product_images/conditioner5.webp",
+      "tags": ["Против выпадения"],
+      "desc": "Кондиционер для укрепления и защиты длины волос."
+  },
+  {
+      "name": "Frizz Dismiss Shampoo",
+      "group": "Шампуни",
+      "brand": "Redken",
+      "price": "920.00",
+      "stock": 14,
+      "image": "product_images/shampoo10.webp",
+      "tags": [],
+      "desc": "Шампунь против пушистости с маслом макадамии и комплексом для разглаживания."
+  },
+  {
+      "name": "Biolage R.A.W. Mask",
+      "group": "Маски для волос",
+      "brand": "Matrix",
+      "price": "780.00",
+      "stock": 12,
+      "image": "product_images/hair_masks6.webp",
+      "tags": ["Веган", "Без парабенов"],
+      "desc": "Натуральная маска с экстрактом алоэ и маслом жожоба для глубокого увлажнения."
+  },
+  {
+      "name": "Acid Bonding Concentrate",
+      "group": "Бальзамы для волос",
+      "brand": "Redken",
+      "price": "1450.00",
+      "stock": 9,
+      "image": "product_images/hair_balms4.webp",
+      "tags": [],
+      "desc": "Специализированный уход для восстановления поврежденных и осветленных волос."
+  },
+  {
+      "name": "Sulfate-Free Hydrating Shampoo",
+      "group": "Шампуни",
+      "brand": "Bioderma",
+      "price": "580.00",
+      "stock": 20,
+      "image": "product_images/shampoo11.webp",
+      "tags": ["Без парабенов"],
+      "desc": "Бессульфатный увлажняющий шампунь для чувствительной кожи головы."
+  },
+  {
+      "name": "Niacinamide Scalp Treatment",
+      "group": "Против перхоти",
+      "brand": "The Ordinary",
+      "price": "280.00",
+      "stock": 22,
+      "image": "product_images/Effaclar_Purifying_Foaming_Gel.jpg",
+      "tags": ["Веган"],
+      "desc": "Легкий уход за кожей головы с ниацинамидом для укрепления волос."
+  },
+  {
+      "name": "Absolut Repair Mask",
+      "group": "Маски для волос",
+      "brand": "L'Oreal Professionnel",
+      "price": "920.00",
+      "stock": 12,
+      "image": "product_images/hair_masks10.webp",
+      "tags": ["Против выпадения"],
+      "desc": "Профессиональная маска для интенсивного восстановления."
+  },
+  {
+      "name": "Vitamino Color Conditioner",
+      "group": "Кондиционеры",
+      "brand": "L'Oreal Professionnel",
+      "price": "490.00",
+      "stock": 20,
+      "image": "product_images/conditioner6.webp",
+      "tags": ["Без парабенов"],
+      "desc": "Кондиционер для защиты цвета окрашенных волос."
+  },
+  {
+      "name": "Mythic Oil Balm",
+      "group": "Бальзамы для волос",
+      "brand": "L'Oreal Professionnel",
+      "price": "720.00",
+      "stock": 10,
+      "image": "product_images/hair_balms5.webp",
+      "tags": ["Для сухой кожи"],
+      "desc": "Питательный бальзам на основе масел."
+  },
+  {
+      "name": "Idôle Mini",
+      "group": "Миниатюры",
+      "brand": "Lancome",
+      "price": "950.00",
+      "stock": 25,
+      "image": "product_images/eau_dynamisante.webp",
+      "tags": ["Веган"],
+      "desc": "Мини-версия цветочного аромата Idôle (10 мл)."
+  }
+]

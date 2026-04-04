@@ -26,7 +26,7 @@ load_dotenv()
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-build-time-fallback-key")
 
 # Application definition
 
@@ -133,7 +133,7 @@ LOCALE_PATHS = [
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "/staticfiles/"
+STATIC_URL = "/static/"
 STATIC_ROOT = os.getenv("STATIC_ROOT", BASE_DIR.parent / "staticfiles")
 
 MEDIA_URL = "/media/"
@@ -199,6 +199,35 @@ DEFAULT_FROM_EMAIL = "Cosmetics Shop <noreply@gmail.com>"
 PRODUCTS_PER_PAGE = 20
 
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    "https://*.ngrok-free.app",
+]
+
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# NOVA POSHTA
+NOVA_POSHTA_API_URL = "https://api.novaposhta.ua/v2.0/json/"
+NOVA_POSHTA_API_KEY = os.getenv("NOVA_POSHTA_API_KEY")
+
+# MONOBANK
+MONO_URL_STATUS = "https://api.monobank.ua/api/merchant/invoice/status"
+MONO_URL = "https://api.monobank.ua/api/merchant/invoice/create"
+MONO_TOKEN = os.getenv("MONO_TOKEN")
+
+
+REDIS_URL = os.getenv("REDIS_URL") or os.getenv("REDISCLOUD_URL")
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": REDIS_URL,
+    }
+}
+
 # CELERY SETTINGS
 CELERY_BEAT_SCHEDULE = {
     "check-completed-orders-for-deletion": {
@@ -213,21 +242,12 @@ CELERY_BEAT_SCHEDULE = {
 CELERY_TIMEZONE = "Europe/Kiev"
 CELERY_ENABLE_UTC = True
 
-CELERY_BROKER_URL = "redis://redis:6379/0"
+CELERY_BROKER_URL = REDIS_URL
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:8080",
-    "http://127.0.0.1:8080",
-    "https://*.ngrok-free.app",
-]
-
-USE_X_FORWARDED_HOST = True
-USE_X_FORWARDED_PORT = True
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-
+ON_HEROKU = os.getenv("DYNO") is not None
 
 LOGGING = {
     "version": 1,
@@ -251,66 +271,66 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "standard",
         },
-        "file": {
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": BASE_DIR.parent / "logs/django.log",
-            "maxBytes": 1024 * 1024 * 10,
-            "backupCount": 5,
-            "formatter": "verbose",
-            "filters": ["no_traceback"],
-        },
-        "errors_file": {
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": BASE_DIR.parent / "logs/errors.log",
-            "maxBytes": 1024 * 1024 * 10,
-            "backupCount": 5,
-            "level": "ERROR",
-            "formatter": "verbose",
-            "filters": ["no_traceback"],
-        },
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["console", "file", "errors_file"],
-            "level": "INFO",
-            "propagate": True,
-        },
-        "celery": {
-            "handlers": ["console", "file", "errors_file"],
-            "level": "INFO",
-            "propagate": False,
-        },
-        "cosmetics_shop": {
-            "handlers": ["console", "file", "errors_file"],
-            "level": "INFO",
-            "propagate": False,
-        },
-        "accounts": {
-            "handlers": ["console", "file", "errors_file"],
-            "level": "INFO",
-            "propagate": False,
-        },
-        "staff": {
-            "handlers": ["console", "file", "errors_file"],
-            "level": "INFO",
-            "propagate": False,
-        },
-        "api": {
-            "handlers": ["console", "file", "errors_file"],
-            "level": "INFO",
-            "propagate": False,
-        },
+        **(
+            {}
+            if ON_HEROKU
+            else {
+                "file": {
+                    "class": "logging.handlers.RotatingFileHandler",
+                    "filename": BASE_DIR.parent / "logs/django.log",
+                    "maxBytes": 1024 * 1024 * 10,
+                    "backupCount": 5,
+                    "formatter": "verbose",
+                    "filters": ["no_traceback"],
+                },
+                "errors_file": {
+                    "class": "logging.handlers.RotatingFileHandler",
+                    "filename": BASE_DIR.parent / "logs/errors.log",
+                    "maxBytes": 1024 * 1024 * 10,
+                    "backupCount": 5,
+                    "level": "ERROR",
+                    "formatter": "verbose",
+                    "filters": ["no_traceback"],
+                },
+            }
+        ),
     },
 }
 
-# NOVA POSHTA
-NOVA_POSHTA_API_URL = "https://api.novaposhta.ua/v2.0/json/"
-NOVA_POSHTA_API_KEY = os.getenv("NOVA_POSHTA_API_KEY")
+DEFAULT_HANDLERS = ["console"] if ON_HEROKU else ["console", "file", "errors_file"]
 
-# MONOBANK
-MONO_URL_STATUS = "https://api.monobank.ua/api/merchant/invoice/status"
-MONO_URL = "https://api.monobank.ua/api/merchant/invoice/create"
-MONO_TOKEN = os.getenv("MONO_TOKEN")
+LOGGING["loggers"] = {
+    "django": {
+        "handlers": DEFAULT_HANDLERS,
+        "level": "INFO",
+        "propagate": True,
+    },
+    "celery": {
+        "handlers": DEFAULT_HANDLERS,
+        "level": "INFO",
+        "propagate": False,
+    },
+    "cosmetics_shop": {
+        "handlers": DEFAULT_HANDLERS,
+        "level": "INFO",
+        "propagate": False,
+    },
+    "accounts": {
+        "handlers": DEFAULT_HANDLERS,
+        "level": "INFO",
+        "propagate": False,
+    },
+    "staff": {
+        "handlers": DEFAULT_HANDLERS,
+        "level": "INFO",
+        "propagate": False,
+    },
+    "api": {
+        "handlers": DEFAULT_HANDLERS,
+        "level": "INFO",
+        "propagate": False,
+    },
+}
 
 
 REST_FRAMEWORK = {
@@ -324,6 +344,8 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.BasicAuthentication",
     ],
 }
+
+PRODUCTS_FILE = BASE_DIR.parent / "data" / "products_data.json"
 
 # SIMPLE_JWT = {
 #     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
