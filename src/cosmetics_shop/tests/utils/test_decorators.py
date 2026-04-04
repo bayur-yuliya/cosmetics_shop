@@ -19,10 +19,7 @@ def test_cart_required_empty_cart(mocker, user):
     setattr(request, "_messages", FallbackStorage(request))
 
     cart = Mock()
-    cart_items = Mock()
-    cart_items.exists.return_value = False
-
-    cart.cart_items.all.return_value = cart_items
+    cart.cart_items.exists.return_value = False
 
     mock_get_cart = mocker.patch("cosmetics_shop.utils.decorators.get_cart")
     mock_get_cart.return_value = cart
@@ -46,10 +43,8 @@ def test_cart_required_with_items(mocker):
     setattr(request, "_messages", FallbackStorage(request))
 
     cart = Mock()
-    cart_items = Mock()
-    cart_items.exists.return_value = True
+    cart.cart_items.exists.return_value = True
 
-    cart.cart_items.all.return_value = cart_items
     mock_get_cart = mocker.patch("cosmetics_shop.utils.decorators.get_cart")
     mock_get_cart.return_value = cart
 

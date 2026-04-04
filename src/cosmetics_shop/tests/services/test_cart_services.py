@@ -48,7 +48,7 @@ def test_remove_product_from_cart(cart, product):
 @pytest.mark.django_db
 def test_delete_product_from_cart(cart, product):
     CartItem.objects.create(cart=cart, product=product, quantity=3)
-    delete_product_from_cart(cart, product.id)
+    delete_product_from_cart(cart, product.code)
     cart_item = CartItem.objects.filter(cart=cart, product=product).count()
 
     assert cart_item == 0

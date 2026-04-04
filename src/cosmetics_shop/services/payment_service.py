@@ -33,7 +33,7 @@ def create_mono_invoice(order: Order, redirect_url: str, webhook_url: str):
     return response.json()
 
 
-def init_payment(order: Order, request, custom_redirect_url: str = None):
+def init_payment(order: Order, request, custom_redirect_url: str | None = None):
     if custom_redirect_url:
         redirect_url = custom_redirect_url
     else:
@@ -79,7 +79,12 @@ def sync_pending_payments():
     payments = Payment.objects.filter(status=Payment.PaymentStatus.PENDING)
 
     for payment in payments:
-        status = check_mono_payment_status(payment.external_id)
+        invoice_id = payment.external_id
+
+        if invoice_id is None:
+            return
+
+        status = check_mono_payment_status(invoice_id)
 
         if status == "success":
             payment.status = Payment.PaymentStatus.SUCCESS

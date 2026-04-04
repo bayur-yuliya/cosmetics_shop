@@ -72,6 +72,9 @@ def delivery(request: HttpRequest) -> HttpResponse:
 def create_order(request: AuthenticatedRequest) -> HttpResponse:
     try:
         cart = get_cart(request)
+        if cart is None:
+            return redirect("main_page")
+
         client_data = request.session.get("client_data", {})
         address_data = request.session.get("address_data", {})
 
@@ -132,6 +135,9 @@ def mono_webhook(request):
             return HttpResponse(status=400)
 
         # Безопасность: игнорируем status из payload, запрашиваем реальный у Моно
+        if invoice_id is None:
+            return
+
         real_status = check_mono_payment_status(invoice_id)
 
         if not real_status:
@@ -188,7 +194,12 @@ def order_result(request: HttpRequest) -> HttpResponse:
     last_payment = order.payments.order_by("-created_at").first()
 
     if last_payment and last_payment.status == Payment.PaymentStatus.PENDING:
-        real_status = check_mono_payment_status(last_payment.external_id)
+        invoice_id = last_payment.external_id
+        if invoice_id is None:
+            messages.error(request, "Ошибка оплаты")
+            return redirect("delivery")
+
+        real_status = check_mono_payment_status(invoice_id)
 
         if real_status == "success":
             last_payment.status = Payment.PaymentStatus.SUCCESS

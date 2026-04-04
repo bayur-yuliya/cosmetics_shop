@@ -18,6 +18,9 @@ class FavoriteViewSet(
     lookup_field = "product_id"
 
     def get_queryset(self):
+        if not self.request.user.is_authenticated:
+            return Favorite.objects.none()
+
         queryset = Favorite.objects.filter(user=self.request.user)
         if self.action == "list":
             return queryset.select_related("product")
@@ -32,6 +35,8 @@ class OrderHistoryListAPIView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        if not self.request.user.is_authenticated:
+            return Order.objects.none()
         client = Client.objects.filter(user=self.request.user).first()
         if not client:
             return Order.objects.none()

@@ -106,9 +106,7 @@ class OrderViewSet(ModelViewSet):
         return super().partial_update(request, *args, **kwargs)
 
     def _handle_card_payment(self, order, request):
-        fallback_url = request.build_absolute_uri(
-            reverse("orders-detail", kwargs={"pk": order.id})
-        )
+        fallback_url = reverse("orders-detail", kwargs={"pk": order.id})
 
         redirect_url = request.headers.get(
             "X-Frontend-Redirect-Url",
