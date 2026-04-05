@@ -10,6 +10,10 @@ def privacy_policy(request: HttpRequest) -> HttpResponse:
     return render(request, "cosmetics_shop/static_pages/privacy_policy.html")
 
 
+def returns(request: HttpRequest) -> HttpResponse:
+    return render(request, "cosmetics_shop/static_pages/returns.html")
+
+
 def page_not_found(request: HttpRequest, exception: Exception) -> HttpResponse:
     return render(
         request, "cosmetics_shop/static_pages/404_page_not_found.html", status=404

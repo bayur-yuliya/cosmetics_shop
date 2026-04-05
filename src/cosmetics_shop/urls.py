@@ -46,6 +46,7 @@ urlpatterns = [
         name="payment_and_delivery",
     ),
     path("privacy-policy/", static_pages.privacy_policy, name="privacy_policy"),
+    path("returns/", static_pages.returns, name="returns"),
     # main page
     path("", catalog.main_page, name="main_page"),
 ]
