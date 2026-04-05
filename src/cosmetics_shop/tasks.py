@@ -1,0 +1,64 @@
+import logging
+from datetime import timedelta
+
+from celery import shared_task
+from django.db import transaction
+from django.utils import timezone
+
+from cosmetics_shop.models import Order, Payment, Status
+from cosmetics_shop.services.product_service import restore_stock_product
+
+logger = logging.getLogger(__name__)
+
+
+@shared_task
+def cleanup_expired_orders():
+    """
+    Cancels unpaid orders created more than 30 minutes ago
+    and returns the items to the warehouse.
+    """
+    expiry_threshold = timezone.now() - timedelta(minutes=30)
+
+    expired_orders = (
+        Order.objects.filter(
+            status__in=[Status.NEW, Status.PAYMENT_FAILED],
+            created_at__lt=expiry_threshold,
+        )
+        .exclude(payments__method=Payment.PaymentMethod.CASH)
+        .distinct()
+    )
+
+    if not expired_orders.exists():
+        return "No expired orders found."
+
+    count = 0
+    for order in expired_orders:
+        try:
+            with transaction.atomic():
+                order = Order.objects.select_for_update().get(pk=order.pk)
+
+                if order.is_paid():
+                    continue
+
+                logger.info(f"Expiring order {order.code}...")
+
+                for item in order.order_items.select_related("product"):
+                    if item.product:
+                        restore_stock_product(item.product.code, item.quantity)
+                        logger.debug(f"Restored {item.quantity} of {item.product.name}")
+
+                order.set_status(
+                    new_status=Status.CANCELED,
+                    comment="Order expired: payment not received within 30 minutes.",
+                )
+
+                order.payments.filter(status=Payment.PaymentStatus.PENDING).update(
+                    status=Payment.PaymentStatus.FAILED
+                )
+
+                count += 1
+
+        except Exception as e:
+            logger.error(f"Failed to expire order {order.code}: {e}")
+
+    return f"Successfully expired {count} orders."

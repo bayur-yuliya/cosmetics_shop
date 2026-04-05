@@ -4,7 +4,8 @@ from .base import *
 
 DEBUG = False
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
+_hosts = os.getenv("ALLOWED_HOSTS", "")
+ALLOWED_HOSTS = _hosts.split(",") if _hosts else []
 
 DATABASES = {
     "default": {
@@ -20,6 +21,9 @@ DATABASES = {
 db_from_env = dj_database_url.config(conn_max_age=600)
 DATABASES["default"].update(db_from_env)
 
+
+R2_CUSTOM_DOMAIN = os.getenv("R2_CUSTOM_DOMAIN")
+
 STORAGES = {
     "default": {
         "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
@@ -27,21 +31,24 @@ STORAGES = {
             "access_key": os.getenv("R2_ACCESS_KEY_ID"),
             "secret_key": os.getenv("R2_SECRET_ACCESS_KEY"),
             "bucket_name": os.getenv("R2_BUCKET_NAME"),
-            "endpoint_url": os.getenv("R2_ENDPOINT_URL"),
+            "endpoint_url": f"https://{os.getenv('R2_ACCOUNT_ID')}.r2.cloudflarestorage.com",
+            "custom_domain": os.getenv("R2_CUSTOM_DOMAIN"),
+            "location": "media",
             "region_name": "auto",
             "file_overwrite": False,
         },
     },
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
 
 MEDIA_URL = os.getenv("MEDIA_URL")
-DEFAULT_FILE_STORAGE = BASE_DIR / "utils.storage_backends.MediaStorage"
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
 STATIC_ROOT = BASE_DIR.parent / "staticfiles"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+WHITENOISE_MANIFEST_STRICT = False
 
 # Secure
 # SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -49,14 +56,14 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 # SESSION_COOKIE_SECURE = True
 # CSRF_COOKIE_SECURE = True
 
+SITE_URL = os.getenv("SITE_URL")
+
+AWS_QUERYSTRING_AUTH = False
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-
-SITE_URL = "http://127.0.0.1:8000"
-
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://redis:6379/1",
-    }
-}
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")

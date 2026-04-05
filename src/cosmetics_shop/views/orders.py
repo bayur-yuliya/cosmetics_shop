@@ -99,7 +99,12 @@ def create_order(request: AuthenticatedRequest) -> HttpResponse:
         if payment_method == "card":
             return redirect("pay_order", order_id=order.id)
         else:
-            clear_cart_after_order(cart)
+            Payment.objects.create(
+                order=order,
+                method=Payment.PaymentMethod.CASH,
+                amount=order.total_price,
+                status=Payment.PaymentStatus.SUCCESS,
+            )
             return redirect("order_result")
 
     except OutOfStockError as e:
@@ -206,9 +211,6 @@ def order_result(request: HttpRequest) -> HttpResponse:
             last_payment.save()
             order.mark_as_paid()
 
-            if order.cart:
-                clear_cart_after_order(order.cart)
-
         elif real_status in ["failure", "expired", "rejected", "canceled", "reversed"]:
             last_payment.status = Payment.PaymentStatus.FAILED
             last_payment.save()
@@ -234,6 +236,9 @@ def order_result(request: HttpRequest) -> HttpResponse:
     if order.is_paid() or (
         last_payment and last_payment.method == Payment.PaymentMethod.CASH
     ):
+        if order.cart:
+            clear_cart_after_order(order.cart)
+
         request.session.pop("order_id", None)
 
     return render(

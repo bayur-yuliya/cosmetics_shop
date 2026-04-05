@@ -1,15 +1,9 @@
 setup:
   addons:
-    - heroku-postgresql:essential-0
-    - heroku-redis:mini
+    - plan: heroku-postgresql:essential-0
+    - plan: heroku-redis:mini
 build:
   docker:
     web: Dockerfile
-    worker: Dockerfile
-release:
-  image: web
-  command:
-    - python manage.py migrate
 run:
-  web: gunicorn config.wsgi:application
-  worker: celery -A config worker -l info
+  web: gunicorn --bind 0.0.0.0:$PORT config.wsgi:application

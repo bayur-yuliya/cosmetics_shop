@@ -181,5 +181,3 @@ media/
 staticfiles/
 
 src/gunicorn.ctl
-
-data/products_data.json
