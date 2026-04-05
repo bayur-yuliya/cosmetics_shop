@@ -27,7 +27,9 @@ def activate_account(request: HttpRequest) -> HttpResponse:
             if user is not None:
                 logger.info(f"User activated via view: user_id={user.id}")
 
-                login(request, user)
+                login(
+                    request, user, backend="django.contrib.auth.backends.ModelBackend"
+                )
 
                 messages.success(request, "Аккаунт активирован!")
                 return redirect("main_page")
