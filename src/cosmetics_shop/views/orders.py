@@ -103,7 +103,7 @@ def create_order(request: AuthenticatedRequest) -> HttpResponse:
                 order=order,
                 method=Payment.PaymentMethod.CASH,
                 amount=order.total_price,
-                status=Payment.PaymentStatus.PENDING,
+                status=Payment.PaymentStatus.SUCCESS,
             )
             return redirect("order_result")
 
