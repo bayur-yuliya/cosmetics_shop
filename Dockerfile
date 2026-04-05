@@ -10,6 +10,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     gcc \
     libpq-dev \
+    gettext \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip install --no-cache-dir poetry && \
@@ -30,6 +31,8 @@ RUN chmod +x /app/entrypoint.sh /app/src/manage.py
 USER appuser
 WORKDIR /app/src
 ENV PYTHONPATH=/app/src
+
+RUN python manage.py compilemessages
 
 ENTRYPOINT ["/app/entrypoint.sh"]
 
