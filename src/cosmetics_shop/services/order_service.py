@@ -30,7 +30,7 @@ def update_order_from_cart(order, cart, client_data, address_data):
         restore_stock_product(item.product.code, item.quantity)
     old_items.delete()
 
-    city = client_data.get("city", order.address)
+    city = client_data.get("city", order.snapshot_address)
     post_office = client_data.get("post_office", "")
 
     address = f"{city} {post_office}".strip()
