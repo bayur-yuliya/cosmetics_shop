@@ -130,10 +130,14 @@ def create_staff_user(request: HttpRequest) -> HttpResponse:
         if form.is_valid():
             user = form.save()
             logger.info(f"Staff user created: user_id={user.id}")
-            return redirect("main_page")
+            messages.info(request, "Приглашение отправлено")
+            return redirect("create_staff_user")
         else:
             logger.warning(f"Invalid staff creation form: errors={form.errors}")
-            return redirect("main_page")
+            messages.warning(
+                request, f"Неверная форма создания сотрудника: ошибки={form.errors}"
+            )
+            return redirect("create_staff_user")
 
     form = AdminCreateUserForm()
     return render(
