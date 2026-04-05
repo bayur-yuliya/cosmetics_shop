@@ -238,6 +238,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "accounts.tasks.process_client_anonymization",
         "schedule": crontab(minute=0, hour=3),  # 03:00
     },
+    "cleanup-orders-every-15-minutes": {
+        "task": "cosmetics_shop.tasks.cleanup_expired_orders",
+        "schedule": crontab(minute="*/15"),  # каждые 15 минут
+    },
 }
 CELERY_TIMEZONE = "Europe/Kiev"
 CELERY_ENABLE_UTC = True
