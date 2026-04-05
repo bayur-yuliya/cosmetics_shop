@@ -99,6 +99,12 @@ def create_order(request: AuthenticatedRequest) -> HttpResponse:
         if payment_method == "card":
             return redirect("pay_order", order_id=order.id)
         else:
+            Payment.objects.create(
+                order=order,
+                method=Payment.PaymentMethod.CASH,
+                amount=order.total_price,
+                status=Payment.PaymentStatus.PENDING,
+            )
             clear_cart_after_order(cart)
             return redirect("order_result")
 
