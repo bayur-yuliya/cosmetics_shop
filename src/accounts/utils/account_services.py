@@ -1,14 +1,11 @@
 import logging
 import uuid
-
-# from datetime import timezone
 from datetime import timedelta
 
 from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib.auth.models import Group
-from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.db import transaction
 from django.shortcuts import get_object_or_404
@@ -16,77 +13,108 @@ from django.urls import reverse
 from django.utils import timezone
 
 from accounts.models import ActivationToken, CustomUser
-from accounts.utils.validators import validate_activation_token
 from config.settings.base import DEFAULT_STAFF_GROUP_NAME
 from cosmetics_shop.models import Client, DeliveryAddress, Order, Status
 
 logger = logging.getLogger(__name__)
 
 
-def send_activation_email(user: CustomUser, token_obj: ActivationToken) -> None:
+def invite_staff_member(email: str) -> None:
+    logger.info(f"Starting the invitation process for: {email}")
+
+    user = CustomUser.objects.filter(email=email).first()
+
+    if user:
+        logger.info(f"User {email} already exists. Update the rights.")
+        _grant_staff_access_to_existing_user(user)
+
+    invitation, created = ActivationToken.objects.update_or_create(
+        email=email,
+        defaults={
+            "token": uuid.uuid4(),
+            "expires_at": timezone.now() + timedelta(days=1),
+        },
+    )
+
+    _send_invitation_email(invitation)
+
+
+def _grant_staff_access_to_existing_user(user: CustomUser) -> None:
+    with transaction.atomic():
+        user.is_staff = True
+        if not user.is_active:
+            user.is_active = True
+
+        group = get_object_or_404(Group, name=DEFAULT_STAFF_GROUP_NAME)
+        user.groups.add(group)
+        user.save()
+
+    logger.info(f"Staff rights granted to user: {user.email}")
+
+
+def _send_invitation_email(invitation: ActivationToken) -> None:
     try:
         path = reverse("activate")
-        activation_url = f"{settings.SITE_URL}{path}?token={token_obj.token}"
+        activation_url = f"{settings.SITE_URL}{path}?token={invitation.token}"
 
-        logger.debug(f"Sending activation email: user_id={user.id}")
-
-        subject = "Активация аккаунта"
-
+        subject = "Активация аккаунта сотрудника"
         message = (
-            f"Вас добавили в систему магазина.\n\n"
-            f"Чтобы активировать аккаунт и установить пароль, перейдите по ссылке:\n"
+            f"Вас пригласили стать сотрудником магазина.\n\n"
+            f"Чтобы создать аккаунт и установить пароль, перейдите по ссылке:\n"
             f"{activation_url}\n\n"
             f"Ссылка действительна до: "
-            f"{token_obj.expires_at.strftime('%Y-%m-%d %H:%M')}"
+            f"{invitation.expires_at.strftime('%Y-%m-%d %H:%M')}"
         )
 
-        logger.info(f"Activation email sent: user_id={user.id}")
-
-        if user.email is not None:
-            send_mail(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                [user.email],
-                fail_silently=False,
-            )
-        else:
-            raise ValueError("Не определен email пользователя")
-
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [invitation.email],
+            fail_silently=False,
+        )
+        logger.info(f"Invitation letter sent to: {invitation.email}")
     except Exception as e:
-        logger.exception(
-            f"Failed to send activation email: user_id={user.id}, error={str(e)}"
-        )
+        logger.exception(f"Error sending email to {invitation.email}: {e}")
 
 
 def activate_user(token: str, password: str) -> CustomUser | None:
-    logger.debug("Activation attempt started")
+    logger.debug("Attempting to activate invitation")
 
     try:
-        validate_activation_token(token)
-    except ValidationError:
-        logger.warning("Activation failed: invalid or expired token")
+        invitation = ActivationToken.objects.get(token=uuid.UUID(token))
+        if not invitation.is_valid():
+            logger.warning(f"Token expired: {token}")
+            return None
+    except ActivationToken.DoesNotExist:
+        logger.warning("Activation failed: invalid token")
         return None
 
     with transaction.atomic():
-        token_obj: ActivationToken = (
-            ActivationToken.objects.select_for_update()
-            .select_related("user")
-            .get(token=token)
+        user, created = CustomUser.objects.get_or_create(
+            email=invitation.email,
+            defaults={
+                "is_active": True,
+                "is_staff": True,
+            },
         )
 
-        user: CustomUser = token_obj.user
+        if not created:
+            user.is_active = True
+            user.is_staff = True
+
         user.set_password(password)
-        user.is_active = True
-        user.is_staff = True
+        user.save()
 
         groups = get_object_or_404(Group, name=DEFAULT_STAFF_GROUP_NAME)
         user.groups.add(groups)
 
-        user.save()
-        token_obj.delete()
+        invitation.delete()
 
-        logger.info(f"User activated: user_id={user.id}")
+        logger.info(
+            f"The user has been successfully created and activated:"
+            f" user_id={user.id}"
+        )
 
     return user
 

@@ -1,5 +1,5 @@
 import datetime
-import secrets
+import uuid
 from typing import cast
 
 from django.contrib.auth.base_user import BaseUserManager
@@ -51,8 +51,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 
 class ActivationToken(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    token = models.CharField(max_length=255, unique=True)
+    email = models.EmailField(verbose_name="Email для приглашения")
+    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
     expires_at = models.DateTimeField()
 
     def is_valid(self):
@@ -60,11 +61,9 @@ class ActivationToken(models.Model):
 
     @staticmethod
     def create_for_user(user):
-        token = secrets.token_urlsafe(48)
         expires_at = timezone.now() + datetime.timedelta(hours=24)
         return ActivationToken.objects.create(
-            user=user,
-            token=token,
+            email=user.email,
             expires_at=expires_at,
         )
 

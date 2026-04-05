@@ -8,8 +8,9 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from accounts.models import CustomUser
+from accounts.utils.account_services import invite_staff_member
 from staff.forms import (
-    AdminCreateUserForm,
+    AdminCreateTokenForm,
     GroupForm,
 )
 
@@ -65,7 +66,7 @@ def staff_list(request: HttpRequest) -> HttpResponse:
     logger.debug(f"Staff list opened: user_id={request.user.id}")
 
     staffs: QuerySet[CustomUser] = CustomUser.objects.filter(
-        is_staff=True
+        is_staff=True, is_active=True
     ).prefetch_related("groups", "user_permissions")
 
     return render(
@@ -125,11 +126,10 @@ def create_staff_user(request: HttpRequest) -> HttpResponse:
     logger.info(f"Create staff user attempt: admin_id={request.user.id}")
 
     if request.method == "POST":
-        form = AdminCreateUserForm(request.POST)
+        form = AdminCreateTokenForm(request.POST)
 
         if form.is_valid():
-            user = form.save()
-            logger.info(f"Staff user created: user_id={user.id}")
+            invite_staff_member(form.cleaned_data.get("email"))
             messages.info(request, "Приглашение отправлено")
             return redirect("create_staff_user")
         else:
@@ -139,7 +139,7 @@ def create_staff_user(request: HttpRequest) -> HttpResponse:
             )
             return redirect("create_staff_user")
 
-    form = AdminCreateUserForm()
+    form = AdminCreateTokenForm()
     return render(
         request,
         "staff/create_staff_user.html",

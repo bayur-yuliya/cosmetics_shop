@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 
-from accounts.models import CustomUser
+from accounts.models import ActivationToken
 from cosmetics_shop.models import (
     Brand,
     Category,
@@ -198,15 +198,7 @@ class GroupForm(forms.ModelForm):
         fields = ["name", "permissions"]
 
 
-class AdminCreateUserForm(forms.ModelForm):
+class AdminCreateTokenForm(forms.ModelForm):
     class Meta:
-        model = CustomUser
+        model = ActivationToken
         fields = ("email",)
-
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.set_unusable_password()
-        user.is_active = False
-        if commit:
-            user.save()
-        return user
