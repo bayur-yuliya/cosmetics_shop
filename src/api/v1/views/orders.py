@@ -9,9 +9,9 @@ from rest_framework.viewsets import ModelViewSet
 from api.v1.permissions import IsAdminOrOwnerReadOnly
 from api.v1.serializers.orders import OrderCreateSerializer, OrderSerializer
 from cosmetics_shop.models import Order, Payment, Status
+from cosmetics_shop.payments.mono import init_payment
 from cosmetics_shop.services.cart_services import clear_cart_after_order
 from cosmetics_shop.services.order_service import create_order_from_cart
-from cosmetics_shop.services.payment_service import init_payment
 from cosmetics_shop.utils.cart_utils import get_cart
 from utils.custom_exceptions import OutOfStockError
 

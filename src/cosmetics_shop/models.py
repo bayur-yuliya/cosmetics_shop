@@ -442,14 +442,9 @@ class Order(TimestampedModel):
         # This avoids the N+1 problem during bulk operations.
         # Don't forget to call order.update_total_price()
         # at the end of View or Service function.
-        total = (
-            self.order_items.aggregate(
-                total=Sum(
-                    F("price") * F("quantity"), output_field=models.DecimalField()
-                )
-            )["total"]
-            or 0
-        )
+        total = self.order_items.aggregate(
+            total=Sum(F("price") * F("quantity"), output_field=models.DecimalField())
+        )["total"] or Decimal("0.00")
 
         self.total_price = total
 
@@ -472,7 +467,7 @@ class Order(TimestampedModel):
         return Status.badge_class(self.status)
 
     def is_paid(self):
-        return self.payments.filter(status="success").exists()
+        return self.payments.filter(status=Payment.PaymentStatus.SUCCESS).exists()
 
     def mark_as_paid(self):
         self.set_status(Status.PAYMENT_RECEIVED)

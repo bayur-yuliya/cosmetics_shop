@@ -9,14 +9,14 @@ from django.views.decorators.csrf import csrf_exempt
 
 from cosmetics_shop.forms import ClientForm, DeliveryAddressForm, PaymentForm
 from cosmetics_shop.models import DeliveryAddress, Order, OrderItem, Payment, Status
+from cosmetics_shop.payments.mono import (
+    check_mono_payment_status,
+    init_payment,
+)
 from cosmetics_shop.services.cart_services import clear_cart_after_order
 from cosmetics_shop.services.order_service import (
     create_order_from_cart,
     update_order_from_cart,
-)
-from cosmetics_shop.services.payment_service import (
-    check_mono_payment_status,
-    init_payment,
 )
 from cosmetics_shop.utils.cart_utils import get_cart
 from cosmetics_shop.utils.client_utils import get_client, process_delivery_data
