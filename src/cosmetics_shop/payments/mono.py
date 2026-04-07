@@ -81,7 +81,6 @@ def check_mono_payment_status(invoice_id: str) -> str | None:
         return None
 
 
-@transaction.atomic
 def sync_pending_payments():
     payments = Payment.objects.filter(status=Payment.PaymentStatus.PENDING)
 
@@ -94,12 +93,13 @@ def sync_pending_payments():
         mono_payment_status = check_mono_payment_status(invoice_id)
         status = map_mono_status(mono_payment_status)
 
-        if status == Payment.PaymentStatus.SUCCESS:
-            payment.status = Payment.PaymentStatus.SUCCESS
-            payment.save()
-            payment.order.mark_as_paid()
+        with transaction.atomic():
+            if status == Payment.PaymentStatus.SUCCESS:
+                payment.status = Payment.PaymentStatus.SUCCESS
+                payment.save()
+                payment.order.mark_as_paid()
 
-        elif status == Payment.PaymentStatus.FAILED:
-            payment.status = Payment.PaymentStatus.FAILED
-            payment.save()
-            payment.order.mark_as_failed_payment()
+            elif status == Payment.PaymentStatus.FAILED:
+                payment.status = Payment.PaymentStatus.FAILED
+                payment.save()
+                payment.order.mark_as_failed_payment()

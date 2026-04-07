@@ -28,3 +28,11 @@ DATABASES = {
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 SITE_URL = "http://127.0.0.1:8000"
+
+REDIS_URL = os.getenv("REDIS_URL", "redis://127.0.0.1:6379/1")
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+    }
+}
