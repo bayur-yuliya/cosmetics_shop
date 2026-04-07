@@ -19,8 +19,7 @@ DATABASES = {
 }
 
 db_from_env = dj_database_url.config(conn_max_age=600)
-DATABASES["default"].update(db_from_env)
-
+DATABASES["default"].update(db_from_env.__dict__)
 
 R2_CUSTOM_DOMAIN = os.getenv("R2_CUSTOM_DOMAIN")
 
@@ -43,7 +42,7 @@ STORAGES = {
     },
 }
 
-MEDIA_URL = os.getenv("MEDIA_URL")
+MEDIA_URL = os.getenv("MEDIA_URL", "")
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
 STATIC_ROOT = BASE_DIR.parent / "staticfiles"
@@ -56,7 +55,7 @@ WHITENOISE_MANIFEST_STRICT = False
 # SESSION_COOKIE_SECURE = True
 # CSRF_COOKIE_SECURE = True
 
-SITE_URL = os.getenv("SITE_URL")
+SITE_URL = os.getenv("SITE_URL", "")
 
 AWS_QUERYSTRING_AUTH = False
 
@@ -66,4 +65,4 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
-DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "")

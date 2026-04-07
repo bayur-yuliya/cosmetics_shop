@@ -91,7 +91,10 @@ def sync_pending_payments():
             continue
 
         mono_payment_status = check_mono_payment_status(invoice_id)
-        status = map_mono_status(mono_payment_status)
+        if mono_payment_status:
+            status = map_mono_status(mono_payment_status)
+        else:
+            status = Payment.PaymentStatus.PENDING
 
         with transaction.atomic():
             if status == Payment.PaymentStatus.SUCCESS:
