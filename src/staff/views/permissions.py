@@ -129,7 +129,8 @@ def create_staff_user(request: HttpRequest) -> HttpResponse:
         form = AdminCreateTokenForm(request.POST)
 
         if form.is_valid():
-            invite_staff_member(form.cleaned_data.get("email"))
+            email = form.cleaned_data.get("email", "")
+            invite_staff_member(email)
             messages.info(request, "Приглашение отправлено")
             return redirect("create_staff_user")
         else:

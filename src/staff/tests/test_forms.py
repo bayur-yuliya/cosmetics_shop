@@ -4,9 +4,10 @@ from unittest.mock import patch
 import pytest
 from django.core.exceptions import ValidationError
 
+from accounts.models import ActivationToken
 from cosmetics_shop.models import Product
 from staff.forms import (
-    AdminCreateUserForm,
+    AdminCreateTokenForm,
     CategoryForm,
     OrderStatusUpdateForm,
     ProductFilterForm,
@@ -102,16 +103,17 @@ def test_product_filter_invalid_form_returns_original_queryset():
 
 
 @pytest.mark.django_db
-def test_admin_create_user_form():
-    form = AdminCreateUserForm(data={"email": "test@test.com"})
+def test_admin_create_user_form(user):
+    form = AdminCreateTokenForm(data={"email": "test@test.com"})
 
     assert form.is_valid()
 
-    user = form.save()
+    token = form.save()
 
-    assert user.email == "test@test.com"
-    assert user.is_active is False
-    assert not user.has_usable_password()
+    assert isinstance(token, ActivationToken)
+    assert token.email == "test@test.com"
+    assert token.expires_at is not None
+    assert token.token is not None
 
 
 @pytest.mark.django_db
