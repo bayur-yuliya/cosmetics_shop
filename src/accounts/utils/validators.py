@@ -32,7 +32,7 @@ def validate_activation_token(token_value: str) -> None:
     try:
         token_obj = ActivationToken.objects.get(token=token_value)
         if not token_obj.is_valid():
-            logger.info(f"Expired activation token: user_id={token_obj.user_id}")
+            logger.info("Expired activation token")
             token_obj.delete()
             raise ValidationError("Срок действия ссылки истёк.")
     except ActivationToken.DoesNotExist:

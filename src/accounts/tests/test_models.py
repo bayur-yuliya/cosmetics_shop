@@ -1,3 +1,4 @@
+import uuid
 from datetime import timedelta
 
 import pytest
@@ -73,7 +74,7 @@ def test_create_activation_token():
 
     token = ActivationToken.create_for_user(user)
 
-    assert token.user == user
+    assert token.email == user.email
     assert token.token is not None
     assert token.expires_at > timezone.now()
 
@@ -92,8 +93,8 @@ def test_token_is_valid_false():
     user = User.objects.create_user(email="user@test.com", password="123")
 
     token = ActivationToken.objects.create(
-        user=user,
-        token="testtoken",
+        email=user.email,
+        token=str(uuid.uuid4()),
         expires_at=timezone.now() - timedelta(hours=1),
     )
 
@@ -101,10 +102,12 @@ def test_token_is_valid_false():
 
 
 @pytest.mark.django_db
-def test_only_one_token_per_user():
+def test_multiple_tokens_per_user():
     user = User.objects.create_user(email="user@test.com", password="123")
 
     ActivationToken.create_for_user(user)
+    ActivationToken.create_for_user(user)
 
-    with pytest.raises(Exception):
-        ActivationToken.create_for_user(user)
+    tokens = ActivationToken.objects.filter(email=user.email)
+
+    assert tokens.count() == 2

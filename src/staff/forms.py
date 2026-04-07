@@ -1,8 +1,11 @@
+import uuid
+from datetime import timedelta
 from decimal import Decimal, InvalidOperation
 
 from django import forms
 from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 from accounts.models import ActivationToken
 from cosmetics_shop.models import (
@@ -202,3 +205,14 @@ class AdminCreateTokenForm(forms.ModelForm):
     class Meta:
         model = ActivationToken
         fields = ("email",)
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+
+        instance.expires_at = timezone.now() + timedelta(hours=24)
+        instance.token = uuid.uuid4()
+
+        if commit:
+            instance.save()
+
+        return instance
