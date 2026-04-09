@@ -1,5 +1,9 @@
+import uuid
+from decimal import Decimal
+
 import pytest
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.utils import timezone
 
 from accounts.models import CustomUser
 
@@ -10,7 +14,11 @@ from ..models import (
     Client,
     DeliveryAddress,
     GroupProduct,
+    Order,
+    OrderItem,
+    Payment,
     Product,
+    Status,
     Tag,
 )
 
@@ -122,7 +130,7 @@ def products(group, group2, brand):
     return Product.objects.all()
 
 
-@pytest.fixture()
+@pytest.fixture
 def cart(user):
     return Cart.objects.create(user=user)
 
@@ -144,3 +152,47 @@ def add_session(request):
     middleware = SessionMiddleware(lambda r: None)
     middleware.process_request(request)
     request.session.save()
+
+
+@pytest.fixture
+def order_factory(db):
+    def create_order(**kwargs):
+        data = {
+            "status": Status.NEW,
+            "created_at": timezone.now(),
+            "code": uuid.uuid4(),
+        }
+        data.update(kwargs)
+        return Order.objects.create(**data)
+
+    return create_order
+
+
+@pytest.fixture
+def payment_factory(db):
+    def create_payment(order, **kwargs):
+        data = {
+            "order": order,
+            "status": Payment.PaymentStatus.PENDING,
+            "method": Payment.PaymentMethod.CARD,
+            "amount": Decimal(100.00),
+        }
+        data.update(kwargs)
+        return Payment.objects.create(**data)
+
+    return create_payment
+
+
+@pytest.fixture
+def order_item_factory(db):
+    def create_item(order, product, **kwargs):
+        data = {
+            "order": order,
+            "product": product,
+            "quantity": 1,
+            "price": Decimal(100.00),
+        }
+        data.update(kwargs)
+        return OrderItem.objects.create(**data)
+
+    return create_item
