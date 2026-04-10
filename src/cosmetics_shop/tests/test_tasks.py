@@ -1,4 +1,5 @@
 from datetime import timedelta
+from decimal import Decimal
 
 import pytest
 from django.utils import timezone
@@ -16,26 +17,33 @@ def test_no_expired_orders():
 
 @pytest.mark.django_db
 def test_paid_order_not_canceled(order_factory):
-    order = order_factory(
-        status=Status.NEW,
-        created_at=timezone.now() - timedelta(minutes=31),
+    last_time = timezone.now() - timedelta(minutes=32)
+
+    order = order_factory(status=Status.NEW)
+    order.created_at = last_time
+    order.save()
+
+    Payment.objects.create(
+        order=order,
+        method="card",
+        amount=Decimal(100.00),
+        external_id="11111",
+        status=Payment.PaymentStatus.SUCCESS,
     )
 
-    order.is_paid = True
-
     cleanup_expired_orders()
-
     order.refresh_from_db()
 
-    assert order.status != Status.CANCELED
+    assert order.status == Status.NEW
 
 
 @pytest.mark.django_db
 def test_cash_orders_not_expired(order_factory, payment_factory):
-    order = order_factory(
-        status=Status.NEW,
-        created_at=timezone.now() - timedelta(minutes=31),
-    )
+    last_time = timezone.now() - timedelta(minutes=32)
+
+    order = order_factory(status=Status.NEW)
+    order.created_at = last_time
+    order.save()
 
     payment_factory(
         order=order,
@@ -53,12 +61,17 @@ def test_cash_orders_not_expired(order_factory, payment_factory):
 @pytest.mark.django_db
 def test_stock_restored(order_factory, order_item_factory, product, payment_factory):
     start_product_stock = product.stock
-    order = order_factory(
-        status=Status.NEW,
-        created_at=timezone.now() - timedelta(minutes=31),
-    )
+    last_time = timezone.now() - timedelta(minutes=32)
+
+    order = order_factory(status=Status.NEW)
+    order.created_at = last_time
+    order.save()
 
     order_item_factory(order=order, product=product, quantity=2)
+
+    # we clearly reduce it to simulate the order
+    product.stock -= 2
+    product.save()
 
     payment_factory(
         order=order,
@@ -75,10 +88,11 @@ def test_stock_restored(order_factory, order_item_factory, product, payment_fact
 
 @pytest.mark.django_db
 def test_pending_payments_marked_failed(order_factory, payment_factory):
-    order = order_factory(
-        status=Status.NEW,
-        created_at=timezone.now() - timedelta(minutes=31),
-    )
+    last_time = timezone.now() - timedelta(minutes=32)
+
+    order = order_factory(status=Status.NEW)
+    order.created_at = last_time
+    order.save()
 
     payment = payment_factory(
         order=order,
@@ -97,10 +111,11 @@ def test_pending_payments_marked_failed(order_factory, payment_factory):
 def test_error_does_not_crash_task(
     order_factory, order_item_factory, product, payment_factory
 ):
-    order = order_factory(
-        status=Status.NEW,
-        created_at=timezone.now() - timedelta(minutes=31),
-    )
+    last_time = timezone.now() - timedelta(minutes=32)
+
+    order = order_factory(status=Status.NEW)
+    order.created_at = last_time
+    order.save()
 
     order_item_factory(order=order, product=product, quantity=1)
 
@@ -112,4 +127,4 @@ def test_error_does_not_crash_task(
 
     result = cleanup_expired_orders()
 
-    assert "No expired orders found." in result
+    assert "Successfully expired 1 orders." in result
