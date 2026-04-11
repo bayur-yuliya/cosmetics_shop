@@ -1,17 +1,20 @@
 import pytest
+from django.urls import reverse
+from rest_framework import status
+
+from cosmetics_shop.models import Favorite
 
 
 @pytest.mark.django_db
-def test_favorite_duplicate(user, product):
-    from api.v1.serializers.profile import FavoriteSerializer
-    from cosmetics_shop.models import Favorite
-
+def test_favorite_duplicate(user, product, api_client):
     Favorite.objects.create(user=user, product=product)
 
-    serializer = FavoriteSerializer(
-        data={"product_id": product.id},
-        context={"request": type("obj", (), {"user": user})()},
-    )
+    api_client.force_authenticate(user=user)
+    url = reverse("favorite-list")
+    data = {"product_id": product.id}
 
-    assert not serializer.is_valid()
-    assert "non_field_errors" in serializer.errors
+    response = api_client.post(url, data)
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    assert "non_field_errors" in response.data

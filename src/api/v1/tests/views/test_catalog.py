@@ -1,22 +1,17 @@
 import pytest
-from rest_framework.test import APIClient
 
 
 @pytest.mark.django_db
-def test_product_list(product):
-    client = APIClient()
-
-    response = client.get("/api/v1/catalog/products/")
+def test_product_list(product, api_client):
+    response = api_client.get("/api/v1/catalog/products/")
 
     assert response.status_code == 200
     assert len(response.data) > 0
 
 
 @pytest.mark.django_db
-def test_product_detail(product):
-    client = APIClient()
-
-    response = client.get(f"/api/v1/catalog/products/{product.id}/")
+def test_product_detail(product, api_client):
+    response = api_client.get(f"/api/v1/catalog/products/{product.id}/")
 
     assert response.status_code == 200
     assert response.data["id"] == product.id

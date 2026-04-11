@@ -10,6 +10,7 @@ from accounts.models import CustomUser
 from ..models import (
     Brand,
     Cart,
+    CartItem,
     Category,
     Client,
     DeliveryAddress,
@@ -26,6 +27,11 @@ from ..models import (
 @pytest.fixture
 def user(db):
     return CustomUser.objects.create_user(email="test@test.com", password="12345678")
+
+
+@pytest.fixture
+def other_user(db):
+    return CustomUser.objects.create_user(email="example@test.com", password="12345678")
 
 
 @pytest.fixture
@@ -133,6 +139,21 @@ def products(group, group2, brand):
 @pytest.fixture
 def cart(user):
     return Cart.objects.create(user=user)
+
+
+@pytest.fixture
+def cart_with_one_item(user, product):
+    cart = Cart.objects.create(user=user)
+    CartItem.objects.create(cart=cart, product=product, quantity=1)
+    return cart
+
+
+@pytest.fixture
+def cart_with_items(user, products):
+    cart = Cart.objects.create(user=user)
+    for product in products:
+        CartItem.objects.create(cart=cart, product=product, quantity=1)
+    return cart
 
 
 @pytest.fixture(autouse=True)
