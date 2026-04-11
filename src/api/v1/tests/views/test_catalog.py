@@ -1,9 +1,11 @@
 import pytest
+from django.urls import reverse
 
 
 @pytest.mark.django_db
 def test_product_list(product, api_client):
-    response = api_client.get("/api/v1/catalog/products/")
+    url = reverse("products-list")
+    response = api_client.get(url)
 
     assert response.status_code == 200
     assert len(response.data) > 0
@@ -11,7 +13,8 @@ def test_product_list(product, api_client):
 
 @pytest.mark.django_db
 def test_product_detail(product, api_client):
-    response = api_client.get(f"/api/v1/catalog/products/{product.id}/")
+    url = reverse("products-detail", kwargs={"pk": product.id})
+    response = api_client.get(url)
 
     assert response.status_code == 200
     assert response.data["id"] == product.id
@@ -19,7 +22,8 @@ def test_product_detail(product, api_client):
 
 @pytest.mark.django_db
 def test_product_soft_delete(admin_client, product):
-    response = admin_client.post(f"/api/v1/catalog/products/{product.id}/soft_delete/")
+    url = reverse("products-soft-delete", kwargs={"pk": product.id})
+    response = admin_client.post(url)
 
     assert response.status_code == 200
     product.refresh_from_db()

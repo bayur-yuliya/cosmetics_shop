@@ -1,9 +1,12 @@
 import pytest
+from django.urls import reverse
 
 
 @pytest.mark.django_db
 def test_cart_add(product, api_client):
-    response = api_client.post("/api/v1/cart/add/", {"product_code": product.code})
+    url = reverse("cart-add")
+    data = {"product_code": product.code}
+    response = api_client.post(url, data)
 
     assert response.status_code == 200
     assert response.data["status"] == "added"
@@ -11,7 +14,8 @@ def test_cart_add(product, api_client):
 
 @pytest.mark.django_db
 def test_cart_list_empty(api_client):
-    response = api_client.get("/api/v1/cart/")
+    url = reverse("cart-list")
+    response = api_client.get(url)
 
     assert response.status_code == 200
     assert response.data["items"] == []
