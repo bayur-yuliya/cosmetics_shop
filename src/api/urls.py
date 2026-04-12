@@ -1,7 +1,7 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 
-from api.v1.views import cart, catalog, orders, profile
+from api.v1.views import auth, cart, catalog, orders, profile
 from cosmetics_shop.views.orders import mono_webhook
 
 router = DefaultRouter()
@@ -18,6 +18,8 @@ router.register(r"cart", cart.CartViewSet, basename="cart")
 router.register(r"favorites", profile.FavoriteViewSet, basename="favorite")
 
 urlpatterns = [
+    path("login/", auth.LoginView.as_view()),
+    path("register/", auth.RegisterView.as_view()),
     # payments
     path("payments/webhook/", mono_webhook),
     path("profile/orders/history/", profile.OrderHistoryListAPIView.as_view()),
