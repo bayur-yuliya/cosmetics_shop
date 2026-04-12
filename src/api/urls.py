@@ -1,4 +1,5 @@
 from django.urls import path
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
 
 from api.v1.views import auth, cart, catalog, orders, profile
@@ -18,6 +19,14 @@ router.register(r"cart", cart.CartViewSet, basename="cart")
 router.register(r"favorites", profile.FavoriteViewSet, basename="favorite")
 
 urlpatterns = [
+    # swagger
+    path("schema/", SpectacularAPIView.as_view(), name="schema"),
+    # swagger UI
+    path(
+        "schema/swagger-ui/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",
+    ),
     path("login/", auth.LoginView.as_view()),
     path("register/", auth.RegisterView.as_view()),
     # payments

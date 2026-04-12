@@ -503,6 +503,16 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/v1/login/:
+    post:
+      operationId: login_create
+      tags:
+      - login
+      security:
+      - {}
+      responses:
+        '200':
+          description: No response body
   /api/v1/orders/:
     get:
       operationId: orders_list
@@ -672,6 +682,18 @@ paths:
                 items:
                   $ref: '#/components/schemas/Order'
           description: ''
+  /api/v1/register/:
+    post:
+      operationId: register_create
+      tags:
+      - register
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
 components:
   schemas:
     AddressData:
