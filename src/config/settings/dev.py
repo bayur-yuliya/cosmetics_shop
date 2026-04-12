@@ -46,7 +46,8 @@ REST_FRAMEWORK = {
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "swagger",
-    "DESCRIPTION": "API for a cosmetics store. Git: https://github.com/bayur-yuliya/cosmetics_shop",
+    "DESCRIPTION": "API for a cosmetics store. "
+    "Git: [https://github.com/bayur-yuliya/cosmetics_shop](https://github.com/bayur-yuliya/cosmetics_shop)",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }

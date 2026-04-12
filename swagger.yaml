@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: swagger
   version: 1.0.0
-  description: 'API for a cosmetics store. Git: https://github.com/bayur-yuliya/cosmetics_shop'
+  description: 'API for a cosmetics store. Git: [https://github.com/bayur-yuliya/cosmetics_shop](https://github.com/bayur-yuliya/cosmetics_shop)'
 paths:
   /api/v1/cart/:
     get:
