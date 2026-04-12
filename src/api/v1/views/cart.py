@@ -1,3 +1,5 @@
+from drf_spectacular.utils import extend_schema, inline_serializer
+from rest_framework import serializers
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -30,6 +32,18 @@ class CartViewSet(ViewSet):
             {"items": serializer.data, "total_price": get_cart_total_price(items)}
         )
 
+    @extend_schema(
+        summary="Add product in cart",
+        request=inline_serializer(
+            name="CartActionAddRequest",
+            fields={"product_code": serializers.IntegerField()},
+        ),
+        responses={
+            200: inline_serializer(
+                name="CartSuccess", fields={"status": serializers.CharField()}
+            )
+        },
+    )
     @action(detail=False, methods=["post"])
     def add(self, request):
         product_code = request.data.get("product_code")
@@ -42,6 +56,19 @@ class CartViewSet(ViewSet):
 
         return Response({"status": "added"})
 
+    @extend_schema(
+        summary="Remove product at cart",
+        request=inline_serializer(
+            name="CartActionRemoveRequest",
+            fields={"product_code": serializers.IntegerField()},
+        ),
+        responses={
+            200: inline_serializer(
+                name="CartSuccess",
+                fields={"status": serializers.CharField()},
+            )
+        },
+    )
     @action(detail=False, methods=["post"])
     def remove(self, request):
         product_code = request.data.get("product_code")
@@ -57,6 +84,18 @@ class CartViewSet(ViewSet):
 
         return Response({"status": "decreased"})
 
+    @extend_schema(
+        summary="Delete product at cart",
+        request=inline_serializer(
+            name="CartActionDeleteRequest",
+            fields={"product_code": serializers.IntegerField()},
+        ),
+        responses={
+            200: inline_serializer(
+                name="DeleteCartSuccess", fields={"status": serializers.CharField()}
+            )
+        },
+    )
     @action(detail=False, methods=["post"])
     def delete(self, request):
         product_code = request.data.get("product_code")
@@ -72,6 +111,14 @@ class CartViewSet(ViewSet):
 
         return Response({"status": "deleted"})
 
+    @extend_schema(
+        summary="Clear cart",
+        responses={
+            200: inline_serializer(
+                name="ClearCartSuccess", fields={"status": serializers.CharField()}
+            )
+        },
+    )
     @action(detail=False, methods=["post"])
     def clear(self, request):
         cart = get_cart(request)

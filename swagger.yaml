@@ -1,0 +1,1136 @@
+openapi: 3.0.3
+info:
+  title: swagger
+  version: 1.0.0
+  description: 'API for a cosmetics store. Git: https://github.com/bayur-yuliya/cosmetics_shop'
+paths:
+  /api/v1/cart/:
+    get:
+      operationId: cart_retrieve
+      tags:
+      - cart
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/cart/add/:
+    post:
+      operationId: cart_add_create
+      summary: Add product in cart
+      tags:
+      - cart
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartActionAddRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CartActionAddRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CartActionAddRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartSuccess'
+          description: ''
+  /api/v1/cart/clear/:
+    post:
+      operationId: cart_clear_create
+      summary: Clear cart
+      tags:
+      - cart
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClearCartSuccess'
+          description: ''
+  /api/v1/cart/delete/:
+    post:
+      operationId: cart_delete_create
+      summary: Delete product at cart
+      tags:
+      - cart
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartActionDeleteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CartActionDeleteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CartActionDeleteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteCartSuccess'
+          description: ''
+  /api/v1/cart/remove/:
+    post:
+      operationId: cart_remove_create
+      summary: Remove product at cart
+      tags:
+      - cart
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartActionRemoveRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CartActionRemoveRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CartActionRemoveRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartSuccess'
+          description: ''
+  /api/v1/catalog/brands/:
+    get:
+      operationId: catalog_brands_list
+      tags:
+      - catalog
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Brand'
+          description: ''
+  /api/v1/catalog/brands/{slug}/:
+    get:
+      operationId: catalog_brands_retrieve
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - catalog
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+          description: ''
+  /api/v1/catalog/categories/:
+    get:
+      operationId: catalog_categories_list
+      tags:
+      - catalog
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+          description: ''
+  /api/v1/catalog/categories/{slug}/:
+    get:
+      operationId: catalog_categories_retrieve
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - catalog
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+  /api/v1/catalog/group/:
+    get:
+      operationId: catalog_group_list
+      tags:
+      - catalog
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Group'
+          description: ''
+  /api/v1/catalog/group/{slug}/:
+    get:
+      operationId: catalog_group_retrieve
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - catalog
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+          description: ''
+  /api/v1/catalog/products/:
+    get:
+      operationId: catalog_products_list
+      parameters:
+      - in: query
+        name: brand
+        schema:
+          type: string
+      - in: query
+        name: category
+        schema:
+          type: string
+      - in: query
+        name: group
+        schema:
+          type: string
+      - in: query
+        name: max_price
+        schema:
+          type: number
+      - in: query
+        name: min_price
+        schema:
+          type: number
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - catalog
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductList'
+          description: ''
+    post:
+      operationId: catalog_products_create
+      tags:
+      - catalog
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductWrite'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductWrite'
+          description: ''
+  /api/v1/catalog/products/{id}/:
+    get:
+      operationId: catalog_products_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this товар.
+        required: true
+      tags:
+      - catalog
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetail'
+          description: ''
+    put:
+      operationId: catalog_products_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this товар.
+        required: true
+      tags:
+      - catalog
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductWrite'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductWrite'
+          description: ''
+    patch:
+      operationId: catalog_products_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this товар.
+        required: true
+      tags:
+      - catalog
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProductWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProductWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProductWrite'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductWrite'
+          description: ''
+    delete:
+      operationId: catalog_products_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this товар.
+        required: true
+      tags:
+      - catalog
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/catalog/products/{id}/soft_delete/:
+    delete:
+      operationId: catalog_products_soft_delete_destroy
+      summary: Product soft delete
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this товар.
+        required: true
+      tags:
+      - catalog
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductSoftDeleteSuccess'
+          description: ''
+  /api/v1/favorites/:
+    get:
+      operationId: favorites_list
+      tags:
+      - favorites
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Favorite'
+          description: ''
+    post:
+      operationId: favorites_create
+      tags:
+      - favorites
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Favorite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Favorite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Favorite'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Favorite'
+          description: ''
+  /api/v1/favorites/{product_id}/:
+    delete:
+      operationId: favorites_destroy
+      parameters:
+      - in: path
+        name: product_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - favorites
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/orders/:
+    get:
+      operationId: orders_list
+      tags:
+      - orders
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+          description: ''
+    post:
+      operationId: orders_create
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OrderCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrderCreate'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderCreate'
+          description: ''
+  /api/v1/orders/{id}/:
+    get:
+      operationId: orders_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this заказ.
+        required: true
+      tags:
+      - orders
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+    put:
+      operationId: orders_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this заказ.
+        required: true
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Order'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Order'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+    patch:
+      operationId: orders_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this заказ.
+        required: true
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedOrder'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedOrder'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedOrder'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+    delete:
+      operationId: orders_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this заказ.
+        required: true
+      tags:
+      - orders
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/v1/profile/orders/history/:
+    get:
+      operationId: profile_orders_history_list
+      tags:
+      - profile
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+          description: ''
+components:
+  schemas:
+    AddressData:
+      type: object
+      properties:
+        city:
+          type: string
+          maxLength: 100
+        post_office:
+          type: string
+          maxLength: 100
+      required:
+      - city
+      - post_office
+    Brand:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        slug:
+          type: string
+          maxLength: 200
+          pattern: ^[-a-zA-Z0-9_]+$
+      required:
+      - id
+      - name
+    CartActionAddRequest:
+      type: object
+      properties:
+        product_code:
+          type: integer
+      required:
+      - product_code
+    CartActionDeleteRequest:
+      type: object
+      properties:
+        product_code:
+          type: integer
+      required:
+      - product_code
+    CartActionRemoveRequest:
+      type: object
+      properties:
+        product_code:
+          type: integer
+      required:
+      - product_code
+    CartSuccess:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+      - status
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 50
+        slug:
+          type: string
+          maxLength: 200
+          pattern: ^[-a-zA-Z0-9_]+$
+      required:
+      - id
+      - name
+    ClearCartSuccess:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+      - status
+    ClientData:
+      type: object
+      properties:
+        first_name:
+          type: string
+          maxLength: 50
+        last_name:
+          type: string
+          maxLength: 50
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          maxLength: 20
+      required:
+      - email
+      - first_name
+      - last_name
+      - phone
+    DeleteCartSuccess:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+      - status
+    Favorite:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        product:
+          allOf:
+          - $ref: '#/components/schemas/ProductShortList'
+          readOnly: true
+        product_id:
+          type: integer
+          writeOnly: true
+      required:
+      - id
+      - product
+      - product_id
+    Group:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        slug:
+          type: string
+          maxLength: 200
+          pattern: ^[-a-zA-Z0-9_]+$
+        category:
+          $ref: '#/components/schemas/Category'
+      required:
+      - category
+      - id
+      - name
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        snapshot_name:
+          type: string
+          maxLength: 200
+        snapshot_phone:
+          type: string
+          maxLength: 20
+        snapshot_email:
+          type: string
+          format: email
+          maxLength: 254
+        snapshot_address:
+          type: string
+        total_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          minimum: -9223372036854775808
+          maximum: 9223372036854775807
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Дата создания
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+      required:
+      - created_at
+      - id
+      - items
+      - snapshot_address
+      - snapshot_email
+      - snapshot_name
+      - snapshot_phone
+    OrderCreate:
+      type: object
+      properties:
+        payment_method:
+          allOf:
+          - $ref: '#/components/schemas/PaymentMethodEnum'
+          default: card
+        client_data:
+          $ref: '#/components/schemas/ClientData'
+        address_data:
+          $ref: '#/components/schemas/AddressData'
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        snapshot_product:
+          type: string
+          maxLength: 300
+        quantity:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: Цена на момент покупки
+      required:
+      - id
+      - price
+      - quantity
+      - snapshot_product
+    PatchedOrder:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        snapshot_name:
+          type: string
+          maxLength: 200
+        snapshot_phone:
+          type: string
+          maxLength: 20
+        snapshot_email:
+          type: string
+          format: email
+          maxLength: 254
+        snapshot_address:
+          type: string
+        total_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          minimum: -9223372036854775808
+          maximum: 9223372036854775807
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Дата создания
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+    PatchedProductWrite:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 250
+        group:
+          type: integer
+        brand:
+          type: integer
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        description:
+          type: string
+        stock:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        tags:
+          type: array
+          items:
+            type: integer
+        is_active:
+          type: boolean
+    PaymentMethodEnum:
+      enum:
+      - card
+      - cash
+      type: string
+      description: |-
+        * `card` - card
+        * `cash` - cash
+    ProductDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 250
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        stock:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        code:
+          type: integer
+          readOnly: true
+        brand:
+          $ref: '#/components/schemas/Brand'
+        group:
+          allOf:
+          - $ref: '#/components/schemas/Group'
+          readOnly: true
+        is_active:
+          type: boolean
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+          readOnly: true
+      required:
+      - brand
+      - code
+      - description
+      - group
+      - id
+      - name
+      - price
+      - tags
+    ProductList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 250
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        stock:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        code:
+          type: integer
+          readOnly: true
+        brand:
+          $ref: '#/components/schemas/Brand'
+        group:
+          $ref: '#/components/schemas/Group'
+        is_active:
+          type: boolean
+      required:
+      - brand
+      - code
+      - group
+      - id
+      - name
+      - price
+    ProductShortList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 250
+      required:
+      - id
+      - name
+    ProductSoftDeleteSuccess:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+      - status
+    ProductWrite:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 250
+        group:
+          type: integer
+        brand:
+          type: integer
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        description:
+          type: string
+        stock:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        tags:
+          type: array
+          items:
+            type: integer
+        is_active:
+          type: boolean
+      required:
+      - brand
+      - description
+      - group
+      - name
+      - price
+      - tags
+    StatusEnum:
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      type: integer
+      description: |-
+        * `0` - Новый
+        * `1` - Успешная оплата
+        * `2` - Оплата не прошла
+        * `3` - Доставляется
+        * `4` - Получен
+        * `5` - Отменен
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 50
+      required:
+      - id
+      - name
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

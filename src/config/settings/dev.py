@@ -11,7 +11,10 @@ ALLOWED_HOSTS = [
 
 INTERNAL_IPS = ["127.0.0.1"]
 
-INSTALLED_APPS += ["debug_toolbar"]
+INSTALLED_APPS += [
+    "debug_toolbar",
+    "drf_spectacular",
+]
 
 MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
 
@@ -35,4 +38,15 @@ CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
     }
+}
+REST_FRAMEWORK = {
+    **REST_FRAMEWORK,
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "swagger",
+    "DESCRIPTION": "API for a cosmetics store. Git: https://github.com/bayur-yuliya/cosmetics_shop",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
 }
