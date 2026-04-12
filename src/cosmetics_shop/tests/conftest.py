@@ -1,16 +1,25 @@
+import uuid
+from decimal import Decimal
+
 import pytest
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.utils import timezone
 
 from accounts.models import CustomUser
 
 from ..models import (
     Brand,
     Cart,
+    CartItem,
     Category,
     Client,
     DeliveryAddress,
     GroupProduct,
+    Order,
+    OrderItem,
+    Payment,
     Product,
+    Status,
     Tag,
 )
 
@@ -18,6 +27,11 @@ from ..models import (
 @pytest.fixture
 def user(db):
     return CustomUser.objects.create_user(email="test@test.com", password="12345678")
+
+
+@pytest.fixture
+def other_user(db):
+    return CustomUser.objects.create_user(email="example@test.com", password="12345678")
 
 
 @pytest.fixture
@@ -122,9 +136,24 @@ def products(group, group2, brand):
     return Product.objects.all()
 
 
-@pytest.fixture()
+@pytest.fixture
 def cart(user):
     return Cart.objects.create(user=user)
+
+
+@pytest.fixture
+def cart_with_one_item(user, product):
+    cart = Cart.objects.create(user=user)
+    CartItem.objects.create(cart=cart, product=product, quantity=1)
+    return cart
+
+
+@pytest.fixture
+def cart_with_items(user, products):
+    cart = Cart.objects.create(user=user)
+    for product in products:
+        CartItem.objects.create(cart=cart, product=product, quantity=1)
+    return cart
 
 
 @pytest.fixture(autouse=True)
@@ -144,3 +173,47 @@ def add_session(request):
     middleware = SessionMiddleware(lambda r: None)
     middleware.process_request(request)
     request.session.save()
+
+
+@pytest.fixture
+def order_factory(db):
+    def create_order(**kwargs):
+        data = {
+            "status": Status.NEW,
+            "created_at": timezone.now(),
+            "code": uuid.uuid4(),
+        }
+        data.update(kwargs)
+        return Order.objects.create(**data)
+
+    return create_order
+
+
+@pytest.fixture
+def payment_factory(db):
+    def create_payment(order, **kwargs):
+        data = {
+            "order": order,
+            "status": Payment.PaymentStatus.PENDING,
+            "method": Payment.PaymentMethod.CARD,
+            "amount": Decimal(100.00),
+        }
+        data.update(kwargs)
+        return Payment.objects.create(**data)
+
+    return create_payment
+
+
+@pytest.fixture
+def order_item_factory(db):
+    def create_item(order, product, **kwargs):
+        data = {
+            "order": order,
+            "product": product,
+            "quantity": 1,
+            "price": Decimal(100.00),
+        }
+        data.update(kwargs)
+        return OrderItem.objects.create(**data)
+
+    return create_item

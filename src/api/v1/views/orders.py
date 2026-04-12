@@ -6,6 +6,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
+from api.utils.throttles import OrderCreateThrottle
 from api.v1.permissions import IsAdminOrOwnerReadOnly
 from api.v1.serializers.orders import OrderCreateSerializer, OrderSerializer
 from cosmetics_shop.models import Order, Payment, Status
@@ -37,6 +38,11 @@ class OrderViewSet(ModelViewSet):
         context = super().get_serializer_context()
         context.update({"request": self.request})
         return context
+
+    def get_throttles(self):
+        if self.action == "create":
+            return [OrderCreateThrottle()]
+        return super().get_throttles()
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
