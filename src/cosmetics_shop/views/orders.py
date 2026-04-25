@@ -139,10 +139,6 @@ def mono_webhook(request):
         if not invoice_id:
             return HttpResponse(status=400)
 
-        # Безопасность: игнорируем status из payload, запрашиваем реальный у Моно
-        if invoice_id is None:
-            return
-
         real_status = check_mono_payment_status(invoice_id)
 
         if not real_status:

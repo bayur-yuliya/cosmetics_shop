@@ -471,11 +471,9 @@ class Order(TimestampedModel):
 
     def mark_as_paid(self):
         self.set_status(Status.PAYMENT_RECEIVED)
-        self.save()
 
     def mark_as_failed_payment(self):
         self.set_status(Status.PAYMENT_FAILED)
-        self.save()
 
     class Meta:
         ordering = ["-id"]
