@@ -17,6 +17,23 @@ from cosmetics_shop.services.email_sending_services import NotificationService
 logger = logging.getLogger(__name__)
 
 
+def _grant_staff_access_to_existing_user(user: CustomUser) -> None:
+    with transaction.atomic():
+        user.is_staff = True
+        if not user.is_active:
+            user.is_active = True
+
+        group = get_object_or_404(Group, name=DEFAULT_STAFF_GROUP_NAME)
+        user.groups.add(group)
+        user.save()
+
+    logger.info(f"Staff rights granted to user: {user.email}")
+
+
+def _send_invitation_email(invitation: ActivationToken) -> None:
+    NotificationService.send_staff_invitation(invitation)
+
+
 def invite_staff_member(email: str) -> None:
     logger.info(f"Starting the invitation process for: {email}")
 
@@ -33,23 +50,6 @@ def invite_staff_member(email: str) -> None:
         transaction.on_commit(lambda: _send_invitation_email(invitation))
         logger.info(f"Send message for email: {email}")
     logger.info("finish sending messages")
-
-
-def _grant_staff_access_to_existing_user(user: CustomUser) -> None:
-    with transaction.atomic():
-        user.is_staff = True
-        if not user.is_active:
-            user.is_active = True
-
-        group = get_object_or_404(Group, name=DEFAULT_STAFF_GROUP_NAME)
-        user.groups.add(group)
-        user.save()
-
-    logger.info(f"Staff rights granted to user: {user.email}")
-
-
-def _send_invitation_email(invitation: ActivationToken) -> None:
-    NotificationService.send_staff_invitation(invitation)
 
 
 def activate_user(token: str, password: str) -> CustomUser | None:
