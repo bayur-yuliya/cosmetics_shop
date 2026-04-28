@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate, login
+from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
@@ -23,7 +24,7 @@ class LoginView(APIView):
             return Response({"error": "Invalid credentials"}, status=400)
 
         login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-        return Response({"status": "success"})
+        return Response({"status": "User login successfully"})
 
 
 class RegisterView(APIView):
@@ -39,5 +40,6 @@ class RegisterView(APIView):
         login(request, user, backend="django.contrib.auth.backends.ModelBackend")
 
         return Response(
-            {"user_id": user.id, "message": "User created successfully"}, status=201
+            {"user_id": user.id, "status": "User created successfully"},
+            status=status.HTTP_201_CREATED,
         )

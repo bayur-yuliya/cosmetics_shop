@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #e1e1e1; border-radius: 8px; }
+        .header { text-align: center; border-bottom: 2px solid #f4f4f4; padding-bottom: 20px; }
+        .content { padding: 20px 0; }
+        .button-container { text-align: center; margin: 30px 0; }
+        .button { background-color: #007bff; color: white !important; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        .footer { font-size: 12px; color: #777; text-align: center; margin-top: 20px; }
+        .warning { color: #d9534f; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Добро пожаловать в команду!</h2>
+        </div>
+        <div class="content">
+            <p>Здравствуйте!</p>
+            <p>Вас пригласили стать сотрудником в нашем магазине косметики. Для активации вашей учетной записи и установки пароля, пожалуйста, нажмите на кнопку ниже:</p>
+
+            <div class="button-container">
+                <a href="{{ activation_url }}" class="button">Активировать аккаунт</a>
+            </div>
+
+            <p class="warning">
+                <strong>Внимание:</strong> Ссылка действительна до <strong>{{ expires_at }}</strong>.
+                Если вы не успеете активировать аккаунт, обратитесь к администратору для повторного приглашения.
+            </p>
+        </div>
+        <div class="footer">
+            <p>Это автоматическое сообщение, на него не нужно отвечать.</p>
+        </div>
+    </div>
+</body>
+</html>

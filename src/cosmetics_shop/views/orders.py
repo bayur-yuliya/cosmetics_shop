@@ -2,7 +2,6 @@ import json
 import logging
 
 from django.contrib import messages
-from django.db import transaction
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt
@@ -18,6 +17,7 @@ from cosmetics_shop.services.order_service import (
     create_order_from_cart,
     update_order_from_cart,
 )
+from cosmetics_shop.tasks import process_mono_webhook, process_post_payment_actions
 from cosmetics_shop.utils.cart_utils import get_cart
 from cosmetics_shop.utils.client_utils import get_client, process_delivery_data
 from cosmetics_shop.utils.decorators import cart_required, order_session_required
@@ -139,46 +139,12 @@ def mono_webhook(request):
         if not invoice_id:
             return HttpResponse(status=400)
 
-        # Безопасность: игнорируем status из payload, запрашиваем реальный у Моно
-        if invoice_id is None:
-            return
-
         real_status = check_mono_payment_status(invoice_id)
 
         if not real_status:
             return HttpResponse(status=400)
 
-        with transaction.atomic():
-            payment = (
-                Payment.objects.select_related("order")
-                .filter(external_id=invoice_id)
-                .first()
-            )
-
-            if not payment:
-                return HttpResponse(status=404)
-
-            if payment.status == Payment.PaymentStatus.SUCCESS:
-                return HttpResponse(status=200)
-
-            if real_status == "success":
-                payment.status = Payment.PaymentStatus.SUCCESS
-                payment.save()
-                payment.order.mark_as_paid()
-
-                if payment.order.cart:
-                    clear_cart_after_order(payment.order.cart)
-
-            elif real_status in [
-                "failure",
-                "expired",
-                "rejected",
-                "canceled",
-                "reversed",
-            ]:
-                payment.status = Payment.PaymentStatus.FAILED
-                payment.save()
-                payment.order.mark_as_failed_payment()
+        process_mono_webhook.delay(invoice_id)
 
         return HttpResponse(status=200)
 
@@ -210,6 +176,7 @@ def order_result(request: HttpRequest) -> HttpResponse:
             last_payment.status = Payment.PaymentStatus.SUCCESS
             last_payment.save()
             order.mark_as_paid()
+            process_post_payment_actions.delay(order.id)
 
         elif real_status in ["failure", "expired", "rejected", "canceled", "reversed"]:
             last_payment.status = Payment.PaymentStatus.FAILED

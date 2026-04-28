@@ -41,8 +41,6 @@ INSTALLED_APPS = [
     # rest framework
     "rest_framework",
     "django_filters",
-    # "rest_framework_simplejwt",
-    # "rest_framework_simplejwt.token_blacklist",
     # django-allauth
     "django.contrib.sites",
     "allauth",
@@ -220,6 +218,8 @@ MONO_TOKEN = os.getenv("MONO_TOKEN")
 
 
 REDIS_URL = os.getenv("REDIS_URL") or os.getenv("REDISCLOUD_URL")
+if REDIS_URL is None:
+    REDIS_URL = "redis://redis:6379"
 
 CACHES = {
     "default": {
@@ -238,9 +238,13 @@ CELERY_BEAT_SCHEDULE = {
         "task": "accounts.tasks.process_client_anonymization",
         "schedule": crontab(minute=0, hour=3),  # 03:00
     },
+    "sync_pending_payments-every-10-minutes": {
+        "task": "cosmetics_shop.tasks.sync_pending_payments",
+        "schedule": crontab(minute="*/10"),  # every 10 minutes
+    },
     "cleanup-orders-every-15-minutes": {
         "task": "cosmetics_shop.tasks.cleanup_expired_orders",
-        "schedule": crontab(minute="*/15"),  # каждые 15 минут
+        "schedule": crontab(minute="*/15"),  # every 15 minutes
     },
 }
 CELERY_TIMEZONE = "Europe/Kiev"

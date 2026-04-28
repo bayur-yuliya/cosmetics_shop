@@ -3,7 +3,6 @@ from decimal import Decimal
 
 import requests
 from django.conf import settings
-from django.db import transaction
 from django.urls import reverse
 
 from cosmetics_shop.models import Order, Payment
@@ -33,7 +32,9 @@ def create_mono_invoice(order: Order, redirect_url: str, webhook_url: str):
         },
     }
 
-    response = requests.post(settings.MONO_URL, json=payload, headers=headers)
+    response = requests.post(
+        settings.MONO_URL, json=payload, headers=headers, timeout=10
+    )
     response.raise_for_status()
 
     return response.json()
@@ -79,30 +80,3 @@ def check_mono_payment_status(invoice_id: str) -> str | None:
     except requests.exceptions.RequestException as e:
         logger.error(f"Error checking Monobank status for {invoice_id}: {e}")
         return None
-
-
-def sync_pending_payments():
-    payments = Payment.objects.filter(status=Payment.PaymentStatus.PENDING)
-
-    for payment in payments:
-        invoice_id = payment.external_id
-
-        if invoice_id is None:
-            continue
-
-        mono_payment_status = check_mono_payment_status(invoice_id)
-        if mono_payment_status:
-            status = map_mono_status(mono_payment_status)
-        else:
-            status = Payment.PaymentStatus.PENDING
-
-        with transaction.atomic():
-            if status == Payment.PaymentStatus.SUCCESS:
-                payment.status = Payment.PaymentStatus.SUCCESS
-                payment.save()
-                payment.order.mark_as_paid()
-
-            elif status == Payment.PaymentStatus.FAILED:
-                payment.status = Payment.PaymentStatus.FAILED
-                payment.save()
-                payment.order.mark_as_failed_payment()

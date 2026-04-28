@@ -23,7 +23,7 @@ def test_product_detail(product, api_client):
 @pytest.mark.django_db
 def test_product_soft_delete(admin_client, product):
     url = reverse("products-soft-delete", kwargs={"pk": product.id})
-    response = admin_client.post(url)
+    response = admin_client.delete(url)
 
     assert response.status_code == 200
     product.refresh_from_db()

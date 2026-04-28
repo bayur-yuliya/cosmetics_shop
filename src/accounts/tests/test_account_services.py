@@ -15,11 +15,13 @@ from cosmetics_shop.models import DeliveryAddress, Order, Status
 
 
 def test_send_activation_email(mocker, token):
-    mock_send_mail = mocker.patch("accounts.utils.account_services.send_mail")
+    mock_notification = mocker.patch(
+        "cosmetics_shop.services.email_sending_services.NotificationService.send_staff_invitation"
+    )
 
     _send_invitation_email(token)
 
-    mock_send_mail.assert_called_once()
+    mock_notification.assert_called_once_with(token)
 
 
 @pytest.mark.django_db

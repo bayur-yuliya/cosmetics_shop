@@ -4,39 +4,17 @@ from datetime import timedelta
 
 from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount
-from django.conf import settings
 from django.contrib.auth.models import Group
-from django.core.mail import send_mail
 from django.db import transaction
 from django.shortcuts import get_object_or_404
-from django.urls import reverse
 from django.utils import timezone
 
 from accounts.models import ActivationToken, CustomUser
 from config.settings.base import DEFAULT_STAFF_GROUP_NAME
 from cosmetics_shop.models import Client, DeliveryAddress, Order, Status
+from cosmetics_shop.services.email_sending_services import NotificationService
 
 logger = logging.getLogger(__name__)
-
-
-def invite_staff_member(email: str) -> None:
-    logger.info(f"Starting the invitation process for: {email}")
-
-    user = CustomUser.objects.filter(email=email).first()
-
-    if user:
-        logger.info(f"User {email} already exists. Update the rights.")
-        _grant_staff_access_to_existing_user(user)
-
-    invitation, created = ActivationToken.objects.update_or_create(
-        email=email,
-        defaults={
-            "token": uuid.uuid4(),
-            "expires_at": timezone.now() + timedelta(days=1),
-        },
-    )
-
-    _send_invitation_email(invitation)
 
 
 def _grant_staff_access_to_existing_user(user: CustomUser) -> None:
@@ -53,29 +31,25 @@ def _grant_staff_access_to_existing_user(user: CustomUser) -> None:
 
 
 def _send_invitation_email(invitation: ActivationToken) -> None:
-    try:
-        path = reverse("activate")
-        activation_url = f"{settings.SITE_URL}{path}?token={invitation.token}"
+    NotificationService.send_staff_invitation(invitation)
 
-        subject = "Активация аккаунта сотрудника"
-        message = (
-            f"Вас пригласили стать сотрудником магазина.\n\n"
-            f"Чтобы создать аккаунт и установить пароль, перейдите по ссылке:\n"
-            f"{activation_url}\n\n"
-            f"Ссылка действительна до: "
-            f"{invitation.expires_at.strftime('%Y-%m-%d %H:%M')}"
-        )
 
-        send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [invitation.email],
-            fail_silently=False,
-        )
-        logger.info(f"Invitation letter sent to: {invitation.email}")
-    except Exception as e:
-        logger.exception(f"Error sending email to {invitation.email}: {e}")
+def invite_staff_member(email: str) -> None:
+    logger.info(f"Starting the invitation process for: {email}")
+
+    user = CustomUser.objects.filter(email=email).first()
+
+    if user:
+        logger.info(f"User {email} already exists. Update the rights.")
+        _grant_staff_access_to_existing_user(user)
+        return
+
+    with transaction.atomic():
+        invitation = ActivationToken.create_for_user(email=email)
+
+        transaction.on_commit(lambda: _send_invitation_email(invitation))
+        logger.info(f"Send message for email: {email}")
+    logger.info("finish sending messages")
 
 
 def activate_user(token: str, password: str) -> CustomUser | None:

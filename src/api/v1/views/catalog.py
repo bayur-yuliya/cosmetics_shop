@@ -1,6 +1,5 @@
 from django.db.models import Exists, OuterRef
 from django_filters.rest_framework import DjangoFilterBackend
-from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import serializers
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -8,6 +7,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
+from api.utils.schema_helpers import extend_schema, inline_serializer
 from api.v1.filters import ProductFilter
 from api.v1.permissions import ProductPermission
 from api.v1.serializers.catalog import (
@@ -51,7 +51,7 @@ class ProductViewSet(ModelViewSet):
 
         return qs
 
-    @extend_schema(
+    @extend_schema(  # noqa: F821
         summary="Product soft delete",
         responses={
             200: inline_serializer(
