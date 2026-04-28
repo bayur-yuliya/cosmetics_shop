@@ -1,3 +1,5 @@
+from urllib.parse import quote_plus
+
 import dj_database_url
 
 from .base import *
@@ -7,19 +9,29 @@ DEBUG = False
 _hosts = os.getenv("ALLOWED_HOSTS", "")
 ALLOWED_HOSTS = _hosts.split(",") if _hosts else []
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DB_NAME"),
-        "USER": os.getenv("DB_USER"),
-        "PASSWORD": os.getenv("DB_PASSWORD"),
-        "HOST": os.getenv("DB_HOST", "db"),
-        "PORT": os.getenv("DB_PORT", "5432"),
-    }
-}
 
-db_from_env = dj_database_url.config(conn_max_age=600)
-DATABASES["default"].update(db_from_env.__dict__)
+db_user = os.getenv("DB_USER", "postgres")
+db_password = quote_plus(os.getenv("DB_PASSWORD", ""))
+db_host = os.getenv("DB_HOST", "db")
+db_port = os.getenv("DB_PORT", "5432")
+db_name = os.getenv("DB_NAME", "postgres")
+
+db_url = os.getenv("DATABASE_URL")
+if not db_url:
+    db_user = os.getenv("DB_USER", "postgres")
+    db_pass = quote_plus(os.getenv("DB_PASSWORD", ""))
+    db_host = os.getenv("DB_HOST", "db")
+    db_port = os.getenv("DB_PORT", "5432")
+    db_name = os.getenv("DB_NAME", "postgres")
+    db_url = f"postgres://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}"
+
+DATABASES = {
+    "default": dj_database_url.parse(
+        db_url,
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
+}
 
 R2_CUSTOM_DOMAIN = os.getenv("R2_CUSTOM_DOMAIN")
 

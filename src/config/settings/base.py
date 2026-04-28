@@ -41,8 +41,6 @@ INSTALLED_APPS = [
     # rest framework
     "rest_framework",
     "django_filters",
-    # "rest_framework_simplejwt",
-    # "rest_framework_simplejwt.token_blacklist",
     # django-allauth
     "django.contrib.sites",
     "allauth",
@@ -220,6 +218,8 @@ MONO_TOKEN = os.getenv("MONO_TOKEN")
 
 
 REDIS_URL = os.getenv("REDIS_URL") or os.getenv("REDISCLOUD_URL")
+if REDIS_URL is None:
+    REDIS_URL = "redis://redis:6379"
 
 CACHES = {
     "default": {
