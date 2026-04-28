@@ -8,6 +8,7 @@ from django.utils import timezone
 from cosmetics_shop.models import Order, Payment, Status
 from cosmetics_shop.payments.mono import check_mono_payment_status, map_mono_status
 from cosmetics_shop.services.cart_services import clear_cart_after_order
+from cosmetics_shop.services.email_sending_services import NotificationService
 from cosmetics_shop.services.product_service import restore_stock_product
 
 logger = logging.getLogger(__name__)
@@ -125,6 +126,7 @@ def process_mono_webhook(self, invoice_id: str):
                 payment.save(update_fields=["status"])
 
                 payment.order.mark_as_paid()
+                process_post_payment_actions.delay(payment.order.id)
 
                 if payment.order.cart:
                     clear_cart_after_order(payment.order.cart)
@@ -137,4 +139,16 @@ def process_mono_webhook(self, invoice_id: str):
 
     except Exception as exc:
         logger.error(f"Webhook task error: {exc}")
+        raise self.retry(exc=exc, countdown=60)
+
+
+@shared_task(bind=True, max_retries=3)
+def process_post_payment_actions(self, order_id):
+    try:
+        order = Order.objects.get(id=order_id)
+        NotificationService.send_order_success(order)
+        logger.info(f"Actions are being performed for the order{order.code}")
+    except Order.DoesNotExist:
+        logger.error(f"Order {order_id} not found!")
+    except Exception as exc:
         raise self.retry(exc=exc, countdown=60)
