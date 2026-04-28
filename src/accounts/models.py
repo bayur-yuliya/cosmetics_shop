@@ -60,12 +60,15 @@ class ActivationToken(models.Model):
         return timezone.now() < self.expires_at
 
     @staticmethod
-    def create_for_user(user):
+    def create_for_user(user=None, email=None):
         expires_at = timezone.now() + datetime.timedelta(hours=24)
-        return ActivationToken.objects.create(
-            email=user.email,
+
+        user_email = email if email else user.email
+
+        return ActivationToken.objects.update_or_create(
+            email=user_email,
             expires_at=expires_at,
-        )
+        )[0]
 
     class Meta:
         verbose_name = _("токен активации")
