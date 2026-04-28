@@ -1,5 +1,7 @@
+from typing import List
+
 from django.conf import settings
-from django.urls import path
+from django.urls import URLPattern, URLResolver, path
 from rest_framework.routers import DefaultRouter
 
 from api.v1.views import auth, cart, catalog, orders, profile
@@ -18,7 +20,7 @@ router.register(r"cart", cart.CartViewSet, basename="cart")
 # profile
 router.register(r"favorites", profile.FavoriteViewSet, basename="favorite")
 
-urlpatterns = [
+urlpatterns: List[URLPattern | URLResolver] = [
     path("login/", auth.LoginView.as_view()),
     path("register/", auth.RegisterView.as_view()),
     # payments
